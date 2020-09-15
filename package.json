@@ -2,8 +2,12 @@
   "name": "dxswap-info",
   "version": "0.1.0",
   "private": true,
-  "homepage": "https://dxswap.eth.link",
+  "engines": {
+    "node": ">=v12.13.0 <13"
+  },
+  "homepage": "./",
   "dependencies": {
+    "@babel/plugin-proposal-class-properties": "^7.10.4",
     "@popperjs/core": "^2.4.2",
     "@reach/portal": "^0.10.3",
     "@reach/router": "^1.2.1",
@@ -19,7 +23,10 @@
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",
     "apollo-link-http": "^1.5.16",
+    "babel-loader": "^8.1.0",
+    "babel-plugin-named-asset-import": "^0.3.6",
     "bignumber.js": "^9.0.0",
+    "circular-dependency-plugin": "^5.2.0",
     "color-contrast-checker": "^1.5.0",
     "copy-to-clipboard": "^3.3.1",
     "dayjs": "^1.8.16",
@@ -28,6 +35,7 @@
     "ethers": "^4.0.39",
     "export-to-csv": "^0.2.1",
     "feather-icons": "^4.24.1",
+    "git-revision-webpack-plugin": "^3.0.6",
     "graphql": "^14.5.6",
     "graphql-tag": "^2.10.1",
     "jazzicon": "^1.5.0",

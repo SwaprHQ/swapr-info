@@ -6,20 +6,38 @@
  * LICENSE file in the root directory of this source tree.
  */
 // @remove-on-eject-end
-'use strict'
+'use strict';
 
-const { resolveModuleName } = require('ts-pnp')
+const { resolveModuleName } = require('ts-pnp');
 
-exports.resolveModuleName = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
-  return resolveModuleName(moduleName, containingFile, compilerOptions, resolutionHost, typescript.resolveModuleName)
-}
+exports.resolveModuleName = (
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost
+) => {
+  return resolveModuleName(
+    moduleName,
+    containingFile,
+    compilerOptions,
+    resolutionHost,
+    typescript.resolveModuleName
+  );
+};
 
-exports.resolveTypeReferenceDirective = (typescript, moduleName, containingFile, compilerOptions, resolutionHost) => {
+exports.resolveTypeReferenceDirective = (
+  typescript,
+  moduleName,
+  containingFile,
+  compilerOptions,
+  resolutionHost
+) => {
   return resolveModuleName(
     moduleName,
     containingFile,
     compilerOptions,
     resolutionHost,
     typescript.resolveTypeReferenceDirective
-  )
-}
+  );
+};

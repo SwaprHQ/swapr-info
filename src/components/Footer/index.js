@@ -4,12 +4,12 @@ import { Flex } from 'rebass'
 import Link from '../Link'
 
 const links = [
-  { url: 'https://dxswap.eth.link', text: 'About' },
-  { url: 'https://github.com/nicoelzer/dxswap-info', text: 'Code' }
+  { url: 'https://swapr.eth.link', text: 'About' },
+  { url: 'https://github.com/nicoelzer/swapr-info', text: 'Code' }
 ]
 
 const FooterLink = ({ children, ...rest }) => (
-  <Link external color="dxSwapPurple" fontWeight={500} fontSize={12} mr={'8px'} {...rest}>
+  <Link external color="swaprPurple" fontWeight={500} fontSize={12} mr={'8px'} {...rest}>
     {children}
   </Link>
 )

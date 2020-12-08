@@ -1,6 +1,6 @@
 {
-  "short_name": "DXswap Info",
-  "name": "View statistics for DXswap exchanges.",
+  "short_name": "Swapr Analytics",
+  "name": "View statistics for Swapr exchanges.",
   "icons": [
     {
       "src": "favicon.ico",

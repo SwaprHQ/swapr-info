@@ -624,7 +624,7 @@ export function usePairChartData(pairAddress) {
 }
 
 /**
- * Get list of all pairs in DXswap
+ * Get list of all pairs in Swapr
  */
 export function useAllPairData() {
   const [state] = usePairDataContext()

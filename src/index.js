@@ -1,14 +1,20 @@
-import React from 'react'
-import ReactDOM from 'react-dom'
-import { isMobile } from 'react-device-detect'
-import ThemeProvider, { GlobalStyle } from './Theme'
-import LocalStorageContextProvider, { Updater as LocalStorageContextUpdater } from './contexts/LocalStorage'
-import TokenDataContextProvider, { Updater as TokenDataContextUpdater } from './contexts/TokenData'
-import GlobalDataContextProvider from './contexts/GlobalData'
-import PairDataContextProvider, { Updater as PairDataContextUpdater } from './contexts/PairData'
-import ApplicationContextProvider from './contexts/Application'
-import UserContextProvider from './contexts/User'
-import App from './App'
+import React from "react";
+import ReactDOM from "react-dom";
+import { isMobile } from "react-device-detect";
+import ThemeProvider, { GlobalStyle } from "./Theme";
+import LocalStorageContextProvider, {
+  Updater as LocalStorageContextUpdater,
+} from "./contexts/LocalStorage";
+import TokenDataContextProvider, {
+  Updater as TokenDataContextUpdater,
+} from "./contexts/TokenData";
+import GlobalDataContextProvider from "./contexts/GlobalData";
+import PairDataContextProvider, {
+  Updater as PairDataContextUpdater,
+} from "./contexts/PairData";
+import ApplicationContextProvider from "./contexts/Application";
+import UserContextProvider from "./contexts/User";
+import App from "./App";
 
 function ContextProviders({ children }) {
   return (
@@ -23,7 +29,7 @@ function ContextProviders({ children }) {
         </TokenDataContextProvider>
       </ApplicationContextProvider>
     </LocalStorageContextProvider>
-  )
+  );
 }
 
 function Updaters() {
@@ -33,7 +39,7 @@ function Updaters() {
       <PairDataContextUpdater />
       <TokenDataContextUpdater />
     </>
-  )
+  );
 }
 
 ReactDOM.render(
@@ -46,5 +52,5 @@ ReactDOM.render(
       </>
     </ThemeProvider>
   </ContextProviders>,
-  document.getElementById('root')
-)
+  document.getElementById("root")
+);

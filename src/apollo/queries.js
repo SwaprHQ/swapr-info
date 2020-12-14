@@ -1,6 +1,8 @@
 import gql from 'graphql-tag'
 import { FACTORY_ADDRESS, BUNDLE_ID } from '../constants'
 
+const FACTORY_STARTING_BLOCK = process.env.REACT_APP_FACTORY_STARTING_BLOCK;
+
 export const SUBGRAPH_HEALTH = gql`
   query health {
     indexingStatusForCurrentVersion(subgraphName: "nicoelzer/swapr") {
@@ -408,7 +410,7 @@ export const GLOBAL_CHART = gql`
 export const GLOBAL_DATA = (block) => {
   const queryString = ` query swaprFactories {
       swaprFactories(
-       ${block ? `block: { number: ${block}}` : ``} 
+       ${block ? `block: { number: ${block > FACTORY_STARTING_BLOCK ? block : FACTORY_STARTING_BLOCK}}` : ``} 
        where: { id: "${FACTORY_ADDRESS}" }) {
         id
         totalVolumeUSD

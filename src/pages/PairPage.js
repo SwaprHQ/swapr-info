@@ -155,8 +155,8 @@ function PairPage({ pairAddress, history }) {
   const fees =
     oneDayVolumeUSD || oneDayVolumeUSD === 0
       ? usingUtVolume
-        ? formattedNum(oneDayVolumeUntracked * 0.003, true)
-        : formattedNum(oneDayVolumeUSD * 0.003, true)
+        ? formattedNum(oneDayVolumeUntracked * 0.0025, true)
+        : formattedNum(oneDayVolumeUSD * 0.0025, true)
       : '-'
 
   // token data for usd

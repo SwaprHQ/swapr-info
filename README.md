@@ -1,8 +1,8 @@
-# Swapr History
+# DXstats
 
 Transaction and liquidity pool stats for [Swapr](https://swapr.eth.link).
 
-Check it out live: [https://swapr.info](https://swapr.info).
+Check it out live: [https://dxstats.eth.link](https://dxstats.eth.link).
 
 ### To Start Development
 
@@ -10,6 +10,15 @@ Check it out live: [https://swapr.info](https://swapr.info).
 
 ```bash
 yarn
+```
+
+###### Create .env
+
+Set .env variables
+
+```bash
+REACT_APP_FACTORY_ADDRESS="0xd34971bab6e5e356fd250715f5de0492bb070452"
+REACT_APP_FACTORY_STARTING_BLOCK=1140127
 ```
 
 ###### Running locally

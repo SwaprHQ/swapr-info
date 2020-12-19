@@ -1,6 +1,6 @@
 {
   "name": "dxstats",
-  "version": "1.0.0-alpha.2",
+  "version": "1.0.1",
   "devDependencies": {
     "@popperjs/core": "^2.4.2",
     "@reach/portal": "^0.10.3",

@@ -8,7 +8,6 @@ import {
 } from "../../contexts/GlobalData";
 import { formattedNum, localNumber } from "../../utils";
 
-import UniPrice from "../UniPrice";
 import { TYPE } from "../../Theme";
 import { useNativeCurrencySymbol } from "../../contexts/Network";
 
@@ -29,8 +28,6 @@ export default function GlobalStats() {
   const below400 = useMedia("(max-width: 400px)");
   const below816 = useMedia("(max-width: 816px)");
 
-  const [showPriceCard, setShowPriceCard] = useState(false);
-
   const { oneDayVolumeUSD, oneDayTxns, pairCount } = useGlobalData();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
@@ -46,19 +43,9 @@ export default function GlobalStats() {
       <RowBetween style={{ padding: below816 ? "0.5rem" : ".5rem" }}>
         <RowFixed>
           {!below400 && (
-            <TYPE.main
-              mr={"1rem"}
-              onMouseEnter={() => {
-                setShowPriceCard(true);
-              }}
-              onMouseLeave={() => {
-                setShowPriceCard(false);
-              }}
-              style={{ position: "relative" }}
-            >
+            <TYPE.main mr={"1rem"} style={{ position: "relative" }}>
               {nativeCurrencySymbol} Price:{" "}
               <Medium>{formattedNativeCurrencyPrice}</Medium>
-              {showPriceCard && <UniPrice />}
             </TYPE.main>
           )}
 

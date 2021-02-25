@@ -20,6 +20,7 @@ import Search from "../components/Search";
 import {
   formattedNum,
   formattedPercent,
+  getExplorerLink,
   getPoolLink,
   getSwapLink,
 } from "../utils";
@@ -37,6 +38,11 @@ import { useSavedPairs } from "../contexts/LocalStorage";
 
 import { Bookmark, PlusCircle } from "react-feather";
 import FormattedName from "../components/FormattedName";
+import {
+  useNativeCurrencySymbol,
+  useNativeCurrencyWrapper,
+  useSelectedNetwork,
+} from "../contexts/Network";
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -193,6 +199,10 @@ function PairPage({ pairAddress, history }) {
         )
       : "";
 
+  const selectedNetwork = useSelectedNetwork();
+  const nativeCurrency = useNativeCurrencySymbol();
+  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
+
   // rates
   const token0Rate =
     reserve0 && reserve1 ? formattedNum(reserve1 / reserve0) : "-";
@@ -312,12 +322,30 @@ function PairPage({ pairAddress, history }) {
                   <></>
                 )}
 
-                <Link external href={getPoolLink(token0?.id, token1?.id)}>
+                <Link
+                  external
+                  href={getPoolLink(
+                    selectedNetwork,
+                    nativeCurrency,
+                    nativeCurrencyWrapper,
+                    token0?.id,
+                    token1?.id
+                  )}
+                >
                   <ButtonLight color={backgroundColor}>
                     + Add Liquidity
                   </ButtonLight>
                 </Link>
-                <Link external href={getSwapLink(token0?.id, token1?.id)}>
+                <Link
+                  external
+                  href={getSwapLink(
+                    selectedNetwork,
+                    nativeCurrency,
+                    nativeCurrencyWrapper,
+                    token0?.id,
+                    token1?.id
+                  )}
+                >
                   <ButtonDark
                     ml={!below1080 && ".5rem"}
                     mr={below1080 && ".5rem"}
@@ -595,9 +623,9 @@ function PairPage({ pairAddress, history }) {
                   <Link
                     color={backgroundColor}
                     external
-                    href={"https://etherscan.io/address/" + pairAddress}
+                    href={getExplorerLink(selectedNetwork, pairAddress)}
                   >
-                    View on Etherscan ↗
+                    View on block explorer ↗
                   </Link>
                 </ButtonLight>
               </TokenDetailsLayout>

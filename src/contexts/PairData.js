@@ -640,11 +640,25 @@ export function useDataForList(pairList) {
       );
       setFetched(newFetched.concat(newPairData));
     }
-    if (nativeCurrencyPrice && pairList && pairList.length > 0 && !fetched && !stale) {
+    if (
+      nativeCurrencyPrice &&
+      pairList &&
+      pairList.length > 0 &&
+      !fetched &&
+      !stale
+    ) {
       setStale(true);
       fetchNewPairData();
     }
-  }, [nativeCurrencyPrice, state, pairList, stale, fetched, client, blockClient]);
+  }, [
+    nativeCurrencyPrice,
+    state,
+    pairList,
+    stale,
+    fetched,
+    client,
+    blockClient,
+  ]);
 
   let formattedFetch =
     fetched &&
@@ -677,7 +691,12 @@ export function usePairData(pairAddress) {
         data && update(pairAddress, data[0]);
       }
     }
-    if (!pairData && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
+    if (
+      !pairData &&
+      pairAddress &&
+      nativeCurrencyPrice &&
+      isAddress(pairAddress)
+    ) {
       fetchData();
     }
   }, [pairAddress, pairData, update, nativeCurrencyPrice, client, blockClient]);
@@ -690,40 +709,34 @@ export function usePairData(pairAddress) {
  */
 export function usePairTransactions(pairAddress) {
   const client = useSwaprSubgraphClient();
-  const blockClient = useBlocksSubgraphClient();
   const [state, { updatePairTxns }] = usePairDataContext();
   const pairTxns = state?.[pairAddress]?.txns;
   useEffect(() => {
     async function checkForTxns() {
       if (!pairTxns) {
-        let transactions = await getPairTransactions(
-          client,
-          blockClient,
-          pairAddress
-        );
+        let transactions = await getPairTransactions(client, pairAddress);
         updatePairTxns(pairAddress, transactions);
       }
     }
     checkForTxns();
-  }, [pairTxns, pairAddress, updatePairTxns, client, blockClient]);
+  }, [pairTxns, pairAddress, updatePairTxns, client]);
   return pairTxns;
 }
 
 export function usePairChartData(pairAddress) {
   const client = useSwaprSubgraphClient();
-  const blockClient = useBlocksSubgraphClient();
   const [state, { updateChartData }] = usePairDataContext();
   const chartData = state?.[pairAddress]?.chartData;
 
   useEffect(() => {
     async function checkForChartData() {
       if (!chartData) {
-        let data = await getPairChartData(client, blockClient, pairAddress);
+        let data = await getPairChartData(client, pairAddress);
         updateChartData(pairAddress, data);
       }
     }
     checkForChartData();
-  }, [chartData, pairAddress, updateChartData, client, blockClient]);
+  }, [chartData, pairAddress, updateChartData, client]);
   return chartData;
 }
 

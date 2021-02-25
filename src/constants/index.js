@@ -16,6 +16,26 @@ export const NATIVE_CURRENCY_SYMBOL = {
   [SupportedNetwork.RINKEBY]: "ETH",
 };
 
+export const NATIVE_CURRENCY_WRAPPER = {
+  [SupportedNetwork.MAINNET]: {
+    name: "WETH",
+    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  },
+  [SupportedNetwork.RINKEBY]: {
+    name: "WETH",
+    address: "0xc778417e063141139fce010982780140aa0cd5ab",
+  },
+  [SupportedNetwork.XDAI]: {
+    name: "WXDAI",
+    address: "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
+  },
+};
+
+export const ETHERSCAN_PREFIXES = {
+  [SupportedNetwork.MAINNET]: "",
+  [SupportedNetwork.RINKEBY]: "rinkeby.",
+};
+
 export const BUNDLE_ID = "1";
 
 export const timeframeOptions = {

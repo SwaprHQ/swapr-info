@@ -16,6 +16,11 @@ import { RowFixed } from "../Row";
 import { ButtonLight } from "../ButtonStyled";
 import { TYPE } from "../../Theme";
 import FormattedName from "../FormattedName";
+import {
+  useNativeCurrencySymbol,
+  useNativeCurrencyWrapper,
+  useSelectedNetwork,
+} from "../../contexts/Network";
 
 dayjs.extend(utc);
 
@@ -120,6 +125,10 @@ function PositionList({ positions }) {
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.VALUE);
 
+  const selectedNetwork = useSelectedNetwork();
+  const nativeCurrency = useNativeCurrencySymbol();
+  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
+
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
     setPage(1);
@@ -182,6 +191,9 @@ function PositionList({ positions }) {
               <Link
                 external
                 href={getPoolLink(
+                  selectedNetwork,
+                  nativeCurrency,
+                  nativeCurrencyWrapper,
                   position.pair.token0.id,
                   position.pair.token1.id
                 )}
@@ -197,6 +209,9 @@ function PositionList({ positions }) {
                 <Link
                   external
                   href={getPoolLink(
+                    selectedNetwork,
+                    nativeCurrency,
+                    nativeCurrencyWrapper,
                     position.pair.token0.id,
                     position.pair.token1.id,
                     true

@@ -6,7 +6,11 @@ import React, {
   useCallback,
 } from "react";
 import { blockClients, clients } from "../apollo/client";
-import { NATIVE_CURRENCY_SYMBOL, SupportedNetwork } from "../constants";
+import {
+  NATIVE_CURRENCY_SYMBOL,
+  NATIVE_CURRENCY_WRAPPER,
+  SupportedNetwork,
+} from "../constants";
 
 const UPDATE_SELECTED_NETWORK = "UPDATE_SELECTED_NETWORK";
 
@@ -80,4 +84,9 @@ export function useBlocksSubgraphClient() {
 export function useNativeCurrencySymbol() {
   const [state] = useNetworkContext();
   return NATIVE_CURRENCY_SYMBOL[state.selectedNetwork];
+}
+
+export function useNativeCurrencyWrapper() {
+  const [state] = useNetworkContext();
+  return NATIVE_CURRENCY_WRAPPER[state.selectedNetwork];
 }

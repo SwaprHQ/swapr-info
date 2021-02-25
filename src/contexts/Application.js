@@ -197,18 +197,6 @@ export function useLatestBlocks() {
   return [latestBlock, headBlock]
 }
 
-export function useCurrentCurrency() {
-  const [state, { update }] = useApplicationContext()
-  const toggleCurrency = useCallback(() => {
-    if (state.currency === 'ETH') {
-      update('USD')
-    } else {
-      update('ETH')
-    }
-  }, [state, update])
-  return [state[CURRENCY], toggleCurrency]
-}
-
 export function useTimeframe() {
   const [state, { updateTimeframe }] = useApplicationContext()
   const activeTimeframe = state?.[TIME_KEY]

@@ -586,7 +586,7 @@ const getIntervalTokenData = async (
       }
     }
 
-    // go through eth usd prices and assign to original values array
+    // go through native currency usd prices and assign to original values array
     let index = 0;
     for (var brow in result) {
       let timestamp = brow.split("b")[1];

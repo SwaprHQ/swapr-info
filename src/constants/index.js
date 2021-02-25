@@ -1,7 +1,7 @@
 export const SupportedNetwork = Object.freeze({
-  MAINNET: 1,
-  RINKEBY: 4,
-  XDAI: 100,
+  MAINNET: "Mainnet",
+  RINKEBY: "Rinkeby",
+  XDAI: "xDAI",
 });
 
 export const FACTORY_ADDRESS = {

@@ -14,11 +14,11 @@ import { useAllPairsInSwapr, useAllTokensInSwapr } from '../../contexts/GlobalDa
 import { OVERVIEW_TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants'
 
 import { transparentize } from 'polished'
-import { client } from '../../apollo/client'
 import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries'
 import FormattedName from '../FormattedName'
 import { TYPE } from '../../Theme'
 import { updateNameData } from '../../utils/data'
+import { useSwaprSubgraphClient } from '../../contexts/Network'
 
 const Container = styled.div`
   height: 48px;
@@ -151,6 +151,7 @@ const Blue = styled.span`
 `
 
 export const Search = ({ small = false }) => {
+  const client = useSwaprSubgraphClient()
   let allTokens = useAllTokensInSwapr()
   const allTokenData = useAllTokenData()
 
@@ -184,7 +185,7 @@ export const Search = ({ small = false }) => {
   useEffect(() => {
     async function fetchData() {
       try {
-        if (value ?.length > 0) {
+        if (value?.length > 0) {
           let tokens = await client.query({
             query: TOKEN_SEARCH,
             variables: {
@@ -196,7 +197,7 @@ export const Search = ({ small = false }) => {
           let pairs = await client.query({
             query: PAIR_SEARCH,
             variables: {
-              tokens: tokens.data.asSymbol ?.map((t) => t.id),
+              tokens: tokens.data.asSymbol?.map((t) => t.id),
               id: value,
             },
           })
@@ -214,7 +215,7 @@ export const Search = ({ small = false }) => {
       }
     }
     fetchData()
-  }, [value])
+  }, [value, client])
 
   function escapeRegExp(string) {
     return string.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') // $& means the whole matched string
@@ -282,14 +283,14 @@ export const Search = ({ small = false }) => {
           }
           const tokenA = allTokenData[a.id]
           const tokenB = allTokenData[b.id]
-          if (tokenA ?.oneDayVolumeUSD && tokenB ?.oneDayVolumeUSD) {
+          if (tokenA?.oneDayVolumeUSD && tokenB?.oneDayVolumeUSD) {
             return tokenA.oneDayVolumeUSD > tokenB.oneDayVolumeUSD ? -1 : 1
           }
-          if (tokenA ?.oneDayVolumeUSD && !tokenB ?.oneDayVolumeUSD) {
+          if (tokenA?.oneDayVolumeUSD && !tokenB?.oneDayVolumeUSD) {
             return -1
           }
-          if (!tokenA ?.oneDayVolumeUSD && tokenB ?.oneDayVolumeUSD) {
-            return tokenA ?.totalLiquidity > tokenB ?.totalLiquidity ? -1 : 1
+          if (!tokenA?.oneDayVolumeUSD && tokenB?.oneDayVolumeUSD) {
+            return tokenA?.totalLiquidity > tokenB?.totalLiquidity ? -1 : 1
             }
           return 1
         })
@@ -321,13 +322,13 @@ export const Search = ({ small = false }) => {
         .sort((a, b) => {
           const pairA = allPairData[a.id]
           const pairB = allPairData[b.id]
-          if (pairA ?.trackedReserveETH && pairB ?.trackedReserveETH) {
-            return parseFloat(pairA.trackedReserveETH) > parseFloat(pairB.trackedReserveETH) ? -1 : 1
+          if (pairA?.trackedReserveNativeCurrency && pairB?.trackedReserveNativeCurrency) {
+            return parseFloat(pairA.trackedReserveNativeCurrency) > parseFloat(pairB.trackedReserveNativeCurrency) ? -1 : 1
           }
-          if (pairA ?.trackedReserveETH && !pairB ?.trackedReserveETH) {
+          if (pairA?.trackedReserveNativeCurrency && !pairB?.trackedReserveNativeCurrency) {
             return -1
           }
-          if (!pairA ?.trackedReserveETH && pairB ?.trackedReserveETH) {
+          if (!pairA?.trackedReserveNativeCurrency && pairB?.trackedReserveNativeCurrency) {
             return 1
           }
           return 0
@@ -337,16 +338,16 @@ export const Search = ({ small = false }) => {
             return false
           }
           if (value && value.includes(' ')) {
-            const pairA = value.split(' ')[0] ?.toUpperCase()
-              const pairB = value.split(' ')[1] ?.toUpperCase()
+            const pairA = value.split(' ')[0]?.toUpperCase()
+              const pairB = value.split(' ')[1]?.toUpperCase()
               return (
               (pair.token0.symbol.includes(pairA) || pair.token0.symbol.includes(pairB)) &&
               (pair.token1.symbol.includes(pairA) || pair.token1.symbol.includes(pairB))
             )
           }
           if (value && value.includes('-')) {
-            const pairA = value.split('-')[0] ?.toUpperCase()
-              const pairB = value.split('-')[1] ?.toUpperCase()
+            const pairA = value.split('-')[0]?.toUpperCase()
+              const pairB = value.split('-')[1]?.toUpperCase()
               return (
               (pair.token0.symbol.includes(pairA) || pair.token0.symbol.includes(pairB)) &&
               (pair.token1.symbol.includes(pairA) || pair.token1.symbol.includes(pairB))
@@ -471,7 +472,7 @@ export const Search = ({ small = false }) => {
               return (
                 <BasicLink to={'/pair/' + pair.id} key={pair.id} onClick={onDismiss}>
                   <MenuItem>
-                    <DoubleTokenLogo a0={pair ?.token0 ?.id} a1={pair ?.token1 ?.id} margin={true} />
+                    <DoubleTokenLogo a0={pair?.token0?.id} a1={pair?.token1?.id} margin={true} />
                     <TYPE.body style={{ marginLeft: '10px' }}>
                       {pair.token0.symbol + '-' + pair.token1.symbol} Pair
                     </TYPE.body>

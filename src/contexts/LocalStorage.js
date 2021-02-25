@@ -125,7 +125,7 @@ export function useSavedAccounts() {
 
   const removeAccount = useCallback(
     (account) => {
-      let index = savedAccounts ?.indexOf(account) ?? -1
+      let index = savedAccounts?.indexOf(account) ?? -1
       if (index > -1) {
         updateKey(SAVED_ACCOUNTS, [
           ...savedAccounts.slice(0, index),

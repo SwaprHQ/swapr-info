@@ -1,6 +1,5 @@
 import React from "react";
 import ReactDOM from "react-dom";
-import { isMobile } from "react-device-detect";
 import ThemeProvider, { GlobalStyle } from "./Theme";
 import LocalStorageContextProvider, {
   Updater as LocalStorageContextUpdater,
@@ -13,6 +12,7 @@ import PairDataContextProvider, {
   Updater as PairDataContextUpdater,
 } from "./contexts/PairData";
 import ApplicationContextProvider from "./contexts/Application";
+import NetworkContextProvider from "./contexts/Network";
 import UserContextProvider from "./contexts/User";
 import App from "./App";
 
@@ -20,13 +20,15 @@ function ContextProviders({ children }) {
   return (
     <LocalStorageContextProvider>
       <ApplicationContextProvider>
-        <TokenDataContextProvider>
-          <GlobalDataContextProvider>
-            <PairDataContextProvider>
-              <UserContextProvider>{children}</UserContextProvider>
-            </PairDataContextProvider>
-          </GlobalDataContextProvider>
-        </TokenDataContextProvider>
+        <NetworkContextProvider>
+          <TokenDataContextProvider>
+            <GlobalDataContextProvider>
+              <PairDataContextProvider>
+                <UserContextProvider>{children}</UserContextProvider>
+              </PairDataContextProvider>
+            </GlobalDataContextProvider>
+          </TokenDataContextProvider>
+        </NetworkContextProvider>
       </ApplicationContextProvider>
     </LocalStorageContextProvider>
   );

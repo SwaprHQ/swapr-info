@@ -48,10 +48,8 @@ ReactDOM.render(
   <ContextProviders>
     <Updaters />
     <ThemeProvider>
-      <>
-        <GlobalStyle />
-        <App />
-      </>
+      <GlobalStyle />
+      <App />
     </ThemeProvider>
   </ContextProviders>,
   document.getElementById("root")

@@ -275,13 +275,17 @@ function PairPage({ pairAddress, history }) {
                         <HoverSpan
                           onClick={() => history.push(`/token/${token0?.id}`)}
                         >
-                          {token0.symbol}
+                          {token0.symbol === nativeCurrencyWrapper.symbol
+                            ? nativeCurrency
+                            : token0.symbol}
                         </HoverSpan>
                         <span>-</span>
                         <HoverSpan
                           onClick={() => history.push(`/token/${token1?.id}`)}
                         >
-                          {token1.symbol}
+                          {token1.symbol === nativeCurrencyWrapper.symbol
+                            ? nativeCurrency
+                            : token1.symbol}
                         </HoverSpan>{" "}
                         Pair
                       </>

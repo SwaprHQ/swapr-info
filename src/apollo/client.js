@@ -6,7 +6,8 @@ import { SupportedNetwork } from "../constants";
 export const clients = {
   [SupportedNetwork.MAINNET]: new ApolloClient({
     link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/nicoelzer/swapr",
+      // TODO: change this when release day comes
+      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-mainnet-alpha",
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,

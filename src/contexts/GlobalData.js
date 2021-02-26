@@ -496,7 +496,6 @@ const getNativeCurrencyPrice = async (client, blockClient) => {
   let priceChangeNativeCurrency = 0;
 
   try {
-    console.log("hey!", blockClient);
     let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),

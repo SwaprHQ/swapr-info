@@ -5,7 +5,7 @@ export const SupportedNetwork = Object.freeze({
 });
 
 export const FACTORY_ADDRESS = {
-  [SupportedNetwork.MAINNET]: "0xd34971bab6e5e356fd250715f5de0492bb070452",
+  [SupportedNetwork.MAINNET]: "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
   [SupportedNetwork.XDAI]: "0x2a4d822bfb34d377c978f28a6c332caa2ff87530",
   [SupportedNetwork.RINKEBY]: "0x02f45e773436C6D96Cc73600fe94a660ec67734C",
 };

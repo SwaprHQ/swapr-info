@@ -36,7 +36,7 @@ function reducer(state, { type, payload }) {
 }
 
 const INITIAL_STATE = {
-  selectedNetwork: SupportedNetwork.XDAI,
+  selectedNetwork: SupportedNetwork.MAINNET,
 };
 
 export default function Provider({ children }) {

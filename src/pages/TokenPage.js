@@ -494,7 +494,7 @@ function TokenPage({ address, history }) {
                   <Link
                     color={backgroundColor}
                     external
-                    href={getExplorerLink(selectedNetwork, address)}
+                    href={getExplorerLink(selectedNetwork, address, "token")}
                   >
                     View on block explorer ↗
                   </Link>

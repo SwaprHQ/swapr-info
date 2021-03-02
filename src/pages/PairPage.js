@@ -622,7 +622,11 @@ function PairPage({ pairAddress, history }) {
                   <Link
                     color={backgroundColor}
                     external
-                    href={getExplorerLink(selectedNetwork, pairAddress)}
+                    href={getExplorerLink(
+                      selectedNetwork,
+                      pairAddress,
+                      "token"
+                    )}
                   >
                     View on block explorer ↗
                   </Link>

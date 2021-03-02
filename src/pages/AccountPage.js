@@ -195,7 +195,7 @@ function AccountPage({ account }) {
               </TYPE.header>
               <Link
                 lineHeight={"145.23%"}
-                href={getExplorerLink(selectedNetwork, account)}
+                href={getExplorerLink(selectedNetwork, account, "address")}
                 target="_blank"
               >
                 <TYPE.main fontSize={14}>View on block explorer</TYPE.main>

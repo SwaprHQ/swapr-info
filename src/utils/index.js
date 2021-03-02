@@ -109,9 +109,23 @@ const getExplorerPrefix = (selectedNetwork) => {
   }
 };
 
-export function getExplorerLink(selectedNetwork, address) {
+export function getExplorerLink(selectedNetwork, data, type) {
   const prefix = getExplorerPrefix(selectedNetwork);
-  return `${prefix}/address/${address}`;
+  switch (type) {
+    case "transaction": {
+      return `${prefix}/tx/${data}`;
+    }
+    case "token": {
+      return `${prefix}/token/${data}`;
+    }
+    case "block": {
+      return `${prefix}/block/${data}`;
+    }
+    case "address":
+    default: {
+      return `${prefix}/address/${data}`;
+    }
+  }
 }
 
 export function getSwaprAppLink(nativeCurrency, linkVariable) {
@@ -383,10 +397,14 @@ export const setThemeColor = (theme) =>
 export const Big = (number) => new BigNumber(number);
 
 export const urls = {
-  showTransaction: (tx) => `https://etherscan.io/tx/${tx}/`,
-  showAddress: (address) => `https://www.etherscan.io/address/${address}/`,
-  showToken: (address) => `https://www.etherscan.io/token/${address}/`,
-  showBlock: (block) => `https://etherscan.io/block/${block}/`,
+  showTransaction: (tx, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, tx, "transaction"),
+  showAddress: (address, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, address, "address"),
+  showToken: (address, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, address, "token"),
+  showBlock: (block, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, block, "block"),
 };
 
 export const formatTime = (unix) => {

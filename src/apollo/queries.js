@@ -766,17 +766,6 @@ export const TOKEN_CHART = gql`
       dailyVolumeNativeCurrency
       dailyVolumeToken
       dailyVolumeUSD
-      mostLiquidPairs {
-        id
-        token0 {
-          id
-          derivedNativeCurrency
-        }
-        token1 {
-          id
-          derivedNativeCurrency
-        }
-      }
     }
   }
 `;

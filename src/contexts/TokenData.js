@@ -379,6 +379,9 @@ const getTokenData = async (
       query: TOKEN_DATA(address),
       fetchPolicy: "cache-first",
     });
+    if (!result?.data?.tokens?.[0]) {
+      return data;
+    }
     data = result?.data?.tokens?.[0];
 
     // get results from 24 hours in past
@@ -413,21 +416,21 @@ const getTokenData = async (
 
     // calculate percentage changes and daily changes
     const [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
-      data.tradeVolumeUSD,
+      data?.tradeVolumeUSD,
       oneDayData?.tradeVolumeUSD ?? 0,
       twoDayData?.tradeVolumeUSD ?? 0
     );
 
     // calculate percentage changes and daily changes
     const [oneDayVolumeUT, volumeChangeUT] = get2DayPercentChange(
-      data.untrackedVolumeUSD,
+      data?.untrackedVolumeUSD,
       oneDayData?.untrackedVolumeUSD ?? 0,
       twoDayData?.untrackedVolumeUSD ?? 0
     );
 
     // calculate percentage changes and daily changes
     const [oneDayTxns, txnChange] = get2DayPercentChange(
-      data.txCount,
+      data?.txCount,
       oneDayData?.txCount ?? 0,
       twoDayData?.txCount ?? 0
     );
@@ -590,7 +593,7 @@ const getIntervalTokenData = async (
     let index = 0;
     for (var brow in result) {
       let timestamp = brow.split("b")[1];
-      if (timestamp) {
+      if (timestamp && result[brow]) {
         values[index].priceUSD =
           result[brow].nativeCurrencyPrice *
           values[index].derivedNativeCurrency;
@@ -656,7 +659,6 @@ const getTokenChartData = async (client, tokenAddress) => {
     let timestamp = data[0] && data[0].date ? data[0].date : startTime;
     let latestLiquidityUSD = data[0] && data[0].totalLiquidityUSD;
     let latestPriceUSD = data[0] && data[0].priceUSD;
-    let latestPairDatas = data[0] && data[0].mostLiquidPairs;
     let index = 1;
     while (timestamp < utcEndTime.startOf("minute").unix() - oneDay) {
       const nextDay = timestamp + oneDay;
@@ -668,12 +670,10 @@ const getTokenChartData = async (client, tokenAddress) => {
           dailyVolumeUSD: 0,
           priceUSD: latestPriceUSD,
           totalLiquidityUSD: latestLiquidityUSD,
-          mostLiquidPairs: latestPairDatas,
         });
       } else {
         latestLiquidityUSD = dayIndexArray[index].totalLiquidityUSD;
         latestPriceUSD = dayIndexArray[index].priceUSD;
-        latestPairDatas = dayIndexArray[index].mostLiquidPairs;
         index = index + 1;
       }
       timestamp = nextDay;
@@ -775,7 +775,6 @@ export function useTokenTransactions(tokenAddress) {
       if (!tokenTxns && allPairsFormatted) {
         let transactions = await getTokenTransactions(
           client,
-          blockClient,
           allPairsFormatted
         );
         updateTokenTxns(tokenAddress, transactions);
@@ -802,7 +801,7 @@ export function useTokenPairs(tokenAddress) {
 
   useEffect(() => {
     async function fetchData() {
-      let allPairs = await getTokenPairs(client, blockClient, tokenAddress);
+      let allPairs = await getTokenPairs(client, tokenAddress);
       updateAllPairs(tokenAddress, allPairs);
     }
     if (!tokenPairs && isAddress(tokenAddress)) {
@@ -821,7 +820,7 @@ export function useTokenChartData(tokenAddress) {
   useEffect(() => {
     async function checkForChartData() {
       if (!chartData) {
-        let data = await getTokenChartData(client, blockClient, tokenAddress);
+        let data = await getTokenChartData(client, tokenAddress);
         updateChartData(tokenAddress, data);
       }
     }

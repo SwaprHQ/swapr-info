@@ -6,6 +6,7 @@ import React, {
   useCallback,
   useEffect,
 } from "react";
+import { SupportedNetwork } from "../constants";
 
 const SWAPR = "SWAPR";
 
@@ -16,6 +17,7 @@ const DISMISSED_PATHS = "DISMISSED_PATHS";
 const SAVED_ACCOUNTS = "SAVED_ACCOUNTS";
 const SAVED_TOKENS = "SAVED_TOKENS";
 const SAVED_PAIRS = "SAVED_PAIRS";
+const SAVED_SELECTED_NETWORK = "SAVED_SELECTED_NETWORK";
 
 const DARK_MODE = "DARK_MODE";
 
@@ -25,6 +27,7 @@ const UPDATABLE_KEYS = [
   SAVED_ACCOUNTS,
   SAVED_PAIRS,
   SAVED_TOKENS,
+  SAVED_SELECTED_NETWORK,
 ];
 
 const UPDATE_KEY = "UPDATE_KEY";
@@ -64,6 +67,7 @@ function init() {
     [SAVED_ACCOUNTS]: [],
     [SAVED_TOKENS]: {},
     [SAVED_PAIRS]: {},
+    [SAVED_SELECTED_NETWORK]: SupportedNetwork.MAINNET,
   };
 
   try {
@@ -201,4 +205,15 @@ export function useSavedTokens() {
   }
 
   return [savedTokens, addToken, removeToken];
+}
+
+export function useSavedNetwork() {
+  const [state, { updateKey }] = useLocalStorageContext();
+  const savedSelectedNetwork = state?.[SAVED_SELECTED_NETWORK];
+
+  function updateSavedSelectedNetwork(newSelectedNetwork) {
+    updateKey(SAVED_SELECTED_NETWORK, newSelectedNetwork);
+  }
+
+  return [savedSelectedNetwork, updateSavedSelectedNetwork];
 }

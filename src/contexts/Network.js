@@ -6,11 +6,8 @@ import React, {
   useCallback,
 } from "react";
 import { blockClients, clients } from "../apollo/client";
-import {
-  NATIVE_CURRENCY_SYMBOL,
-  NATIVE_CURRENCY_WRAPPER,
-  SupportedNetwork,
-} from "../constants";
+import { NATIVE_CURRENCY_SYMBOL, NATIVE_CURRENCY_WRAPPER } from "../constants";
+import { useSavedNetwork } from "./LocalStorage";
 
 const UPDATE_SELECTED_NETWORK = "UPDATE_SELECTED_NETWORK";
 
@@ -35,19 +32,26 @@ function reducer(state, { type, payload }) {
   }
 }
 
-const INITIAL_STATE = {
-  selectedNetwork: SupportedNetwork.MAINNET,
-};
-
 export default function Provider({ children }) {
+  const [
+    previouslySelectedNetwork,
+    updateSavedSelectedNetwork,
+  ] = useSavedNetwork();
+  const INITIAL_STATE = {
+    selectedNetwork: previouslySelectedNetwork,
+  };
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
-  const updateSelectedNetwork = useCallback((selectedNetwork) => {
-    dispatch({
-      type: UPDATE_SELECTED_NETWORK,
-      payload: { selectedNetwork },
-    });
-  }, []);
+  const updateSelectedNetwork = useCallback(
+    (selectedNetwork) => {
+      dispatch({
+        type: UPDATE_SELECTED_NETWORK,
+        payload: { selectedNetwork },
+      });
+      updateSavedSelectedNetwork(selectedNetwork);
+    },
+    [updateSavedSelectedNetwork]
+  );
 
   return (
     <NetworkContext.Provider

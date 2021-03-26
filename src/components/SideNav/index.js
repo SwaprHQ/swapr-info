@@ -121,7 +121,7 @@ function SideNav({ history }) {
       updateSelectedNetwork(network);
       history.push("/");
     },
-    [resetGlobalData, updateSelectedNetwork]
+    [resetGlobalData, updateSelectedNetwork, history]
   );
 
   return (

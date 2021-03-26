@@ -513,6 +513,7 @@ export function useUserPositions(account) {
           let formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {
               const returnData = await getLPReturnsOnPair(
+                client,
                 account,
                 positionData.pair,
                 nativeCurrencyPrice,

@@ -310,46 +310,41 @@ async function getGlobalData(
     });
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
-    if (data) {
-      if (oneDayData) {
-        let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
-          data.totalVolumeUSD,
-          oneDayData.totalVolumeUSD ? oneDayData.totalVolumeUSD : 0,
-          twoDayData.totalVolumeUSD ? twoDayData.totalVolumeUSD : 0
-        );
-        data.oneDayVolumeUSD = oneDayVolumeUSD;
-        data.volumeChangeUSD = volumeChangeUSD;
-      }
+    if (data && oneDayData && twoDayData && twoWeekData) {
+      let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
+        data.totalVolumeUSD,
+        oneDayData.totalVolumeUSD ? oneDayData.totalVolumeUSD : 0,
+        twoDayData.totalVolumeUSD ? twoDayData.totalVolumeUSD : 0
+      );
 
-      if (oneWeekData) {
-        const [oneWeekVolume, weeklyVolumeChange] = get2DayPercentChange(
-          data.totalVolumeUSD,
-          oneWeekData.totalVolumeUSD,
-          twoWeekData.totalVolumeUSD
-        );
-        data.oneWeekVolume = oneWeekVolume;
-        data.weeklyVolumeChange = weeklyVolumeChange;
-      }
+      const [oneWeekVolume, weeklyVolumeChange] = get2DayPercentChange(
+        data.totalVolumeUSD,
+        oneWeekData.totalVolumeUSD,
+        twoWeekData.totalVolumeUSD
+      );
 
-      if (oneDayData && twoDayData) {
-        const [oneDayTxns, txnChange] = get2DayPercentChange(
-          data.txCount,
-          oneDayData.txCount ? oneDayData.txCount : 0,
-          twoDayData.txCount ? twoDayData.txCount : 0
-        );
-        data.oneDayTxns = oneDayTxns;
-        data.txnChange = txnChange;
-      }
+      const [oneDayTxns, txnChange] = get2DayPercentChange(
+        data.txCount,
+        oneDayData.txCount ? oneDayData.txCount : 0,
+        twoDayData.txCount ? twoDayData.txCount : 0
+      );
 
       // format the total liquidity in USD
       data.totalLiquidityUSD =
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
-      if (oneDayData) {
-        data.liquidityChangeUSD = getPercentChange(
-          data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
-          oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
-        );
-      }
+      const liquidityChangeUSD = getPercentChange(
+        data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
+        oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
+      );
+
+      // add relevant fields with the calculated amounts
+      data.oneDayVolumeUSD = oneDayVolumeUSD;
+      data.oneWeekVolume = oneWeekVolume;
+      data.weeklyVolumeChange = weeklyVolumeChange;
+      data.volumeChangeUSD = volumeChangeUSD;
+      data.liquidityChangeUSD = liquidityChangeUSD;
+      data.oneDayTxns = oneDayTxns;
+      data.txnChange = txnChange;
     }
   } catch (e) {
     console.log(e);
@@ -779,7 +774,9 @@ export function useTopLps(client) {
             if (results) {
               return results.liquidityPositions;
             }
-          } catch (e) {}
+          } catch (e) {
+            console.error(e);
+          }
         })
       );
 

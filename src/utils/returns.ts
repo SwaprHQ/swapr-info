@@ -40,29 +40,6 @@ interface SubgraphPosition {
 
 const PRICE_DISCOVERY_START_TIMESTAMP = 1589747086;
 
-function formatPricesForEarlyTimestamps(position): SubgraphPosition {
-  if (position.timestamp < PRICE_DISCOVERY_START_TIMESTAMP) {
-    if (priceOverrides.includes(position?.pair?.token0.id)) {
-      position.token0PriceUSD = 1;
-    }
-    if (priceOverrides.includes(position?.pair?.token1.id)) {
-      position.token1PriceUSD = 1;
-    }
-    // WETH price
-    if (
-      position.pair?.token0.id === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-    ) {
-      position.token0PriceUSD = 203;
-    }
-    if (
-      position.pair?.token1.id === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-    ) {
-      position.token1PriceUSD = 203;
-    }
-  }
-  return position;
-}
-
 async function getPrincipalForUserPerPair(
   client,
   user: string,
@@ -138,17 +115,14 @@ export function getMetricsForPositionWindow(
   positionT0: SubgraphPosition,
   positionT1: SubgraphPosition
 ): ReturnMetrics {
-  positionT0 = formatPricesForEarlyTimestamps(positionT0);
-  positionT1 = formatPricesForEarlyTimestamps(positionT1);
-
   // calculate ownership at ends of window, for end of window we need original LP token balance / new total supply
   const t0Ownership =
-    Number(positionT0.liquidityTokenBalance) === 0
+    Number(positionT0.liquidityTokenTotalSupply) === 0
       ? 0
       : Number(positionT0.liquidityTokenBalance) /
         Number(positionT0.liquidityTokenTotalSupply);
   const t1Ownership =
-    Number(positionT1.liquidityTokenBalance) === 0
+    Number(positionT1.liquidityTokenTotalSupply) === 0
       ? 0
       : Number(positionT0.liquidityTokenBalance) /
         Number(positionT1.liquidityTokenTotalSupply);
@@ -202,9 +176,6 @@ export function getMetricsForPositionWindow(
   const netValueT0 = t0Ownership * Number(positionT0.reserveUSD);
   const netValueT1 = t1Ownership * Number(positionT1.reserveUSD);
 
-  if (isNaN(difference_fees_usd)) {
-    debugger;
-  }
   return {
     hodleReturn: assetValueT1 - assetValueT0,
     netReturn: netValueT1 - netValueT0,

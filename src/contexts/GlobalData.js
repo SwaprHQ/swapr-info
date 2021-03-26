@@ -267,11 +267,13 @@ async function getGlobalData(
 
     // get the blocks needed for time travel queries
     let [
+      currentBlock,
       oneDayBlock,
       twoDayBlock,
       oneWeekBlock,
       twoWeekBlock,
     ] = await getBlocksFromTimestamps(blockClient, [
+      utcCurrentTime.unix(),
       utcOneDayBack,
       utcTwoDaysBack,
       utcOneWeekBack,
@@ -280,7 +282,7 @@ async function getGlobalData(
 
     // fetch the global data
     let result = await client.query({
-      query: GLOBAL_DATA(factoryAddress),
+      query: GLOBAL_DATA(factoryAddress, currentBlock?.number),
       fetchPolicy: "cache-first",
     });
     data = result.data.swaprFactories[0];

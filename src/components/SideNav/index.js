@@ -119,6 +119,7 @@ function SideNav({ history }) {
     (network) => {
       resetGlobalData();
       updateSelectedNetwork(network);
+      history.push("/");
     },
     [resetGlobalData, updateSelectedNetwork]
   );

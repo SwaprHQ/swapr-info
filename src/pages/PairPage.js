@@ -6,14 +6,20 @@ import Panel from "../components/Panel";
 import { PageWrapper, ContentWrapperLarge } from "../components/index";
 import { AutoRow, RowBetween, RowFixed } from "../components/Row";
 import Column, { AutoColumn } from "../components/Column";
-import { ButtonLight } from "../components/ButtonStyled";
+import { ButtonLight, ButtonDark } from "../components/ButtonStyled";
 import PairChart from "../components/PairChart";
 import Link from "../components/Link";
 import TxnList from "../components/TxnList";
 import Loader from "../components/LocalLoader";
 import { BasicLink } from "../components/Link";
 import Search from "../components/Search";
-import { formattedNum, formattedPercent, getExplorerLink } from "../utils";
+import {
+  formattedNum,
+  formattedPercent,
+  getExplorerLink,
+  getPoolLink,
+  getSwapLink,
+} from "../utils";
 import { useColor } from "../hooks";
 import { usePairData, usePairTransactions } from "../contexts/PairData";
 import { TYPE, ThemedBackground } from "../Theme";
@@ -315,7 +321,7 @@ function PairPage({ pairAddress, history }) {
                 )} */}
 
                 {/* TODO: reenable button when cross-chain links are a thing */}
-                {/*  <Link
+                <Link
                   external
                   href={getPoolLink(
                     selectedNetwork,
@@ -346,7 +352,7 @@ function PairPage({ pairAddress, history }) {
                   >
                     Trade
                   </ButtonDark>
-                </Link> */}
+                </Link>
               </RowFixed>
             </div>
           </AutoColumn>

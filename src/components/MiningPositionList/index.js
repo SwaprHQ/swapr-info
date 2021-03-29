@@ -15,7 +15,10 @@ import { RowFixed } from "../Row";
 import { ButtonLight } from "../ButtonStyled";
 import { TYPE } from "../../Theme";
 import FormattedName from "../FormattedName";
-import { useNativeCurrencySymbol } from "../../contexts/Network";
+import {
+  useNativeCurrencySymbol,
+  useSelectedNetwork,
+} from "../../contexts/Network";
 
 dayjs.extend(utc);
 
@@ -121,6 +124,7 @@ function MiningPositionList({ miningPositions }) {
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.VALUE);
 
   const nativeCurrency = useNativeCurrencySymbol();
+  const selectedNetwork = useSelectedNetwork();
 
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
@@ -183,7 +187,11 @@ function MiningPositionList({ miningPositions }) {
             <RowFixed gap="8px" justify="flex-start">
               <Link
                 external
-                href={getSwaprAppLink(nativeCurrency, firstPairAddress)}
+                href={getSwaprAppLink(
+                  nativeCurrency,
+                  firstPairAddress,
+                  selectedNetwork
+                )}
                 style={{ marginRight: ".5rem" }}
               >
                 <ButtonLight
@@ -195,7 +203,11 @@ function MiningPositionList({ miningPositions }) {
               {pairPercentage > 0 && (
                 <Link
                   external
-                  href={getSwaprAppLink(nativeCurrency, firstPairAddress)}
+                  href={getSwaprAppLink(
+                    nativeCurrency,
+                    firstPairAddress,
+                    selectedNetwork
+                  )}
                 >
                   <ButtonLight
                     style={{ padding: "4px 6px", borderRadius: "4px" }}

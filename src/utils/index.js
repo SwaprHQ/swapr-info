@@ -11,6 +11,7 @@ import {
   SupportedNetwork,
   timeframeOptions,
   ETHERSCAN_PREFIXES,
+  ChainId,
 } from "../constants";
 import Numeral from "numeral";
 
@@ -56,7 +57,7 @@ export function getPoolLink(
         token0Address === nativeCurrencyWrapper.symbol
           ? nativeCurrency
           : token0Address
-      }/${nativeCurrency}?network=${selectedNetwork.toLowerCase()}`
+      }/${nativeCurrency}?chainId=${ChainId[selectedNetwork]}`
     );
   } else {
     return (
@@ -70,7 +71,7 @@ export function getPoolLink(
         token1Address === nativeCurrencyWrapper.symbol
           ? nativeCurrency
           : token1Address
-      }?network=${selectedNetwork.toLowerCase()}`
+      }?chainId=${ChainId[selectedNetwork]}`
     );
   }
 }
@@ -83,7 +84,7 @@ export function getSwapLink(
   token1Address = null
 ) {
   if (!token1Address) {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}&network=${selectedNetwork.toLowerCase()}`;
+    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
   } else {
     return `https://swapr.eth.link/#/swap?inputCurrency=${
       token0Address === nativeCurrencyWrapper.symbol
@@ -93,7 +94,7 @@ export function getSwapLink(
       token1Address === nativeCurrencyWrapper.symbol
         ? nativeCurrency
         : token1Address
-    }&network=${selectedNetwork.toLowerCase()}`;
+    }&chainId=${ChainId[selectedNetwork]}`;
   }
 }
 
@@ -128,13 +129,13 @@ export function getExplorerLink(selectedNetwork, data, type) {
   }
 }
 
-export function getSwaprAppLink(nativeCurrency, linkVariable) {
+export function getSwaprAppLink(nativeCurrency, linkVariable, selectedNetwork) {
   let baseSwaprUrl = "https://swapr.eth.link/#/";
   if (!linkVariable) {
     return baseSwaprUrl;
   }
 
-  return `${baseSwaprUrl}/${nativeCurrency}/${linkVariable}`;
+  return `${baseSwaprUrl}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
 }
 
 export function localNumber(val) {

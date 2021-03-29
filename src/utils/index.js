@@ -112,6 +112,12 @@ const getExplorerPrefix = (selectedNetwork) => {
 
 export function getExplorerLink(selectedNetwork, data, type) {
   const prefix = getExplorerPrefix(selectedNetwork);
+
+  // exception. blockscout doesn't have a token-specific address
+  if (selectedNetwork === SupportedNetwork.XDAI && type === "token") {
+    return `${prefix}/address/${data}`;
+  }
+
   switch (type) {
     case "transaction": {
       return `${prefix}/tx/${data}`;

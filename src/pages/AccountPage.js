@@ -239,6 +239,8 @@ function AccountPage({ account }) {
                     <DoubleTokenLogo
                       a0={activePosition.pair.token0.id}
                       a1={activePosition.pair.token1.id}
+                      defaultText0={activePosition.pair.token0.symbol}
+                      defaultText1={activePosition.pair.token1.symbol}
                       size={16}
                     />
                     <TYPE.body ml={"16px"}>
@@ -274,6 +276,8 @@ function AccountPage({ account }) {
                             <DoubleTokenLogo
                               a0={p.pair.token0.id}
                               a1={p.pair.token1.id}
+                              defaultText0={p.pair.token0.id.symbol}
+                              defaultText1={p.pair.token1.id.symbol}
                               size={16}
                             />
                             <TYPE.body ml={"16px"}>

@@ -153,7 +153,9 @@ function MiningPositionList({ miningPositions }) {
     const secondPairName = miningPosition.miningPool.pair.token1;
     const pairAddress = miningPosition.miningPool.pair.id;
     const firstPairAddress = miningPosition.pairData.token0.id;
+    const firstPairSymbol = miningPosition.pairData.token0.symbol;
     const secondPairAddress = miningPosition.pairData.token1.id;
+    const secondPairSymbol = miningPosition.pairData.token1.symbol;
 
     return (
       <DashGrid style={{ opacity: pairPercentage > 0 ? 1 : 0.6 }} focus={true}>
@@ -168,6 +170,8 @@ function MiningPositionList({ miningPositions }) {
               size={16}
               a0={firstPairAddress}
               a1={secondPairAddress}
+              defaultText0={firstPairSymbol}
+              defaultText1={secondPairSymbol}
               margin={!below740}
             />
           </AutoColumn>

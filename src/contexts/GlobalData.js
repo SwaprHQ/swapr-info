@@ -795,6 +795,8 @@ export function useTopLps(client) {
               pairAddress: entry.pair.id,
               token0: pairData.token0.id,
               token1: pairData.token1.id,
+              token0Symbol: pairData.token0.symbol,
+              token1Symbol: pairData.token1.symbol,
               usd:
                 (parseFloat(entry.liquidityTokenBalance) /
                   parseFloat(pairData.totalSupply)) *

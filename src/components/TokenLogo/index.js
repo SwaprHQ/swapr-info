@@ -1,7 +1,6 @@
 import React, { useState, useEffect } from "react";
 import styled from "styled-components";
 import { isAddress } from "../../utils/index.js";
-import PlaceHolder from "../../assets/placeholder.png";
 import EthereumLogo from "../../assets/eth.png";
 import xDAILogo from "../../assets/xdai-logo.png";
 import {
@@ -39,6 +38,7 @@ const StyledNativeCurrencyLogo = styled.div`
 
 export default function TokenLogo({
   address,
+  defaultText = "?",
   header = false,
   size = "24px",
   ...rest
@@ -52,9 +52,31 @@ export default function TokenLogo({
   }, [address]);
 
   if (error || BAD_IMAGES[address]) {
+    const numberSize = size ? parseInt(size.replace("px", "")) : 24;
+    const fontSize = Math.ceil(numberSize / 4.5);
     return (
       <Inline>
-        <Image {...rest} alt={""} src={PlaceHolder} size={size} />
+        <svg height={numberSize} width={numberSize} {...rest} fill="none">
+          <circle
+            cx={numberSize / 2}
+            cy={numberSize / 2}
+            r={numberSize / 2}
+            fill="#fff"
+          />
+          <text
+            fill="#000"
+            stroke="none"
+            fontSize={fontSize}
+            fontWeight="600"
+            x={numberSize / 2}
+            y={numberSize / 2 + Math.floor(fontSize / 2)}
+            textAnchor="middle"
+          >
+            {defaultText.length > 4
+              ? `${defaultText.slice(0, 4).toUpperCase()}...`
+              : defaultText.toUpperCase()}
+          </text>
+        </svg>
       </Inline>
     );
   }

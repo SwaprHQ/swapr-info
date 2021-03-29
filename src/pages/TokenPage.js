@@ -229,6 +229,7 @@ function TokenPage({ address, history }) {
               <RowFixed style={{ alignItems: "baseline" }}>
                 <TokenLogo
                   address={address}
+                  defaultText={symbol}
                   size="32px"
                   style={{ alignSelf: "center" }}
                 />

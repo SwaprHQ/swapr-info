@@ -162,7 +162,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
       const apy = formattedPercent(
         (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
       );
-
+      console.log(pairData.token0);
       return (
         <DashGrid
           style={{ height: "48px" }}
@@ -177,6 +177,8 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               size={below600 ? 16 : 20}
               a0={pairData.token0.id}
               a1={pairData.token1.id}
+              defaultText0={pairData.token0.symbol}
+              defaultText1={pairData.token1.symbol}
               margin={!below740}
             />
             <CustomLink

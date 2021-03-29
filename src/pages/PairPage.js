@@ -256,6 +256,8 @@ function PairPage({ pairAddress, history }) {
                     <DoubleTokenLogo
                       a0={token0?.id || ""}
                       a1={token1?.id || ""}
+                      defaultText0={token0?.symbol}
+                      defaultText1={token1?.symbol}
                       size={32}
                       margin={true}
                     />
@@ -367,7 +369,11 @@ function PairPage({ pairAddress, history }) {
           >
             <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
               <RowFixed>
-                <TokenLogo address={token0?.id} size={"16px"} />
+                <TokenLogo
+                  address={token0?.id}
+                  defaultText={token0?.symbol}
+                  size={"16px"}
+                />
                 <TYPE.main
                   fontSize={"16px"}
                   lineHeight={1}
@@ -386,7 +392,11 @@ function PairPage({ pairAddress, history }) {
             </FixedPanel>
             <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
               <RowFixed>
-                <TokenLogo address={token1?.id} size={"16px"} />
+                <TokenLogo
+                  address={token1?.id}
+                  defaultText={token1?.symbol}
+                  size={"16px"}
+                />
                 <TYPE.main
                   fontSize={"16px"}
                   lineHeight={1}
@@ -479,7 +489,10 @@ function PairPage({ pairAddress, history }) {
                     fade={true}
                   >
                     <AutoRow gap="4px">
-                      <TokenLogo address={token0?.id} />
+                      <TokenLogo
+                        defaultText={token0?.symbol}
+                        address={token0?.id}
+                      />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
                           {reserve0 ? formattedNum(reserve0) : ""}{" "}
@@ -497,7 +510,10 @@ function PairPage({ pairAddress, history }) {
                     fade={true}
                   >
                     <AutoRow gap="4px">
-                      <TokenLogo address={token1?.id} />
+                      <TokenLogo
+                        defaultText={token1?.symbol}
+                        address={token1?.id}
+                      />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
                           {reserve1 ? formattedNum(reserve1) : ""}{" "}

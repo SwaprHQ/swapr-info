@@ -166,6 +166,8 @@ function PositionList({ positions }) {
               size={16}
               a0={position.pair.token0.id}
               a1={position.pair.token1.id}
+              defaultText0={position.pair.token0.symbol}
+              defaultText1={position.pair.token1.symbol}
               margin={!below740}
             />
           </AutoColumn>

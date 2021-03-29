@@ -12,13 +12,6 @@ export const clients = {
     cache: new InMemoryCache(),
     shouldBatch: true,
   }),
-  [SupportedNetwork.RINKEBY]: new ApolloClient({
-    link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr_rinkeby",
-    }),
-    cache: new InMemoryCache(),
-    shouldBatch: true,
-  }),
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
       uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-xdai",
@@ -41,12 +34,6 @@ export const blockClients = {
     link: new HttpLink({
       uri:
         "https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks",
-    }),
-    cache: new InMemoryCache(),
-  }),
-  [SupportedNetwork.RINKEBY]: new ApolloClient({
-    link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/mul53/rinkeby-blocks",
     }),
     cache: new InMemoryCache(),
   }),

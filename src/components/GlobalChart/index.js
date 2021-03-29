@@ -39,7 +39,6 @@ const GlobalChart = ({ display }) => {
     oneWeekVolume,
     weeklyVolumeChange,
   } = useGlobalData();
-  console.log(totalLiquidityUSD);
 
   // based on window, get starttim
   let utcStartTime = getTimeframe(timeWindow);

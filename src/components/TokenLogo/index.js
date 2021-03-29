@@ -37,10 +37,12 @@ const StyledNativeCurrencyLogo = styled.div`
   }
 `;
 
-const getTokenLogoURL = (address) =>
-  `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
+const getTokenLogoURL = (address) => {
+  if (!address) return undefined;
+  return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
     address
   )}/logo.png`;
+};
 
 export default function TokenLogo({
   address,

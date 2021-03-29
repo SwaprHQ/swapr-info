@@ -1,6 +1,5 @@
-import React, { useState, useEffect } from "react";
+import React, { useMemo } from "react";
 import styled from "styled-components";
-import { isAddress } from "../../utils/index.js";
 import EthereumLogo from "../../assets/eth.png";
 import xDAILogo from "../../assets/xdai-logo.png";
 import {
@@ -8,6 +7,8 @@ import {
   useSelectedNetwork,
 } from "../../contexts/Network.js";
 import { SupportedNetwork } from "../../constants/index.js";
+import { useTokenIcon } from "../../hooks/useTokenIcon.js";
+import { getAddress } from "ethers/utils";
 
 const BAD_IMAGES = {};
 
@@ -36,6 +37,11 @@ const StyledNativeCurrencyLogo = styled.div`
   }
 `;
 
+const getTokenLogoURL = (address) =>
+  `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
+    address
+  )}/logo.png`;
+
 export default function TokenLogo({
   address,
   defaultText = "?",
@@ -45,13 +51,32 @@ export default function TokenLogo({
 }) {
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
-  const [error, setError] = useState(false);
+  const tokenIcon = useTokenIcon(address);
+  const sources = useMemo(() => [getTokenLogoURL(address), tokenIcon], [
+    address,
+    tokenIcon,
+  ]);
 
-  useEffect(() => {
-    setError(false);
-  }, [address]);
+  if (address?.toLowerCase() === nativeCurrencyWrapper.address.toLowerCase()) {
+    return (
+      <StyledNativeCurrencyLogo size={size} {...rest}>
+        <img
+          src={
+            selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo
+          }
+          style={{
+            boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.075)",
+            borderRadius: "24px",
+          }}
+          alt=""
+        />
+      </StyledNativeCurrencyLogo>
+    );
+  }
 
-  if (error || BAD_IMAGES[address]) {
+  const source = sources.find((src) => !BAD_IMAGES[src]);
+
+  if (!!!source) {
     const numberSize = size ? parseInt(size.replace("px", "")) : 24;
     const fontSize = Math.ceil(numberSize / 4.5);
     return (
@@ -81,46 +106,15 @@ export default function TokenLogo({
     );
   }
 
-  // hard coded fixes for trust wallet api issues
-  if (address?.toLowerCase() === "0x5e74c9036fb86bd7ecdcb084a0673efc32ea31cb") {
-    address = "0x42456d7084eacf4083f1140d3229471bba2949a8";
-  }
-
-  if (address?.toLowerCase() === "0xc011a73ee8576fb46f5e1c5751ca3b9fe0af2a6f") {
-    address = "0xc011a72400e58ecd99ee497cf89e3775d4bd732f";
-  }
-
-  if (address?.toLowerCase() === nativeCurrencyWrapper.address) {
-    return (
-      <StyledNativeCurrencyLogo size={size} {...rest}>
-        <img
-          src={
-            selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo
-          }
-          style={{
-            boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.075)",
-            borderRadius: "24px",
-          }}
-          alt=""
-        />
-      </StyledNativeCurrencyLogo>
-    );
-  }
-
-  const path = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
-    address
-  )}/logo.png`;
-
   return (
     <Inline>
       <Image
         {...rest}
         alt={""}
-        src={path}
+        src={source}
         size={size}
         onError={(event) => {
-          BAD_IMAGES[address] = true;
-          setError(true);
+          BAD_IMAGES[source] = true;
           event.preventDefault();
         }}
       />

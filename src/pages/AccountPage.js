@@ -1,4 +1,4 @@
-import React, { useState, useMemo, useEffect, useCallback } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import styled from "styled-components";
 import { useUserTransactions, useUserPositions } from "../contexts/User";
 import TxnList from "../components/TxnList";
@@ -13,27 +13,26 @@ import { TYPE } from "../Theme";
 import { ButtonDropdown } from "../components/ButtonStyled";
 import { PageWrapper, ContentWrapper, StyledIcon } from "../components";
 import DoubleTokenLogo from "../components/DoubleLogo";
-import { Bookmark, Activity } from "react-feather";
+import { Activity } from "react-feather";
 import Link from "../components/Link";
 import { FEE_WARNING_TOKENS } from "../constants";
 import { BasicLink } from "../components/Link";
 import { useMedia } from "react-use";
 import Search from "../components/Search";
-import { useSavedAccounts } from "../contexts/LocalStorage";
 import {
   useNativeCurrencySymbol,
   useNativeCurrencyWrapper,
   useSelectedNetwork,
 } from "../contexts/Network";
 
-const AccountWrapper = styled.div`
+/* const AccountWrapper = styled.div`
   background-color: rgba(255, 255, 255, 0.2);
   padding: 6px 16px;
   border-radius: 100px;
   display: flex;
   align-items: center;
   justify-content: center;
-`;
+`; */
 
 const Header = styled.div``;
 
@@ -164,11 +163,11 @@ function AccountPage({ account }) {
   const below600 = useMedia("(max-width: 600px)");
 
   // adding/removing account from saved accounts
-  const [savedAccounts, addAccount, removeAccount] = useSavedAccounts();
+  /* const [savedAccounts, addAccount, removeAccount] = useSavedAccounts();
   const isBookmarked = savedAccounts.includes(account);
   const handleBookmarkClick = useCallback(() => {
     (isBookmarked ? removeAccount : addAccount)(account);
-  }, [account, isBookmarked, addAccount, removeAccount]);
+  }, [account, isBookmarked, addAccount, removeAccount]); */
 
   return (
     <PageWrapper>
@@ -201,7 +200,7 @@ function AccountPage({ account }) {
                 <TYPE.main fontSize={14}>View on block explorer</TYPE.main>
               </Link>
             </span>
-            <AccountWrapper>
+            {/* <AccountWrapper>
               <StyledIcon>
                 <Bookmark
                   onClick={handleBookmarkClick}
@@ -211,7 +210,7 @@ function AccountPage({ account }) {
                   }}
                 />
               </StyledIcon>
-            </AccountWrapper>
+            </AccountWrapper> */}
           </RowBetween>
         </Header>
         <DashboardWrapper>

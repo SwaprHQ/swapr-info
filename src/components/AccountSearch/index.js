@@ -1,19 +1,12 @@
-import React, { useState } from 'react'
-import 'feather-icons'
-import { withRouter } from 'react-router-dom'
-import styled from 'styled-components'
-import { ButtonLight, ButtonFaded } from '../ButtonStyled'
-import { AutoRow, RowBetween } from '../Row'
-import { isAddress } from '../../utils'
-import { useSavedAccounts } from '../../contexts/LocalStorage'
-import { AutoColumn } from '../Column'
-import { TYPE } from '../../Theme'
-import { Hover, StyledIcon } from '..'
-import Panel from '../Panel'
-import { Divider } from '..'
-import { Flex } from 'rebass'
-
-import { X } from 'react-feather'
+import React, { useState } from "react";
+import "feather-icons";
+import { withRouter } from "react-router-dom";
+import styled from "styled-components";
+import { ButtonLight } from "../ButtonStyled";
+import { AutoRow } from "../Row";
+import { isAddress } from "../../utils";
+import { useSavedAccounts } from "../../contexts/LocalStorage";
+import { AutoColumn } from "../Column";
 
 const Wrapper = styled.div`
   display: flex;
@@ -22,7 +15,7 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   width: 100%;
   border-radius: 12px;
-`
+`;
 
 const Input = styled.input`
   position: relative;
@@ -51,43 +44,43 @@ const Input = styled.input`
       font-size: 1rem;
     }
   }
-`
+`;
 
-const AccountLink = styled.span`
+/* const AccountLink = styled.span`
   display: flex;
   cursor: pointer;
   color: ${({ theme }) => theme.link};
   font-size: 14px;
   font-weight: 500;
-`
+`;
 
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 1fr;
-  grid-template-areas: 'account';
+  grid-template-areas: "account";
   padding: 0 4px;
 
   > * {
     justify-content: flex-end;
   }
-`
+`; */
 
 function AccountSearch({ history, small }) {
-  const [accountValue, setAccountValue] = useState()
-  const [savedAccounts, addAccount, removeAccount] = useSavedAccounts()
+  const [accountValue, setAccountValue] = useState();
+  const [savedAccounts, addAccount /* removeAccount */] = useSavedAccounts();
 
   function handleAccountSearch() {
     if (isAddress(accountValue)) {
-      history.push('/account/' + accountValue)
+      history.push("/account/" + accountValue);
       if (!savedAccounts.includes(accountValue)) {
-        addAccount(accountValue)
+        addAccount(accountValue);
       }
     }
   }
 
   return (
-    <AutoColumn gap={'1rem'}>
+    <AutoColumn gap={"1rem"}>
       {!small && (
         <>
           <AutoRow>
@@ -95,16 +88,18 @@ function AccountSearch({ history, small }) {
               <Input
                 placeholder="0x..."
                 onChange={(e) => {
-                  setAccountValue(e.target.value)
+                  setAccountValue(e.target.value);
                 }}
               />
             </Wrapper>
-            <ButtonLight onClick={handleAccountSearch}>Load Account Details</ButtonLight>
+            <ButtonLight onClick={handleAccountSearch}>
+              Load Account Details
+            </ButtonLight>
           </AutoRow>
         </>
       )}
 
-      <AutoColumn gap={'12px'}>
+      {/* <AutoColumn gap={'12px'}>
         {!small && (
           <Panel>
             <DashGrid center={true} style={{ height: 'fit-content', padding: '0 0 1rem 0' }}>
@@ -168,9 +163,9 @@ function AccountSearch({ history, small }) {
             )}
           </>
         )}
-      </AutoColumn>
+      </AutoColumn> */}
     </AutoColumn>
-  )
+  );
 }
 
-export default withRouter(AccountSearch)
+export default withRouter(AccountSearch);

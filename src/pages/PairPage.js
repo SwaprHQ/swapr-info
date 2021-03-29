@@ -3,11 +3,7 @@ import { withRouter } from "react-router-dom";
 import "feather-icons";
 import styled from "styled-components";
 import Panel from "../components/Panel";
-import {
-  PageWrapper,
-  ContentWrapperLarge,
-  StyledIcon,
-} from "../components/index";
+import { PageWrapper, ContentWrapperLarge } from "../components/index";
 import { AutoRow, RowBetween, RowFixed } from "../components/Row";
 import Column, { AutoColumn } from "../components/Column";
 import { ButtonLight } from "../components/ButtonStyled";
@@ -28,9 +24,7 @@ import DoubleTokenLogo from "../components/DoubleLogo";
 import TokenLogo from "../components/TokenLogo";
 import { Hover } from "../components";
 import { useNativeCurrencyPrice } from "../contexts/GlobalData";
-import { useSavedPairs } from "../contexts/LocalStorage";
 
-import { Bookmark, PlusCircle } from "react-feather";
 import FormattedName from "../components/FormattedName";
 import {
   useNativeCurrencySymbol,
@@ -224,7 +218,7 @@ function PairPage({ pairAddress, history }) {
     });
   }, []);
 
-  const [savedPairs, addPair] = useSavedPairs();
+  // const [savedPairs, addPair] = useSavedPairs();
 
   return (
     <PageWrapper>
@@ -296,7 +290,7 @@ function PairPage({ pairAddress, history }) {
                   flexDirection: below1080 ? "row-reverse" : "initial",
                 }}
               >
-                {!!!savedPairs[pairAddress] && !below1080 ? (
+                {/* {!!!savedPairs[pairAddress] && !below1080 ? (
                   <Hover
                     onClick={() =>
                       addPair(
@@ -318,7 +312,7 @@ function PairPage({ pairAddress, history }) {
                   </StyledIcon>
                 ) : (
                   <></>
-                )}
+                )} */}
 
                 {/* TODO: reenable button when cross-chain links are a thing */}
                 {/*  <Link

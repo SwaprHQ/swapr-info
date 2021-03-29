@@ -35,9 +35,7 @@ import CopyHelper from "../components/Copy";
 import { useMedia } from "react-use";
 import { useDataForList } from "../contexts/PairData";
 import { useEffect } from "react";
-import { useSavedTokens } from "../contexts/LocalStorage";
-import { Hover, PageWrapper, ContentWrapper, StyledIcon } from "../components";
-import { PlusCircle, Bookmark } from "react-feather";
+import { PageWrapper, ContentWrapper } from "../components";
 import FormattedName from "../components/FormattedName";
 import {
   useNativeCurrencySymbol,
@@ -166,7 +164,7 @@ function TokenPage({ address, history }) {
   const txnChangeFormatted = formattedPercent(txnChange);
 
   const below1080 = useMedia("(max-width: 1080px)");
-  const below800 = useMedia("(max-width: 800px)");
+  // const below800 = useMedia("(max-width: 800px)");
   const below600 = useMedia("(max-width: 600px)");
   const below500 = useMedia("(max-width: 500px)");
 
@@ -175,7 +173,7 @@ function TokenPage({ address, history }) {
   const formattedSymbol =
     symbol?.length > LENGTH ? symbol.slice(0, LENGTH) + "..." : symbol;
 
-  const [savedTokens, addToken] = useSavedTokens();
+  // const [savedTokens, addToken] = useSavedTokens();
 
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
@@ -267,7 +265,7 @@ function TokenPage({ address, history }) {
                 ml={below500 ? "0" : "2.5rem"}
                 mt={below500 ? "1rem" : "0"}
               >
-                {!!!savedTokens[address] && !below800 ? (
+                {/* {!!!savedTokens[address] && !below800 ? (
                   <Hover onClick={() => addToken(address, symbol)}>
                     <StyledIcon>
                       <PlusCircle style={{ marginRight: "0.5rem" }} />
@@ -279,7 +277,7 @@ function TokenPage({ address, history }) {
                   </StyledIcon>
                 ) : (
                   <></>
-                )}
+                )} */}
                 <Link
                   href={getPoolLink(
                     selectedNetwork,

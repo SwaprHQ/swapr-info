@@ -312,6 +312,9 @@ async function getGlobalData(
     });
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
+    // format the total liquidity in USD
+    data.totalLiquidityUSD =
+      data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
     if (data && oneDayData && twoDayData && twoWeekData) {
       let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
         data.totalVolumeUSD,
@@ -331,9 +334,6 @@ async function getGlobalData(
         twoDayData.txCount ? twoDayData.txCount : 0
       );
 
-      // format the total liquidity in USD
-      data.totalLiquidityUSD =
-        data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
       const liquidityChangeUSD = getPercentChange(
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
         oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice

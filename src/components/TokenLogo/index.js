@@ -2,15 +2,14 @@ import React, { useMemo } from "react";
 import styled from "styled-components";
 import EthereumLogo from "../../assets/eth.png";
 import xDAILogo from "../../assets/xdai-logo.png";
+import DXDLogo from "../../assets/dxd-logo.svg";
 import {
   useNativeCurrencyWrapper,
   useSelectedNetwork,
 } from "../../contexts/Network.js";
-import { SupportedNetwork } from "../../constants/index.js";
+import { DXD_ADDRESS, SupportedNetwork } from "../../constants/index.js";
 import { useTokenIcon } from "../../hooks/useTokenIcon.js";
 import { getAddress } from "ethers/utils";
-
-const BAD_IMAGES = {};
 
 const Inline = styled.div`
   display: flex;
@@ -26,23 +25,14 @@ const Image = styled.img`
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
 `;
 
-const StyledNativeCurrencyLogo = styled.div`
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  > img {
-    width: ${({ size }) => size};
-    height: ${({ size }) => size};
-  }
-`;
-
 const getTokenLogoURL = (address) => {
   if (!address) return undefined;
   return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
     address
   )}/logo.png`;
 };
+
+const BAD_IMAGES = {};
 
 export default function TokenLogo({
   address,
@@ -54,27 +44,19 @@ export default function TokenLogo({
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const tokenIcon = useTokenIcon(address);
-  const sources = useMemo(() => [getTokenLogoURL(address), tokenIcon], [
-    address,
-    tokenIcon,
-  ]);
-
-  if (address?.toLowerCase() === nativeCurrencyWrapper.address.toLowerCase()) {
-    return (
-      <StyledNativeCurrencyLogo size={size} {...rest}>
-        <img
-          src={
-            selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo
-          }
-          style={{
-            boxShadow: "0px 6px 10px rgba(0, 0, 0, 0.075)",
-            borderRadius: "24px",
-          }}
-          alt=""
-        />
-      </StyledNativeCurrencyLogo>
-    );
-  }
+  const sources = useMemo(() => {
+    if (!address && !tokenIcon) return [];
+    const lowercaseAddress = address.toLowerCase();
+    if (lowercaseAddress === nativeCurrencyWrapper.address.toLowerCase()) {
+      return [
+        selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo,
+      ];
+    }
+    if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase()) {
+      return [DXDLogo];
+    }
+    return [getTokenLogoURL(address), tokenIcon];
+  }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork]);
 
   const source = sources.find((src) => !BAD_IMAGES[src]);
 

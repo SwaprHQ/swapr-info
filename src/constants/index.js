@@ -29,6 +29,11 @@ export const NATIVE_CURRENCY_WRAPPER = {
   },
 };
 
+export const DXD_ADDRESS = {
+  [SupportedNetwork.MAINNET]: "0xa1d65E8fB6e87b60FECCBc582F7f97804B725521",
+  [SupportedNetwork.XDAI]: "0xb90d6bec20993be5d72a5ab353343f7a0281f158",
+};
+
 export const ETHERSCAN_PREFIXES = {
   [SupportedNetwork.MAINNET]: "",
 };

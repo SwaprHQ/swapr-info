@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import "feather-icons";
-import { withRouter } from "react-router-dom";
+import { Redirect, withRouter } from "react-router-dom";
 import { Text } from "rebass";
 import styled from "styled-components";
 import Link from "../components/Link";
@@ -185,6 +185,25 @@ function TokenPage({ address, history }) {
       top: 0,
     });
   }, []);
+
+  if (
+    !id &&
+    !name &&
+    !symbol &&
+    !priceUSD &&
+    !oneDayVolumeUSD &&
+    !totalLiquidityUSD &&
+    !volumeChangeUSD &&
+    !oneDayVolumeUT &&
+    !volumeChangeUT &&
+    !priceChangeUSD &&
+    !liquidityChangeUSD &&
+    !oneDayTxns &&
+    !txnChange
+  ) {
+    // linked token is probably on another chain, could not load data
+    return <Redirect to="/" />;
+  }
 
   return (
     <PageWrapper>

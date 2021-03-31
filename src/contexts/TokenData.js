@@ -222,17 +222,17 @@ const getTopTokens = async (
   try {
     let current = await client.query({
       query: TOKENS_CURRENT,
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let oneDayResult = await client.query({
       query: TOKENS_DYNAMIC(oneDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let twoDayResult = await client.query({
       query: TOKENS_DYNAMIC(twoDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let oneDayData = oneDayResult?.data?.tokens.reduce((obj, cur, i) => {
@@ -258,14 +258,14 @@ const getTopTokens = async (
           if (!oneDayHistory) {
             let oneDayResult = await client.query({
               query: TOKEN_DATA(token.id, oneDayBlock),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             oneDayHistory = oneDayResult.data.tokens[0];
           }
           if (!twoDayHistory) {
             let twoDayResult = await client.query({
               query: TOKEN_DATA(token.id, twoDayBlock),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             twoDayHistory = twoDayResult.data.tokens[0];
           }
@@ -329,7 +329,7 @@ const getTopTokens = async (
           if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
             const aaveData = await client.query({
               query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             const result = aaveData.data.pairs[0];
             data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -377,7 +377,7 @@ const getTokenData = async (
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(address),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     if (!result?.data?.tokens?.[0]) {
       return data;
@@ -387,14 +387,14 @@ const getTokenData = async (
     // get results from 24 hours in past
     let oneDayResult = await client.query({
       query: TOKEN_DATA(address, oneDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     oneDayData = oneDayResult.data.tokens[0];
 
     // get results from 48 hours in past
     let twoDayResult = await client.query({
       query: TOKEN_DATA(address, twoDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     twoDayData = twoDayResult.data.tokens[0];
 
@@ -402,14 +402,14 @@ const getTokenData = async (
     if (!oneDayData) {
       let oneDayResult = await client.query({
         query: TOKEN_DATA(address, oneDayBlock),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       oneDayData = oneDayResult.data.tokens[0];
     }
     if (!twoDayData) {
       let twoDayResult = await client.query({
         query: TOKEN_DATA(address, twoDayBlock),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       twoDayData = twoDayResult.data.tokens[0];
     }
@@ -481,7 +481,7 @@ const getTokenData = async (
     if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
       const aaveData = await client.query({
         query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       const result = aaveData.data.pairs[0];
       data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -502,7 +502,7 @@ const getTokenTransactions = async (client, allPairsFormatted) => {
       variables: {
         allPairs: allPairsFormatted,
       },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -518,7 +518,7 @@ const getTokenPairs = async (client, tokenAddress) => {
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(tokenAddress),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     return result.data?.["pairs0"].concat(result.data?.["pairs1"]);
   } catch (e) {
@@ -636,7 +636,7 @@ const getTokenChartData = async (client, tokenAddress) => {
           tokenAddr: tokenAddress,
           skip,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       if (result.data.tokenDayDatas.length < 1000) {
         allFound = true;

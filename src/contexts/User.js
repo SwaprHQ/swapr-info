@@ -235,7 +235,7 @@ export function useUserSnapshots(account) {
               skip: skip,
               user: account,
             },
-            fetchPolicy: "cache-first",
+            fetchPolicy: "network-only",
           });
           allResults = allResults.concat(
             result.data.liquidityPositionSnapshots
@@ -461,7 +461,6 @@ export function useUserLiquidityChart(account) {
             return mostRecent;
           }
         );
-
         // now cycle through pair day datas, for each one find usd value = ownership[address] * reserveUSD
         const dailyUSD = relavantDayDatas.reduce((totalUSD, dayData) => {
           return (totalUSD =

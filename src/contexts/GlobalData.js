@@ -711,18 +711,19 @@ export function useNativeCurrencyPrice() {
   const [state, { updateNativeCurrencyPrice }] = useGlobalDataContext();
   const nativeCurrencyPrice = state?.[NATIVE_CURRENCY_PRICE_KEY];
   const nativeCurrencyPriceOld = state?.["oneDayPrice"];
+
   useEffect(() => {
     async function checkForNativeCurrencyPrice() {
-      if (!nativeCurrencyPrice) {
-        let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
-          client,
-          blockClient
-        );
+      let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
+        client,
+        blockClient
+      );
+      if (newPrice !== nativeCurrencyPrice) {
         updateNativeCurrencyPrice(newPrice, oneDayPrice, priceChange);
       }
     }
     checkForNativeCurrencyPrice();
-  }, [nativeCurrencyPrice, updateNativeCurrencyPrice, client, blockClient]);
+  }, [updateNativeCurrencyPrice, nativeCurrencyPrice, client, blockClient]);
 
   return [nativeCurrencyPrice, nativeCurrencyPriceOld];
 }

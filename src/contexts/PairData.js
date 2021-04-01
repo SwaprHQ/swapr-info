@@ -36,6 +36,7 @@ import { useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
 
+const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_PAIR_TXNS = "UPDATE_PAIR_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
@@ -61,6 +62,8 @@ const PairDataContext = createContext();
 function usePairDataContext() {
   return useContext(PairDataContext);
 }
+
+const INITIAL_STATE = {};
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -123,6 +126,10 @@ function reducer(state, { type, payload }) {
       };
     }
 
+    case RESET: {
+      return INITIAL_STATE;
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`);
     }
@@ -130,7 +137,7 @@ function reducer(state, { type, payload }) {
 }
 
 export default function Provider({ children }) {
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   // update pair specific data
   const update = useCallback((pairAddress, data) => {
@@ -173,6 +180,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
   return (
     <PairDataContext.Provider
       value={useMemo(
@@ -184,6 +195,7 @@ export default function Provider({ children }) {
             updateChartData,
             updateTopPairs,
             updateHourlyData,
+            reset,
           },
         ],
         [
@@ -193,6 +205,7 @@ export default function Provider({ children }) {
           updateChartData,
           updateTopPairs,
           updateHourlyData,
+          reset,
         ]
       )}
     >
@@ -746,4 +759,9 @@ export function usePairChartData(pairAddress) {
 export function useAllPairData() {
   const [state] = usePairDataContext();
   return state || {};
+}
+
+export function usePairContextResetter() {
+  const [, { reset }] = usePairDataContext();
+  return reset;
 }

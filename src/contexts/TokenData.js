@@ -35,6 +35,7 @@ import { useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
 
+const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_TOKEN_TXNS = "UPDATE_TOKEN_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
@@ -51,6 +52,8 @@ const TokenDataContext = createContext();
 function useTokenDataContext() {
   return useContext(TokenDataContext);
 }
+
+const INITIAL_STATE = {};
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -122,6 +125,11 @@ function reducer(state, { type, payload }) {
         },
       };
     }
+
+    case RESET: {
+      return INITIAL_STATE;
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`);
     }
@@ -129,7 +137,7 @@ function reducer(state, { type, payload }) {
 }
 
 export default function Provider({ children }) {
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const update = useCallback((tokenAddress, data) => {
     dispatch({
       type: UPDATE,
@@ -177,6 +185,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
   return (
     <TokenDataContext.Provider
       value={useMemo(
@@ -189,6 +201,7 @@ export default function Provider({ children }) {
             updateTopTokens,
             updateAllPairs,
             updatePriceData,
+            reset,
           },
         ],
         [
@@ -199,6 +212,7 @@ export default function Provider({ children }) {
           updateTopTokens,
           updateAllPairs,
           updatePriceData,
+          reset,
         ]
       )}
     >
@@ -882,4 +896,9 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 export function useAllTokenData() {
   const [state] = useTokenDataContext();
   return state;
+}
+
+export function useTokenContextResetter() {
+  const [, { reset }] = useTokenDataContext();
+  return reset;
 }

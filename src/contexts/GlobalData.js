@@ -34,6 +34,7 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
+
 const UPDATE = "UPDATE";
 const UPDATE_TXNS = "UPDATE_TXNS";
 const UPDATE_CHART = "UPDATE_CHART";
@@ -42,7 +43,7 @@ const NATIVE_CURRENCY_PRICE_KEY = "NATIVE_CURRENCY_PRICE_KEY";
 const UPDATE_ALL_PAIRS_IN_SWAPR = "UPDAUPDATE_ALL_PAIRS_IN_SWAPRTE_TOP_PAIRS";
 const UPDATE_ALL_TOKENS_IN_SWAPR = "UPDATE_ALL_TOKENS_IN_SWAPR";
 const UPDATE_TOP_LPS = "UPDATE_TOP_LPS";
-const RESET_GLOBAL_DATA = "RESET_GLOBAL_DATA";
+const RESET = "RESET";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -119,7 +120,7 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case RESET_GLOBAL_DATA: {
+    case RESET: {
       return INITIAL_STATE;
     }
 
@@ -200,8 +201,8 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const resetGlobalData = useCallback(() => {
-    dispatch({ type: RESET_GLOBAL_DATA });
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
   }, []);
 
   return (
@@ -217,7 +218,7 @@ export default function Provider({ children }) {
             updateTopLps,
             updateAllPairsInSwapr,
             updateAllTokensInSwapr,
-            resetGlobalData,
+            reset,
           },
         ],
         [
@@ -229,7 +230,7 @@ export default function Provider({ children }) {
           updateNativeCurrencyPrice,
           updateAllPairsInSwapr,
           updateAllTokensInSwapr,
-          resetGlobalData,
+          reset,
         ]
       )}
     >
@@ -816,7 +817,7 @@ export function useTopLps(client) {
   return topLps;
 }
 
-export function useGlobalStateResetter() {
-  const [, { resetGlobalData }] = useGlobalDataContext();
-  return resetGlobalData;
+export function useGlobalContextResetter() {
+  const [, { reset }] = useGlobalDataContext();
+  return reset;
 }

@@ -8,6 +8,11 @@ export const ChainId = Object.freeze({
   [SupportedNetwork.XDAI]: 100,
 });
 
+export const SupportedNetworkForChainId = Object.freeze({
+  [ChainId[SupportedNetwork.MAINNET]]: SupportedNetwork.MAINNET,
+  [ChainId[SupportedNetwork.XDAI]]: SupportedNetwork.XDAI,
+});
+
 export const FACTORY_ADDRESS = {
   [SupportedNetwork.MAINNET]: "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
   [SupportedNetwork.XDAI]: "0x5d48c95adffd4b40c1aaadc4e08fc44117e02179",

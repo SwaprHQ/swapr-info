@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from "react";
-import { Redirect, withRouter } from "react-router-dom";
+import { withRouter } from "react-router-dom";
 import "feather-icons";
 import styled from "styled-components";
 import Panel from "../components/Panel";
@@ -223,23 +223,6 @@ function PairPage({ pairAddress, history }) {
       top: 0,
     });
   }, []);
-
-  if (
-    !token0 &&
-    !token1 &&
-    !reserve0 &&
-    !reserve1 &&
-    !reserveUSD &&
-    !trackedReserveUSD &&
-    !oneDayVolumeUSD &&
-    !volumeChangeUSD &&
-    !oneDayVolumeUntracked &&
-    !volumeChangeUntracked &&
-    !liquidityChangeUSD
-  ) {
-    // linked pair is probably on another chain, could not load data
-    return <Redirect to="/" />;
-  }
 
   // const [savedPairs, addPair] = useSavedPairs();
 

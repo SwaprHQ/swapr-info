@@ -15,7 +15,6 @@ import {
   useSelectedNetwork,
   useSelectedNetworkUpdater,
 } from "../../contexts/Network";
-import { useGlobalStateResetter } from "../../contexts/GlobalData";
 import { SupportedNetwork } from "../../constants";
 
 const Wrapper = styled.div`
@@ -113,15 +112,13 @@ function SideNav({ history }) {
 
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
-  const resetGlobalData = useGlobalStateResetter();
 
   const handleSelectedNetworkChange = useCallback(
     (network) => {
-      resetGlobalData();
       updateSelectedNetwork(network);
       history.push("/");
     },
-    [resetGlobalData, updateSelectedNetwork, history]
+    [updateSelectedNetwork, history]
   );
 
   return (

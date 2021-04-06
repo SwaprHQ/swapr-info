@@ -3,12 +3,16 @@ import { BigNumber } from "bignumber.js";
 import dayjs from "dayjs";
 import { ethers } from "ethers";
 import utc from "dayjs/plugin/utc";
-import { client, blockClient } from "../apollo/client";
 import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from "../apollo/queries";
 import { Text } from "rebass";
 import _Decimal from "decimal.js-light";
 import toFormat from "toformat";
-import { timeframeOptions } from "../constants";
+import {
+  SupportedNetwork,
+  timeframeOptions,
+  ETHERSCAN_PREFIXES,
+  ChainId,
+} from "../constants";
 import Numeral from "numeral";
 
 // format libraries
@@ -38,6 +42,9 @@ export function getTimeframe(timeWindow) {
 }
 
 export function getPoolLink(
+  selectedNetwork,
+  nativeCurrency,
+  nativeCurrencyWrapper,
   token0Address,
   token1Address = null,
   remove = false
@@ -47,51 +54,94 @@ export function getPoolLink(
       `https://swapr.eth.link/#/` +
       (remove ? `remove` : `add`) +
       `/${
-        token0Address === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-          ? "ETH"
+        token0Address === nativeCurrencyWrapper.symbol
+          ? nativeCurrency
           : token0Address
-      }/${"ETH"}`
+      }/${nativeCurrency}?chainId=${ChainId[selectedNetwork]}`
     );
   } else {
     return (
       `https://swapr.eth.link/#/` +
       (remove ? `remove` : `add`) +
       `/${
-        token0Address === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-          ? "ETH"
+        token0Address === nativeCurrencyWrapper.symbol
+          ? nativeCurrency
           : token0Address
       }/${
-        token1Address === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-          ? "ETH"
+        token1Address === nativeCurrencyWrapper.symbol
+          ? nativeCurrency
           : token1Address
-      }`
+      }?chainId=${ChainId[selectedNetwork]}`
     );
   }
 }
 
-export function getSwapLink(token0Address, token1Address = null) {
+export function getSwapLink(
+  selectedNetwork,
+  nativeCurrency,
+  nativeCurrencyWrapper,
+  token0Address,
+  token1Address = null
+) {
   if (!token1Address) {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}`;
+    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
   } else {
     return `https://swapr.eth.link/#/swap?inputCurrency=${
-      token0Address === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-        ? "ETH"
+      token0Address === nativeCurrencyWrapper.symbol
+        ? nativeCurrency
         : token0Address
     }&outputCurrency=${
-      token1Address === "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2"
-        ? "ETH"
+      token1Address === nativeCurrencyWrapper.symbol
+        ? nativeCurrency
         : token1Address
-    }`;
+    }&chainId=${ChainId[selectedNetwork]}`;
   }
 }
 
-export function getSwaprAppLink(linkVariable) {
+const getExplorerPrefix = (selectedNetwork) => {
+  switch (selectedNetwork) {
+    case SupportedNetwork.XDAI:
+      return "https://blockscout.com/poa/xdai";
+    default:
+      return `https://${
+        ETHERSCAN_PREFIXES[selectedNetwork] ||
+        ETHERSCAN_PREFIXES[SupportedNetwork.MAINNET]
+      }etherscan.io`;
+  }
+};
+
+export function getExplorerLink(selectedNetwork, data, type) {
+  const prefix = getExplorerPrefix(selectedNetwork);
+
+  // exception. blockscout doesn't have a token-specific address
+  if (selectedNetwork === SupportedNetwork.XDAI && type === "token") {
+    return `${prefix}/address/${data}`;
+  }
+
+  switch (type) {
+    case "transaction": {
+      return `${prefix}/tx/${data}`;
+    }
+    case "token": {
+      return `${prefix}/token/${data}`;
+    }
+    case "block": {
+      return `${prefix}/block/${data}`;
+    }
+    case "address":
+    default: {
+      return `${prefix}/address/${data}`;
+    }
+  }
+}
+
+export function getSwaprAppLink(nativeCurrency, linkVariable, selectedNetwork) {
   let baseSwaprUrl = "https://swapr.eth.link/#/";
   if (!linkVariable) {
     return baseSwaprUrl;
   }
 
-  return `${baseSwaprUrl}/ETH/${linkVariable}`;
+  return `${baseSwaprUrl}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
 }
 
 export function localNumber(val) {
@@ -144,7 +194,7 @@ export async function splitQuery(
     let sliced = list.slice(skip, end);
     let result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     fetchedData = {
       ...fetchedData,
@@ -168,14 +218,14 @@ export async function splitQuery(
  * @dev Query speed is optimized by limiting to a 600-second period
  * @param {Int} timestamp in seconds
  */
-export async function getBlockFromTimestamp(timestamp) {
+export async function getBlockFromTimestamp(blockClient, timestamp) {
   let result = await blockClient.query({
     query: GET_BLOCK,
     variables: {
       timestampFrom: timestamp,
       timestampTo: timestamp + 600,
     },
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
   return result?.data?.blocks?.[0]?.number;
 }
@@ -187,7 +237,11 @@ export async function getBlockFromTimestamp(timestamp) {
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
+export async function getBlocksFromTimestamps(
+  blockClient,
+  timestamps,
+  skipCount = 500
+) {
   if (timestamps?.length === 0) {
     return [];
   }
@@ -214,14 +268,19 @@ export async function getBlocksFromTimestamps(timestamps, skipCount = 500) {
   return blocks;
 }
 
-export async function getLiquidityTokenBalanceOvertime(account, timestamps) {
+export async function getLiquidityTokenBalanceOvertime(
+  client,
+  blockClient,
+  account,
+  timestamps
+) {
   // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(timestamps);
+  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
 
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(account, blocks),
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
 
   let values = [];
@@ -242,7 +301,12 @@ export async function getLiquidityTokenBalanceOvertime(account, timestamps) {
  * @param {String} pairAddress
  * @param {Array} timestamps
  */
-export async function getShareValueOverTime(pairAddress, timestamps) {
+export async function getShareValueOverTime(
+  client,
+  blockClient,
+  pairAddress,
+  timestamps
+) {
   if (!timestamps) {
     const utcCurrentTime = dayjs();
     const utcSevenDaysBack = utcCurrentTime.subtract(8, "day").unix();
@@ -250,12 +314,12 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   }
 
   // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(timestamps);
+  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
 
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(pairAddress, blocks),
-    fetchPolicy: "cache-first",
+    fetchPolicy: "network-only",
   });
 
   let values = [];
@@ -272,11 +336,13 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
         reserve0: result.data[row].reserve0,
         reserve1: result.data[row].reserve1,
         reserveUSD: result.data[row].reserveUSD,
-        token0DerivedETH: result.data[row].token0.derivedETH,
-        token1DerivedETH: result.data[row].token1.derivedETH,
+        token0DerivedNativeCurrency:
+          result.data[row].token0.derivedNativeCurrency,
+        token1DerivedNativeCurrency:
+          result.data[row].token1.derivedNativeCurrency,
         roiUsd:
           values && values[0] ? sharePriceUsd / values[0]["sharePriceUsd"] : 1,
-        ethPrice: 0,
+        nativeCurrencyPrice: 0,
         token0PriceUSD: 0,
         token1PriceUSD: 0,
       });
@@ -288,11 +354,13 @@ export async function getShareValueOverTime(pairAddress, timestamps) {
   for (var brow in result?.data) {
     let timestamp = brow.split("b")[1];
     if (timestamp) {
-      values[index].ethPrice = result.data[brow].ethPrice;
+      values[index].nativeCurrencyPrice = result.data[brow].nativeCurrencyPrice;
       values[index].token0PriceUSD =
-        result.data[brow].ethPrice * values[index].token0DerivedETH;
+        result.data[brow].nativeCurrencyPrice *
+        values[index].token0DerivedNativeCurrency;
       values[index].token1PriceUSD =
-        result.data[brow].ethPrice * values[index].token1DerivedETH;
+        result.data[brow].nativeCurrencyPrice *
+        values[index].token1DerivedNativeCurrency;
       index += 1;
     }
   }
@@ -336,10 +404,14 @@ export const setThemeColor = (theme) =>
 export const Big = (number) => new BigNumber(number);
 
 export const urls = {
-  showTransaction: (tx) => `https://etherscan.io/tx/${tx}/`,
-  showAddress: (address) => `https://www.etherscan.io/address/${address}/`,
-  showToken: (address) => `https://www.etherscan.io/token/${address}/`,
-  showBlock: (block) => `https://etherscan.io/block/${block}/`,
+  showTransaction: (tx, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, tx, "transaction"),
+  showAddress: (address, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, address, "address"),
+  showToken: (address, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, address, "token"),
+  showBlock: (block, selectedNetwork) =>
+    getExplorerLink(selectedNetwork, block, "block"),
 };
 
 export const formatTime = (unix) => {

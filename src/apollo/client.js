@@ -1,34 +1,46 @@
-import { ApolloClient } from 'apollo-client'
-import { InMemoryCache } from 'apollo-cache-inmemory'
-import { HttpLink } from 'apollo-link-http'
+import { ApolloClient } from "apollo-client";
+import { InMemoryCache } from "apollo-cache-inmemory";
+import { HttpLink } from "apollo-link-http";
+import { SupportedNetwork } from "../constants";
 
-export const client = new ApolloClient({
-  link: new HttpLink({
-    uri: 'https://api.thegraph.com/subgraphs/name/nicoelzer/swapr',
+export const clients = {
+  [SupportedNetwork.MAINNET]: new ApolloClient({
+    link: new HttpLink({
+      // TODO: change this when release day comes
+      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-mainnet-alpha",
+    }),
+    cache: new InMemoryCache(),
+    shouldBatch: true,
   }),
-  cache: new InMemoryCache(),
-  shouldBatch: true,
-})
+  [SupportedNetwork.XDAI]: new ApolloClient({
+    link: new HttpLink({
+      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-xdai",
+    }),
+    cache: new InMemoryCache(),
+    shouldBatch: true,
+  }),
+};
 
 export const healthClient = new ApolloClient({
   link: new HttpLink({
-    uri: 'https://api.thegraph.com/index-node/graphql',
+    uri: "https://api.thegraph.com/index-node/graphql",
   }),
   cache: new InMemoryCache(),
   shouldBatch: true,
-})
+});
 
-export const stakingClient = new ApolloClient({
-  link: new HttpLink({
-    uri: 'https://api.thegraph.com/subgraphs/name/way2rach/talisman',
+export const blockClients = {
+  [SupportedNetwork.MAINNET]: new ApolloClient({
+    link: new HttpLink({
+      uri:
+        "https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks",
+    }),
+    cache: new InMemoryCache(),
   }),
-  cache: new InMemoryCache(),
-  shouldBatch: true,
-})
-
-export const blockClient = new ApolloClient({
-  link: new HttpLink({
-    uri: 'https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks',
+  [SupportedNetwork.XDAI]: new ApolloClient({
+    link: new HttpLink({
+      uri: "https://api.thegraph.com/subgraphs/name/1hive/xdai-blocks",
+    }),
+    cache: new InMemoryCache(),
   }),
-  cache: new InMemoryCache(),
-})
+};

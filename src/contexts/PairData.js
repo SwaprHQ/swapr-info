@@ -36,6 +36,7 @@ import { useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
 
+const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_PAIR_TXNS = "UPDATE_PAIR_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
@@ -61,6 +62,8 @@ const PairDataContext = createContext();
 function usePairDataContext() {
   return useContext(PairDataContext);
 }
+
+const INITIAL_STATE = {};
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -123,6 +126,10 @@ function reducer(state, { type, payload }) {
       };
     }
 
+    case RESET: {
+      return INITIAL_STATE;
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`);
     }
@@ -130,7 +137,7 @@ function reducer(state, { type, payload }) {
 }
 
 export default function Provider({ children }) {
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
 
   // update pair specific data
   const update = useCallback((pairAddress, data) => {
@@ -173,6 +180,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
   return (
     <PairDataContext.Provider
       value={useMemo(
@@ -184,6 +195,7 @@ export default function Provider({ children }) {
             updateChartData,
             updateTopPairs,
             updateHourlyData,
+            reset,
           },
         ],
         [
@@ -193,6 +205,7 @@ export default function Provider({ children }) {
           updateChartData,
           updateTopPairs,
           updateHourlyData,
+          reset,
         ]
       )}
     >
@@ -220,14 +233,14 @@ async function getBulkPairData(
       variables: {
         allPairs: pairList,
       },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
         let result = client.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: "cache-first",
+          fetchPolicy: "network-only",
         });
         return result;
       })
@@ -253,7 +266,7 @@ async function getBulkPairData(
           if (!oneDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             oneDayHistory = newData.data.pairs[0];
           }
@@ -261,7 +274,7 @@ async function getBulkPairData(
           if (!twoDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             twoDayHistory = newData.data.pairs[0];
           }
@@ -269,7 +282,7 @@ async function getBulkPairData(
           if (!oneWeekHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             oneWeekHistory = newData.data.pairs[0];
           }
@@ -384,7 +397,7 @@ const getPairChartData = async (client, pairAddress) => {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       skip += 1000;
       data = data.concat(result.data.pairDayDatas);
@@ -532,7 +545,7 @@ export function Updater() {
         data: { pairs },
       } = await client.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
 
       // format as array of addresses
@@ -640,11 +653,25 @@ export function useDataForList(pairList) {
       );
       setFetched(newFetched.concat(newPairData));
     }
-    if (nativeCurrencyPrice && pairList && pairList.length > 0 && !fetched && !stale) {
+    if (
+      nativeCurrencyPrice &&
+      pairList &&
+      pairList.length > 0 &&
+      !fetched &&
+      !stale
+    ) {
       setStale(true);
       fetchNewPairData();
     }
-  }, [nativeCurrencyPrice, state, pairList, stale, fetched, client, blockClient]);
+  }, [
+    nativeCurrencyPrice,
+    state,
+    pairList,
+    stale,
+    fetched,
+    client,
+    blockClient,
+  ]);
 
   let formattedFetch =
     fetched &&
@@ -677,7 +704,12 @@ export function usePairData(pairAddress) {
         data && update(pairAddress, data[0]);
       }
     }
-    if (!pairData && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
+    if (
+      !pairData &&
+      pairAddress &&
+      nativeCurrencyPrice &&
+      isAddress(pairAddress)
+    ) {
       fetchData();
     }
   }, [pairAddress, pairData, update, nativeCurrencyPrice, client, blockClient]);
@@ -690,40 +722,34 @@ export function usePairData(pairAddress) {
  */
 export function usePairTransactions(pairAddress) {
   const client = useSwaprSubgraphClient();
-  const blockClient = useBlocksSubgraphClient();
   const [state, { updatePairTxns }] = usePairDataContext();
   const pairTxns = state?.[pairAddress]?.txns;
   useEffect(() => {
     async function checkForTxns() {
       if (!pairTxns) {
-        let transactions = await getPairTransactions(
-          client,
-          blockClient,
-          pairAddress
-        );
+        let transactions = await getPairTransactions(client, pairAddress);
         updatePairTxns(pairAddress, transactions);
       }
     }
     checkForTxns();
-  }, [pairTxns, pairAddress, updatePairTxns, client, blockClient]);
+  }, [pairTxns, pairAddress, updatePairTxns, client]);
   return pairTxns;
 }
 
 export function usePairChartData(pairAddress) {
   const client = useSwaprSubgraphClient();
-  const blockClient = useBlocksSubgraphClient();
   const [state, { updateChartData }] = usePairDataContext();
   const chartData = state?.[pairAddress]?.chartData;
 
   useEffect(() => {
     async function checkForChartData() {
       if (!chartData) {
-        let data = await getPairChartData(client, blockClient, pairAddress);
+        let data = await getPairChartData(client, pairAddress);
         updateChartData(pairAddress, data);
       }
     }
     checkForChartData();
-  }, [chartData, pairAddress, updateChartData, client, blockClient]);
+  }, [chartData, pairAddress, updateChartData, client]);
   return chartData;
 }
 
@@ -733,4 +759,9 @@ export function usePairChartData(pairAddress) {
 export function useAllPairData() {
   const [state] = usePairDataContext();
   return state || {};
+}
+
+export function usePairContextResetter() {
+  const [, { reset }] = usePairDataContext();
+  return reset;
 }

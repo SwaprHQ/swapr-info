@@ -24,6 +24,7 @@ import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
 
 dayjs.extend(utc);
 
+const RESET = "RESET";
 const UPDATE_TRANSACTIONS = "UPDATE_TRANSACTIONS";
 const UPDATE_POSITIONS = "UPDATE_POSITIONS ";
 const UPDATE_MINING_POSITIONS = "UPDATE_MINING_POSITIONS";
@@ -41,6 +42,8 @@ const UserContext = createContext();
 function useUserContext() {
   return useContext(UserContext);
 }
+
+const INITIAL_STATE = {};
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -93,13 +96,15 @@ function reducer(state, { type, payload }) {
       };
     }
 
+    case RESET: {
+      return INITIAL_STATE;
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`);
     }
   }
 }
-
-const INITIAL_STATE = {};
 
 export default function Provider({ children }) {
   const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
@@ -155,6 +160,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
   return (
     <UserContext.Provider
       value={useMemo(
@@ -166,6 +175,7 @@ export default function Provider({ children }) {
             updateMiningPositions,
             updateUserSnapshots,
             updateUserPairReturns,
+            reset,
           },
         ],
         [
@@ -175,6 +185,7 @@ export default function Provider({ children }) {
           updateMiningPositions,
           updateUserSnapshots,
           updateUserPairReturns,
+          reset,
         ]
       )}
     >
@@ -235,7 +246,7 @@ export function useUserSnapshots(account) {
               skip: skip,
               user: account,
             },
-            fetchPolicy: "cache-first",
+            fetchPolicy: "network-only",
           });
           allResults = allResults.concat(
             result.data.liquidityPositionSnapshots
@@ -461,7 +472,6 @@ export function useUserLiquidityChart(account) {
             return mostRecent;
           }
         );
-
         // now cycle through pair day datas, for each one find usd value = ownership[address] * reserveUSD
         const dailyUSD = relavantDayDatas.reduce((totalUSD, dayData) => {
           return (totalUSD =
@@ -513,6 +523,7 @@ export function useUserPositions(account) {
           let formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {
               const returnData = await getLPReturnsOnPair(
+                client,
                 account,
                 positionData.pair,
                 nativeCurrencyPrice,
@@ -543,4 +554,9 @@ export function useUserPositions(account) {
   ]);
 
   return positions;
+}
+
+export function useUserContextResetter() {
+  const [, { reset }] = useUserContext();
+  return reset;
 }

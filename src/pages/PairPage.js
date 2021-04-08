@@ -3,11 +3,7 @@ import { withRouter } from "react-router-dom";
 import "feather-icons";
 import styled from "styled-components";
 import Panel from "../components/Panel";
-import {
-  PageWrapper,
-  ContentWrapperLarge,
-  StyledIcon,
-} from "../components/index";
+import { PageWrapper, ContentWrapperLarge } from "../components/index";
 import { AutoRow, RowBetween, RowFixed } from "../components/Row";
 import Column, { AutoColumn } from "../components/Column";
 import { ButtonLight, ButtonDark } from "../components/ButtonStyled";
@@ -20,6 +16,7 @@ import Search from "../components/Search";
 import {
   formattedNum,
   formattedPercent,
+  getExplorerLink,
   getPoolLink,
   getSwapLink,
 } from "../utils";
@@ -33,10 +30,13 @@ import DoubleTokenLogo from "../components/DoubleLogo";
 import TokenLogo from "../components/TokenLogo";
 import { Hover } from "../components";
 import { useNativeCurrencyPrice } from "../contexts/GlobalData";
-import { useSavedPairs } from "../contexts/LocalStorage";
 
-import { Bookmark, PlusCircle } from "react-feather";
 import FormattedName from "../components/FormattedName";
+import {
+  useNativeCurrencySymbol,
+  useNativeCurrencyWrapper,
+  useSelectedNetwork,
+} from "../contexts/Network";
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -193,6 +193,10 @@ function PairPage({ pairAddress, history }) {
         )
       : "";
 
+  const selectedNetwork = useSelectedNetwork();
+  const nativeCurrency = useNativeCurrencySymbol();
+  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
+
   // rates
   const token0Rate =
     reserve0 && reserve1 ? formattedNum(reserve1 / reserve0) : "-";
@@ -220,7 +224,7 @@ function PairPage({ pairAddress, history }) {
     });
   }, []);
 
-  const [savedPairs, addPair] = useSavedPairs();
+  // const [savedPairs, addPair] = useSavedPairs();
 
   return (
     <PageWrapper>
@@ -252,6 +256,8 @@ function PairPage({ pairAddress, history }) {
                     <DoubleTokenLogo
                       a0={token0?.id || ""}
                       a1={token1?.id || ""}
+                      defaultText0={token0?.symbol}
+                      defaultText1={token1?.symbol}
                       size={32}
                       margin={true}
                     />
@@ -265,13 +271,17 @@ function PairPage({ pairAddress, history }) {
                         <HoverSpan
                           onClick={() => history.push(`/token/${token0?.id}`)}
                         >
-                          {token0.symbol}
+                          {token0.symbol === nativeCurrencyWrapper.symbol
+                            ? nativeCurrency
+                            : token0.symbol}
                         </HoverSpan>
                         <span>-</span>
                         <HoverSpan
                           onClick={() => history.push(`/token/${token1?.id}`)}
                         >
-                          {token1.symbol}
+                          {token1.symbol === nativeCurrencyWrapper.symbol
+                            ? nativeCurrency
+                            : token1.symbol}
                         </HoverSpan>{" "}
                         Pair
                       </>
@@ -288,7 +298,7 @@ function PairPage({ pairAddress, history }) {
                   flexDirection: below1080 ? "row-reverse" : "initial",
                 }}
               >
-                {!!!savedPairs[pairAddress] && !below1080 ? (
+                {/* {!!!savedPairs[pairAddress] && !below1080 ? (
                   <Hover
                     onClick={() =>
                       addPair(
@@ -310,14 +320,33 @@ function PairPage({ pairAddress, history }) {
                   </StyledIcon>
                 ) : (
                   <></>
-                )}
+                )} */}
 
-                <Link external href={getPoolLink(token0?.id, token1?.id)}>
+                {/* TODO: reenable button when cross-chain links are a thing */}
+                <Link
+                  external
+                  href={getPoolLink(
+                    selectedNetwork,
+                    nativeCurrency,
+                    nativeCurrencyWrapper,
+                    token0?.id,
+                    token1?.id
+                  )}
+                >
                   <ButtonLight color={backgroundColor}>
                     + Add Liquidity
                   </ButtonLight>
                 </Link>
-                <Link external href={getSwapLink(token0?.id, token1?.id)}>
+                <Link
+                  external
+                  href={getSwapLink(
+                    selectedNetwork,
+                    nativeCurrency,
+                    nativeCurrencyWrapper,
+                    token0?.id,
+                    token1?.id
+                  )}
+                >
                   <ButtonDark
                     ml={!below1080 && ".5rem"}
                     mr={below1080 && ".5rem"}
@@ -340,7 +369,11 @@ function PairPage({ pairAddress, history }) {
           >
             <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
               <RowFixed>
-                <TokenLogo address={token0?.id} size={"16px"} />
+                <TokenLogo
+                  address={token0?.id}
+                  defaultText={token0?.symbol}
+                  size={"16px"}
+                />
                 <TYPE.main
                   fontSize={"16px"}
                   lineHeight={1}
@@ -359,7 +392,11 @@ function PairPage({ pairAddress, history }) {
             </FixedPanel>
             <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
               <RowFixed>
-                <TokenLogo address={token1?.id} size={"16px"} />
+                <TokenLogo
+                  address={token1?.id}
+                  defaultText={token1?.symbol}
+                  size={"16px"}
+                />
                 <TYPE.main
                   fontSize={"16px"}
                   lineHeight={1}
@@ -452,7 +489,10 @@ function PairPage({ pairAddress, history }) {
                     fade={true}
                   >
                     <AutoRow gap="4px">
-                      <TokenLogo address={token0?.id} />
+                      <TokenLogo
+                        defaultText={token0?.symbol}
+                        address={token0?.id}
+                      />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
                           {reserve0 ? formattedNum(reserve0) : ""}{" "}
@@ -470,7 +510,10 @@ function PairPage({ pairAddress, history }) {
                     fade={true}
                   >
                     <AutoRow gap="4px">
-                      <TokenLogo address={token1?.id} />
+                      <TokenLogo
+                        defaultText={token1?.symbol}
+                        address={token1?.id}
+                      />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
                           {reserve1 ? formattedNum(reserve1) : ""}{" "}
@@ -595,9 +638,13 @@ function PairPage({ pairAddress, history }) {
                   <Link
                     color={backgroundColor}
                     external
-                    href={"https://etherscan.io/address/" + pairAddress}
+                    href={getExplorerLink(
+                      selectedNetwork,
+                      pairAddress,
+                      "token"
+                    )}
                   >
-                    View on Etherscan ↗
+                    View on block explorer ↗
                   </Link>
                 </ButtonLight>
               </TokenDetailsLayout>

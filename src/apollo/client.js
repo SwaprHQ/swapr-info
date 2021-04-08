@@ -6,14 +6,8 @@ import { SupportedNetwork } from "../constants";
 export const clients = {
   [SupportedNetwork.MAINNET]: new ApolloClient({
     link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/nicoelzer/swapr",
-    }),
-    cache: new InMemoryCache(),
-    shouldBatch: true,
-  }),
-  [SupportedNetwork.RINKEBY]: new ApolloClient({
-    link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr_rinkeby",
+      // TODO: change this when release day comes
+      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-mainnet-alpha",
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
@@ -40,12 +34,6 @@ export const blockClients = {
     link: new HttpLink({
       uri:
         "https://api.thegraph.com/subgraphs/name/blocklytics/ethereum-blocks",
-    }),
-    cache: new InMemoryCache(),
-  }),
-  [SupportedNetwork.RINKEBY]: new ApolloClient({
-    link: new HttpLink({
-      uri: "https://api.thegraph.com/subgraphs/name/mul53/rinkeby-blocks",
     }),
     cache: new InMemoryCache(),
   }),

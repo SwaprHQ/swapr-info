@@ -34,6 +34,7 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
+
 const UPDATE = "UPDATE";
 const UPDATE_TXNS = "UPDATE_TXNS";
 const UPDATE_CHART = "UPDATE_CHART";
@@ -42,7 +43,7 @@ const NATIVE_CURRENCY_PRICE_KEY = "NATIVE_CURRENCY_PRICE_KEY";
 const UPDATE_ALL_PAIRS_IN_SWAPR = "UPDAUPDATE_ALL_PAIRS_IN_SWAPRTE_TOP_PAIRS";
 const UPDATE_ALL_TOKENS_IN_SWAPR = "UPDATE_ALL_TOKENS_IN_SWAPR";
 const UPDATE_TOP_LPS = "UPDATE_TOP_LPS";
-const RESET_GLOBAL_DATA = "RESET_GLOBAL_DATA";
+const RESET = "RESET";
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -119,7 +120,7 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case RESET_GLOBAL_DATA: {
+    case RESET: {
       return INITIAL_STATE;
     }
 
@@ -200,8 +201,8 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const resetGlobalData = useCallback(() => {
-    dispatch({ type: RESET_GLOBAL_DATA });
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
   }, []);
 
   return (
@@ -217,7 +218,7 @@ export default function Provider({ children }) {
             updateTopLps,
             updateAllPairsInSwapr,
             updateAllTokensInSwapr,
-            resetGlobalData,
+            reset,
           },
         ],
         [
@@ -229,7 +230,7 @@ export default function Provider({ children }) {
           updateNativeCurrencyPrice,
           updateAllPairsInSwapr,
           updateAllTokensInSwapr,
-          resetGlobalData,
+          reset,
         ]
       )}
     >
@@ -281,35 +282,38 @@ async function getGlobalData(
     // fetch the global data
     let result = await client.query({
       query: GLOBAL_DATA(factoryAddress),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     data = result.data.swaprFactories[0];
 
     // fetch the historical data
     let oneDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneDayBlock?.number),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     oneDayData = oneDayResult.data.swaprFactories[0];
 
     let twoDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoDayBlock?.number),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     twoDayData = twoDayResult.data.swaprFactories[0];
 
     let oneWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneWeekBlock?.number),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     const oneWeekData = oneWeekResult.data.swaprFactories[0];
 
     let twoWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoWeekBlock?.number),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
+    // format the total liquidity in USD
+    data.totalLiquidityUSD =
+      data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
     if (data && oneDayData && twoDayData && twoWeekData) {
       let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
         data.totalVolumeUSD,
@@ -329,9 +333,6 @@ async function getGlobalData(
         twoDayData.txCount ? twoDayData.txCount : 0
       );
 
-      // format the total liquidity in USD
-      data.totalLiquidityUSD =
-        data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
       const liquidityChangeUSD = getPercentChange(
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
         oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
@@ -373,7 +374,7 @@ const getChartData = async (client, oldestDateToFetch) => {
           startTime: oldestDateToFetch,
           skip,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       skip += 1000;
       data = data.concat(result.data.swaprDayDatas);
@@ -450,7 +451,7 @@ const getGlobalTransactions = async (client) => {
   try {
     let result = await client.query({
       query: GLOBAL_TXNS,
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     transactions.mints = [];
     transactions.burns = [];
@@ -496,15 +497,14 @@ const getNativeCurrencyPrice = async (client, blockClient) => {
   let priceChangeNativeCurrency = 0;
 
   try {
-    console.log("hey!", blockClient);
     let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     let resultOneDay = await client.query({
       query: NATIVE_CURRENCY_PRICE(oneDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     const currentPrice = result?.data?.bundles[0]?.nativeCurrencyPrice;
     const oneDayBackPrice = resultOneDay?.data?.bundles[0]?.nativeCurrencyPrice;
@@ -539,7 +539,7 @@ async function getAllPairsOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       skipCount = skipCount + PAIRS_TO_FETCH;
       pairs = pairs.concat(result?.data?.pairs);
@@ -570,7 +570,7 @@ async function getAllTokensOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       tokens = tokens.concat(result?.data?.tokens);
       if (
@@ -711,18 +711,19 @@ export function useNativeCurrencyPrice() {
   const [state, { updateNativeCurrencyPrice }] = useGlobalDataContext();
   const nativeCurrencyPrice = state?.[NATIVE_CURRENCY_PRICE_KEY];
   const nativeCurrencyPriceOld = state?.["oneDayPrice"];
+
   useEffect(() => {
     async function checkForNativeCurrencyPrice() {
-      if (!nativeCurrencyPrice) {
-        let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
-          client,
-          blockClient
-        );
+      let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
+        client,
+        blockClient
+      );
+      if (newPrice !== nativeCurrencyPrice) {
         updateNativeCurrencyPrice(newPrice, oneDayPrice, priceChange);
       }
     }
     checkForNativeCurrencyPrice();
-  }, [nativeCurrencyPrice, updateNativeCurrencyPrice, client, blockClient]);
+  }, [updateNativeCurrencyPrice, nativeCurrencyPrice, client, blockClient]);
 
   return [nativeCurrencyPrice, nativeCurrencyPriceOld];
 }
@@ -770,12 +771,14 @@ export function useTopLps(client) {
               variables: {
                 pair: pair.toString(),
               },
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             if (results) {
               return results.liquidityPositions;
             }
-          } catch (e) {}
+          } catch (e) {
+            console.error(e);
+          }
         })
       );
 
@@ -792,6 +795,8 @@ export function useTopLps(client) {
               pairAddress: entry.pair.id,
               token0: pairData.token0.id,
               token1: pairData.token1.id,
+              token0Symbol: pairData.token0.symbol,
+              token1Symbol: pairData.token1.symbol,
               usd:
                 (parseFloat(entry.liquidityTokenBalance) /
                   parseFloat(pairData.totalSupply)) *
@@ -813,7 +818,7 @@ export function useTopLps(client) {
   return topLps;
 }
 
-export function useGlobalStateResetter() {
-  const [, { resetGlobalData }] = useGlobalDataContext();
-  return resetGlobalData;
+export function useGlobalContextResetter() {
+  const [, { reset }] = useGlobalDataContext();
+  return reset;
 }

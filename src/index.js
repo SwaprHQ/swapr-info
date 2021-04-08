@@ -12,9 +12,12 @@ import PairDataContextProvider, {
   Updater as PairDataContextUpdater,
 } from "./contexts/PairData";
 import ApplicationContextProvider from "./contexts/Application";
-import NetworkContextProvider from "./contexts/Network";
+import NetworkContextProvider, {
+  Updater as NetworkContextUpdater,
+} from "./contexts/Network";
 import UserContextProvider from "./contexts/User";
 import App from "./App";
+import { HashRouter } from "react-router-dom";
 
 function ContextProviders({ children }) {
   return (
@@ -40,19 +43,20 @@ function Updaters() {
       <LocalStorageContextUpdater />
       <PairDataContextUpdater />
       <TokenDataContextUpdater />
+      <NetworkContextUpdater />
     </>
   );
 }
 
 ReactDOM.render(
   <ContextProviders>
-    <Updaters />
-    <ThemeProvider>
-      <>
+    <HashRouter>
+      <Updaters />
+      <ThemeProvider>
         <GlobalStyle />
         <App />
-      </>
-    </ThemeProvider>
+      </ThemeProvider>
+    </HashRouter>
   </ContextProviders>,
   document.getElementById("root")
 );

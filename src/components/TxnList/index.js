@@ -3,7 +3,7 @@ import styled from "styled-components";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 
-import { formatTime, formattedNum, urls } from "../../utils";
+import { formatTime, formattedNum, urls, getExplorerLink } from "../../utils";
 import { useMedia } from "react-use";
 import { RowFixed, RowBetween } from "../Row";
 
@@ -15,6 +15,7 @@ import DropdownSelect from "../DropdownSelect";
 import FormattedName from "../FormattedName";
 import { TYPE } from "../../Theme";
 import { updateNameData } from "../../utils/data";
+import { useSelectedNetwork } from "../../contexts/Network";
 
 dayjs.extend(utc);
 
@@ -164,6 +165,8 @@ function getTransactionType(event, symbol0, symbol1) {
 
 // @TODO rework into virtualized list
 function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
+  const selectedNetwork = useSelectedNetwork();
+
   // page state
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -287,7 +290,11 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
     return (
       <DashGrid style={{ height: "48px" }}>
         <DataText area="txn" fontWeight="500">
-          <Link color={color} external href={urls.showTransaction(item.hash)}>
+          <Link
+            color={color}
+            external
+            href={urls.showTransaction(item.hash, selectedNetwork)}
+          >
             {getTransactionType(
               item.type,
               item.token1Symbol,
@@ -321,7 +328,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
             <Link
               color={color}
               external
-              href={"https://etherscan.io/address/" + item.account}
+              href={getExplorerLink(selectedNetwork, item.account, "address")}
             >
               {item.account &&
                 item.account.slice(0, 6) + "..." + item.account.slice(38, 42)}

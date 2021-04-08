@@ -1,19 +1,46 @@
 export const SupportedNetwork = Object.freeze({
-  MAINNET: 1,
-  RINKEBY: 4,
-  XDAI: 100,
+  MAINNET: "Mainnet",
+  XDAI: "xDAI",
+});
+
+export const ChainId = Object.freeze({
+  [SupportedNetwork.MAINNET]: 1,
+  [SupportedNetwork.XDAI]: 100,
+});
+
+export const SupportedNetworkForChainId = Object.freeze({
+  [ChainId[SupportedNetwork.MAINNET]]: SupportedNetwork.MAINNET,
+  [ChainId[SupportedNetwork.XDAI]]: SupportedNetwork.XDAI,
 });
 
 export const FACTORY_ADDRESS = {
-  [SupportedNetwork.MAINNET]: "0xd34971bab6e5e356fd250715f5de0492bb070452",
-  [SupportedNetwork.XDAI]: "0x2a4d822bfb34d377c978f28a6c332caa2ff87530",
-  [SupportedNetwork.RINKEBY]: "0x02f45e773436C6D96Cc73600fe94a660ec67734C",
+  [SupportedNetwork.MAINNET]: "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
+  [SupportedNetwork.XDAI]: "0x5d48c95adffd4b40c1aaadc4e08fc44117e02179",
 };
 
 export const NATIVE_CURRENCY_SYMBOL = {
   [SupportedNetwork.MAINNET]: "ETH",
   [SupportedNetwork.XDAI]: "xDAI",
-  [SupportedNetwork.RINKEBY]: "ETH",
+};
+
+export const NATIVE_CURRENCY_WRAPPER = {
+  [SupportedNetwork.MAINNET]: {
+    symbol: "WETH",
+    address: "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
+  },
+  [SupportedNetwork.XDAI]: {
+    symbol: "WXDAI",
+    address: "0xe91d153e0b41518a2ce8dd3d7944fa863463a97d",
+  },
+};
+
+export const DXD_ADDRESS = {
+  [SupportedNetwork.MAINNET]: "0xa1d65E8fB6e87b60FECCBc582F7f97804B725521",
+  [SupportedNetwork.XDAI]: "0xb90d6bec20993be5d72a5ab353343f7a0281f158",
+};
+
+export const ETHERSCAN_PREFIXES = {
+  [SupportedNetwork.MAINNET]: "",
 };
 
 export const BUNDLE_ID = "1";

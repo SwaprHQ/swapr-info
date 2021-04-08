@@ -35,6 +35,7 @@ import { useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
 
+const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_TOKEN_TXNS = "UPDATE_TOKEN_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
@@ -51,6 +52,8 @@ const TokenDataContext = createContext();
 function useTokenDataContext() {
   return useContext(TokenDataContext);
 }
+
+const INITIAL_STATE = {};
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -122,6 +125,11 @@ function reducer(state, { type, payload }) {
         },
       };
     }
+
+    case RESET: {
+      return INITIAL_STATE;
+    }
+
     default: {
       throw Error(`Unexpected action type in DataContext reducer: '${type}'.`);
     }
@@ -129,7 +137,7 @@ function reducer(state, { type, payload }) {
 }
 
 export default function Provider({ children }) {
-  const [state, dispatch] = useReducer(reducer, {});
+  const [state, dispatch] = useReducer(reducer, INITIAL_STATE);
   const update = useCallback((tokenAddress, data) => {
     dispatch({
       type: UPDATE,
@@ -177,6 +185,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const reset = useCallback(() => {
+    dispatch({ type: RESET });
+  }, []);
+
   return (
     <TokenDataContext.Provider
       value={useMemo(
@@ -189,6 +201,7 @@ export default function Provider({ children }) {
             updateTopTokens,
             updateAllPairs,
             updatePriceData,
+            reset,
           },
         ],
         [
@@ -199,6 +212,7 @@ export default function Provider({ children }) {
           updateTopTokens,
           updateAllPairs,
           updatePriceData,
+          reset,
         ]
       )}
     >
@@ -222,17 +236,17 @@ const getTopTokens = async (
   try {
     let current = await client.query({
       query: TOKENS_CURRENT,
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let oneDayResult = await client.query({
       query: TOKENS_DYNAMIC(oneDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let twoDayResult = await client.query({
       query: TOKENS_DYNAMIC(twoDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
 
     let oneDayData = oneDayResult?.data?.tokens.reduce((obj, cur, i) => {
@@ -258,14 +272,14 @@ const getTopTokens = async (
           if (!oneDayHistory) {
             let oneDayResult = await client.query({
               query: TOKEN_DATA(token.id, oneDayBlock),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             oneDayHistory = oneDayResult.data.tokens[0];
           }
           if (!twoDayHistory) {
             let twoDayResult = await client.query({
               query: TOKEN_DATA(token.id, twoDayBlock),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             twoDayHistory = twoDayResult.data.tokens[0];
           }
@@ -329,7 +343,7 @@ const getTopTokens = async (
           if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
             const aaveData = await client.query({
               query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-              fetchPolicy: "cache-first",
+              fetchPolicy: "network-only",
             });
             const result = aaveData.data.pairs[0];
             data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -377,21 +391,24 @@ const getTokenData = async (
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(address),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
+    if (!result?.data?.tokens?.[0]) {
+      return data;
+    }
     data = result?.data?.tokens?.[0];
 
     // get results from 24 hours in past
     let oneDayResult = await client.query({
       query: TOKEN_DATA(address, oneDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     oneDayData = oneDayResult.data.tokens[0];
 
     // get results from 48 hours in past
     let twoDayResult = await client.query({
       query: TOKEN_DATA(address, twoDayBlock),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     twoDayData = twoDayResult.data.tokens[0];
 
@@ -399,35 +416,35 @@ const getTokenData = async (
     if (!oneDayData) {
       let oneDayResult = await client.query({
         query: TOKEN_DATA(address, oneDayBlock),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       oneDayData = oneDayResult.data.tokens[0];
     }
     if (!twoDayData) {
       let twoDayResult = await client.query({
         query: TOKEN_DATA(address, twoDayBlock),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       twoDayData = twoDayResult.data.tokens[0];
     }
 
     // calculate percentage changes and daily changes
     const [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
-      data.tradeVolumeUSD,
+      data?.tradeVolumeUSD,
       oneDayData?.tradeVolumeUSD ?? 0,
       twoDayData?.tradeVolumeUSD ?? 0
     );
 
     // calculate percentage changes and daily changes
     const [oneDayVolumeUT, volumeChangeUT] = get2DayPercentChange(
-      data.untrackedVolumeUSD,
+      data?.untrackedVolumeUSD,
       oneDayData?.untrackedVolumeUSD ?? 0,
       twoDayData?.untrackedVolumeUSD ?? 0
     );
 
     // calculate percentage changes and daily changes
     const [oneDayTxns, txnChange] = get2DayPercentChange(
-      data.txCount,
+      data?.txCount,
       oneDayData?.txCount ?? 0,
       twoDayData?.txCount ?? 0
     );
@@ -478,7 +495,7 @@ const getTokenData = async (
     if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
       const aaveData = await client.query({
         query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       const result = aaveData.data.pairs[0];
       data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -499,7 +516,7 @@ const getTokenTransactions = async (client, allPairsFormatted) => {
       variables: {
         allPairs: allPairsFormatted,
       },
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -515,7 +532,7 @@ const getTokenPairs = async (client, tokenAddress) => {
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(tokenAddress),
-      fetchPolicy: "cache-first",
+      fetchPolicy: "network-only",
     });
     return result.data?.["pairs0"].concat(result.data?.["pairs1"]);
   } catch (e) {
@@ -586,11 +603,11 @@ const getIntervalTokenData = async (
       }
     }
 
-    // go through eth usd prices and assign to original values array
+    // go through native currency usd prices and assign to original values array
     let index = 0;
     for (var brow in result) {
       let timestamp = brow.split("b")[1];
-      if (timestamp) {
+      if (timestamp && result[brow]) {
         values[index].priceUSD =
           result[brow].nativeCurrencyPrice *
           values[index].derivedNativeCurrency;
@@ -633,7 +650,7 @@ const getTokenChartData = async (client, tokenAddress) => {
           tokenAddr: tokenAddress,
           skip,
         },
-        fetchPolicy: "cache-first",
+        fetchPolicy: "network-only",
       });
       if (result.data.tokenDayDatas.length < 1000) {
         allFound = true;
@@ -656,7 +673,6 @@ const getTokenChartData = async (client, tokenAddress) => {
     let timestamp = data[0] && data[0].date ? data[0].date : startTime;
     let latestLiquidityUSD = data[0] && data[0].totalLiquidityUSD;
     let latestPriceUSD = data[0] && data[0].priceUSD;
-    let latestPairDatas = data[0] && data[0].mostLiquidPairs;
     let index = 1;
     while (timestamp < utcEndTime.startOf("minute").unix() - oneDay) {
       const nextDay = timestamp + oneDay;
@@ -668,12 +684,10 @@ const getTokenChartData = async (client, tokenAddress) => {
           dailyVolumeUSD: 0,
           priceUSD: latestPriceUSD,
           totalLiquidityUSD: latestLiquidityUSD,
-          mostLiquidPairs: latestPairDatas,
         });
       } else {
         latestLiquidityUSD = dayIndexArray[index].totalLiquidityUSD;
         latestPriceUSD = dayIndexArray[index].priceUSD;
-        latestPairDatas = dayIndexArray[index].mostLiquidPairs;
         index = index + 1;
       }
       timestamp = nextDay;
@@ -775,7 +789,6 @@ export function useTokenTransactions(tokenAddress) {
       if (!tokenTxns && allPairsFormatted) {
         let transactions = await getTokenTransactions(
           client,
-          blockClient,
           allPairsFormatted
         );
         updateTokenTxns(tokenAddress, transactions);
@@ -802,7 +815,7 @@ export function useTokenPairs(tokenAddress) {
 
   useEffect(() => {
     async function fetchData() {
-      let allPairs = await getTokenPairs(client, blockClient, tokenAddress);
+      let allPairs = await getTokenPairs(client, tokenAddress);
       updateAllPairs(tokenAddress, allPairs);
     }
     if (!tokenPairs && isAddress(tokenAddress)) {
@@ -821,7 +834,7 @@ export function useTokenChartData(tokenAddress) {
   useEffect(() => {
     async function checkForChartData() {
       if (!chartData) {
-        let data = await getTokenChartData(client, blockClient, tokenAddress);
+        let data = await getTokenChartData(client, tokenAddress);
         updateChartData(tokenAddress, data);
       }
     }
@@ -883,4 +896,9 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 export function useAllTokenData() {
   const [state] = useTokenDataContext();
   return state;
+}
+
+export function useTokenContextResetter() {
+  const [, { reset }] = useTokenDataContext();
+  return reset;
 }

@@ -10,14 +10,11 @@ import { withRouter } from "react-router-dom";
 import { TrendingUp, List, PieChart, Disc } from "react-feather";
 import Link from "../Link";
 import { useSessionStart } from "../../contexts/Application";
-import { useDarkModeManager } from "../../contexts/LocalStorage";
-import Toggle from "../Toggle";
 import DropdownSelect from "../DropdownSelect";
 import {
   useSelectedNetwork,
   useSelectedNetworkUpdater,
 } from "../../contexts/Network";
-import { useGlobalStateResetter } from "../../contexts/GlobalData";
 import { SupportedNetwork } from "../../constants";
 
 const Wrapper = styled.div`
@@ -113,17 +110,15 @@ function SideNav({ history }) {
 
   const seconds = useSessionStart();
 
-  const [isDark, toggleDarkMode] = useDarkModeManager();
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
-  const resetGlobalData = useGlobalStateResetter();
 
   const handleSelectedNetworkChange = useCallback(
     (network) => {
-      resetGlobalData();
       updateSelectedNetwork(network);
+      history.push("/");
     },
-    [resetGlobalData, updateSelectedNetwork]
+    [updateSelectedNetwork, history]
   );
 
   return (
@@ -207,7 +202,6 @@ function SideNav({ history }) {
                 Twitter
               </Link>
             </HeaderText>
-            <Toggle isActive={isDark} toggle={toggleDarkMode} />
           </AutoColumn>
           {!below1180 && (
             <Polling style={{ marginLeft: ".5rem" }}>

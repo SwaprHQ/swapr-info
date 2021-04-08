@@ -5,7 +5,7 @@ import Link from '../Link'
 
 const links = [
   { url: 'https://dxdao.eth.link', text: 'About' },
-  { url: 'https://github.com/nicoelzer/swapr-info', text: 'Code' },
+  { url: 'https://github.com/nicoelzer/dxstats', text: 'Code' },
 ]
 
 const FooterLink = ({ children, ...rest }) => (

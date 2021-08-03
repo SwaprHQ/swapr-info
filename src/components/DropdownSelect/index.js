@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import styled from "styled-components";
 
 import Row, { RowBetween } from "../Row";
@@ -6,6 +6,7 @@ import { AutoColumn } from "../Column";
 import { ChevronDown as Arrow } from "react-feather";
 import { TYPE } from "../../Theme";
 import { StyledIcon } from "..";
+import { useClickAway } from "react-use";
 
 const Wrapper = styled.div`
   z-index: 20;
@@ -27,7 +28,7 @@ const Wrapper = styled.div`
 
 const Dropdown = styled.div`
   position: absolute;
-  top: 34px;
+  top: 38px;
   padding-top: 40px;
   width: calc(100% - 40px);
   background-color: ${({ theme }) => theme.bg1};
@@ -51,9 +52,15 @@ const ArrowStyled = styled(Arrow)`
 
 const DropdownSelect = ({ options, active, setActive, color }) => {
   const [showDropdown, toggleDropdown] = useState(false);
+  const dropdownRef = useRef(null);
+  const containerRef = useRef(null);
+  useClickAway(dropdownRef, (event) => {
+    if (showDropdown && !containerRef.current.contains(event.target))
+      toggleDropdown(false);
+  });
 
   return (
-    <Wrapper open={showDropdown} color={color}>
+    <Wrapper open={showDropdown} color={color} ref={containerRef}>
       <RowBetween
         onClick={() => toggleDropdown(!showDropdown)}
         justify="center"
@@ -65,24 +72,26 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
       </RowBetween>
       {showDropdown && (
         <Dropdown>
-          <AutoColumn gap="20px">
-            {Object.keys(options).map((key, index) => {
-              let option = options[key];
-              return (
-                option !== active && (
-                  <Row
-                    onClick={() => {
-                      toggleDropdown(!showDropdown);
-                      setActive(option);
-                    }}
-                    key={index}
-                  >
-                    <TYPE.body fontSize={14}>{option}</TYPE.body>
-                  </Row>
-                )
-              );
-            })}
-          </AutoColumn>
+          <div ref={dropdownRef}>
+            <AutoColumn gap="20px">
+              {Object.keys(options).map((key, index) => {
+                let option = options[key];
+                return (
+                  option !== active && (
+                    <Row
+                      onClick={() => {
+                        toggleDropdown(!showDropdown);
+                        setActive(option);
+                      }}
+                      key={index}
+                    >
+                      <TYPE.body fontSize={14}>{option}</TYPE.body>
+                    </Row>
+                  )
+                );
+              })}
+            </AutoColumn>
+          </div>
         </Dropdown>
       )}
     </Wrapper>

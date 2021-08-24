@@ -6,7 +6,6 @@ import { SupportedNetwork } from "../constants";
 export const clients = {
   [SupportedNetwork.MAINNET]: new ApolloClient({
     link: new HttpLink({
-      // TODO: change this when release day comes
       uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-mainnet-alpha",
     }),
     cache: new InMemoryCache(),
@@ -15,6 +14,13 @@ export const clients = {
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
       uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-xdai",
+    }),
+    cache: new InMemoryCache(),
+    shouldBatch: true,
+  }),
+  [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
+    link: new HttpLink({
+      uri: "https://api.thegraph.com/subgraphs/name/luzzif/swapr-arbitrum-one",
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
@@ -40,6 +46,12 @@ export const blockClients = {
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
       uri: "https://api.thegraph.com/subgraphs/name/1hive/xdai-blocks",
+    }),
+    cache: new InMemoryCache(),
+  }),
+  [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
+    link: new HttpLink({
+      uri: "https://api.thegraph.com/subgraphs/name/dodoex/arbitrum-one-blocks",
     }),
     cache: new InMemoryCache(),
   }),

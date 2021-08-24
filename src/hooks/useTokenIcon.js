@@ -5,6 +5,7 @@ import { useSelectedNetwork } from "../contexts/Network";
 const CACHE = {
   [SupportedNetwork.MAINNET]: {},
   [SupportedNetwork.XDAI]: {},
+  [SupportedNetwork.ARBITRUM_ONE]: {},
 };
 
 async function getTokenLogo(network, address) {

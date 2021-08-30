@@ -50,4 +50,4 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           status: ${{job.status}}
           deployment_id: ${{steps.deployment.outputs.deployment_id}}
-          env_url: "https://${{steps.web3.outputs.cid}}.ipfs.dweb.link"
+          env_url: "https://${{steps.web3.outputs.cid}}.ipfs.infura-ipfs.io"

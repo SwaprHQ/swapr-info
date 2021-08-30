@@ -49,6 +49,11 @@ export const DXD_ADDRESS = {
   [SupportedNetwork.ARBITRUM_ONE]: "0xc3ae0333f0f34aa734d5493276223d95b8f9cb37",
 };
 
+export const SWPR_ADDRESS = {
+  [SupportedNetwork.MAINNET]: "0xe54942077Df7b8EEf8D4e6bCe2f7B58B0082b0cd",
+  [SupportedNetwork.ARBITRUM_ONE]: "0x955b9fe60a5b5093df9Dc4B1B18ec8e934e77162",
+};
+
 export const ETHERSCAN_PREFIXES = {
   [SupportedNetwork.MAINNET]: "",
 };

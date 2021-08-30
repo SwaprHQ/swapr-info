@@ -3,11 +3,16 @@ import styled from "styled-components";
 import EthereumLogo from "../../assets/eth.png";
 import xDAILogo from "../../assets/xdai-logo.png";
 import DXDLogo from "../../assets/dxd-logo.svg";
+import SWPRLogo from "../../assets/swpr-logo.png";
 import {
   useNativeCurrencyWrapper,
   useSelectedNetwork,
 } from "../../contexts/Network.js";
-import { DXD_ADDRESS, SupportedNetwork } from "../../constants/index.js";
+import {
+  DXD_ADDRESS,
+  SWPR_ADDRESS,
+  SupportedNetwork,
+} from "../../constants/index.js";
 import { useTokenIcon } from "../../hooks/useTokenIcon.js";
 import { getAddress } from "ethers/utils";
 
@@ -52,9 +57,13 @@ export default function TokenLogo({
         selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo,
       ];
     }
-    if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase()) {
+    if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase())
       return [DXDLogo];
-    }
+    if (
+      SWPR_ADDRESS[selectedNetwork] &&
+      lowercaseAddress === SWPR_ADDRESS[selectedNetwork].toLowerCase()
+    )
+      return [SWPRLogo];
     return [getTokenLogoURL(address), tokenIcon];
   }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork]);
 

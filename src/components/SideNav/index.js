@@ -217,6 +217,11 @@ function SideNav({ history }) {
       ) : (
         <MobileWrapper>
           <Title />
+          <DropdownSelect
+            active={selectedNetwork}
+            setActive={handleSelectedNetworkChange}
+            options={Object.values(SupportedNetwork)}
+          />
         </MobileWrapper>
       )}
     </Wrapper>

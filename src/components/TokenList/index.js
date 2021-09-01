@@ -156,7 +156,9 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       if (formattedTokens.length % itemMax === 0) {
         extraPages = 0;
       }
-      setMaxPage(Math.floor(formattedTokens.length / itemMax) + extraPages);
+      setMaxPage(
+        Math.max(1, Math.floor(formattedTokens.length / itemMax) + extraPages)
+      );
     }
   }, [tokens, formattedTokens, itemMax]);
 
@@ -180,6 +182,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
         .slice(itemMax * (page - 1), page * itemMax)
     );
   }, [formattedTokens, itemMax, page, sortDirection, sortedColumn]);
+  console.log(filteredList, page, maxPage);
 
   const ListItem = ({ item, index }) => {
     return (

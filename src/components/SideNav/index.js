@@ -1,4 +1,4 @@
-import React, { useCallback } from "react";
+import React, { useCallback, useState } from "react";
 import styled from "styled-components";
 import { AutoColumn } from "../Column";
 import Title from "../Title";
@@ -7,7 +7,7 @@ import { useMedia } from "react-use";
 import { transparentize } from "polished";
 import { TYPE } from "../../Theme";
 import { withRouter } from "react-router-dom";
-import { TrendingUp, List, PieChart, Disc } from "react-feather";
+import { TrendingUp, List, PieChart, Disc, Menu } from "react-feather";
 import Link from "../Link";
 import { useSessionStart } from "../../contexts/Application";
 import DropdownSelect from "../DropdownSelect";
@@ -16,6 +16,8 @@ import {
   useSelectedNetworkUpdater,
 } from "../../contexts/Network";
 import { SupportedNetwork } from "../../constants";
+import { AutoRow } from "../Row";
+import { MobileMenu } from "./MobileMenu";
 
 const Wrapper = styled.div`
   height: ${({ isMobile }) => (isMobile ? "initial" : "100vh")};
@@ -40,7 +42,7 @@ const Wrapper = styled.div`
   }
 `;
 
-const Option = styled.div`
+export const Option = styled.div`
   font-weight: 500;
   font-size: 14px;
   opacity: ${({ activeText }) => (activeText ? 1 : 0.6)};
@@ -62,6 +64,10 @@ const MobileWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+`;
+
+const MenuIcon = styled(Menu)`
+  color: #fff;
 `;
 
 const HeaderText = styled.div`
@@ -92,6 +98,7 @@ const Polling = styled.div`
     opacity: 1;
   }
 `;
+
 const PollingDot = styled.div`
   width: 8px;
   height: 8px;
@@ -103,6 +110,32 @@ const PollingDot = styled.div`
   background-color: ${({ theme }) => theme.green1};
 `;
 
+const AnimatedMobileMenu = styled(MobileMenu)`
+  position: fixed;
+  right: 0;
+  left: 0;
+  top: ${(props) => (props.open ? "0" : "-100%")};
+  background-color: ${({ theme }) => theme.bg2};
+  color: #fff;
+  transition: top ease 0.3s;
+  z-index: 100;
+`;
+
+const Overlay = styled.div`
+  position: fixed;
+  right: 0;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  background-color: ${transparentize(0.7, "#000")};
+  opacity: ${({ show }) => (show ? 1 : 0)};
+  transform: translateY(${(props) => (props.show ? "0" : "10000000px")});
+  transition: ${(props) =>
+    props.show
+      ? "opacity 0.3s ease"
+      : "transform 0.3s ease 0.3s, opacity 0.3s ease"};
+`;
+
 function SideNav({ history }) {
   const below1080 = useMedia("(max-width: 1080px)");
 
@@ -112,6 +145,16 @@ function SideNav({ history }) {
 
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
+
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const handleMobileMenuOpen = () => {
+    setMobileMenuOpen(true);
+  };
+
+  const handleMobileMenuClose = () => {
+    setMobileMenuOpen(false);
+  };
 
   const handleSelectedNetworkChange = useCallback(
     (network) => {
@@ -215,14 +258,24 @@ function SideNav({ history }) {
           )}
         </DesktopWrapper>
       ) : (
-        <MobileWrapper>
-          <Title />
-          <DropdownSelect
-            active={selectedNetwork}
-            setActive={handleSelectedNetworkChange}
-            options={Object.values(SupportedNetwork)}
+        <>
+          <AnimatedMobileMenu
+            open={mobileMenuOpen}
+            onClose={handleMobileMenuClose}
           />
-        </MobileWrapper>
+          <Overlay show={mobileMenuOpen} onClick={handleMobileMenuClose} />
+          <MobileWrapper>
+            <Title />
+            <AutoRow justify="flex-end" gap="8px">
+              <DropdownSelect
+                active={selectedNetwork}
+                setActive={handleSelectedNetworkChange}
+                options={Object.values(SupportedNetwork)}
+              />
+              <MenuIcon onClick={handleMobileMenuOpen} />
+            </AutoRow>
+          </MobileWrapper>
+        </>
       )}
     </Wrapper>
   );

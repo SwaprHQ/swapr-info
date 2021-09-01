@@ -16,13 +16,13 @@ export const MobileMenu = ({ onClose, ...rest }) => {
 
   return (
     <AutoColumn gap="1.25rem" style={{ padding: "24px" }} {...rest}>
-      <BasicLink to="/home">
+      <BasicLink to="/home" onClick={onClose}>
         <Option activeText={history.location.pathname === "/home" ?? undefined}>
           <TrendingUp size={20} style={{ marginRight: ".75rem" }} />
           Overview
         </Option>
       </BasicLink>
-      <BasicLink to="/tokens">
+      <BasicLink to="/tokens" onClick={onClose}>
         <Option
           activeText={
             (history.location.pathname.split("/")[1] === "tokens" ||
@@ -34,7 +34,7 @@ export const MobileMenu = ({ onClose, ...rest }) => {
           Tokens
         </Option>
       </BasicLink>
-      <BasicLink to="/pairs">
+      <BasicLink to="/pairs" onClick={onClose}>
         <Option
           activeText={
             (history.location.pathname.split("/")[1] === "pairs" ||
@@ -47,7 +47,7 @@ export const MobileMenu = ({ onClose, ...rest }) => {
         </Option>
       </BasicLink>
 
-      <BasicLink to="/accounts">
+      <BasicLink to="/accounts" onClick={onClose}>
         <Option
           activeText={
             (history.location.pathname.split("/")[1] === "accounts" ||

@@ -203,7 +203,7 @@ function TokenPage({ address, history }) {
               style={{ width: "fit-content" }}
               color={backgroundColor}
               external
-              href={"https://etherscan.io/address/" + address}
+              href={getExplorerLink(selectedNetwork, address, "address")}
             >
               <Text
                 style={{ marginLeft: ".15rem" }}

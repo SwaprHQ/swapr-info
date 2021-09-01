@@ -177,7 +177,7 @@ function AccountPage({ account }) {
             <BasicLink to="/accounts">{"Accounts "}</BasicLink>→{" "}
             <Link
               lineHeight={"145.23%"}
-              href={"https://etherscan.io/address/" + account}
+              href={getExplorerLink(selectedNetwork, account, "address")}
               target="_blank"
             >
               {" "}

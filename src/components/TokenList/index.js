@@ -182,7 +182,6 @@ function TopTokenList({ tokens, itemMax = 10 }) {
         .slice(itemMax * (page - 1), page * itemMax)
     );
   }, [formattedTokens, itemMax, page, sortDirection, sortedColumn]);
-  console.log(filteredList, page, maxPage);
 
   const ListItem = ({ item, index }) => {
     return (

@@ -15,6 +15,10 @@ import {
 } from "../../constants/index.js";
 import { useTokenIcon } from "../../hooks/useTokenIcon.js";
 import { getAddress } from "ethers/utils";
+import {
+  useBadImageUrls,
+  useBadImageUrlsUpdater,
+} from "../../contexts/Application";
 
 const Inline = styled.div`
   display: flex;
@@ -30,15 +34,6 @@ const Image = styled.img`
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
 `;
 
-const getTokenLogoURL = (address) => {
-  if (!address) return undefined;
-  return `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
-    address
-  )}/logo.png`;
-};
-
-const BAD_IMAGES = {};
-
 export default function TokenLogo({
   address,
   defaultText = "?",
@@ -46,28 +41,35 @@ export default function TokenLogo({
   size = "24px",
   ...rest
 }) {
+  const updateBadImageUrls = useBadImageUrlsUpdater();
+  const badImages = useBadImageUrls();
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const tokenIcon = useTokenIcon(address);
-  const sources = useMemo(() => {
-    if (!address && !tokenIcon) return [];
+  const source = useMemo(() => {
+    if (!address) return [];
     const lowercaseAddress = address.toLowerCase();
     if (lowercaseAddress === nativeCurrencyWrapper.address.toLowerCase()) {
-      return [
-        selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo,
-      ];
+      return selectedNetwork === SupportedNetwork.XDAI
+        ? xDAILogo
+        : EthereumLogo;
     }
     if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase())
-      return [DXDLogo];
+      return DXDLogo;
     if (
       SWPR_ADDRESS[selectedNetwork] &&
       lowercaseAddress === SWPR_ADDRESS[selectedNetwork].toLowerCase()
     )
-      return [SWPRLogo];
-    return [getTokenLogoURL(address), tokenIcon];
-  }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork]);
+      return SWPRLogo;
+    const trustWalletIcon = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
+      address
+    )}/logo.png`;
+    if (!badImages[trustWalletIcon]) return trustWalletIcon;
+    if (tokenIcon && !badImages[tokenIcon]) return tokenIcon;
+    return null;
+  }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork, badImages]);
 
-  const source = sources.find((src) => !BAD_IMAGES[src]);
+  console.log(source);
 
   if (!!!source) {
     const numberSize = size ? parseInt(size.replace("px", "")) : 24;
@@ -107,7 +109,7 @@ export default function TokenLogo({
         src={source}
         size={size}
         onError={(event) => {
-          BAD_IMAGES[source] = true;
+          updateBadImageUrls(source);
           event.preventDefault();
         }}
       />

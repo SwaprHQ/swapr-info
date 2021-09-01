@@ -22,6 +22,7 @@ const UPDATE_SESSION_START = "UPDATE_SESSION_START";
 const UPDATED_SUPPORTED_TOKENS = "UPDATED_SUPPORTED_TOKENS";
 const UPDATE_LATEST_BLOCK = "UPDATE_LATEST_BLOCK";
 const UPDATE_HEAD_BLOCK = "UPDATE_HEAD_BLOCK";
+const UPDATE_BAD_IMAGE_URLS = "UPDATE_BAD_IMAGE_URLS";
 
 const SUPPORTED_TOKENS = "SUPPORTED_TOKENS";
 const TIME_KEY = "TIME_KEY";
@@ -29,6 +30,7 @@ const CURRENCY = "CURRENCY";
 const SESSION_START = "SESSION_START";
 const LATEST_BLOCK = "LATEST_BLOCK";
 const HEAD_BLOCK = "HEAD_BLOCK";
+const BAD_IMAGE_URLS = "BAD_IMAGE_URLS";
 
 const ApplicationContext = createContext();
 
@@ -39,6 +41,7 @@ function useApplicationContext() {
 const INITIAL_STATE = {
   CURRENCY: "USD",
   TIME_KEY: timeframeOptions.ALL_TIME,
+  [BAD_IMAGE_URLS]: {},
 };
 
 function reducer(state, { type, payload }) {
@@ -78,6 +81,17 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         [HEAD_BLOCK]: block,
+      };
+    }
+
+    case UPDATE_BAD_IMAGE_URLS: {
+      const { url } = payload;
+      return {
+        ...state,
+        [BAD_IMAGE_URLS]: {
+          ...state[BAD_IMAGE_URLS],
+          [url]: true,
+        },
       };
     }
 
@@ -157,6 +171,15 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateBadImageUrls = useCallback((url) => {
+    dispatch({
+      type: UPDATE_BAD_IMAGE_URLS,
+      payload: {
+        url,
+      },
+    });
+  }, []);
+
   const reset = useCallback(() => {
     dispatch({ type: RESET });
   }, []);
@@ -173,6 +196,7 @@ export default function Provider({ children }) {
             updateSupportedTokens,
             updateLatestBlock,
             updateHeadBlock,
+            updateBadImageUrls,
             reset,
           },
         ],
@@ -184,6 +208,7 @@ export default function Provider({ children }) {
           updateSupportedTokens,
           updateLatestBlock,
           updateHeadBlock,
+          updateBadImageUrls,
           reset,
         ]
       )}
@@ -292,4 +317,13 @@ export function useSessionStart() {
 export function useApplicationContextResetter() {
   const [, { reset }] = useApplicationContext();
   return reset;
+}
+
+export function useBadImageUrlsUpdater() {
+  const [, { updateBadImageUrls }] = useApplicationContext();
+  return updateBadImageUrls;
+}
+export function useBadImageUrls() {
+  const [state] = useApplicationContext();
+  return state[BAD_IMAGE_URLS];
 }

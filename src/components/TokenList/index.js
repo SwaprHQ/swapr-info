@@ -355,6 +355,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
         )}
       </DashGrid>
       <Divider />
+
       <List p={0}>
         {filteredList &&
           filteredList.map((item, index) => {

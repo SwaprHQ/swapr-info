@@ -47,7 +47,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: 'name liq vol';
+  grid-template-areas: "name liq vol";
   padding: 0 1.125rem;
 
   > * {
@@ -56,25 +56,31 @@ const DashGrid = styled.div`
     :first-child {
       justify-content: flex-start;
       text-align: left;
-      width: 20px;
+      width: 100px;
     }
   }
 
-  @media screen and (min-width: 740px) {
-    padding: 0 1.125rem;
-    grid-template-columns: 1.5fr 1fr 1fr};
-    grid-template-areas: ' name liq vol pool ';
+  @media screen and (min-width: 680px) {
+    display: grid;
+    grid-gap: 1em;
+    grid-template-columns: 180px 1fr 1fr 1fr;
+    grid-template-areas: "name symbol liq vol ";
+
+    > * {
+      justify-content: flex-end;
+      width: 100%;
+
+      &:first-child {
+        justify-content: flex-start;
+      }
+    }
   }
 
   @media screen and (min-width: 1080px) {
-    padding: 0 1.125rem;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: ' name liq vol volWeek fees apy';
-  }
-
-  @media screen and (min-width: 1200px) {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: ' name liq vol volWeek fees apy';
+    display: grid;
+    grid-gap: 0.5em;
+    grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "name symbol liq vol price change";
   }
 `;
 
@@ -206,11 +212,11 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           </DataText>
           <DataText area="liq">{liquidity}</DataText>
           <DataText area="vol">{volume}</DataText>
-          {!below1080 && (
-            <DataText area="volWeek">
-              {formattedNum(pairData.oneWeekVolumeUSD, true)}
-            </DataText>
-          )}
+
+          <DataText area="volWeek">
+            {formattedNum(pairData.oneWeekVolumeUSD, true)}
+          </DataText>
+
           {!below1080 && (
             <DataText area="fees">
               {formattedNum(pairData.oneDayVolumeUSD * 0.0025, true)}
@@ -308,26 +314,26 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               : ""}
           </ClickableText>
         </Flex>
-        {!below1080 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText
-              area="volWeek"
-              onClick={(e) => {
-                setSortedColumn(SORT_FIELD.VOL_7DAYS);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
-                );
-              }}
-            >
-              Volume (7d){" "}
-              {sortedColumn === SORT_FIELD.VOL_7DAYS
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
-            </ClickableText>
-          </Flex>
-        )}
+
+        <Flex alignItems="center" justifyContent="flexEnd">
+          <ClickableText
+            area="volWeek"
+            onClick={(e) => {
+              setSortedColumn(SORT_FIELD.VOL_7DAYS);
+              setSortDirection(
+                sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
+              );
+            }}
+          >
+            Volume (7d){" "}
+            {sortedColumn === SORT_FIELD.VOL_7DAYS
+              ? !sortDirection
+                ? "↑"
+                : "↓"
+              : ""}
+          </ClickableText>
+        </Flex>
+
         {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText

@@ -69,8 +69,6 @@ export default function TokenLogo({
     return null;
   }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork, badImages]);
 
-  console.log(source);
-
   if (!!!source) {
     const numberSize = size ? parseInt(size.replace("px", "")) : 24;
     const fontSize = Math.ceil(numberSize / 4.5);

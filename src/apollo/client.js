@@ -8,21 +8,21 @@ const BASE_SUBGRAPH = "https://api.thegraph.com/subgraphs/name/";
 export const clients = {
   [SupportedNetwork.MAINNET]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + [NETWORK_SUBGRAPH_URLS.MAINNET],
+      uri: BASE_SUBGRAPH + NETWORK_SUBGRAPH_URLS[SupportedNetwork.MAINNET],
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
   }),
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + [NETWORK_SUBGRAPH_URLS.XDAI],
+      uri: BASE_SUBGRAPH + NETWORK_SUBGRAPH_URLS[SupportedNetwork.XDAI],
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
   }),
-  [SupportedNetwork.ARBITRUM]: new ApolloClient({
+  [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + [NETWORK_SUBGRAPH_URLS.ARBITRUM],
+      uri: BASE_SUBGRAPH + NETWORK_SUBGRAPH_URLS[SupportedNetwork.ARBITRUM_ONE],
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
@@ -50,7 +50,7 @@ export const blockClients = {
     }),
     cache: new InMemoryCache(),
   }),
-  [SupportedNetwork.ARBITRUM]: new ApolloClient({
+  [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
     link: new HttpLink({
       uri: BASE_SUBGRAPH + "dodoex/arbitrum-one-blocks",
     }),

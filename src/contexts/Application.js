@@ -7,11 +7,12 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { timeframeOptions } from "../constants";
+import { NETWORK_SUBGRAPH_URLS, timeframeOptions } from "../constants";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { healthClient } from "../apollo/client";
 import { SUBGRAPH_HEALTH } from "../apollo/queries";
+import { useSelectedNetwork } from "./Network";
 
 dayjs.extend(utc);
 
@@ -223,6 +224,7 @@ export function useLatestBlocks() {
     state,
     { updateLatestBlock, updateHeadBlock },
   ] = useApplicationContext();
+  const network = useSelectedNetwork();
 
   const latestBlock = state?.[LATEST_BLOCK];
   const headBlock = state?.[HEAD_BLOCK];
@@ -232,6 +234,9 @@ export function useLatestBlocks() {
       healthClient
         .query({
           query: SUBGRAPH_HEALTH,
+          variables: {
+            name: NETWORK_SUBGRAPH_URLS[network],
+          },
         })
         .then((res) => {
           const syncedBlock =
@@ -252,7 +257,7 @@ export function useLatestBlocks() {
     if (!latestBlock) {
       fetch();
     }
-  }, [latestBlock, updateHeadBlock, updateLatestBlock]);
+  }, [latestBlock, updateHeadBlock, updateLatestBlock, network]);
 
   return [latestBlock, headBlock];
 }

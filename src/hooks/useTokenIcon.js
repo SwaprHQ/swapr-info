@@ -5,7 +5,7 @@ import { useSelectedNetwork } from "../contexts/Network";
 const CACHE = {
   [SupportedNetwork.MAINNET]: {},
   [SupportedNetwork.XDAI]: {},
-  [SupportedNetwork.ARBITRUM]: {},
+  [SupportedNetwork.ARBITRUM_ONE]: {},
 };
 
 export function useTokenIcon(address) {

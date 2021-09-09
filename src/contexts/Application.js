@@ -226,8 +226,6 @@ export function useLatestBlocks() {
   ] = useApplicationContext();
   const network = useSelectedNetwork();
 
-  const [networkSpecificUrl] = [NETWORK_SUBGRAPH_URLS[network.toUpperCase()]];
-
   const latestBlock = state?.[LATEST_BLOCK];
   const headBlock = state?.[HEAD_BLOCK];
 
@@ -237,7 +235,7 @@ export function useLatestBlocks() {
         .query({
           query: SUBGRAPH_HEALTH,
           variables: {
-            name: networkSpecificUrl,
+            name: NETWORK_SUBGRAPH_URLS[network],
           },
         })
         .then((res) => {
@@ -259,7 +257,7 @@ export function useLatestBlocks() {
     if (!latestBlock) {
       fetch();
     }
-  }, [latestBlock, updateHeadBlock, updateLatestBlock, networkSpecificUrl]);
+  }, [latestBlock, updateHeadBlock, updateLatestBlock, network]);
 
   return [latestBlock, headBlock];
 }

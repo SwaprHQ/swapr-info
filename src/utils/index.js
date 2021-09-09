@@ -102,7 +102,7 @@ const getExplorerPrefix = (selectedNetwork) => {
   switch (selectedNetwork) {
     case SupportedNetwork.XDAI:
       return "https://blockscout.com/poa/xdai";
-    case SupportedNetwork.ARBITRUM_ONE:
+    case SupportedNetwork.ARBITRUM:
       return "https://arbiscan.io/";
     default:
       return `https://${

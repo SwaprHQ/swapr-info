@@ -4,12 +4,12 @@ import { BUNDLE_ID, FACTORY_ADDRESS, SupportedNetwork } from "../constants";
 const FACTORY_STARTING_BLOCK = {
   [FACTORY_ADDRESS[SupportedNetwork.MAINNET]]: 10000000,
   [FACTORY_ADDRESS[SupportedNetwork.XDAI]]: 14557349,
-  [FACTORY_ADDRESS[SupportedNetwork.ARBITRUM_ONE]]: 222103,
+  [FACTORY_ADDRESS[SupportedNetwork.ARBITRUM]]: 222103,
 };
 
 export const SUBGRAPH_HEALTH = gql`
-  query health {
-    indexingStatusForCurrentVersion(subgraphName: "nicoelzer/swapr") {
+  query health($name: Bytes) {
+    indexingStatusForCurrentVersion(subgraphName: $name, subgraphError: allow) {
       synced
       health
       chains {

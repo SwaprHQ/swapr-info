@@ -56,7 +56,6 @@ const DashGrid = styled.div`
     :first-child {
       justify-content: flex-start;
       text-align: left;
-      width: 100px;
     }
   }
 
@@ -127,6 +126,7 @@ const FIELD_TO_VALUE = {
 
 function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia("(max-width: 600px)");
+  const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
 
@@ -178,7 +178,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           focus={true}
         >
           <DataText area="name" fontWeight="500">
-            {!below600 && (
+            {!below680 && (
               <div style={{ marginRight: "20px", width: "10px" }}>{index}</div>
             )}
             <DoubleTokenLogo
@@ -212,10 +212,11 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           </DataText>
           <DataText area="liq">{liquidity}</DataText>
           <DataText area="vol">{volume}</DataText>
-
-          <DataText area="volWeek">
-            {formattedNum(pairData.oneWeekVolumeUSD, true)}
-          </DataText>
+          {!below680 && (
+            <DataText area="volWeek">
+              {formattedNum(pairData.oneWeekVolumeUSD, true)}
+            </DataText>
+          )}
 
           {!below1080 && (
             <DataText area="fees">
@@ -314,25 +315,26 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               : ""}
           </ClickableText>
         </Flex>
-
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText
-            area="volWeek"
-            onClick={(e) => {
-              setSortedColumn(SORT_FIELD.VOL_7DAYS);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
-              );
-            }}
-          >
-            Volume (7d){" "}
-            {sortedColumn === SORT_FIELD.VOL_7DAYS
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
-          </ClickableText>
-        </Flex>
+        {!below680 && (
+          <Flex alignItems="center" justifyContent="flexEnd">
+            <ClickableText
+              area="volWeek"
+              onClick={(e) => {
+                setSortedColumn(SORT_FIELD.VOL_7DAYS);
+                setSortDirection(
+                  sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
+                );
+              }}
+            >
+              Volume (7d){" "}
+              {sortedColumn === SORT_FIELD.VOL_7DAYS
+                ? !sortDirection
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </ClickableText>
+          </Flex>
+        )}
 
         {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">

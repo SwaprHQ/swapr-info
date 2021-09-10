@@ -8,8 +8,8 @@ const FACTORY_STARTING_BLOCK = {
 };
 
 export const SUBGRAPH_HEALTH = gql`
-  query health {
-    indexingStatusForCurrentVersion(subgraphName: "nicoelzer/swapr") {
+  query health($name: Bytes) {
+    indexingStatusForCurrentVersion(subgraphName: $name, subgraphError: allow) {
       synced
       health
       chains {
@@ -42,7 +42,7 @@ export const GET_BLOCK = gql`
 export const GET_BLOCKS = (timestamps) => {
   let queryString = "query blocks {";
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1, orderBy: timestamp, orderDirection: desc, where: { timestamp_gt: ${timestamp} }) {
+    return `t${timestamp}:blocks(first: 1, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
       number
     }`;
   });

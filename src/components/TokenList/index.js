@@ -156,7 +156,9 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       if (formattedTokens.length % itemMax === 0) {
         extraPages = 0;
       }
-      setMaxPage(Math.floor(formattedTokens.length / itemMax) + extraPages);
+      setMaxPage(
+        Math.max(1, Math.floor(formattedTokens.length / itemMax) + extraPages)
+      );
     }
   }, [tokens, formattedTokens, itemMax]);
 

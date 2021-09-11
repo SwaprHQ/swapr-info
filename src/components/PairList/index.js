@@ -148,7 +148,10 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         extraPages = 0;
       }
       setMaxPage(
-        Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages
+        Math.max(
+          1,
+          Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages
+        )
       );
     }
   }, [ITEMS_PER_PAGE, pairs]);

@@ -26,7 +26,7 @@ export const UPDATE_SELECTED_NETWORK = "UPDATE_SELECTED_NETWORK";
 
 const NetworkContext = createContext();
 
-function useNetworkContext() {
+export function useNetworkContext() {
   return useContext(NetworkContext);
 }
 

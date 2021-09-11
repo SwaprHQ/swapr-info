@@ -102,6 +102,8 @@ const getExplorerPrefix = (selectedNetwork) => {
   switch (selectedNetwork) {
     case SupportedNetwork.XDAI:
       return "https://blockscout.com/poa/xdai";
+    case SupportedNetwork.ARBITRUM_ONE:
+      return "https://arbiscan.io/";
     default:
       return `https://${
         ETHERSCAN_PREFIXES[selectedNetwork] ||

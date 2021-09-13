@@ -513,7 +513,6 @@ export const GLOBAL_TXNS = gql`
         amount1In
         amount1Out
         amountUSD
-        to
         from
       }
     }

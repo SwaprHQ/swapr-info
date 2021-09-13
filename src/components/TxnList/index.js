@@ -227,7 +227,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           const netToken1 = swap.amount1In - swap.amount1Out;
 
           let newTxn = {};
-          console.log("swapcic", swap);
+
           if (netToken0 < 0) {
             newTxn.token0Symbol = updateNameData(swap.pair).token0.symbol;
             newTxn.token1Symbol = updateNameData(swap.pair).token1.symbol;

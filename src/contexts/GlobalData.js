@@ -478,7 +478,6 @@ const getGlobalTransactions = async (client) => {
   } catch (e) {
     console.log(e);
   }
-  console.log(transactions);
 
   return transactions;
 };

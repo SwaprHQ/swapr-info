@@ -904,7 +904,7 @@ export const FILTERED_TRANSACTIONS = gql`
       amount1In
       amount1Out
       amountUSD
-      to
+      from
     }
   }
 `;

@@ -41,20 +41,15 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   padding: 12px 16px;
   border-radius: 12px;
-  background: ${({ theme, small, open }) =>
-    small
-      ? open
-        ? transparentize(0.4, theme.bg1)
-        : "none"
-      : transparentize(0.4, theme.bg6)};
+  background: ${({ theme }) => transparentize(0.4, theme.bg6)};
   border-bottom-right-radius: ${({ open }) => (open ? "0px" : "12px")};
   border-bottom-left-radius: ${({ open }) => (open ? "0px" : "12px")};
   z-index: 9999;
   width: 100%;
   min-width: 300px;
   box-sizing: border-box;
-  box-shadow: ${({ open, small }) =>
-    !open && !small
+  box-shadow: ${({ open }) =>
+    !open
       ? "0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04) "
       : "none"};
   @media screen and (max-width: 500px) {
@@ -95,7 +90,10 @@ const SearchIconLarge = styled(SearchIcon)`
   margin-right: 0.5rem;
   position: absolute;
   right: 10px;
-  pointer-events: none;
+  :hover {
+    cursor: pointer;
+  }
+
   color: ${({ theme }) => theme.text3};
 `;
 
@@ -439,13 +437,17 @@ export const Search = ({ small = false }) => {
   }
 
   // refs to detect clicks outside modal
-  const wrapperRef = useRef();
+  // const wrapperRef = useRef();
   const menuRef = useRef();
+  const searchSvgRef = useRef();
+  const closeRef = useRef();
 
   const handleClick = (e) => {
     if (
       !(menuRef.current && menuRef.current.contains(e.target)) &&
-      !(wrapperRef.current && wrapperRef.current.contains(e.target))
+      !(wrapperRef.current && wrapperRef.current.contains(e.target)) &&
+      searchSvgRef.current &&
+      wrapperRef.current.contains(e.target)
     ) {
       setPairsShown(3);
       setTokensShown(3);
@@ -459,10 +461,43 @@ export const Search = ({ small = false }) => {
       document.removeEventListener("click", handleClick);
     };
   });
+  function useOuterClick(callback) {
+    const callbackRef = useRef(); // initialize mutable ref, which stores callback
+    const innerRef = useRef(); // returned to client, who marks "border" element
 
+    // update cb on each render, so second useEffect has access to current value
+    useEffect(() => {
+      callbackRef.current = callback;
+    });
+
+    useEffect(() => {
+      document.addEventListener("click", handleClick);
+      return () => document.removeEventListener("click", handleClick);
+      function handleClick(e) {
+        if (
+          innerRef.current &&
+          callbackRef.current &&
+          !innerRef.current.contains(e.target)
+        )
+          callbackRef.current(e);
+      }
+    }, []); // no dependencies -> stable click listener
+
+    return innerRef; // convenience for client (doesn't need to init ref himself)
+  }
+  const wrapperRef = useOuterClick((ev) => {
+    console.log("wrapper", ev);
+  });
+  const someRe1 = useOuterClick((ev) => {
+    console.log("re1", ev);
+  });
+  const someRe2 = useOuterClick((ev) => {
+    console.log("re2", ev);
+  });
+  // console.log("change", showMenu);
   return (
-    <Container small={small}>
-      <Wrapper open={showMenu} shadow={true} small={small}>
+    <Container>
+      <Wrapper open={showMenu} shadow={true}>
         <Input
           large={!small}
           type={"text"}
@@ -488,13 +523,25 @@ export const Search = ({ small = false }) => {
             }
           }}
         />
+
         {!showMenu ? (
-          <SearchIconLarge />
+          <SearchIconLarge
+            ref={someRe1}
+            onClick={() => {
+              console.log("tooglisanje heaas");
+              toggleMenu(true);
+            }}
+          />
         ) : (
-          <CloseIcon onClick={() => toggleMenu(false)} />
+          <CloseIcon
+            ref={closeRef}
+            onClick={() => {
+              toggleMenu(false);
+            }}
+          />
         )}
       </Wrapper>
-      <Menu hide={!showMenu} ref={menuRef}>
+      <Menu hide={!showMenu} ref={someRe2}>
         <Heading>
           <Gray>Pairs</Gray>
         </Heading>

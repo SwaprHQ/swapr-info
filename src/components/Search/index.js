@@ -458,7 +458,6 @@ export const Search = ({ small = false }) => {
     };
   });
 
-  // console.log("change", showMenu);
   return (
     <Container>
       <Wrapper open={showMenu} shadow={true}>

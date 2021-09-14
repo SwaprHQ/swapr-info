@@ -437,17 +437,13 @@ export const Search = ({ small = false }) => {
   }
 
   // refs to detect clicks outside modal
-  // const wrapperRef = useRef();
+  const wrapperRef = useRef();
   const menuRef = useRef();
-  const searchSvgRef = useRef();
-  const closeRef = useRef();
 
   const handleClick = (e) => {
     if (
       !(menuRef.current && menuRef.current.contains(e.target)) &&
-      !(wrapperRef.current && wrapperRef.current.contains(e.target)) &&
-      searchSvgRef.current &&
-      wrapperRef.current.contains(e.target)
+      !(wrapperRef.current && wrapperRef.current.contains(e.target))
     ) {
       setPairsShown(3);
       setTokensShown(3);
@@ -456,44 +452,12 @@ export const Search = ({ small = false }) => {
   };
 
   useEffect(() => {
-    document.addEventListener("click", handleClick);
+    document.addEventListener("mousedown", handleClick);
     return () => {
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("mousedown", handleClick);
     };
   });
-  function useOuterClick(callback) {
-    const callbackRef = useRef(); // initialize mutable ref, which stores callback
-    const innerRef = useRef(); // returned to client, who marks "border" element
 
-    // update cb on each render, so second useEffect has access to current value
-    useEffect(() => {
-      callbackRef.current = callback;
-    });
-
-    useEffect(() => {
-      document.addEventListener("click", handleClick);
-      return () => document.removeEventListener("click", handleClick);
-      function handleClick(e) {
-        if (
-          innerRef.current &&
-          callbackRef.current &&
-          !innerRef.current.contains(e.target)
-        )
-          callbackRef.current(e);
-      }
-    }, []); // no dependencies -> stable click listener
-
-    return innerRef; // convenience for client (doesn't need to init ref himself)
-  }
-  const wrapperRef = useOuterClick((ev) => {
-    console.log("wrapper", ev);
-  });
-  const someRe1 = useOuterClick((ev) => {
-    console.log("re1", ev);
-  });
-  const someRe2 = useOuterClick((ev) => {
-    console.log("re2", ev);
-  });
   // console.log("change", showMenu);
   return (
     <Container>
@@ -523,25 +487,21 @@ export const Search = ({ small = false }) => {
             }
           }}
         />
-
         {!showMenu ? (
           <SearchIconLarge
-            ref={someRe1}
             onClick={() => {
-              console.log("tooglisanje heaas");
               toggleMenu(true);
             }}
           />
         ) : (
           <CloseIcon
-            ref={closeRef}
             onClick={() => {
               toggleMenu(false);
             }}
           />
         )}
       </Wrapper>
-      <Menu hide={!showMenu} ref={someRe2}>
+      <Menu hide={!showMenu} ref={menuRef}>
         <Heading>
           <Gray>Pairs</Gray>
         </Heading>

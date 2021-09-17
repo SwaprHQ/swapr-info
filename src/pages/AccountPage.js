@@ -128,6 +128,7 @@ function AccountPage({ account }) {
       }
     }
   }, [positions]);
+  console.log(positions && positions);
 
   // settings for list view and dropdowns
   const hideLPContent = positions && positions.length === 0;
@@ -135,6 +136,7 @@ function AccountPage({ account }) {
   const [activePosition, setActivePosition] = useState();
 
   const dynamicPositions = activePosition ? [activePosition] : positions;
+  console.log(dynamicPositions);
 
   const aggregateFees = dynamicPositions?.reduce(function (total, position) {
     return total + position.fees.sum;

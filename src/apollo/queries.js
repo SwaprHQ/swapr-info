@@ -267,6 +267,21 @@ export const USER_POSITIONS = gql`
       }
       liquidityTokenBalance
     }
+    liquidityMiningPositions(where: { user: $user, stakedAmount_gt: 0 }) {
+      targetedPair {
+        txCount
+        totalSupply
+        reserveUSD
+      }
+      stakedAmount
+      liquidityMiningCampaign {
+        owner
+        locked
+        rewardTokens
+        rewardAmounts
+        stakedAmount
+      }
+    }
   }
 `;
 

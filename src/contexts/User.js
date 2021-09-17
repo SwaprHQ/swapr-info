@@ -519,6 +519,7 @@ export function useUserPositions(account) {
           },
           fetchPolicy: "no-cache",
         });
+        console.log("result", result);
         if (result?.data?.liquidityPositions) {
           let formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {

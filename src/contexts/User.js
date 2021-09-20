@@ -33,6 +33,7 @@ const UPDATE_USER_PAIR_RETURNS = "UPDATE_USER_PAIR_RETURNS";
 
 const TRANSACTIONS_KEY = "TRANSACTIONS_KEY";
 const POSITIONS_KEY = "POSITIONS_KEY";
+const STAKE_POSITIONS = "STAKE_POSITIONS";
 const MINING_POSITIONS_KEY = "MINING_POSITIONS_KEY";
 const USER_SNAPSHOTS = "USER_SNAPSHOTS";
 const USER_PAIR_RETURNS_KEY = "USER_PAIR_RETURNS_KEY";
@@ -58,10 +59,15 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_POSITIONS: {
-      const { account, positions } = payload;
+      const { account, positions, stakePositions } = payload;
+      console.log(payload, "sdfdfdkfjdkfjdkfjdkjfkjd");
       return {
         ...state,
-        [account]: { ...state?.[account], [POSITIONS_KEY]: positions },
+        [account]: {
+          ...state?.[account],
+          [POSITIONS_KEY]: positions,
+          [STAKE_POSITIONS]: stakePositions,
+        },
       };
     }
     case UPDATE_MINING_POSITIONS: {
@@ -119,12 +125,13 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updatePositions = useCallback((account, positions) => {
+  const updatePositions = useCallback((account, positions, stakePositions) => {
     dispatch({
       type: UPDATE_POSITIONS,
       payload: {
         account,
         positions,
+        stakePositions,
       },
     });
   }, []);
@@ -505,6 +512,7 @@ export function useUserPositions(account) {
   const client = useSwaprSubgraphClient();
   const [state, { updatePositions }] = useUserContext();
   const positions = state?.[account]?.[POSITIONS_KEY];
+  const stakedPositions = state?.[account]?.[STAKE_POSITIONS];
 
   const snapshots = useUserSnapshots(account);
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
@@ -520,8 +528,10 @@ export function useUserPositions(account) {
           fetchPolicy: "no-cache",
         });
         console.log("result", result);
+        let formattedPositions = [];
+        let stakePositions = [];
         if (result?.data?.liquidityPositions) {
-          let formattedPositions = await Promise.all(
+          formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {
               const returnData = await getLPReturnsOnPair(
                 client,
@@ -530,14 +540,19 @@ export function useUserPositions(account) {
                 nativeCurrencyPrice,
                 snapshots
               );
+              console.log("return data", returnData);
               return {
                 ...positionData,
                 ...returnData,
               };
             })
           );
-          updatePositions(account, formattedPositions);
         }
+        if (result?.data?.liquidityMiningPositions) {
+          stakePositions = result?.data?.liquidityMiningPositions;
+        }
+
+        updatePositions(account, formattedPositions, stakePositions);
       } catch (e) {
         console.log(e);
       }
@@ -548,13 +563,15 @@ export function useUserPositions(account) {
   }, [
     account,
     positions,
+    stakedPositions,
     updatePositions,
     nativeCurrencyPrice,
     snapshots,
     client,
   ]);
-
-  return positions;
+  // console.log("staked positions", stakedPositions);
+  // console.log("formatted", positions);
+  return {positions,stakedPositions};
 }
 
 export function useUserContextResetter() {

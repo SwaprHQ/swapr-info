@@ -94,7 +94,7 @@ const Warning = styled.div`
 function AccountPage({ account }) {
   // get data for this account
   const transactions = useUserTransactions(account);
-  const positions = useUserPositions(account);
+  const { positions, stakedPositions } = useUserPositions(account);
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
@@ -128,7 +128,6 @@ function AccountPage({ account }) {
       }
     }
   }, [positions]);
-  console.log(positions && positions);
 
   // settings for list view and dropdowns
   const hideLPContent = positions && positions.length === 0;
@@ -136,7 +135,7 @@ function AccountPage({ account }) {
   const [activePosition, setActivePosition] = useState();
 
   const dynamicPositions = activePosition ? [activePosition] : positions;
-  console.log(dynamicPositions);
+  console.log("dynamic", dynamicPositions);
 
   const aggregateFees = dynamicPositions?.reduce(function (total, position) {
     return total + position.fees.sum;
@@ -152,8 +151,19 @@ function AccountPage({ account }) {
               position?.pair?.reserveUSD
           );
         }, 0)
-      : null;
+      : 0;
   }, [dynamicPositions]);
+  const stakedPositionValue = useMemo(() => {
+    return stakedPositions
+      ? stakedPositions.reduce((total, position) => {
+          return total + parseFloat(position.stakedAmount);
+        }, 0)
+      : 0;
+  }, [stakedPositions]);
+  console.log(stakedPositions);
+  console.log(stakedPositionValue, "work of good");
+  console.log(positionValue, "position value");
+  console.log("evaluation", positionValue + stakedPositionValue);
 
   useEffect(() => {
     window.scrollTo({
@@ -320,11 +330,7 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header fontSize={"24px"} lineHeight={1}>
-                      {positionValue
-                        ? formattedNum(positionValue, true)
-                        : positionValue === 0
-                        ? formattedNum(0, true)
-                        : "-"}
+                      {formattedNum(positionValue + stakedPositions, true)}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>

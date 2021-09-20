@@ -461,7 +461,9 @@ export const formattedNum = (number, usd = false, acceptNegatives = false) => {
   if (isNaN(number) || number === "" || number === undefined) {
     return usd ? "$0" : 0;
   }
+  console.log("number",number)
   let num = parseFloat(number);
+  console.log(num)
 
   if (num > 500000000) {
     return (usd ? "$" : "") + toK(num.toFixed(0), true);

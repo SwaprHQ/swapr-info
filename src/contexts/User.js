@@ -18,9 +18,9 @@ import { useTimeframe, useStartTimestamp } from "./Application";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useNativeCurrencyPrice } from "./GlobalData";
-import { getLPReturnsOnPair, getHistoricalPairReturns } from "../utils/returns";
+import {getLPReturnsOnPair, getHistoricalPairReturns, getStakedFeesEarned} from "../utils/returns";
 import { timeframeOptions } from "../constants";
-import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
+import {useBlocksSubgraphClient, useNetworkContext, useSelectedNetwork, useSwaprSubgraphClient} from "./Network";
 
 dayjs.extend(utc);
 
@@ -511,6 +511,8 @@ export function useUserLiquidityChart(account) {
 export function useUserPositions(account) {
   const client = useSwaprSubgraphClient();
   const [state, { updatePositions }] = useUserContext();
+  const network=useSelectedNetwork()
+
   const positions = state?.[account]?.[POSITIONS_KEY];
   const stakedPositions = state?.[account]?.[STAKE_POSITIONS];
 
@@ -527,7 +529,7 @@ export function useUserPositions(account) {
           },
           fetchPolicy: "no-cache",
         });
-        console.log("result", result);
+
         let formattedPositions = [];
         let stakePositions = [];
         if (result?.data?.liquidityPositions) {
@@ -540,7 +542,7 @@ export function useUserPositions(account) {
                 nativeCurrencyPrice,
                 snapshots
               );
-              console.log("return data", returnData);
+
               return {
                 ...positionData,
                 ...returnData,
@@ -549,7 +551,17 @@ export function useUserPositions(account) {
           );
         }
         if (result?.data?.liquidityMiningPositions) {
-          stakePositions = result?.data?.liquidityMiningPositions;
+          // stakePositions = result?.data?.liquidityMiningPositions;
+          stakePositions = await Promise.all(
+            result?.data?.liquidityMiningPositions.map(async (stakeData) => {
+              console.log("return data", stakeData);
+              const newData=await getStakedFeesEarned(stakeData.liquidityMiningCampaign.id,account,network)
+              console.log(newData)
+              return {
+                ...stakeData,
+              };
+            })
+          );
         }
 
         updatePositions(account, formattedPositions, stakePositions);
@@ -571,7 +583,8 @@ export function useUserPositions(account) {
   ]);
   // console.log("staked positions", stakedPositions);
   // console.log("formatted", positions);
-  return {positions,stakedPositions};
+  console.log(stakedPositions, "here");
+  return { positions, stakedPositions };
 }
 
 export function useUserContextResetter() {

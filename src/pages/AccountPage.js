@@ -135,7 +135,7 @@ function AccountPage({ account }) {
   const [activePosition, setActivePosition] = useState();
 
   const dynamicPositions = activePosition ? [activePosition] : positions;
-  console.log("dynamic", dynamicPositions);
+
 
   const aggregateFees = dynamicPositions?.reduce(function (total, position) {
     return total + position.fees.sum;
@@ -160,10 +160,7 @@ function AccountPage({ account }) {
         }, 0)
       : 0;
   }, [stakedPositions]);
-  console.log(stakedPositions);
-  console.log(stakedPositionValue, "work of good");
-  console.log(positionValue, "position value");
-  console.log("evaluation", positionValue + stakedPositionValue);
+
 
   useEffect(() => {
     window.scrollTo({

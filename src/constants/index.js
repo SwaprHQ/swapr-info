@@ -28,6 +28,12 @@ export const NETWORK_SUBGRAPH_URLS = Object.freeze({
   [SupportedNetwork.ARBITRUM_ONE]: "luzzif/swapr-arbitrum-one-v2",
 });
 
+export const RPC_PROVIDERS = {
+  [SupportedNetwork.MAINNET]: "https://cloudflare-eth.com/",
+  [SupportedNetwork.XDAI]: "https://rpc.xdaichain.com/",
+  [SupportedNetwork.ARBITRUM_ONE]: "https://arb1.arbitrum.io/rpc",
+};
+
 export const FACTORY_ADDRESS = {
   [SupportedNetwork.MAINNET]: "0xd34971BaB6E5E356fd250715F5dE0492BB070452",
   [SupportedNetwork.XDAI]: "0x5d48c95adffd4b40c1aaadc4e08fc44117e02179",

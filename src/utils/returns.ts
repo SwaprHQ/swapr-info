@@ -1,6 +1,11 @@
 import { USER_MINTS_BUNRS_PER_PAIR } from "../apollo/queries";
 import dayjs from "dayjs";
 import { getShareValueOverTime } from ".";
+import {utils,ethers} from "ethers";
+import stakingReward from "../abi/staking_reward.json";
+import { useNetworkContext, useSelectedNetwork } from "../contexts/Network";
+import { ChainIdForSupportedNetwork, RPC_PROVIDERS } from "../constants";
+import axios from "axios";
 
 export const priceOverrides = [
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC
@@ -362,4 +367,52 @@ export async function getLPReturnsOnPair(
       sum: fees,
     },
   };
+}
+
+export async function getStakedFeesEarned(
+  miningCampaign: string,
+  address: string,
+  network: string
+) {
+  // console.log(RPC_PROVIDERS[network], "ssss");
+  // console.log(ChainIdForSupportedNetwork[network])
+  const provider = new ethers.providers.JsonRpcProvider(RPC_PROVIDERS[network]);
+  console.log('craccks',provider)
+  //const provider=await ethers.getDefaultProvider(ChainIdForSupportedNetwork[network].toString())
+  const contract = new ethers.Contract(
+    miningCampaign,
+    stakingReward,
+    provider
+  );
+  const calling=await contract.earnedRewardsOf(address)
+  console.log('hjerer',calling)
+   //console.log(await contract.earnedRewardsOf(address))
+  // const interfaces = new ethers.utils.Interface(stakingReward);
+  // const earnedReward = interfaces.functions.earnedRewardsOf.encode([address]);
+  // const response = await axios.post(
+  //   RPC_PROVIDERS[network],
+  //   {
+  //     jsonrpc: "2.0",
+  //     id: +new Date(),
+  //     method: "eth_call",
+  //     params: [
+  //       {
+  //         data: earnedReward,
+  //         to: miningCampaign,
+  //         from: address,
+  //       },
+  //       "latest",
+  //     ],
+  //   },
+  //   {
+  //     headers: {
+  //       "Content-Type": "application/json",
+  //     },
+  //   }
+  // );
+ // console.log("works", response);
+  // console.log("campaign", miningCampaign);
+  // console.log("address", address);
+
+  return "milan";
 }

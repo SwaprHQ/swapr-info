@@ -136,10 +136,17 @@ function AccountPage({ account }) {
 
   const dynamicPositions = activePosition ? [activePosition] : positions;
 
-
   const aggregateFees = dynamicPositions?.reduce(function (total, position) {
     return total + position.fees.sum;
   }, 0);
+
+  const aggregateStakeFees = stakedPositions?.reduce(function (
+    total,
+    stakePosition
+  ) {
+    return total + parseFloat(stakePosition.fees);
+  },
+  0);
 
   const positionValue = useMemo(() => {
     return dynamicPositions
@@ -160,7 +167,6 @@ function AccountPage({ account }) {
         }, 0)
       : 0;
   }, [stakedPositions]);
-
 
   useEffect(() => {
     window.scrollTo({
@@ -327,7 +333,11 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header fontSize={"24px"} lineHeight={1}>
-                      {formattedNum(positionValue + stakedPositions, true)}
+                      {formattedNum(
+                        positionValue + stakedPositionValue,
+                        true,
+                        true
+                      )}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>
@@ -342,8 +352,12 @@ function AccountPage({ account }) {
                       lineHeight={1}
                       color={aggregateFees && "green"}
                     >
-                      {aggregateFees
-                        ? formattedNum(aggregateFees, true, true)
+                      {aggregateFees || aggregateStakeFees
+                        ? formattedNum(
+                            aggregateFees + aggregateStakeFees,
+                            true,
+                            true
+                          )
                         : "-"}
                     </TYPE.header>
                   </RowFixed>

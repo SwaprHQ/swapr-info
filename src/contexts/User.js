@@ -18,9 +18,18 @@ import { useTimeframe, useStartTimestamp } from "./Application";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useNativeCurrencyPrice } from "./GlobalData";
-import {getLPReturnsOnPair, getHistoricalPairReturns, getStakedFeesEarned} from "../utils/returns";
+import {
+  getLPReturnsOnPair,
+  getHistoricalPairReturns,
+  getStakedFeesEarned,
+} from "../utils/returns";
 import { timeframeOptions } from "../constants";
-import {useBlocksSubgraphClient, useNetworkContext, useSelectedNetwork, useSwaprSubgraphClient} from "./Network";
+import {
+  useBlocksSubgraphClient,
+  useNetworkContext,
+  useSelectedNetwork,
+  useSwaprSubgraphClient,
+} from "./Network";
 
 dayjs.extend(utc);
 
@@ -60,7 +69,6 @@ function reducer(state, { type, payload }) {
     }
     case UPDATE_POSITIONS: {
       const { account, positions, stakePositions } = payload;
-      console.log(payload, "sdfdfdkfjdkfjdkfjdkjfkjd");
       return {
         ...state,
         [account]: {
@@ -511,7 +519,7 @@ export function useUserLiquidityChart(account) {
 export function useUserPositions(account) {
   const client = useSwaprSubgraphClient();
   const [state, { updatePositions }] = useUserContext();
-  const network=useSelectedNetwork()
+  const network = useSelectedNetwork();
 
   const positions = state?.[account]?.[POSITIONS_KEY];
   const stakedPositions = state?.[account]?.[STAKE_POSITIONS];
@@ -551,13 +559,16 @@ export function useUserPositions(account) {
           );
         }
         if (result?.data?.liquidityMiningPositions) {
-          // stakePositions = result?.data?.liquidityMiningPositions;
           stakePositions = await Promise.all(
             result?.data?.liquidityMiningPositions.map(async (stakeData) => {
-              console.log("return data", stakeData);
-              const newData=await getStakedFeesEarned(stakeData.liquidityMiningCampaign.id,account,network)
-              console.log(newData)
+              const fees = await getStakedFeesEarned(
+                stakeData.liquidityMiningCampaign.id,
+                account,
+                network
+              );
+
               return {
+                fees,
                 ...stakeData,
               };
             })
@@ -581,9 +592,7 @@ export function useUserPositions(account) {
     snapshots,
     client,
   ]);
-  // console.log("staked positions", stakedPositions);
-  // console.log("formatted", positions);
-  console.log(stakedPositions, "here");
+
   return { positions, stakedPositions };
 }
 

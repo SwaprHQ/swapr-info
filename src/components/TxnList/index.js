@@ -245,7 +245,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
           newTxn.type = TXN_TYPE.SWAP;
 
           newTxn.amountUSD = swap.amountUSD;
-          newTxn.account = swap.to;
+          newTxn.account = swap.from;
           return newTxns.push(newTxn);
         });
       }

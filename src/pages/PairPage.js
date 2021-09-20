@@ -128,6 +128,7 @@ function PairPage({ pairAddress, history }) {
   }, []);
 
   const transactions = usePairTransactions(pairAddress);
+
   const backgroundColor = useColor(pairAddress);
 
   // liquidity

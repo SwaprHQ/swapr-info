@@ -14,7 +14,6 @@ import {
   getPercentChange,
   getBlockFromTimestamp,
   getBlocksFromTimestamps,
-  get2DayPercentChange,
   getTimeframe,
 } from "../utils";
 import {
@@ -314,38 +313,47 @@ async function getGlobalData(
     // format the total liquidity in USD
     data.totalLiquidityUSD =
       data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
-    if (data && oneDayData && twoDayData && twoWeekData) {
-      let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
-        data.totalVolumeUSD,
-        oneDayData.totalVolumeUSD ? oneDayData.totalVolumeUSD : 0,
-        twoDayData.totalVolumeUSD ? twoDayData.totalVolumeUSD : 0
-      );
 
-      const [oneWeekVolume, weeklyVolumeChange] = get2DayPercentChange(
-        data.totalVolumeUSD,
-        oneWeekData.totalVolumeUSD,
-        twoWeekData.totalVolumeUSD
-      );
+    if (data && oneDayData) {
+      const absoluteOneDayVolumeChange =
+        parseFloat(data.totalVolumeUSD) - parseFloat(oneDayData.totalVolumeUSD);
+      data.oneDayVolumeUSD = absoluteOneDayVolumeChange;
 
-      const [oneDayTxns, txnChange] = get2DayPercentChange(
-        data.txCount,
-        oneDayData.txCount ? oneDayData.txCount : 0,
-        twoDayData.txCount ? twoDayData.txCount : 0
-      );
-
-      const liquidityChangeUSD = getPercentChange(
+      data.liquidityChangeUSD = getPercentChange(
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
         oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
       );
 
-      // add relevant fields with the calculated amounts
-      data.oneDayVolumeUSD = oneDayVolumeUSD;
-      data.oneWeekVolume = oneWeekVolume;
-      data.weeklyVolumeChange = weeklyVolumeChange;
-      data.volumeChangeUSD = volumeChangeUSD;
-      data.liquidityChangeUSD = liquidityChangeUSD;
-      data.oneDayTxns = oneDayTxns;
-      data.txnChange = txnChange;
+      const absoluteOneDayTxChange =
+        parseFloat(data.txCount) - parseFloat(oneDayData.txCount);
+      data.oneDayTxns = absoluteOneDayTxChange;
+
+      if (twoDayData) {
+        data.volumeChangeUSD = getPercentChange(
+          absoluteOneDayVolumeChange,
+          parseFloat(oneDayData.totalVolumeUSD) -
+            parseFloat(twoDayData.totalVolumeUSD)
+        );
+
+        data.txnChange = getPercentChange(
+          absoluteOneDayTxChange,
+          parseFloat(oneDayData.txCount) - parseFloat(twoDayData.txCount)
+        );
+      }
+    }
+    if (data && oneWeekData) {
+      let absoluteOneWeekVolumeChange =
+        parseFloat(data.totalVolumeUSD) -
+        parseFloat(oneWeekData.totalVolumeUSD);
+      data.oneWeekVolume = absoluteOneWeekVolumeChange;
+
+      if (twoWeekData) {
+        data.weeklyVolumeChange = getPercentChange(
+          absoluteOneWeekVolumeChange,
+          parseFloat(oneWeekData.totalVolumeUSD) -
+            parseFloat(twoWeekData.totalVolumeUSD)
+        );
+      }
     }
   } catch (e) {
     console.log(e);
@@ -383,7 +391,7 @@ const getChartData = async (client, oldestDateToFetch) => {
       }
     }
 
-    if (data) {
+    if (data && data.length > 0) {
       let dayIndexSet = new Set();
       let dayIndexArray = [];
       const oneDay = 24 * 60 * 60;

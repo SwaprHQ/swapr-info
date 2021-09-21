@@ -1,10 +1,11 @@
 import { USER_MINTS_BUNRS_PER_PAIR } from "../apollo/queries";
 import dayjs from "dayjs";
 import { getShareValueOverTime } from ".";
-import {  ethers } from "ethers";
+import { JsonRpcProvider } from "@ethersproject/providers";
+import { Contract } from "@ethersproject/contracts";
 import stakingReward from "../abi/staking_reward.json";
 import { RPC_PROVIDERS } from "../constants";
-import { formatEther } from "ethers/utils";
+import { formatFixed } from "@ethersproject/bignumber";
 
 export const priceOverrides = [
   "0xa0b86991c6218b36c1d19d4a2e9eb0ce3606eb48", // USDC
@@ -373,10 +374,10 @@ export async function getStakedFeesEarned(
   address: string,
   network: string
 ) {
-  const provider = new ethers.providers.JsonRpcProvider(RPC_PROVIDERS[network]);
+  const provider = new JsonRpcProvider(RPC_PROVIDERS[network]);
 
-  const contract = new ethers.Contract(miningCampaign, stakingReward, provider);
+  const contract = new Contract(miningCampaign, stakingReward, provider);
   const calling = await contract.earnedRewardsOf(address);
 
-  return formatEther(calling[0]);
+  return formatFixed(calling[0], 18);
 }

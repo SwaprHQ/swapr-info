@@ -1,11 +1,9 @@
 import { USER_MINTS_BUNRS_PER_PAIR } from "../apollo/queries";
 import dayjs from "dayjs";
 import { getShareValueOverTime } from ".";
-import { utils, ethers } from "ethers";
+import {  ethers } from "ethers";
 import stakingReward from "../abi/staking_reward.json";
-import { useNetworkContext, useSelectedNetwork } from "../contexts/Network";
-import { ChainIdForSupportedNetwork, RPC_PROVIDERS } from "../constants";
-import axios from "axios";
+import { RPC_PROVIDERS } from "../constants";
 import { formatEther } from "ethers/utils";
 
 export const priceOverrides = [

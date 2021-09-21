@@ -79,7 +79,7 @@ const TokenDetailsLayout = styled.div`
     grid-template-columns: 1fr;
     align-items: stretch;
     > * {
-      grid-column: 1 / 4;
+      grid-column: 1 / 5;
       margin-bottom: 1rem;
     }
 

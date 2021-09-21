@@ -26,7 +26,6 @@ import {
 import { timeframeOptions } from "../constants";
 import {
   useBlocksSubgraphClient,
-  useNetworkContext,
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
@@ -591,6 +590,7 @@ export function useUserPositions(account) {
     nativeCurrencyPrice,
     snapshots,
     client,
+      network
   ]);
 
   return { positions, stakedPositions };

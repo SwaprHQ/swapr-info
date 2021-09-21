@@ -376,7 +376,9 @@ export async function getStakedFeesEarned(
   const provider = CHAIN_READONLY_PROVIDERS[network];
 
   const contract = new Contract(miningCampaign, stakingReward, provider);
-  const calling = await contract.earnedRewardsOf(address);
+  const earnedRewards = await contract.earnedRewardsOf(address);
+  const claimableRewards = await contract.claimableRewards(address);
+  const sum = earnedRewards[0].add(claimableRewards[0]);
 
-  return formatFixed(calling[0], 18);
+  return formatFixed(sum, 18);
 }

@@ -352,13 +352,34 @@ function AccountPage({ account }) {
                       lineHeight={1}
                       color={aggregateFees && "green"}
                     >
-                      {aggregateFees || aggregateStakeFees
+                      {aggregateFees
                         ? formattedNum(
-                            aggregateFees + aggregateStakeFees,
+                            aggregateFees ,
                             true,
                             true
                           )
                         : "-"}
+                    </TYPE.header>
+                  </RowFixed>
+                </AutoColumn>
+                <AutoColumn gap="10px">
+                  <RowBetween>
+                    <TYPE.body>Rewards</TYPE.body>
+                    <div />
+                  </RowBetween>
+                  <RowFixed align="flex-end">
+                    <TYPE.header
+                        fontSize={"24px"}
+                        lineHeight={1}
+                        color={aggregateFees && "green"}
+                    >
+                      {aggregateStakeFees
+                          ? formattedNum(
+                              aggregateStakeFees,
+                              true,
+                              true
+                          )
+                          : "-"}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>

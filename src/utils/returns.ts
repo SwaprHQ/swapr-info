@@ -1,10 +1,9 @@
 import { USER_MINTS_BUNRS_PER_PAIR } from "../apollo/queries";
 import dayjs from "dayjs";
 import { getShareValueOverTime } from ".";
-import { JsonRpcProvider } from "@ethersproject/providers";
 import { Contract } from "@ethersproject/contracts";
 import stakingReward from "../abi/staking_reward.json";
-import { RPC_PROVIDERS } from "../constants";
+import { CHAIN_READONLY_PROVIDERS } from "../constants";
 import { formatFixed } from "@ethersproject/bignumber";
 
 export const priceOverrides = [
@@ -374,7 +373,7 @@ export async function getStakedFeesEarned(
   address: string,
   network: string
 ) {
-  const provider = new JsonRpcProvider(RPC_PROVIDERS[network]);
+  const provider = CHAIN_READONLY_PROVIDERS[network];
 
   const contract = new Contract(miningCampaign, stakingReward, provider);
   const calling = await contract.earnedRewardsOf(address);

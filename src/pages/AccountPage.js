@@ -353,11 +353,7 @@ function AccountPage({ account }) {
                       color={aggregateFees && "green"}
                     >
                       {aggregateFees
-                        ? formattedNum(
-                            aggregateFees ,
-                            true,
-                            true
-                          )
+                        ? formattedNum(aggregateFees, true, true)
                         : "-"}
                     </TYPE.header>
                   </RowFixed>
@@ -369,17 +365,13 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header
-                        fontSize={"24px"}
-                        lineHeight={1}
-                        color={aggregateFees && "green"}
+                      fontSize={"24px"}
+                      lineHeight={1}
+                      color={aggregateStakeFees && "green"}
                     >
                       {aggregateStakeFees
-                          ? formattedNum(
-                              aggregateStakeFees,
-                              true,
-                              true
-                          )
-                          : "-"}
+                        ? formattedNum(aggregateStakeFees, true, true)
+                        : "-"}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>

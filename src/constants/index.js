@@ -1,3 +1,5 @@
+import { JsonRpcProvider } from "@ethersproject/providers";
+
 export const SupportedNetwork = Object.freeze({
   MAINNET: "Mainnet",
   XDAI: "xDAI",
@@ -103,3 +105,13 @@ export const PAIR_BLACKLIST = ["0xb6a741f37d6e455ebcc9f17e2c16d0586c3f57a5"];
 export const FEE_WARNING_TOKENS = [
   "0xd46ba6d942050d489dbd938a2c909a5d5039a161",
 ];
+
+export const CHAIN_READONLY_PROVIDERS = {
+  [SupportedNetwork.MAINNET]: new JsonRpcProvider(
+    "https://mainnet.infura.io/v3/0ebf4dd05d6740f482938b8a80860d13"
+  ),
+  [SupportedNetwork.XDAI]: new JsonRpcProvider("https://rpc.xdaichain.com/"),
+  [SupportedNetwork.ARBITRUM_ONE]: new JsonRpcProvider(
+    "https://arb1.arbitrum.io/rpc"
+  ),
+};

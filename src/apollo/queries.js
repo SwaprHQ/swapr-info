@@ -661,6 +661,23 @@ const PairFields = `
     token0Price
     token1Price
     createdAtTimestamp
+    liquidityMiningCampaigns{
+      initialized
+      stakablePair
+      rewardTokens{
+      symbol
+      totalLiquidity
+        pairDayDataQuote
+      }
+      rewardAmounts
+      stakedAmount
+      locked
+      stakingCap
+      claims
+      withdrawals
+      deposits
+      recoveries
+    }
   }
 `;
 

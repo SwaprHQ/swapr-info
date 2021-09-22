@@ -1,20 +1,23 @@
-import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-
-import { Box, Flex, Text } from "rebass";
-import TokenLogo from "../TokenLogo";
-import { CustomLink } from "../Link";
-import Row from "../Row";
-import { Divider } from "..";
-
-import { formattedNum, formattedPercent } from "../../utils";
+import React, { useState, useEffect } from "react";
 import { useMedia } from "react-use";
+import dayjs from "dayjs";
+import LocalLoader from "../LocalLoader";
+import utc from "dayjs/plugin/utc";
+import { Box, Flex, Text } from "rebass";
+import styled from "styled-components";
+
+import { CustomLink } from "../Link";
+import { Divider } from "../../components";
 import { withRouter } from "react-router-dom";
-import { OVERVIEW_TOKEN_BLACKLIST } from "../../constants";
+import { formattedNum, formattedPercent } from "../../utils";
+import DoubleTokenLogo from "../DoubleLogo";
 import FormattedName from "../FormattedName";
+import QuestionHelper from "../QuestionHelper";
 import { TYPE } from "../../Theme";
+import {
+  useNativeCurrencySymbol,
+  useNativeCurrencyWrapper,
+} from "../../contexts/Network";
 
 dayjs.extend(utc);
 
@@ -23,7 +26,7 @@ const PageButtons = styled.div`
   display: flex;
   justify-content: center;
   margin-top: 2em;
-  margin-bottom: 2em;
+  margin-bottom: 0.5em;
 `;
 
 const Arrow = styled.div`
@@ -50,7 +53,7 @@ const DashGrid = styled.div`
   > * {
     justify-content: flex-end;
 
-    &:first-child {
+    :first-child {
       justify-content: flex-start;
       text-align: left;
     }
@@ -83,17 +86,13 @@ const DashGrid = styled.div`
 const ListWrapper = styled.div``;
 
 const ClickableText = styled(Text)`
-  text-align: end;
+  color: ${({ theme }) => theme.text1};
   &:hover {
     cursor: pointer;
     opacity: 0.6;
   }
+  text-align: end;
   user-select: none;
-  color: ${({ theme }) => theme.text1};
-
-  @media screen and (max-width: 640px) {
-    font-size: 0.85rem;
-  }
 `;
 
 const DataText = styled(Flex)`
@@ -111,172 +110,177 @@ const DataText = styled(Flex)`
 `;
 
 const SORT_FIELD = {
-  LIQ: "totalLiquidityUSD",
-  VOL: "oneDayVolumeUSD",
-  SYMBOL: "symbol",
-  NAME: "name",
-  PRICE: "priceUSD",
-  CHANGE: "priceChangeUSD",
+  LIQ: 0,
+  VOL: 1,
+  VOL_7DAYS: 3,
+  FEES: 4,
+  APY: 5,
 };
 
-// @TODO rework into virtualized list
-function FarmingList({ tokens, itemMax = 10 }) {
-  // page state
+const FIELD_TO_VALUE = {
+  [SORT_FIELD.LIQ]: "trackedReserveUSD", // sort with tracked volume only
+  [SORT_FIELD.VOL]: "oneDayVolumeUSD",
+  [SORT_FIELD.VOL_7DAYS]: "oneWeekVolumeUSD",
+  [SORT_FIELD.FEES]: "oneDayVolumeUSD",
+};
+
+function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
+  const below600 = useMedia("(max-width: 600px)");
+  const below680 = useMedia("(max-width: 680px)");
+  const below740 = useMedia("(max-width: 740px)");
+  const below1080 = useMedia("(max-width: 1080px)");
+  console.log(pairs)
+
+  // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
+  const ITEMS_PER_PAGE = maxItems;
 
   // sorting
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
 
-  const below1080 = useMedia("(max-width: 1080px)");
-  const below680 = useMedia("(max-width: 680px)");
-  const below600 = useMedia("(max-width: 600px)");
+  const nativeCurrency = useNativeCurrencySymbol();
+  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
 
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
     setPage(1);
-  }, [tokens]);
-
-  const formattedTokens = useMemo(() => {
-    return (
-      tokens &&
-      Object.keys(tokens)
-        .filter((key) => {
-          return !OVERVIEW_TOKEN_BLACKLIST.includes(key);
-        })
-        .map((key) => tokens[key])
-    );
-  }, [tokens]);
+  }, [pairs]);
 
   useEffect(() => {
-    if (tokens && formattedTokens) {
+    if (pairs) {
       let extraPages = 1;
-      if (formattedTokens.length % itemMax === 0) {
+      if (Object.keys(pairs).length % ITEMS_PER_PAGE === 0) {
         extraPages = 0;
       }
       setMaxPage(
-        Math.max(1, Math.floor(formattedTokens.length / itemMax) + extraPages)
+        Math.max(
+          1,
+          Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages
+        )
       );
     }
-  }, [tokens, formattedTokens, itemMax]);
+  }, [ITEMS_PER_PAGE, pairs]);
 
-  const filteredList = useMemo(() => {
-    return (
-      formattedTokens &&
-      formattedTokens
-        .sort((a, b) => {
-          if (
-            sortedColumn === SORT_FIELD.SYMBOL ||
-            sortedColumn === SORT_FIELD.NAME
-          ) {
-            return a[sortedColumn] > b[sortedColumn]
-              ? (sortDirection ? -1 : 1) * 1
-              : (sortDirection ? -1 : 1) * -1;
-          }
-          return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1;
-        })
-        .slice(itemMax * (page - 1), page * itemMax)
-    );
-  }, [formattedTokens, itemMax, page, sortDirection, sortedColumn]);
+  const ListItem = ({ pairAddress, index }) => {
+    const pairData = pairs[pairAddress];
 
-  const ListItem = ({ item, index }) => {
-    return (
-      <DashGrid style={{ height: "48px" }} focus={true}>
-        <DataText area="name" fontWeight="500">
-          <Row>
+    if (pairData && pairData.token0 && pairData.token1) {
+      const liquidity = formattedNum(pairData.reserveUSD, true);
+      const volume = formattedNum(pairData.oneDayVolumeUSD, true);
+      const apy = formattedPercent(
+        (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
+      );
+      return (
+        <DashGrid
+          style={{ height: "48px" }}
+          disbaleLinks={disbaleLinks}
+          focus={true}
+        >
+          <DataText area="name" fontWeight="500">
             {!below680 && (
-              <div style={{ marginRight: "1rem", width: "10px" }}>{index}</div>
+              <div style={{ marginRight: "20px", width: "10px" }}>{index}</div>
             )}
-            <TokenLogo address={item.id} defaultText={item.symbol} />
+            <DoubleTokenLogo
+              size={below600 ? 16 : 20}
+              a0={pairData.token0.id}
+              a1={pairData.token1.id}
+              defaultText0={pairData.token0.symbol}
+              defaultText1={pairData.token1.symbol}
+              margin={!below740}
+            />
             <CustomLink
-              style={{ marginLeft: "16px", whiteSpace: "nowrap" }}
-              to={"/token/" + item.id}
+              style={{ marginLeft: "20px", whiteSpace: "nowrap" }}
+              to={"/pair/" + pairAddress}
+              color={color}
             >
               <FormattedName
-                text={below680 ? item.symbol : item.name}
+                text={
+                  (nativeCurrencyWrapper.symbol === pairData.token0.symbol
+                    ? nativeCurrency
+                    : pairData.token0.symbol) +
+                  "-" +
+                  (nativeCurrencyWrapper.symbol === pairData.token1.symbol
+                    ? nativeCurrency
+                    : pairData.token1.symbol)
+                }
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
               />
             </CustomLink>
-          </Row>
-        </DataText>
-        {!below680 && (
-          <DataText area="symbol" color="text" fontWeight="500">
-            <FormattedName text={item.symbol} maxCharacters={5} />
           </DataText>
-        )}
-        <DataText area="liq">
-          {formattedNum(item.totalLiquidityUSD, true)}
-        </DataText>
-        <DataText area="vol">
-          {formattedNum(item.oneDayVolumeUSD, true)}
-        </DataText>
-        {!below1080 && (
-          <DataText area="price" color="text" fontWeight="500">
-            {formattedNum(item.priceUSD, true)}
-          </DataText>
-        )}
-        {!below1080 && (
-          <DataText area="change">
-            {formattedPercent(item.priceChangeUSD)}
-          </DataText>
-        )}
-      </DashGrid>
-    );
+          <DataText area="liq">{liquidity}</DataText>
+          <DataText area="vol">{volume}</DataText>
+          {!below680 && (
+            <DataText area="volWeek">
+              {formattedNum(pairData.oneWeekVolumeUSD, true)}
+            </DataText>
+          )}
+
+          {!below1080 && (
+            <DataText area="fees">
+              {formattedNum(pairData.oneDayVolumeUSD * 0.0025, true)}
+            </DataText>
+          )}
+          {!below1080 && <DataText area="apy">{apy}</DataText>}
+        </DashGrid>
+      );
+    } else {
+      return "";
+    }
   };
+
+  const pairList =
+    pairs &&
+    Object.keys(pairs)
+      .sort((addressA, addressB) => {
+        const pairA = pairs[addressA];
+        const pairB = pairs[addressB];
+        if (sortedColumn === SORT_FIELD.APY) {
+          const apy0 =
+            parseFloat(pairA.oneDayVolumeUSD * 0.0025 * 356 * 100) /
+            parseFloat(pairA.reserveUSD);
+          const apy1 =
+            parseFloat(pairB.oneDayVolumeUSD * 0.0025 * 356 * 100) /
+            parseFloat(pairB.reserveUSD);
+          return apy0 > apy1
+            ? (sortDirection ? -1 : 1) * 1
+            : (sortDirection ? -1 : 1) * -1;
+        }
+        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
+          parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
+          ? (sortDirection ? -1 : 1) * 1
+          : (sortDirection ? -1 : 1) * -1;
+      })
+      .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
+      .map((pairAddress, index) => {
+        return (
+          pairAddress && (
+            <div key={index}>
+              <ListItem
+                key={index}
+                index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+                pairAddress={pairAddress}
+              />
+              <Divider />
+            </div>
+          )
+        );
+      });
 
   return (
     <ListWrapper>
       <DashGrid
         center={true}
+        disbaleLinks={disbaleLinks}
         style={{ height: "fit-content", padding: "0 1.125rem 1rem 1.125rem" }}
       >
         <Flex alignItems="center" justifyContent="flexStart">
-          <ClickableText
-            color="text"
-            area="name"
-            fontWeight="500"
-            onClick={(e) => {
-              setSortedColumn(SORT_FIELD.NAME);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.NAMe ? true : !sortDirection
-              );
-            }}
-          >
-            {below680 ? "Symbol" : "Name"}{" "}
-            {sortedColumn === SORT_FIELD.NAME
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
-          </ClickableText>
+          <TYPE.main area="name">Name</TYPE.main>
         </Flex>
-        {!below680 && (
-          <Flex alignItems="center">
-            <ClickableText
-              area="symbol"
-              onClick={(e) => {
-                setSortedColumn(SORT_FIELD.SYMBOL);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.SYMBOL ? true : !sortDirection
-                );
-              }}
-            >
-              Symbol{" "}
-              {sortedColumn === SORT_FIELD.SYMBOL
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
-            </ClickableText>
-          </Flex>
-        )}
-
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             area="liq"
             onClick={(e) => {
@@ -312,19 +316,40 @@ function FarmingList({ tokens, itemMax = 10 }) {
               : ""}
           </ClickableText>
         </Flex>
-        {!below1080 && (
-          <Flex alignItems="center">
+        {!below680 && (
+          <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
-              area="price"
+              area="volWeek"
               onClick={(e) => {
-                setSortedColumn(SORT_FIELD.PRICE);
+                setSortedColumn(SORT_FIELD.VOL_7DAYS);
                 setSortDirection(
-                  sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection
+                  sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
                 );
               }}
             >
-              Price{" "}
-              {sortedColumn === SORT_FIELD.PRICE
+              Volume (7d){" "}
+              {sortedColumn === SORT_FIELD.VOL_7DAYS
+                ? !sortDirection
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </ClickableText>
+          </Flex>
+        )}
+
+        {!below1080 && (
+          <Flex alignItems="center" justifyContent="flexEnd">
+            <ClickableText
+              area="fees"
+              onClick={(e) => {
+                setSortedColumn(SORT_FIELD.FEES);
+                setSortDirection(
+                  sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection
+                );
+              }}
+            >
+              Fees (24hr){" "}
+              {sortedColumn === SORT_FIELD.FEES
                 ? !sortDirection
                   ? "↑"
                   : "↓"
@@ -333,49 +358,43 @@ function FarmingList({ tokens, itemMax = 10 }) {
           </Flex>
         )}
         {!below1080 && (
-          <Flex alignItems="center">
+          <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
-              area="change"
+              area="apy"
               onClick={(e) => {
-                setSortedColumn(SORT_FIELD.CHANGE);
+                setSortedColumn(SORT_FIELD.APY);
                 setSortDirection(
-                  sortedColumn !== SORT_FIELD.CHANGE ? true : !sortDirection
+                  sortedColumn !== SORT_FIELD.APY ? true : !sortDirection
                 );
               }}
             >
-              Price Change (24hrs)
-              {sortedColumn === SORT_FIELD.CHANGE
+              1y Fees / Liquidity{" "}
+              {sortedColumn === SORT_FIELD.APY
                 ? !sortDirection
                   ? "↑"
                   : "↓"
                 : ""}
             </ClickableText>
+            <QuestionHelper text={"Based on 24hr volume annualized"} />
           </Flex>
         )}
       </DashGrid>
       <Divider />
-
-      <List p={0}>
-        {filteredList &&
-          filteredList.map((item, index) => {
-            return (
-              <div key={index}>
-                <ListItem
-                  key={index}
-                  index={(page - 1) * itemMax + index + 1}
-                  item={item}
-                />
-                <Divider />
-              </div>
-            );
-          })}
-      </List>
+      <List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>
       <PageButtons>
-        <div onClick={() => setPage(page === 1 ? page : page - 1)}>
+        <div
+          onClick={(e) => {
+            setPage(page === 1 ? page : page - 1);
+          }}
+        >
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
         <TYPE.body>{"Page " + page + " of " + maxPage}</TYPE.body>
-        <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
+        <div
+          onClick={(e) => {
+            setPage(page === maxPage ? page : page + 1);
+          }}
+        >
           <Arrow faded={page === maxPage ? true : false}>→</Arrow>
         </div>
       </PageButtons>

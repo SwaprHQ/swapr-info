@@ -6,6 +6,7 @@ import { BasicLink } from "../../Link";
 import { Option } from "../";
 import { AutoColumn } from "../../Column";
 import Row from "../../Row";
+import farming from "../../../assets/farming.svg";
 
 const StyledIcon = styled(X)`
   color: #fff;
@@ -54,7 +55,12 @@ export const MobileMenu = ({ onClose, ...rest }) => {
             undefined
           }
         >
-          <PieChart size={20} style={{ marginRight: ".75rem" }} />
+          <img
+            style={{ marginRight: ".75rem" }}
+            width={"20px"}
+            src={farming}
+            alt="farming"
+          />
           Farming
         </Option>
       </BasicLink>

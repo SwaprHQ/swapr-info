@@ -10,6 +10,7 @@ import { withRouter } from "react-router-dom";
 import { TrendingUp, List, PieChart, Disc, Menu } from "react-feather";
 import Link from "../Link";
 import { useSessionStart } from "../../contexts/Application";
+import farming from "../../assets/farming.svg";
 import DropdownSelect from "../DropdownSelect";
 import {
   useSelectedNetwork,
@@ -223,7 +224,12 @@ function SideNav({ history }) {
                       undefined
                     }
                   >
-                    <PieChart size={20} style={{ marginRight: ".75rem" }} />
+                    <img
+                      style={{ marginRight: ".75rem" }}
+                      width={"20px"}
+                      src={farming}
+                      alt="farming"
+                    />
                     Farming
                   </Option>
                 </BasicLink>

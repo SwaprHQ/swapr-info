@@ -35,7 +35,8 @@ export default function GlobalStats() {
     ? formattedNum(nativeCurrencyPrice, true)
     : "-";
   const oneDayFees = oneDayVolumeUSD
-    ? formattedNum(oneDayVolumeUSD * 0.0025, true)
+    ? // FIXME: just know this is approximated, because each pair can have its own swap fee
+      formattedNum(oneDayVolumeUSD * 0.0025, true)
     : "";
 
   return (

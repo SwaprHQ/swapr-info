@@ -206,7 +206,7 @@ export function useUserTransactions(account) {
           variables: {
             user: account,
           },
-          fetchPolicy: "no-cache",
+          fetchPolicy: "network-only",
         });
         if (result?.data) {
           updateTransactions(account, result?.data);
@@ -517,7 +517,7 @@ export function useUserPositions(account) {
           variables: {
             user: account,
           },
-          fetchPolicy: "no-cache",
+          fetchPolicy: "network-only",
         });
         if (result?.data?.liquidityPositions) {
           let formattedPositions = await Promise.all(

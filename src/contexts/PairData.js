@@ -17,6 +17,9 @@ import {
   PAIRS_HISTORICAL_BULK,
   HOURLY_PAIR_RATES,
 } from "../apollo/queries";
+import multicallAbi from "../abi/multicall.json";
+import { Interface } from "@ethersproject/abi";
+import { Contract } from "@ethersproject/contracts";
 
 import { useNativeCurrencyPrice } from "./GlobalData";
 
@@ -31,10 +34,18 @@ import {
   getTimestampsForChanges,
   splitQuery,
 } from "../utils";
-import { timeframeOptions } from "../constants";
+import {
+  CHAIN_READONLY_PROVIDERS,
+  MULTICALL_ADDRESS,
+  timeframeOptions,
+} from "../constants";
 import { useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
-import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
+import {
+  useBlocksSubgraphClient,
+  useSelectedNetwork,
+  useSwaprSubgraphClient,
+} from "./Network";
 
 const RESET = "RESET";
 const UPDATE = "UPDATE";
@@ -213,12 +224,44 @@ export default function Provider({ children }) {
     </PairDataContext.Provider>
   );
 }
+const PAIR_INTERFACE = new Interface([
+  "function swapFee() view returns (uint32)",
+]);
+
+async function getPairsSwapFee(selectedNetwork, pairIds) {
+  let fees = {};
+  try {
+    const multicall = new Contract(
+      MULTICALL_ADDRESS[selectedNetwork],
+      multicallAbi,
+      CHAIN_READONLY_PROVIDERS[selectedNetwork]
+    );
+
+    const encodedSwapFeeCall = PAIR_INTERFACE.encodeFunctionData("swapFee()");
+    const result = await multicall.aggregate(
+      pairIds.map((pairId) => [pairId, encodedSwapFeeCall])
+    );
+    if (pairIds.length !== result.returnData.length)
+      throw new Error("inconsistent multicall result length");
+
+    for (let i = 0; i < result.returnData.length; i++) {
+      fees[pairIds[i]] = PAIR_INTERFACE.decodeFunctionResult(
+        "swapFee()",
+        result.returnData[i]
+      )[0];
+    }
+  } catch (error) {
+    console.error("error fetching pair swap fees", error);
+  }
+  return fees;
+}
 
 async function getBulkPairData(
   client,
   blockClient,
   pairList,
-  nativeCurrencyPrice
+  nativeCurrencyPrice,
+  selectedNetwork
 ) {
   const [t1, t2, tWeek] = getTimestampsForChanges();
   let [
@@ -235,6 +278,7 @@ async function getBulkPairData(
       },
       fetchPolicy: "network-only",
     });
+    const swapFees = await getPairsSwapFee(selectedNetwork, pairList);
 
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
@@ -294,6 +338,7 @@ async function getBulkPairData(
             nativeCurrencyPrice,
             b1
           );
+          data.swapFee = swapFees[pair.id] || 25; // 25 bips is the default swap fee, fallback to it
           return data;
         })
     );
@@ -369,7 +414,7 @@ const getPairTransactions = async (client, pairAddress) => {
       variables: {
         allPairs: [pairAddress],
       },
-      fetchPolicy: "no-cache",
+      fetchPolicy: "network-only",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -534,6 +579,7 @@ const getHourlyRateData = async (
 
 export function Updater() {
   const client = useSwaprSubgraphClient();
+  const selectedNetwork = useSelectedNetwork();
   const blockClient = useBlocksSubgraphClient();
   const [, { updateTopPairs }] = usePairDataContext();
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
@@ -558,12 +604,19 @@ export function Updater() {
         client,
         blockClient,
         formattedPairs,
-        nativeCurrencyPrice
+        nativeCurrencyPrice,
+        selectedNetwork
       );
       topPairs && updateTopPairs(topPairs);
     }
     nativeCurrencyPrice && getData();
-  }, [nativeCurrencyPrice, updateTopPairs, client, blockClient]);
+  }, [
+    nativeCurrencyPrice,
+    updateTopPairs,
+    client,
+    blockClient,
+    selectedNetwork,
+  ]);
   return null;
 }
 
@@ -613,6 +666,7 @@ export function useHourlyRateData(pairAddress, timeWindow) {
  * store these updates to reduce future redundant calls
  */
 export function useDataForList(pairList) {
+  const selectedNetwork = useSelectedNetwork();
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
   const [state] = usePairDataContext();
@@ -649,7 +703,8 @@ export function useDataForList(pairList) {
         unfetched.map((pair) => {
           return pair;
         }),
-        nativeCurrencyPrice
+        nativeCurrencyPrice,
+        selectedNetwork
       );
       setFetched(newFetched.concat(newPairData));
     }
@@ -671,6 +726,7 @@ export function useDataForList(pairList) {
     fetched,
     client,
     blockClient,
+    selectedNetwork,
   ]);
 
   let formattedFetch =
@@ -687,6 +743,7 @@ export function useDataForList(pairList) {
  */
 export function usePairData(pairAddress) {
   const client = useSwaprSubgraphClient();
+  const selectedNetwork = useSelectedNetwork();
   const blockClient = useBlocksSubgraphClient();
   const [state, { update }] = usePairDataContext();
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
@@ -699,7 +756,8 @@ export function usePairData(pairAddress) {
           client,
           blockClient,
           [pairAddress],
-          nativeCurrencyPrice
+          nativeCurrencyPrice,
+          selectedNetwork
         );
         data && update(pairAddress, data[0]);
       }
@@ -712,7 +770,15 @@ export function usePairData(pairAddress) {
     ) {
       fetchData();
     }
-  }, [pairAddress, pairData, update, nativeCurrencyPrice, client, blockClient]);
+  }, [
+    pairAddress,
+    pairData,
+    update,
+    nativeCurrencyPrice,
+    client,
+    blockClient,
+    selectedNetwork,
+  ]);
 
   return pairData || {};
 }

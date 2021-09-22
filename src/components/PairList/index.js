@@ -164,12 +164,14 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
 
   const ListItem = ({ pairAddress, index }) => {
     const pairData = pairs[pairAddress];
+    const pairSwapFeePercentage = pairData.swapFee / 10000;
 
     if (pairData && pairData.token0 && pairData.token1) {
       const liquidity = formattedNum(pairData.reserveUSD, true);
       const volume = formattedNum(pairData.oneDayVolumeUSD, true);
       const apy = formattedPercent(
-        (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
+        (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) /
+          pairData.reserveUSD
       );
       return (
         <DashGrid
@@ -220,7 +222,10 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
 
           {!below1080 && (
             <DataText area="fees">
-              {formattedNum(pairData.oneDayVolumeUSD * 0.0025, true)}
+              {formattedNum(
+                pairData.oneDayVolumeUSD * pairSwapFeePercentage,
+                true
+              )}
             </DataText>
           )}
           {!below1080 && <DataText area="apy">{apy}</DataText>}
@@ -239,11 +244,13 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         const pairB = pairs[addressB];
         if (sortedColumn === SORT_FIELD.APY) {
           const apy0 =
-            parseFloat(pairA.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairA.reserveUSD);
+            parseFloat(
+              pairA.oneDayVolumeUSD * (pairA.swapFee / 10000) * 356 * 100
+            ) / parseFloat(pairA.reserveUSD);
           const apy1 =
-            parseFloat(pairB.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairB.reserveUSD);
+            parseFloat(
+              pairB.oneDayVolumeUSD * (pairB.swapFee / 10000) * 356 * 100
+            ) / parseFloat(pairB.reserveUSD);
           return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;

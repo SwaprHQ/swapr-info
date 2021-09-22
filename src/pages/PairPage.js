@@ -37,7 +37,6 @@ import {
   useNativeCurrencyWrapper,
   useSelectedNetwork,
 } from "../contexts/Network";
-import { usePairSwapFee } from "../hooks/usePairSwapFee";
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -122,6 +121,7 @@ function PairPage({ pairAddress, history }) {
     oneDayVolumeUntracked,
     volumeChangeUntracked,
     liquidityChangeUSD,
+    swapFee: pairSwapFeeBips,
   } = usePairData(pairAddress);
 
   useEffect(() => {
@@ -166,8 +166,6 @@ function PairPage({ pairAddress, history }) {
   const volumeChange = formattedPercent(
     !usingUtVolume ? volumeChangeUSD : volumeChangeUntracked
   );
-
-  const pairSwapFeeBips = usePairSwapFee(pairAddress);
 
   // get fees	  // get fees
   const fees =

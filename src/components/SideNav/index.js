@@ -214,6 +214,19 @@ function SideNav({ history }) {
                     Pairs
                   </Option>
                 </BasicLink>
+                <BasicLink to="/farming">
+                  <Option
+                    activeText={
+                      (history.location.pathname.split("/")[1] === "farming" ||
+                        history.location.pathname.split("/")[1] ===
+                          "farming") ??
+                      undefined
+                    }
+                  >
+                    <PieChart size={20} style={{ marginRight: ".75rem" }} />
+                    Farming
+                  </Option>
+                </BasicLink>
 
                 <BasicLink to="/accounts">
                   <Option

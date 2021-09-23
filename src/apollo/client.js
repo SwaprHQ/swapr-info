@@ -21,6 +21,7 @@ export const clients = {
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
+    defaultOptions: defaultApolloConfig,
   }),
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
@@ -28,6 +29,7 @@ export const clients = {
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
+    defaultOptions: defaultApolloConfig,
   }),
   [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
     link: new HttpLink({
@@ -35,6 +37,7 @@ export const clients = {
     }),
     cache: new InMemoryCache(),
     shouldBatch: true,
+    defaultOptions: defaultApolloConfig,
   }),
 };
 
@@ -44,6 +47,7 @@ export const healthClient = new ApolloClient({
   }),
   cache: new InMemoryCache(),
   shouldBatch: true,
+  defaultOptions: defaultApolloConfig,
 });
 
 export const blockClients = {

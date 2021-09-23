@@ -762,6 +762,7 @@ export const PAIR_DATA = (pairAddress, block) => {
         ...PairFields
       }
     }`;
+  console.log('string-',queryString)
   return gql(queryString);
 };
 

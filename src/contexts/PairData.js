@@ -233,14 +233,12 @@ async function getBulkPairData(
       variables: {
         allPairs: pairList,
       },
-      fetchPolicy: "no-cache",
     });
 
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
         let result = client.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: "no-cache",
         });
         return result;
       })
@@ -266,7 +264,6 @@ async function getBulkPairData(
           if (!oneDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: "no-cache",
             });
             oneDayHistory = newData.data.pairs[0];
           }
@@ -274,7 +271,6 @@ async function getBulkPairData(
           if (!twoDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: "no-cache",
             });
             twoDayHistory = newData.data.pairs[0];
           }
@@ -282,7 +278,6 @@ async function getBulkPairData(
           if (!oneWeekHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: "no-cache",
             });
             oneWeekHistory = newData.data.pairs[0];
           }
@@ -369,7 +364,6 @@ const getPairTransactions = async (client, pairAddress) => {
       variables: {
         allPairs: [pairAddress],
       },
-      fetchPolicy: "no-cache",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -397,7 +391,6 @@ const getPairChartData = async (client, pairAddress) => {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: "no-cache",
       });
       skip += 1000;
       data = data.concat(result.data.pairDayDatas);
@@ -545,7 +538,6 @@ export function Updater() {
         data: { pairs },
       } = await client.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: "no-cache",
       });
 
       // format as array of addresses

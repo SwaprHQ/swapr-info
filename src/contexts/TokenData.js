@@ -236,17 +236,14 @@ const getTopTokens = async (
   try {
     let current = await client.query({
       query: TOKENS_CURRENT,
-      fetchPolicy: "no-cache",
     });
 
     let oneDayResult = await client.query({
       query: TOKENS_DYNAMIC(oneDayBlock),
-      fetchPolicy: "no-cache",
     });
 
     let twoDayResult = await client.query({
       query: TOKENS_DYNAMIC(twoDayBlock),
-      fetchPolicy: "no-cache",
     });
 
     let oneDayData = oneDayResult?.data?.tokens.reduce((obj, cur, i) => {
@@ -272,14 +269,12 @@ const getTopTokens = async (
           if (!oneDayHistory) {
             let oneDayResult = await client.query({
               query: TOKEN_DATA(token.id, oneDayBlock),
-              fetchPolicy: "no-cache",
             });
             oneDayHistory = oneDayResult.data.tokens[0];
           }
           if (!twoDayHistory) {
             let twoDayResult = await client.query({
               query: TOKEN_DATA(token.id, twoDayBlock),
-              fetchPolicy: "no-cache",
             });
             twoDayHistory = twoDayResult.data.tokens[0];
           }
@@ -343,7 +338,6 @@ const getTopTokens = async (
           if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
             const aaveData = await client.query({
               query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-              fetchPolicy: "no-cache",
             });
             const result = aaveData.data.pairs[0];
             data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -391,7 +385,6 @@ const getTokenData = async (
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(address),
-      fetchPolicy: "no-cache",
     });
     if (!result?.data?.tokens?.[0]) {
       return data;
@@ -401,14 +394,12 @@ const getTokenData = async (
     // get results from 24 hours in past
     let oneDayResult = await client.query({
       query: TOKEN_DATA(address, oneDayBlock),
-      fetchPolicy: "no-cache",
     });
     oneDayData = oneDayResult.data.tokens[0];
 
     // get results from 48 hours in past
     let twoDayResult = await client.query({
       query: TOKEN_DATA(address, twoDayBlock),
-      fetchPolicy: "no-cache",
     });
     twoDayData = twoDayResult.data.tokens[0];
 
@@ -416,14 +407,12 @@ const getTokenData = async (
     if (!oneDayData) {
       let oneDayResult = await client.query({
         query: TOKEN_DATA(address, oneDayBlock),
-        fetchPolicy: "no-cache",
       });
       oneDayData = oneDayResult.data.tokens[0];
     }
     if (!twoDayData) {
       let twoDayResult = await client.query({
         query: TOKEN_DATA(address, twoDayBlock),
-        fetchPolicy: "no-cache",
       });
       twoDayData = twoDayResult.data.tokens[0];
     }
@@ -495,7 +484,6 @@ const getTokenData = async (
     if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
       const aaveData = await client.query({
         query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
-        fetchPolicy: "no-cache",
       });
       const result = aaveData.data.pairs[0];
       data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -516,7 +504,6 @@ const getTokenTransactions = async (client, allPairsFormatted) => {
       variables: {
         allPairs: allPairsFormatted,
       },
-      fetchPolicy: "no-cache",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -532,7 +519,6 @@ const getTokenPairs = async (client, tokenAddress) => {
     // fetch all current and historical data
     let result = await client.query({
       query: TOKEN_DATA(tokenAddress),
-      fetchPolicy: "no-cache",
     });
     return result.data?.["pairs0"].concat(result.data?.["pairs1"]);
   } catch (e) {
@@ -650,7 +636,6 @@ const getTokenChartData = async (client, tokenAddress) => {
           tokenAddr: tokenAddress,
           skip,
         },
-        fetchPolicy: "no-cache",
       });
       if (result.data.tokenDayDatas.length < 1000) {
         allFound = true;

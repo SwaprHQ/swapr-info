@@ -13,6 +13,7 @@ import {
   USER_POSITIONS,
   USER_HISTORY,
   PAIR_DAY_DATA_BULK,
+  USER_HISTORY_STAKE,
 } from "../apollo/queries";
 import { useTimeframe, useStartTimestamp } from "./Application";
 import dayjs from "dayjs";
@@ -44,6 +45,7 @@ const POSITIONS_KEY = "POSITIONS_KEY";
 const STAKE_POSITIONS = "STAKE_POSITIONS";
 const MINING_POSITIONS_KEY = "MINING_POSITIONS_KEY";
 const USER_SNAPSHOTS = "USER_SNAPSHOTS";
+const USER_STAKING_DATA = "USER_STAKING_DATA";
 const USER_PAIR_RETURNS_KEY = "USER_PAIR_RETURNS_KEY";
 
 const UserContext = createContext();
@@ -88,10 +90,14 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_USER_POSITION_HISTORY: {
-      const { account, historyData } = payload;
+      const { account, historyData, historyStakingData } = payload;
       return {
         ...state,
-        [account]: { ...state?.[account], [USER_SNAPSHOTS]: historyData },
+        [account]: {
+          ...state?.[account],
+          [USER_SNAPSHOTS]: historyData,
+          [USER_STAKING_DATA]: historyStakingData,
+        },
       };
     }
 
@@ -153,15 +159,19 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateUserSnapshots = useCallback((account, historyData) => {
-    dispatch({
-      type: UPDATE_USER_POSITION_HISTORY,
-      payload: {
-        account,
-        historyData,
-      },
-    });
-  }, []);
+  const updateUserSnapshots = useCallback(
+    (account, historyData, historyStakingData) => {
+      dispatch({
+        type: UPDATE_USER_POSITION_HISTORY,
+        payload: {
+          account,
+          historyData,
+          historyStakingData,
+        },
+      });
+    },
+    []
+  );
 
   const updateUserPairReturns = useCallback((account, pairAddress, data) => {
     dispatch({
@@ -246,6 +256,7 @@ export function useUserSnapshots(account) {
   const client = useSwaprSubgraphClient();
   const [state, { updateUserSnapshots }] = useUserContext();
   const snapshots = state?.[account]?.[USER_SNAPSHOTS];
+  const stakingSnapshot = state?.[account]?.[USER_STAKING_DATA];
 
   useEffect(() => {
     async function fetchData() {
@@ -271,19 +282,40 @@ export function useUserSnapshots(account) {
             skip += 1000;
           }
         }
-        if (allResults) {
-          updateUserSnapshots(account, allResults);
+        let stakeSkip = 0;
+        let allResultsStake = [];
+        let stakeFound = false;
+        while (!stakeFound) {
+          let result = await client.query({
+            query: USER_HISTORY_STAKE,
+            variables: {
+              skip: stakeSkip,
+              user: account,
+            },
+            fetchPolicy: "network-only",
+          });
+          allResultsStake = allResultsStake.concat(
+            result.data.liquidityMiningPositionSnapshots
+          );
+          if (result.data.liquidityMiningPositionSnapshots.length < 1000) {
+            stakeFound = true;
+          } else {
+            stakeSkip += 1000;
+          }
+        }
+        if (allResults || allResultsStake) {
+          updateUserSnapshots(account, allResults, allResultsStake);
         }
       } catch (e) {
         console.log(e);
       }
     }
-    if (!snapshots && account) {
+    if (!(snapshots || stakingSnapshot) && account) {
       fetchData();
     }
-  }, [account, snapshots, updateUserSnapshots, client]);
+  }, [account, snapshots, stakingSnapshot, updateUserSnapshots, client]);
 
-  return snapshots;
+  return { snapshots, stakingSnapshot };
 }
 
 /**
@@ -302,7 +334,7 @@ export function useUserPositionChart(position, account) {
   const startDateTimestamp = useStartTimestamp();
 
   // get users adds and removes on this pair
-  const snapshots = useUserSnapshots(account);
+  const { snapshots } = useUserSnapshots(account);
   const pairSnapshots =
     snapshots &&
     position &&
@@ -366,7 +398,7 @@ export function useUserPositionChart(position, account) {
  */
 export function useUserLiquidityChart(account) {
   const client = useSwaprSubgraphClient();
-  const history = useUserSnapshots(account);
+  const { snapshots } = useUserSnapshots(account);
   // formatetd array to return for chart data
   const [formattedHistory, setFormattedHistory] = useState();
 
@@ -404,7 +436,7 @@ export function useUserLiquidityChart(account) {
       const currentDayIndex = parseInt(dayjs.utc().unix() / 86400);
 
       // sort snapshots in order
-      let sortedPositions = history.sort((a, b) => {
+      let sortedPositions = snapshots.sort((a, b) => {
         return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
       });
       // if UI start time is > first position time - bump start index to this time
@@ -419,7 +451,7 @@ export function useUserLiquidityChart(account) {
         dayIndex = dayIndex + 1;
       }
 
-      const pairs = history.reduce((pairList, position) => {
+      const pairs = snapshots.reduce((pairList, position) => {
         return [...pairList, position.pair.id];
       }, []);
 
@@ -439,7 +471,7 @@ export function useUserLiquidityChart(account) {
         const timestampCeiling = dayTimestamp + 86400;
 
         // cycle through relevant positions and update ownership for any that we need to
-        const relevantPositions = history.filter((snapshot) => {
+        const relevantPositions = snapshots.filter((snapshot) => {
           return (
             snapshot.timestamp < timestampCeiling &&
             snapshot.timestamp > dayTimestamp
@@ -507,10 +539,10 @@ export function useUserLiquidityChart(account) {
 
       setFormattedHistory(formattedHistory);
     }
-    if (history && startDateTimestamp && history.length > 0) {
+    if (snapshots && startDateTimestamp && snapshots.length > 0) {
       fetchData();
     }
-  }, [history, startDateTimestamp, client]);
+  }, [snapshots, startDateTimestamp, client]);
 
   return formattedHistory;
 }
@@ -523,7 +555,8 @@ export function useUserPositions(account) {
   const positions = state?.[account]?.[POSITIONS_KEY];
   const stakedPositions = state?.[account]?.[STAKE_POSITIONS];
 
-  const snapshots = useUserSnapshots(account);
+  const { snapshots, stakingSnapshot } = useUserSnapshots(account);
+  console.log(stakingSnapshot);
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   useEffect(() => {
@@ -542,6 +575,7 @@ export function useUserPositions(account) {
         if (result?.data?.liquidityPositions) {
           formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {
+              console.log("positon data", positionData);
               const returnData = await getLPReturnsOnPair(
                 client,
                 account,
@@ -560,6 +594,8 @@ export function useUserPositions(account) {
         if (result?.data?.liquidityMiningPositions) {
           stakePositions = await Promise.all(
             result?.data?.liquidityMiningPositions.map(async (stakeData) => {
+              console.log("stake data", stakeData);
+              // const lpPrice=await getLPReturnsOnPair(client,account,)
               const fees = await getStakedFeesEarned(
                 stakeData.liquidityMiningCampaign.id,
                 account,
@@ -590,9 +626,9 @@ export function useUserPositions(account) {
     nativeCurrencyPrice,
     snapshots,
     client,
-      network
+    network,
   ]);
-
+  console.log(positions);
   return { positions, stakedPositions };
 }
 

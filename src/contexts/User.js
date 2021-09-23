@@ -206,7 +206,6 @@ export function useUserTransactions(account) {
           variables: {
             user: account,
           },
-          fetchPolicy: "no-cache",
         });
         if (result?.data) {
           updateTransactions(account, result?.data);
@@ -246,7 +245,6 @@ export function useUserSnapshots(account) {
               skip: skip,
               user: account,
             },
-            fetchPolicy: "no-cache",
           });
           allResults = allResults.concat(
             result.data.liquidityPositionSnapshots
@@ -517,7 +515,6 @@ export function useUserPositions(account) {
           variables: {
             user: account,
           },
-          fetchPolicy: "no-cache",
         });
         if (result?.data?.liquidityPositions) {
           let formattedPositions = await Promise.all(

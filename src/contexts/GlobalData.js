@@ -277,36 +277,36 @@ async function getGlobalData(
       utcOneWeekBack,
       utcTwoWeeksBack,
     ]);
-
+    console.log(utcOneDayBack, "one day");
+    console.log(utcTwoDaysBack, "tow days");
+    console.log(oneDayBlock, "Oneday");
+    console.log(twoDayBlock, "two day");
+    console.log(oneWeekBlock, "week");
+    console.log(twoWeekBlock, "two weeks");
     // fetch the global data
     let result = await client.query({
       query: GLOBAL_DATA(factoryAddress),
-      fetchPolicy: "no-cache",
     });
     data = result.data.swaprFactories[0];
 
     // fetch the historical data
     let oneDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneDayBlock?.number),
-      fetchPolicy: "no-cache",
     });
     oneDayData = oneDayResult.data.swaprFactories[0];
 
     let twoDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoDayBlock?.number),
-      fetchPolicy: "no-cache",
     });
     twoDayData = twoDayResult.data.swaprFactories[0];
 
     let oneWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneWeekBlock?.number),
-      fetchPolicy: "no-cache",
     });
     const oneWeekData = oneWeekResult.data.swaprFactories[0];
 
     let twoWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoWeekBlock?.number),
-      fetchPolicy: "no-cache",
     });
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
@@ -382,7 +382,6 @@ const getChartData = async (client, oldestDateToFetch) => {
           startTime: oldestDateToFetch,
           skip,
         },
-        fetchPolicy: "no-cache",
       });
       skip += 1000;
       data = data.concat(result.data.swaprDayDatas);
@@ -459,7 +458,6 @@ const getGlobalTransactions = async (client) => {
   try {
     let result = await client.query({
       query: GLOBAL_TXNS,
-      fetchPolicy: "no-cache",
     });
     transactions.mints = [];
     transactions.burns = [];
@@ -508,11 +506,9 @@ const getNativeCurrencyPrice = async (client, blockClient) => {
     let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),
-      fetchPolicy: "no-cache",
     });
     let resultOneDay = await client.query({
       query: NATIVE_CURRENCY_PRICE(oneDayBlock),
-      fetchPolicy: "no-cache",
     });
     const currentPrice = result?.data?.bundles[0]?.nativeCurrencyPrice;
     const oneDayBackPrice = resultOneDay?.data?.bundles[0]?.nativeCurrencyPrice;
@@ -547,7 +543,6 @@ async function getAllPairsOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "no-cache",
       });
       skipCount = skipCount + PAIRS_TO_FETCH;
       pairs = pairs.concat(result?.data?.pairs);
@@ -578,7 +573,6 @@ async function getAllTokensOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "no-cache",
       });
       tokens = tokens.concat(result?.data?.tokens);
       if (
@@ -779,7 +773,6 @@ export function useTopLps(client) {
               variables: {
                 pair: pair.toString(),
               },
-              fetchPolicy: "no-cache",
             });
             if (results) {
               return results.liquidityPositions;

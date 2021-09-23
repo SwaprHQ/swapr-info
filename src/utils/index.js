@@ -242,7 +242,6 @@ export async function getBlocksFromTimestamps(
   timestamps,
   skipCount = 500
 ) {
-  console.log(timestamps,'in order timestamps')
   if (timestamps?.length === 0) {
     return [];
   }
@@ -254,7 +253,6 @@ export async function getBlocksFromTimestamps(
     timestamps,
     skipCount
   );
-  console.log('fetched data',fetchedData)
 
   let blocks = [];
   if (fetchedData) {

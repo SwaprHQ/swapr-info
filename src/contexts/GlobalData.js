@@ -277,12 +277,6 @@ async function getGlobalData(
       utcOneWeekBack,
       utcTwoWeeksBack,
     ]);
-    console.log(utcOneDayBack, "one day");
-    console.log(utcTwoDaysBack, "tow days");
-    console.log(oneDayBlock, "Oneday");
-    console.log(twoDayBlock, "two day");
-    console.log(oneWeekBlock, "week");
-    console.log(twoWeekBlock, "two weeks");
     // fetch the global data
     let result = await client.query({
       query: GLOBAL_DATA(factoryAddress),

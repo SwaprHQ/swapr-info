@@ -196,7 +196,7 @@ export async function splitQuery(
     let sliced = list.slice(skip, end);
     let result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: "network-only",
+      fetchPolicy: "no-cache",
     });
     fetchedData = {
       ...fetchedData,
@@ -227,7 +227,7 @@ export async function getBlockFromTimestamp(blockClient, timestamp) {
       timestampFrom: timestamp,
       timestampTo: timestamp + 600,
     },
-    fetchPolicy: "network-only",
+    fetchPolicy: "no-cache",
   });
   return result?.data?.blocks?.[0]?.number;
 }
@@ -282,7 +282,7 @@ export async function getLiquidityTokenBalanceOvertime(
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(account, blocks),
-    fetchPolicy: "network-only",
+    fetchPolicy: "no-cache",
   });
 
   let values = [];
@@ -321,7 +321,7 @@ export async function getShareValueOverTime(
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(pairAddress, blocks),
-    fetchPolicy: "network-only",
+    fetchPolicy: "no-cache",
   });
 
   let values = [];

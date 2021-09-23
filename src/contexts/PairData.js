@@ -233,14 +233,14 @@ async function getBulkPairData(
       variables: {
         allPairs: pairList,
       },
-      fetchPolicy: "network-only",
+      fetchPolicy: "no-cache",
     });
 
     let [oneDayResult, twoDayResult, oneWeekResult] = await Promise.all(
       [b1, b2, bWeek].map(async (block) => {
         let result = client.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: "network-only",
+          fetchPolicy: "no-cache",
         });
         return result;
       })
@@ -266,7 +266,7 @@ async function getBulkPairData(
           if (!oneDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: "network-only",
+              fetchPolicy: "no-cache",
             });
             oneDayHistory = newData.data.pairs[0];
           }
@@ -274,7 +274,7 @@ async function getBulkPairData(
           if (!twoDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: "network-only",
+              fetchPolicy: "no-cache",
             });
             twoDayHistory = newData.data.pairs[0];
           }
@@ -282,7 +282,7 @@ async function getBulkPairData(
           if (!oneWeekHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: "network-only",
+              fetchPolicy: "no-cache",
             });
             oneWeekHistory = newData.data.pairs[0];
           }
@@ -397,7 +397,7 @@ const getPairChartData = async (client, pairAddress) => {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: "network-only",
+        fetchPolicy: "no-cache",
       });
       skip += 1000;
       data = data.concat(result.data.pairDayDatas);
@@ -545,7 +545,7 @@ export function Updater() {
         data: { pairs },
       } = await client.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: "network-only",
+        fetchPolicy: "no-cache",
       });
 
       // format as array of addresses

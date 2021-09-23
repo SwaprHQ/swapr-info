@@ -246,7 +246,7 @@ export function useUserSnapshots(account) {
               skip: skip,
               user: account,
             },
-            fetchPolicy: "network-only",
+            fetchPolicy: "no-cache",
           });
           allResults = allResults.concat(
             result.data.liquidityPositionSnapshots

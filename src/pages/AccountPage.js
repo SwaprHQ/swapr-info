@@ -94,7 +94,7 @@ const Warning = styled.div`
 function AccountPage({ account }) {
   // get data for this account
   const transactions = useUserTransactions(account);
-  const { positions, stakedPositions } = useUserPositions(account);
+  const { positions } = useUserPositions(account);
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
@@ -140,14 +140,6 @@ function AccountPage({ account }) {
     return total + position.fees.sum;
   }, 0);
 
-  const aggregateStakeFees = stakedPositions?.reduce(function (
-    total,
-    stakePosition
-  ) {
-    return total + parseFloat(stakePosition.fees);
-  },
-  0);
-
   const positionValue = useMemo(() => {
     return dynamicPositions
       ? dynamicPositions.reduce((total, position) => {
@@ -160,13 +152,6 @@ function AccountPage({ account }) {
         }, 0)
       : 0;
   }, [dynamicPositions]);
-  const stakedPositionValue = useMemo(() => {
-    return stakedPositions
-      ? stakedPositions.reduce((total, position) => {
-          return total + parseFloat(position.stakedAmount);
-        }, 0)
-      : 0;
-  }, [stakedPositions]);
 
   useEffect(() => {
     window.scrollTo({
@@ -333,11 +318,7 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header fontSize={"24px"} lineHeight={1}>
-                      {formattedNum(
-                        positionValue + stakedPositionValue,
-                        true,
-                        true
-                      )}
+                      {formattedNum(positionValue, true, true)}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>
@@ -350,27 +331,10 @@ function AccountPage({ account }) {
                     <TYPE.header
                       fontSize={"24px"}
                       lineHeight={1}
-                      color={aggregateFees && "green"}
+                      color={aggregateFees ? "green" : "white"}
                     >
                       {aggregateFees
                         ? formattedNum(aggregateFees, true, true)
-                        : "-"}
-                    </TYPE.header>
-                  </RowFixed>
-                </AutoColumn>
-                <AutoColumn gap="10px">
-                  <RowBetween>
-                    <TYPE.body>Rewards</TYPE.body>
-                    <div />
-                  </RowBetween>
-                  <RowFixed align="flex-end">
-                    <TYPE.header
-                      fontSize={"24px"}
-                      lineHeight={1}
-                      color={aggregateStakeFees && "green"}
-                    >
-                      {aggregateStakeFees
-                        ? formattedNum(aggregateStakeFees, true, true)
                         : "-"}
                     </TYPE.header>
                   </RowFixed>

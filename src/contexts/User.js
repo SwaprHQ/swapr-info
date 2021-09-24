@@ -19,11 +19,7 @@ import { useTimeframe, useStartTimestamp } from "./Application";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { useNativeCurrencyPrice } from "./GlobalData";
-import {
-  getLPReturnsOnPair,
-  getHistoricalPairReturns,
-  getStakedFeesEarned,
-} from "../utils/returns";
+import { getLPReturnsOnPair, getHistoricalPairReturns } from "../utils/returns";
 import { timeframeOptions } from "../constants";
 import {
   useBlocksSubgraphClient,
@@ -42,10 +38,8 @@ const UPDATE_USER_PAIR_RETURNS = "UPDATE_USER_PAIR_RETURNS";
 
 const TRANSACTIONS_KEY = "TRANSACTIONS_KEY";
 const POSITIONS_KEY = "POSITIONS_KEY";
-const STAKE_POSITIONS = "STAKE_POSITIONS";
 const MINING_POSITIONS_KEY = "MINING_POSITIONS_KEY";
 const USER_SNAPSHOTS = "USER_SNAPSHOTS";
-const USER_STAKING_DATA = "USER_STAKING_DATA";
 const USER_PAIR_RETURNS_KEY = "USER_PAIR_RETURNS_KEY";
 
 const UserContext = createContext();
@@ -69,13 +63,12 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_POSITIONS: {
-      const { account, positions, stakePositions } = payload;
+      const { account, positions } = payload;
       return {
         ...state,
         [account]: {
           ...state?.[account],
           [POSITIONS_KEY]: positions,
-          [STAKE_POSITIONS]: stakePositions,
         },
       };
     }
@@ -90,13 +83,12 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_USER_POSITION_HISTORY: {
-      const { account, historyData, historyStakingData } = payload;
+      const { account, historyData } = payload;
       return {
         ...state,
         [account]: {
           ...state?.[account],
           [USER_SNAPSHOTS]: historyData,
-          [USER_STAKING_DATA]: historyStakingData,
         },
       };
     }
@@ -138,13 +130,12 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updatePositions = useCallback((account, positions, stakePositions) => {
+  const updatePositions = useCallback((account, positions) => {
     dispatch({
       type: UPDATE_POSITIONS,
       payload: {
         account,
         positions,
-        stakePositions,
       },
     });
   }, []);
@@ -159,19 +150,15 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateUserSnapshots = useCallback(
-    (account, historyData, historyStakingData) => {
-      dispatch({
-        type: UPDATE_USER_POSITION_HISTORY,
-        payload: {
-          account,
-          historyData,
-          historyStakingData,
-        },
-      });
-    },
-    []
-  );
+  const updateUserSnapshots = useCallback((account, historyData) => {
+    dispatch({
+      type: UPDATE_USER_POSITION_HISTORY,
+      payload: {
+        account,
+        historyData,
+      },
+    });
+  }, []);
 
   const updateUserPairReturns = useCallback((account, pairAddress, data) => {
     dispatch({
@@ -255,7 +242,6 @@ export function useUserSnapshots(account) {
   const client = useSwaprSubgraphClient();
   const [state, { updateUserSnapshots }] = useUserContext();
   const snapshots = state?.[account]?.[USER_SNAPSHOTS];
-  const stakingSnapshot = state?.[account]?.[USER_STAKING_DATA];
 
   useEffect(() => {
     async function fetchData() {
@@ -290,7 +276,6 @@ export function useUserSnapshots(account) {
               skip: stakeSkip,
               user: account,
             },
-            fetchPolicy: "network-only",
           });
           allResultsStake = allResultsStake.concat(
             result.data.liquidityMiningPositionSnapshots
@@ -301,19 +286,21 @@ export function useUserSnapshots(account) {
             stakeSkip += 1000;
           }
         }
-        if (allResults || allResultsStake) {
-          updateUserSnapshots(account, allResults, allResultsStake);
-        }
+
+        // combining staked and pure liquidity into one single data point array
+        const userSnapshots = allResults.concat(allResultsStake);
+
+        if (userSnapshots) updateUserSnapshots(account, userSnapshots);
       } catch (e) {
         console.log(e);
       }
     }
-    if (!(snapshots || stakingSnapshot) && account) {
+    if (!snapshots && account) {
       fetchData();
     }
-  }, [account, snapshots, stakingSnapshot, updateUserSnapshots, client]);
+  }, [account, snapshots, updateUserSnapshots, client]);
 
-  return { snapshots, stakingSnapshot };
+  return { snapshots };
 }
 
 /**
@@ -551,10 +538,8 @@ export function useUserPositions(account) {
   const network = useSelectedNetwork();
 
   const positions = state?.[account]?.[POSITIONS_KEY];
-  const stakedPositions = state?.[account]?.[STAKE_POSITIONS];
 
-  const { snapshots, stakingSnapshot } = useUserSnapshots(account);
-  console.log(stakingSnapshot);
+  const { snapshots } = useUserSnapshots(account);
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   useEffect(() => {
@@ -568,11 +553,9 @@ export function useUserPositions(account) {
         });
 
         let formattedPositions = [];
-        let stakePositions = [];
         if (result?.data?.liquidityPositions) {
           formattedPositions = await Promise.all(
             result?.data?.liquidityPositions.map(async (positionData) => {
-              console.log("positon data", positionData);
               const returnData = await getLPReturnsOnPair(
                 client,
                 account,
@@ -581,33 +564,31 @@ export function useUserPositions(account) {
                 snapshots
               );
 
+              let liquidityTokenBalance = parseFloat(
+                positionData.liquidityTokenBalance
+              );
+
+              const stakedCampaignsOnPair = result?.data?.liquidityMiningPositions.filter(
+                (position) => position.pair.id === positionData.pair.id
+              );
+              if (stakedCampaignsOnPair.length > 0) {
+                liquidityTokenBalance += stakedCampaignsOnPair.reduce(
+                  (stakedAmount, campaign) =>
+                    stakedAmount + parseFloat(campaign.liquidityTokenBalance),
+                  0
+                );
+              }
+
               return {
                 ...positionData,
                 ...returnData,
-              };
-            })
-          );
-        }
-        if (result?.data?.liquidityMiningPositions) {
-          stakePositions = await Promise.all(
-            result?.data?.liquidityMiningPositions.map(async (stakeData) => {
-              console.log("stake data", stakeData);
-              // const lpPrice=await getLPReturnsOnPair(client,account,)
-              const fees = await getStakedFeesEarned(
-                stakeData.liquidityMiningCampaign.id,
-                account,
-                network
-              );
-
-              return {
-                fees,
-                ...stakeData,
+                liquidityTokenBalance: liquidityTokenBalance.toString(),
               };
             })
           );
         }
 
-        updatePositions(account, formattedPositions, stakePositions);
+        updatePositions(account, formattedPositions);
       } catch (e) {
         console.log(e);
       }
@@ -618,15 +599,14 @@ export function useUserPositions(account) {
   }, [
     account,
     positions,
-    stakedPositions,
     updatePositions,
     nativeCurrencyPrice,
     snapshots,
     client,
     network,
   ]);
-  console.log(positions);
-  return { positions, stakedPositions };
+
+  return { positions };
 }
 
 export function useUserContextResetter() {

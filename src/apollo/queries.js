@@ -224,7 +224,6 @@ export const USER_HISTORY = gql`
       timestamp
       reserveUSD
       liquidityTokenBalance
-      liquidityTokenTotalSupply
       reserve0
       reserve1
       token0PriceUSD
@@ -240,10 +239,12 @@ export const USER_HISTORY = gql`
         token1 {
           id
         }
+        totalSupply
       }
     }
   }
 `;
+
 export const USER_HISTORY_STAKE = gql`
   query snapshots($user: Bytes!, $skip: Int!) {
     liquidityMiningPositionSnapshots(
@@ -253,7 +254,7 @@ export const USER_HISTORY_STAKE = gql`
     ) {
       timestamp
       reserveUSD
-      stakedLiquidityTokenBalance
+      liquidityTokenBalance: stakedLiquidityTokenBalance
       totalStakedLiquidityToken
       reserve0
       reserve1
@@ -270,6 +271,7 @@ export const USER_HISTORY_STAKE = gql`
         token1 {
           id
         }
+        totalSupply
       }
     }
   }
@@ -298,8 +300,7 @@ export const USER_POSITIONS = gql`
       liquidityTokenBalance
     }
     liquidityMiningPositions(where: { user: $user, stakedAmount_gt: 0 }) {
-      stakedAmount
-      pair {
+      pair: targetedPair {
         id
         reserve0
         reserve1
@@ -316,9 +317,7 @@ export const USER_POSITIONS = gql`
         }
         totalSupply
       }
-      liquidityMiningCampaign{
-        id
-      }
+      liquidityTokenBalance: stakedAmount
     }
   }
 `;

@@ -129,7 +129,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-  console.log(pairs)
+  console.log(pairs);
 
   // pagination
   const [page, setPage] = useState(1);
@@ -137,7 +137,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const ITEMS_PER_PAGE = maxItems;
 
   // sorting
-  const [sortDirection, setSortDirection] = useState(true);
+  const [sortDirection, setSortDirection] = useState(false);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
 
   const nativeCurrency = useNativeCurrencySymbol();
@@ -165,13 +165,28 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
 
   const ListItem = ({ pairAddress, index }) => {
     const pairData = pairs[pairAddress];
+    console.log("pair data", pairData);
 
-    if (pairData && pairData.token0 && pairData.token1) {
-      const liquidity = formattedNum(pairData.reserveUSD, true);
-      const volume = formattedNum(pairData.oneDayVolumeUSD, true);
-      const apy = formattedPercent(
-        (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
+    // if (pairData && pairData.token0 && pairData.token1) {
+    //   const liquidity = formattedNum(pairData.reserveUSD, true);
+    //   const volume = formattedNum(pairData.oneDayVolumeUSD, true);
+    //   const apy = formattedPercent(
+    //     (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
+    //   );
+    if (
+      pairData &&
+      pairData.liquidityMiningCampaigns &&
+      pairData.liquidityMiningCampaigns.length !== 0
+    ) {
+      const stakeAmountCumulative = pairData.liquidityMiningCampaigns.reduce(
+        (total, amount) => {
+          return (total += parseFloat(amount.stakedAmount));
+        },
+        0
       );
+
+      const volume = "2";
+      const apy = "1";
       return (
         <DashGrid
           style={{ height: "48px" }}
@@ -211,7 +226,9 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               />
             </CustomLink>
           </DataText>
-          <DataText area="liq">{liquidity}</DataText>
+          <DataText area="liq">
+            {formattedNum(stakeAmountCumulative)} LP
+          </DataText>
           <DataText area="vol">{volume}</DataText>
           {!below680 && (
             <DataText area="volWeek">
@@ -246,6 +263,25 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             parseFloat(pairB.oneDayVolumeUSD * 0.0025 * 356 * 100) /
             parseFloat(pairB.reserveUSD);
           return apy0 > apy1
+            ? (sortDirection ? -1 : 1) * 1
+            : (sortDirection ? -1 : 1) * -1;
+        } else if (sortedColumn === SORT_FIELD.LIQ) {
+
+          const pairAStake = pairA.liquidityMiningCampaigns.reduce(
+            (total, amount) => {
+              return (total += parseFloat(amount.stakedAmount));
+            },
+            0
+          );
+          const pairBStake = pairB.liquidityMiningCampaigns.reduce(
+            (total, amount) => {
+              return (total += parseFloat(amount.stakedAmount));
+            },
+            0
+          );
+          console.log(pairAStake)
+            console.log(pairBStake)
+          return pairBStake > pairAStake
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
         }
@@ -290,7 +326,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               );
             }}
           >
-            Liquidity{" "}
+            Staked{" "}
             {sortedColumn === SORT_FIELD.LIQ
               ? !sortDirection
                 ? "↑"

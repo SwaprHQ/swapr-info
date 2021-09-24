@@ -129,7 +129,6 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-  console.log(pairs);
 
   // pagination
   const [page, setPage] = useState(1);
@@ -184,6 +183,12 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         },
         0
       );
+      const lastPair=pairData.liquidityMiningCampaigns[pairData.liquidityMiningCampaigns.length-1]
+       const underlyingToken1=lastPair.stakablePair.reserve0
+      //   const token
+        console.log('reserve0',pairData.reserve0)
+        console.log('reserve0 stakable',underlyingToken1)
+          const underlyingToken2=lastPair.stakablePair.reserve1
 
       const volume = "2";
       const apy = "1";
@@ -279,8 +284,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             },
             0
           );
-          console.log(pairAStake)
-            console.log(pairBStake)
+
           return pairBStake > pairAStake
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
@@ -344,7 +348,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               );
             }}
           >
-            Volume (24hrs)
+            Underlying Tokens
             {sortedColumn === SORT_FIELD.VOL
               ? !sortDirection
                 ? "↑"

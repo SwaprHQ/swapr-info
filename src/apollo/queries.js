@@ -724,6 +724,9 @@ const PairFields = `
         stakedAmount
         stakablePair{
           token0{
+          derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
             symbol
           }
           token1{

@@ -12,7 +12,6 @@ import FarmingList from "../components/FarmingList";
 
 function FarmingPage() {
   const allPairs = useAllPairData();
-  console.log('all paird',allPairs)
 
   useEffect(() => {
     window.scrollTo(0, 0);

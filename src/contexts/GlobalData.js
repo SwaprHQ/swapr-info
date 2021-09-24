@@ -769,7 +769,22 @@ export function useTopLps(client) {
               },
             });
             if (results) {
-              return results.liquidityPositions;
+              return results.liquidityPositions.map((position) => {
+                const stakedAmount = results.liquidityMiningPositions
+                  .filter(
+                    (stakingPosition) =>
+                      stakingPosition.user.id === position.user.id
+                  )
+                  .reduce((total, stakingPosition) => {
+                    return (
+                      total + parseFloat(stakingPosition.liquidityTokenBalance)
+                    );
+                  }, 0);
+                position.liquidityTokenBalance = (
+                  parseFloat(position.liquidityTokenBalance) + stakedAmount
+                ).toString();
+                return position;
+              });
             }
           } catch (e) {
             console.error(e);

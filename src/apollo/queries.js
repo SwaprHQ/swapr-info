@@ -88,6 +88,18 @@ export const TOP_LPS_PER_PAIRS = gql`
       }
       liquidityTokenBalance
     }
+    liquidityMiningPositions(
+      where: { targetedPair: $pair, stakedAmount_gt: 0 }
+      first: 10
+    ) {
+      user {
+        id
+      }
+      pair: targetedPair {
+        id
+      }
+      liquidityTokenBalance: stakedAmount
+    }
   }
 `;
 

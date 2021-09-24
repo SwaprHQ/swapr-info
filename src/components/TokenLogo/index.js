@@ -14,7 +14,7 @@ import {
   SupportedNetwork,
 } from "../../constants/index.js";
 import { useTokenIcon } from "../../hooks/useTokenIcon.js";
-import { getAddress } from "ethers/utils";
+import { getAddress } from "@ethersproject/address";
 import {
   useBadImageUrls,
   useBadImageUrlsUpdater,
@@ -103,7 +103,7 @@ export default function TokenLogo({
     <Inline>
       <Image
         {...rest}
-        alt={defaultText}
+        alt=""
         src={source}
         size={size}
         onError={(event) => {

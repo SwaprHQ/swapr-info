@@ -41,20 +41,15 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   padding: 12px 16px;
   border-radius: 12px;
-  background: ${({ theme, small, open }) =>
-    small
-      ? open
-        ? transparentize(0.4, theme.bg1)
-        : "none"
-      : transparentize(0.4, theme.bg6)};
+  background: ${({ theme }) => transparentize(0.4, theme.bg6)};
   border-bottom-right-radius: ${({ open }) => (open ? "0px" : "12px")};
   border-bottom-left-radius: ${({ open }) => (open ? "0px" : "12px")};
   z-index: 9999;
   width: 100%;
   min-width: 300px;
   box-sizing: border-box;
-  box-shadow: ${({ open, small }) =>
-    !open && !small
+  box-shadow: ${({ open }) =>
+    !open
       ? "0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04) "
       : "none"};
   @media screen and (max-width: 500px) {
@@ -95,7 +90,10 @@ const SearchIconLarge = styled(SearchIcon)`
   margin-right: 0.5rem;
   position: absolute;
   right: 10px;
-  pointer-events: none;
+  :hover {
+    cursor: pointer;
+  }
+
   color: ${({ theme }) => theme.text3};
 `;
 
@@ -454,15 +452,15 @@ export const Search = ({ small = false }) => {
   };
 
   useEffect(() => {
-    document.addEventListener("click", handleClick);
+    document.addEventListener("mousedown", handleClick);
     return () => {
-      document.removeEventListener("click", handleClick);
+      document.removeEventListener("mousedown", handleClick);
     };
   });
 
   return (
-    <Container small={small}>
-      <Wrapper open={showMenu} shadow={true} small={small}>
+    <Container>
+      <Wrapper open={showMenu} shadow={true}>
         <Input
           large={!small}
           type={"text"}
@@ -489,9 +487,17 @@ export const Search = ({ small = false }) => {
           }}
         />
         {!showMenu ? (
-          <SearchIconLarge />
+          <SearchIconLarge
+            onClick={() => {
+              toggleMenu(true);
+            }}
+          />
         ) : (
-          <CloseIcon onClick={() => toggleMenu(false)} />
+          <CloseIcon
+            onClick={() => {
+              toggleMenu(false);
+            }}
+          />
         )}
       </Wrapper>
       <Menu hide={!showMenu} ref={menuRef}>

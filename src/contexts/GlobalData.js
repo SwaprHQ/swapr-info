@@ -14,7 +14,6 @@ import {
   getPercentChange,
   getBlockFromTimestamp,
   getBlocksFromTimestamps,
-  get2DayPercentChange,
   getTimeframe,
 } from "../utils";
 import {
@@ -278,74 +277,77 @@ async function getGlobalData(
       utcOneWeekBack,
       utcTwoWeeksBack,
     ]);
-
     // fetch the global data
     let result = await client.query({
       query: GLOBAL_DATA(factoryAddress),
-      fetchPolicy: "network-only",
     });
     data = result.data.swaprFactories[0];
 
     // fetch the historical data
     let oneDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneDayBlock?.number),
-      fetchPolicy: "network-only",
     });
     oneDayData = oneDayResult.data.swaprFactories[0];
 
     let twoDayResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoDayBlock?.number),
-      fetchPolicy: "network-only",
     });
     twoDayData = twoDayResult.data.swaprFactories[0];
 
     let oneWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, oneWeekBlock?.number),
-      fetchPolicy: "network-only",
     });
     const oneWeekData = oneWeekResult.data.swaprFactories[0];
 
     let twoWeekResult = await client.query({
       query: GLOBAL_DATA(factoryAddress, twoWeekBlock?.number),
-      fetchPolicy: "network-only",
     });
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
     // format the total liquidity in USD
     data.totalLiquidityUSD =
       data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
-    if (data && oneDayData && twoDayData && twoWeekData) {
-      let [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
-        data.totalVolumeUSD,
-        oneDayData.totalVolumeUSD ? oneDayData.totalVolumeUSD : 0,
-        twoDayData.totalVolumeUSD ? twoDayData.totalVolumeUSD : 0
-      );
 
-      const [oneWeekVolume, weeklyVolumeChange] = get2DayPercentChange(
-        data.totalVolumeUSD,
-        oneWeekData.totalVolumeUSD,
-        twoWeekData.totalVolumeUSD
-      );
+    if (data && oneDayData) {
+      const absoluteOneDayVolumeChange =
+        parseFloat(data.totalVolumeUSD) - parseFloat(oneDayData.totalVolumeUSD);
+      data.oneDayVolumeUSD = absoluteOneDayVolumeChange;
 
-      const [oneDayTxns, txnChange] = get2DayPercentChange(
-        data.txCount,
-        oneDayData.txCount ? oneDayData.txCount : 0,
-        twoDayData.txCount ? twoDayData.txCount : 0
-      );
-
-      const liquidityChangeUSD = getPercentChange(
+      data.liquidityChangeUSD = getPercentChange(
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
         oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
       );
 
-      // add relevant fields with the calculated amounts
-      data.oneDayVolumeUSD = oneDayVolumeUSD;
-      data.oneWeekVolume = oneWeekVolume;
-      data.weeklyVolumeChange = weeklyVolumeChange;
-      data.volumeChangeUSD = volumeChangeUSD;
-      data.liquidityChangeUSD = liquidityChangeUSD;
-      data.oneDayTxns = oneDayTxns;
-      data.txnChange = txnChange;
+      const absoluteOneDayTxChange =
+        parseFloat(data.txCount) - parseFloat(oneDayData.txCount);
+      data.oneDayTxns = absoluteOneDayTxChange;
+
+      if (twoDayData) {
+        data.volumeChangeUSD = getPercentChange(
+          absoluteOneDayVolumeChange,
+          parseFloat(oneDayData.totalVolumeUSD) -
+            parseFloat(twoDayData.totalVolumeUSD)
+        );
+
+        data.txnChange = getPercentChange(
+          absoluteOneDayTxChange,
+          parseFloat(oneDayData.txCount) - parseFloat(twoDayData.txCount)
+        );
+      }
+    }
+    if (data && oneWeekData) {
+      let absoluteOneWeekVolumeChange =
+        parseFloat(data.totalVolumeUSD) -
+        parseFloat(oneWeekData.totalVolumeUSD);
+      data.oneWeekVolume = absoluteOneWeekVolumeChange;
+
+      if (twoWeekData) {
+        data.weeklyVolumeChange = getPercentChange(
+          absoluteOneWeekVolumeChange,
+          parseFloat(oneWeekData.totalVolumeUSD) -
+            parseFloat(twoWeekData.totalVolumeUSD)
+        );
+      }
     }
   } catch (e) {
     console.log(e);
@@ -374,7 +376,6 @@ const getChartData = async (client, oldestDateToFetch) => {
           startTime: oldestDateToFetch,
           skip,
         },
-        fetchPolicy: "network-only",
       });
       skip += 1000;
       data = data.concat(result.data.swaprDayDatas);
@@ -451,7 +452,6 @@ const getGlobalTransactions = async (client) => {
   try {
     let result = await client.query({
       query: GLOBAL_TXNS,
-      fetchPolicy: "network-only",
     });
     transactions.mints = [];
     transactions.burns = [];
@@ -500,11 +500,9 @@ const getNativeCurrencyPrice = async (client, blockClient) => {
     let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),
-      fetchPolicy: "network-only",
     });
     let resultOneDay = await client.query({
       query: NATIVE_CURRENCY_PRICE(oneDayBlock),
-      fetchPolicy: "network-only",
     });
     const currentPrice = result?.data?.bundles[0]?.nativeCurrencyPrice;
     const oneDayBackPrice = resultOneDay?.data?.bundles[0]?.nativeCurrencyPrice;
@@ -539,7 +537,6 @@ async function getAllPairsOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "network-only",
       });
       skipCount = skipCount + PAIRS_TO_FETCH;
       pairs = pairs.concat(result?.data?.pairs);
@@ -570,7 +567,6 @@ async function getAllTokensOnSwapr(client) {
         variables: {
           skip: skipCount,
         },
-        fetchPolicy: "network-only",
       });
       tokens = tokens.concat(result?.data?.tokens);
       if (
@@ -757,10 +753,12 @@ export function useTopLps(client) {
       // get top 20 by reserves
       let topPairs = Object.keys(allPairs)
         ?.sort((a, b) =>
-          parseFloat(allPairs[a].reserveUSD > allPairs[b].reserveUSD ? -1 : 1)
+          parseFloat(allPairs[a].reserveUSD) >
+          parseFloat(allPairs[b].reserveUSD)
+            ? -1
+            : 1
         )
-        ?.slice(0, 99)
-        .map((pair) => pair);
+        ?.slice(0, 99);
 
       let topLpLists = await Promise.all(
         topPairs.map(async (pair) => {
@@ -771,10 +769,24 @@ export function useTopLps(client) {
               variables: {
                 pair: pair.toString(),
               },
-              fetchPolicy: "network-only",
             });
             if (results) {
-              return results.liquidityPositions;
+              return results.liquidityPositions.map((position) => {
+                const stakedAmount = results.liquidityMiningPositions
+                  .filter(
+                    (stakingPosition) =>
+                      stakingPosition.user.id === position.user.id
+                  )
+                  .reduce((total, stakingPosition) => {
+                    return (
+                      total + parseFloat(stakingPosition.liquidityTokenBalance)
+                    );
+                  }, 0);
+                position.liquidityTokenBalance = (
+                  parseFloat(position.liquidityTokenBalance) + stakedAmount
+                ).toString();
+                return position;
+              });
             }
           } catch (e) {
             console.error(e);
@@ -786,7 +798,7 @@ export function useTopLps(client) {
       const topLps = [];
       topLpLists
         .filter((i) => !!i) // check for ones not fetched correctly
-        .map((list) => {
+        .forEach((list) => {
           return list.map((entry) => {
             const pairData = allPairs[entry.pair.id];
             return topLps.push({

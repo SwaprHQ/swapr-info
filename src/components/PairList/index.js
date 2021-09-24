@@ -47,7 +47,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: 'name liq vol';
+  grid-template-areas: "name liq vol";
   padding: 0 1.125rem;
 
   > * {
@@ -56,25 +56,30 @@ const DashGrid = styled.div`
     :first-child {
       justify-content: flex-start;
       text-align: left;
-      width: 20px;
     }
   }
 
-  @media screen and (min-width: 740px) {
-    padding: 0 1.125rem;
-    grid-template-columns: 1.5fr 1fr 1fr};
-    grid-template-areas: ' name liq vol pool ';
+  @media screen and (min-width: 680px) {
+    display: grid;
+    grid-gap: 1em;
+    grid-template-columns: 180px 1fr 1fr 1fr;
+    grid-template-areas: "name symbol liq vol ";
+
+    > * {
+      justify-content: flex-end;
+      width: 100%;
+
+      &:first-child {
+        justify-content: flex-start;
+      }
+    }
   }
 
   @media screen and (min-width: 1080px) {
-    padding: 0 1.125rem;
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: ' name liq vol volWeek fees apy';
-  }
-
-  @media screen and (min-width: 1200px) {
-    grid-template-columns: 1.5fr 1fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: ' name liq vol volWeek fees apy';
+    display: grid;
+    grid-gap: 0.5em;
+    grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "name symbol liq vol price change";
   }
 `;
 
@@ -121,6 +126,7 @@ const FIELD_TO_VALUE = {
 
 function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia("(max-width: 600px)");
+  const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
 
@@ -158,12 +164,14 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
 
   const ListItem = ({ pairAddress, index }) => {
     const pairData = pairs[pairAddress];
+    const pairSwapFeePercentage = pairData.swapFee / 10000;
 
     if (pairData && pairData.token0 && pairData.token1) {
       const liquidity = formattedNum(pairData.reserveUSD, true);
       const volume = formattedNum(pairData.oneDayVolumeUSD, true);
       const apy = formattedPercent(
-        (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
+        (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) /
+          pairData.reserveUSD
       );
       return (
         <DashGrid
@@ -172,7 +180,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           focus={true}
         >
           <DataText area="name" fontWeight="500">
-            {!below600 && (
+            {!below680 && (
               <div style={{ marginRight: "20px", width: "10px" }}>{index}</div>
             )}
             <DoubleTokenLogo
@@ -206,14 +214,18 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           </DataText>
           <DataText area="liq">{liquidity}</DataText>
           <DataText area="vol">{volume}</DataText>
-          {!below1080 && (
+          {!below680 && (
             <DataText area="volWeek">
               {formattedNum(pairData.oneWeekVolumeUSD, true)}
             </DataText>
           )}
+
           {!below1080 && (
             <DataText area="fees">
-              {formattedNum(pairData.oneDayVolumeUSD * 0.0025, true)}
+              {formattedNum(
+                pairData.oneDayVolumeUSD * pairSwapFeePercentage,
+                true
+              )}
             </DataText>
           )}
           {!below1080 && <DataText area="apy">{apy}</DataText>}
@@ -232,11 +244,13 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         const pairB = pairs[addressB];
         if (sortedColumn === SORT_FIELD.APY) {
           const apy0 =
-            parseFloat(pairA.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairA.reserveUSD);
+            parseFloat(
+              pairA.oneDayVolumeUSD * (pairA.swapFee / 10000) * 356 * 100
+            ) / parseFloat(pairA.reserveUSD);
           const apy1 =
-            parseFloat(pairB.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairB.reserveUSD);
+            parseFloat(
+              pairB.oneDayVolumeUSD * (pairB.swapFee / 10000) * 356 * 100
+            ) / parseFloat(pairB.reserveUSD);
           return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
@@ -308,7 +322,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               : ""}
           </ClickableText>
         </Flex>
-        {!below1080 && (
+        {!below680 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
               area="volWeek"
@@ -328,6 +342,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             </ClickableText>
           </Flex>
         )}
+
         {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText

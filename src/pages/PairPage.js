@@ -67,7 +67,7 @@ const PanelWrapper = styled.div`
 const TokenDetailsLayout = styled.div`
   display: inline-grid;
   width: 100%;
-  grid-template-columns: auto auto auto auto 1fr;
+  grid-template-columns: auto auto auto auto auto 1fr;
   column-gap: 60px;
   align-items: start;
 
@@ -79,7 +79,7 @@ const TokenDetailsLayout = styled.div`
     grid-template-columns: 1fr;
     align-items: stretch;
     > * {
-      grid-column: 1 / 4;
+      grid-column: 1 / 5;
       margin-bottom: 1rem;
     }
 
@@ -121,6 +121,7 @@ function PairPage({ pairAddress, history }) {
     oneDayVolumeUntracked,
     volumeChangeUntracked,
     liquidityChangeUSD,
+    swapFee: pairSwapFeeBips,
   } = usePairData(pairAddress);
 
   useEffect(() => {
@@ -128,6 +129,7 @@ function PairPage({ pairAddress, history }) {
   }, []);
 
   const transactions = usePairTransactions(pairAddress);
+
   const backgroundColor = useColor(pairAddress);
 
   // liquidity
@@ -169,8 +171,8 @@ function PairPage({ pairAddress, history }) {
   const fees =
     oneDayVolumeUSD || oneDayVolumeUSD === 0
       ? usingUtVolume
-        ? formattedNum(oneDayVolumeUntracked * 0.0025, true)
-        : formattedNum(oneDayVolumeUSD * 0.0025, true)
+        ? formattedNum(oneDayVolumeUntracked * (pairSwapFeeBips / 10000), true)
+        : formattedNum(oneDayVolumeUSD * (pairSwapFeeBips / 10000), true)
       : "-";
 
   // token data for usd
@@ -530,8 +532,8 @@ function PairPage({ pairAddress, history }) {
               </Panel>
               <Panel
                 style={{
-                  gridColumn: below1080 ? "1" : "2/4",
-                  gridRow: below1080 ? "" : "1/5",
+                  gridColumn: below1080 ? undefined : "2/4",
+                  gridRow: below1080 ? undefined : "1/5",
                 }}
               >
                 <PairChart
@@ -584,6 +586,16 @@ function PairPage({ pairAddress, history }) {
                           maxCharacters={8}
                         />
                       </AutoRow>
+                    </TYPE.main>
+                  </AutoRow>
+                </Column>
+                <Column
+                  style={{ height: "100%", justifyContent: "space-between" }}
+                >
+                  <TYPE.main>Swap fee</TYPE.main>
+                  <AutoRow align="flex-end">
+                    <TYPE.main style={{ marginTop: ".5rem" }}>
+                      <AutoRow>{pairSwapFeeBips / 100}%</AutoRow>
                     </TYPE.main>
                   </AutoRow>
                 </Column>

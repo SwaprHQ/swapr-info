@@ -1,7 +1,7 @@
 import React from "react";
 import { BigNumber } from "bignumber.js";
 import dayjs from "dayjs";
-import { ethers } from "ethers";
+import { getAddress } from "@ethersproject/address";
 import utc from "dayjs/plugin/utc";
 import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from "../apollo/queries";
 import { Text } from "rebass";
@@ -196,7 +196,6 @@ export async function splitQuery(
     let sliced = list.slice(skip, end);
     let result = await localClient.query({
       query: query(...vars, sliced),
-      fetchPolicy: "network-only",
     });
     fetchedData = {
       ...fetchedData,
@@ -227,7 +226,6 @@ export async function getBlockFromTimestamp(blockClient, timestamp) {
       timestampFrom: timestamp,
       timestampTo: timestamp + 600,
     },
-    fetchPolicy: "network-only",
   });
   return result?.data?.blocks?.[0]?.number;
 }
@@ -282,7 +280,6 @@ export async function getLiquidityTokenBalanceOvertime(
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(account, blocks),
-    fetchPolicy: "network-only",
   });
 
   let values = [];
@@ -321,7 +318,6 @@ export async function getShareValueOverTime(
   // get historical share values with time travel queries
   let result = await client.query({
     query: SHARE_VALUE(pairAddress, blocks),
-    fetchPolicy: "network-only",
   });
 
   let values = [];
@@ -390,7 +386,7 @@ export const toNiceDateYear = (date) =>
 
 export const isAddress = (value) => {
   try {
-    return ethers.utils.getAddress(value.toLowerCase());
+    return getAddress(value.toLowerCase());
   } catch {
     return false;
   }
@@ -461,6 +457,7 @@ export const formattedNum = (number, usd = false, acceptNegatives = false) => {
   if (isNaN(number) || number === "" || number === undefined) {
     return usd ? "$0" : 0;
   }
+
   let num = parseFloat(number);
 
   if (num > 500000000) {

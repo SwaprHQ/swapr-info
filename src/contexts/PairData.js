@@ -276,7 +276,6 @@ async function getBulkPairData(
       variables: {
         allPairs: pairList,
       },
-      fetchPolicy: "network-only",
     });
     const swapFees = await getPairsSwapFee(selectedNetwork, pairList);
 
@@ -284,7 +283,6 @@ async function getBulkPairData(
       [b1, b2, bWeek].map(async (block) => {
         let result = client.query({
           query: PAIRS_HISTORICAL_BULK(block, pairList),
-          fetchPolicy: "network-only",
         });
         return result;
       })
@@ -310,7 +308,6 @@ async function getBulkPairData(
           if (!oneDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b1),
-              fetchPolicy: "network-only",
             });
             oneDayHistory = newData.data.pairs[0];
           }
@@ -318,7 +315,6 @@ async function getBulkPairData(
           if (!twoDayHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, b2),
-              fetchPolicy: "network-only",
             });
             twoDayHistory = newData.data.pairs[0];
           }
@@ -326,7 +322,6 @@ async function getBulkPairData(
           if (!oneWeekHistory) {
             let newData = await client.query({
               query: PAIR_DATA(pair.id, bWeek),
-              fetchPolicy: "network-only",
             });
             oneWeekHistory = newData.data.pairs[0];
           }
@@ -414,7 +409,6 @@ const getPairTransactions = async (client, pairAddress) => {
       variables: {
         allPairs: [pairAddress],
       },
-      fetchPolicy: "network-only",
     });
     transactions.mints = result.data.mints;
     transactions.burns = result.data.burns;
@@ -442,7 +436,6 @@ const getPairChartData = async (client, pairAddress) => {
           pairAddress: pairAddress,
           skip,
         },
-        fetchPolicy: "network-only",
       });
       skip += 1000;
       data = data.concat(result.data.pairDayDatas);
@@ -591,7 +584,6 @@ export function Updater() {
         data: { pairs },
       } = await client.query({
         query: PAIRS_CURRENT,
-        fetchPolicy: "network-only",
       });
 
       // format as array of addresses

@@ -1,6 +1,6 @@
 {
   "name": "dxstats",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "devDependencies": {
     "@ethersproject/abi": "^5.4.1",
     "@ethersproject/address": "^5.4.0",

@@ -74,12 +74,7 @@ export const PRICES_BY_BLOCK = (tokenAddress, blocks) => {
 
 export const TOP_LPS_PER_PAIRS = gql`
   query lps($pair: Bytes!) {
-    liquidityPositions(
-      where: { pair: $pair }
-      orderBy: liquidityTokenBalance
-      orderDirection: desc
-      first: 10
-    ) {
+    liquidityPositions(where: { pair: $pair }) {
       user {
         id
       }
@@ -87,6 +82,18 @@ export const TOP_LPS_PER_PAIRS = gql`
         id
       }
       liquidityTokenBalance
+    }
+    liquidityMiningPositions(
+      where: { targetedPair: $pair, stakedAmount_gt: 0 }
+      first: 10
+    ) {
+      user {
+        id
+      }
+      pair: targetedPair {
+        id
+      }
+      liquidityTokenBalance: stakedAmount
     }
   }
 `;
@@ -224,7 +231,6 @@ export const USER_HISTORY = gql`
       timestamp
       reserveUSD
       liquidityTokenBalance
-      liquidityTokenTotalSupply
       reserve0
       reserve1
       token0PriceUSD
@@ -240,6 +246,39 @@ export const USER_HISTORY = gql`
         token1 {
           id
         }
+        totalSupply
+      }
+    }
+  }
+`;
+
+export const USER_HISTORY_STAKE = gql`
+  query snapshots($user: Bytes!, $skip: Int!) {
+    liquidityMiningPositionSnapshots(
+      first: 1000
+      skip: $skip
+      where: { user: $user }
+    ) {
+      timestamp
+      reserveUSD
+      liquidityTokenBalance: stakedLiquidityTokenBalance
+      totalStakedLiquidityToken
+      reserve0
+      reserve1
+      token0PriceUSD
+      token1PriceUSD
+      pair {
+        id
+        reserve0
+        reserve1
+        reserveUSD
+        token0 {
+          id
+        }
+        token1 {
+          id
+        }
+        totalSupply
       }
     }
   }
@@ -266,6 +305,26 @@ export const USER_POSITIONS = gql`
         totalSupply
       }
       liquidityTokenBalance
+    }
+    liquidityMiningPositions(where: { user: $user, stakedAmount_gt: 0 }) {
+      pair: targetedPair {
+        id
+        reserve0
+        reserve1
+        reserveUSD
+        token0 {
+          id
+          symbol
+          derivedNativeCurrency
+        }
+        token1 {
+          id
+          symbol
+          derivedNativeCurrency
+        }
+        totalSupply
+      }
+      liquidityTokenBalance: stakedAmount
     }
   }
 `;

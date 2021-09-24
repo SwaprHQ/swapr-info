@@ -109,3 +109,9 @@ export const CHAIN_READONLY_PROVIDERS = {
     "https://arb1.arbitrum.io/rpc"
   ),
 };
+
+export const MULTICALL_ADDRESS = {
+  [SupportedNetwork.MAINNET]: "0xeefba1e63905ef1d7acba5a8513c70307c1ce441",
+  [SupportedNetwork.XDAI]: "0xb5b692a88bdfc81ca69dcb1d924f59f0413a602a",
+  [SupportedNetwork.ARBITRUM_ONE]: "0xF718F2bd590E5621e53f7b89398e52f7Acced8ca",
+};

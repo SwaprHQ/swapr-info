@@ -103,7 +103,7 @@ export default function TokenLogo({
     <Inline>
       <Image
         {...rest}
-        alt={defaultText}
+        alt=""
         src={source}
         size={size}
         onError={(event) => {

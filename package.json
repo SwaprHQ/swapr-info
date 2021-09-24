@@ -2,6 +2,7 @@
   "name": "dxstats",
   "version": "1.3.0",
   "devDependencies": {
+    "@ethersproject/abi": "^5.4.1",
     "@ethersproject/address": "^5.4.0",
     "@ethersproject/contracts": "^5.4.1",
     "@ethersproject/providers": "^5.4.5",

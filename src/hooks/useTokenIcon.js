@@ -30,7 +30,7 @@ export function useTokenIcon(address) {
           tokenListURL = "https://tokens.honeyswap.org"; // honeyswap list used for xdai
         } else {
           tokenListURL =
-            "https://ipfs.io/ipfs/QmYuv9sUoYk2QquQuWZW3JqCiZC4F5HR9tMgYgF7x5nKs5";
+            "https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU";
         }
         const response = await fetch(tokenListURL);
         if (!response.ok) {

@@ -27,17 +27,6 @@ interface Position {
   token1PriceUSD: number;
 }
 
-interface SubgraphPosition {
-  pair: any;
-  liquidityTokenBalance: string;
-  liquidityTokenTotalSupply: string;
-  reserve0: string;
-  reserve1: string;
-  reserveUSD: string;
-  token0PriceUSD: string;
-  token1PriceUSD: string;
-}
-
 const PRICE_DISCOVERY_START_TIMESTAMP = 1589747086;
 
 async function getPrincipalForUserPerPair(
@@ -112,20 +101,23 @@ async function getPrincipalForUserPerPair(
  * @param positionT1 // '' at the end of the window
  */
 export function getMetricsForPositionWindow(
-  positionT0: SubgraphPosition,
-  positionT1: SubgraphPosition
+  positionT0,
+  positionT1
 ): ReturnMetrics {
   // calculate ownership at ends of window, for end of window we need original LP token balance / new total supply
+  const t0TotalSupply =
+    positionT0.liquidityTokenTotalSupply || positionT0.pair.totalSupply;
   const t0Ownership =
-    Number(positionT0.liquidityTokenTotalSupply) === 0
+    Number(t0TotalSupply) === 0
       ? 0
-      : Number(positionT0.liquidityTokenBalance) /
-        Number(positionT0.liquidityTokenTotalSupply);
+      : Number(positionT0.liquidityTokenBalance) / Number(t0TotalSupply);
+
+  const t1TotalSupply =
+    positionT1.liquidityTokenTotalSupply || positionT1.pair.totalSupply;
   const t1Ownership =
-    Number(positionT1.liquidityTokenTotalSupply) === 0
+    Number(t1TotalSupply) === 0
       ? 0
-      : Number(positionT0.liquidityTokenBalance) /
-        Number(positionT1.liquidityTokenTotalSupply);
+      : Number(positionT0.liquidityTokenBalance) / Number(t1TotalSupply);
 
   // get starting amounts of token0 and token1 deposited by LP
   const token0_amount_t0 = t0Ownership * Number(positionT0.reserve0);
@@ -278,7 +270,10 @@ export async function getHistoricalPairReturns(
     }
 
     if (positionT1) {
-      positionT1.liquidityTokenTotalSupply = positionT1.totalSupply;
+      positionT1.liquidityTokenTotalSupply =
+        positionT1.totalSupply ||
+        positionT1.liquidityTokenTotalSupply ||
+        positionT1.pair.totalSupply;
       positionT1.liquidityTokenBalance = positionT0.liquidityTokenBalance;
       const currentLiquidityValue =
         (parseFloat(positionT1.liquidityTokenBalance) /

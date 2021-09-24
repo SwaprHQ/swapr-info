@@ -753,10 +753,12 @@ export function useTopLps(client) {
       // get top 20 by reserves
       let topPairs = Object.keys(allPairs)
         ?.sort((a, b) =>
-          parseFloat(allPairs[a].reserveUSD > allPairs[b].reserveUSD ? -1 : 1)
+          parseFloat(allPairs[a].reserveUSD) >
+          parseFloat(allPairs[b].reserveUSD)
+            ? -1
+            : 1
         )
-        ?.slice(0, 99)
-        .map((pair) => pair);
+        ?.slice(0, 99);
 
       let topLpLists = await Promise.all(
         topPairs.map(async (pair) => {
@@ -769,7 +771,22 @@ export function useTopLps(client) {
               },
             });
             if (results) {
-              return results.liquidityPositions;
+              return results.liquidityPositions.map((position) => {
+                const stakedAmount = results.liquidityMiningPositions
+                  .filter(
+                    (stakingPosition) =>
+                      stakingPosition.user.id === position.user.id
+                  )
+                  .reduce((total, stakingPosition) => {
+                    return (
+                      total + parseFloat(stakingPosition.liquidityTokenBalance)
+                    );
+                  }, 0);
+                position.liquidityTokenBalance = (
+                  parseFloat(position.liquidityTokenBalance) + stakedAmount
+                ).toString();
+                return position;
+              });
             }
           } catch (e) {
             console.error(e);
@@ -781,7 +798,7 @@ export function useTopLps(client) {
       const topLps = [];
       topLpLists
         .filter((i) => !!i) // check for ones not fetched correctly
-        .map((list) => {
+        .forEach((list) => {
           return list.map((entry) => {
             const pairData = allPairs[entry.pair.id];
             return topLps.push({

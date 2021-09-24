@@ -94,7 +94,7 @@ const Warning = styled.div`
 function AccountPage({ account }) {
   // get data for this account
   const transactions = useUserTransactions(account);
-  const positions = useUserPositions(account);
+  const { positions } = useUserPositions(account);
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
@@ -150,7 +150,7 @@ function AccountPage({ account }) {
               position?.pair?.reserveUSD
           );
         }, 0)
-      : null;
+      : 0;
   }, [dynamicPositions]);
 
   useEffect(() => {
@@ -318,11 +318,7 @@ function AccountPage({ account }) {
                   </RowBetween>
                   <RowFixed align="flex-end">
                     <TYPE.header fontSize={"24px"} lineHeight={1}>
-                      {positionValue
-                        ? formattedNum(positionValue, true)
-                        : positionValue === 0
-                        ? formattedNum(0, true)
-                        : "-"}
+                      {formattedNum(positionValue, true, true)}
                     </TYPE.header>
                   </RowFixed>
                 </AutoColumn>
@@ -335,7 +331,7 @@ function AccountPage({ account }) {
                     <TYPE.header
                       fontSize={"24px"}
                       lineHeight={1}
-                      color={aggregateFees && "green"}
+                      color={aggregateFees ? "green" : "white"}
                     >
                       {aggregateFees
                         ? formattedNum(aggregateFees, true, true)

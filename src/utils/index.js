@@ -457,6 +457,7 @@ export const formattedNum = (number, usd = false, acceptNegatives = false) => {
   if (isNaN(number) || number === "" || number === undefined) {
     return usd ? "$0" : 0;
   }
+
   let num = parseFloat(number);
 
   if (num > 500000000) {

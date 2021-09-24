@@ -398,7 +398,8 @@ function AccountPage({ account }) {
               <AutoColumn gap="8px">
                 <TYPE.header fontSize={24}>
                   {totalSwappedUSD
-                    ? formattedNum(totalSwappedUSD * 0.0025, true)
+                    ? // FIXME: keep in mind this is a potentially rough estimation, since pairs can have different swap fees
+                      formattedNum(totalSwappedUSD * 0.0025, true)
                     : "-"}
                 </TYPE.header>
                 <TYPE.main>Total Fees Paid</TYPE.main>

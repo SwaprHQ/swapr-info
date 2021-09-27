@@ -25,7 +25,11 @@
     <select />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="5c5d141a-7b25-4d77-ba2c-2a505a9a176a" name="Default Changelist" comment="" />
+    <list default="true" id="5c5d141a-7b25-4d77-ba2c-2a505a9a176a" name="Default Changelist" comment="">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/apollo/queries.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/apollo/queries.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/components/FarmingList/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FarmingList/index.js" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -86,7 +90,7 @@
   <component name="PropertiesComponent">
     <property name="RunOnceActivity.OpenProjectViewOnStart" value="true" />
     <property name="WebServerToolWindowFactoryState" value="false" />
-    <property name="last_opened_file_path" value="$PROJECT_DIR$/src/assets" />
+    <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="node.js.detected.package.eslint" value="true" />
     <property name="node.js.detected.package.standard" value="true" />
     <property name="node.js.path.for.package.eslint" value="project" />
@@ -113,6 +117,7 @@
       <workItem from="1630950069305" duration="24297000" />
       <workItem from="1631035161737" duration="131000" />
       <workItem from="1632128794118" duration="54828000" />
+      <workItem from="1632742058357" duration="8787000" />
     </task>
     <servers />
   </component>
@@ -146,13 +151,14 @@
     </state>
     <state x="-1169" y="-1417" width="1733" height="719" key="MultipleFileMergeDialog/-1169.-1417.3440.1417/0.23.1440.810@-1169.-1417.3440.1417" timestamp="1632129878821" />
     <state x="-1169" y="-513" width="1733" height="513" key="MultipleFileMergeDialog/-1169.-1417.3440.1417/0.23.1440.812@-1169.-1417.3440.1417" timestamp="1632220464687" />
-    <state x="-453" y="-1322" width="666" height="490" key="find.popup" timestamp="1632391042885">
+    <state x="-453" y="-1322" width="666" height="490" key="find.popup" timestamp="1632762023264">
       <screen x="-1169" y="-1417" width="3440" height="1417" />
     </state>
+    <state x="-452" y="-1327" width="666" height="490" key="find.popup/-1169.-1417.3440.1337/0.23.1440.877@-1169.-1417.3440.1337" timestamp="1632752700622" />
     <state x="-453" y="-1322" width="586" height="490" key="find.popup/-1169.-1417.3440.1417/0.0.1440.826@-1169.-1417.3440.1417" timestamp="1631016970463" />
     <state x="-453" y="-1322" width="586" height="490" key="find.popup/-1169.-1417.3440.1417/0.23.1440.803@-1169.-1417.3440.1417" timestamp="1631032752307" />
     <state x="-453" y="-1322" width="586" height="490" key="find.popup/-1169.-1417.3440.1417/0.23.1440.810@-1169.-1417.3440.1417" timestamp="1632157938575" />
-    <state x="-453" y="-1322" width="666" height="490" key="find.popup/-1169.-1417.3440.1417/0.23.1440.812@-1169.-1417.3440.1417" timestamp="1632391042885" />
+    <state x="-453" y="-1322" width="666" height="490" key="find.popup/-1169.-1417.3440.1417/0.23.1440.812@-1169.-1417.3440.1417" timestamp="1632762023264" />
     <state x="-1169" y="-1417" width="1799" height="658" key="git4idea.branch.GitSmartOperationDialog" timestamp="1632391054283">
       <screen x="-1169" y="-1417" width="3440" height="1417" />
     </state>

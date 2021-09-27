@@ -730,6 +730,10 @@ const PairFields = `
             symbol
           }
           token1{
+           derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
+            symbol
           symbol
           }
           reserve1

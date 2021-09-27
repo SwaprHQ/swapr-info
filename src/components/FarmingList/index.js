@@ -9,7 +9,7 @@ import styled from "styled-components";
 import { CustomLink } from "../Link";
 import { Divider } from "../../components";
 import { withRouter } from "react-router-dom";
-import { formattedNum, formattedPercent } from "../../utils";
+import { formattedNum } from "../../utils";
 import DoubleTokenLogo from "../DoubleLogo";
 import FormattedName from "../FormattedName";
 import QuestionHelper from "../QuestionHelper";
@@ -18,6 +18,8 @@ import {
   useNativeCurrencySymbol,
   useNativeCurrencyWrapper,
 } from "../../contexts/Network";
+import { AutoRow } from "../Row";
+import TokenLogo from "../TokenLogo";
 
 dayjs.extend(utc);
 
@@ -110,17 +112,17 @@ const DataText = styled(Flex)`
 `;
 
 const SORT_FIELD = {
-  LIQ: 0,
+  STAKE: 0,
   VOL: 1,
-  VOL_7DAYS: 3,
+  TVL: 3,
   FEES: 4,
   APY: 5,
 };
 
 const FIELD_TO_VALUE = {
-  [SORT_FIELD.LIQ]: "trackedReserveUSD", // sort with tracked volume only
+  // sort with tracked volume only
   [SORT_FIELD.VOL]: "oneDayVolumeUSD",
-  [SORT_FIELD.VOL_7DAYS]: "oneWeekVolumeUSD",
+  [SORT_FIELD.TVL]: "trackedReserveUSD",
   [SORT_FIELD.FEES]: "oneDayVolumeUSD",
 };
 
@@ -136,8 +138,8 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const ITEMS_PER_PAGE = maxItems;
 
   // sorting
-  const [sortDirection, setSortDirection] = useState(false);
-  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
+  const [sortDirection, setSortDirection] = useState(true);
+  const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.STAKE);
 
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
@@ -166,12 +168,6 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
     const pairData = pairs[pairAddress];
     console.log("pair data", pairData);
 
-    // if (pairData && pairData.token0 && pairData.token1) {
-    //   const liquidity = formattedNum(pairData.reserveUSD, true);
-    //   const volume = formattedNum(pairData.oneDayVolumeUSD, true);
-    //   const apy = formattedPercent(
-    //     (pairData.oneDayVolumeUSD * 0.0025 * 365 * 100) / pairData.reserveUSD
-    //   );
     if (
       pairData &&
       pairData.liquidityMiningCampaigns &&
@@ -183,14 +179,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         },
         0
       );
-      const lastPair=pairData.liquidityMiningCampaigns[pairData.liquidityMiningCampaigns.length-1]
-       const underlyingToken1=lastPair.stakablePair.reserve0
-      //   const token
-        console.log('reserve0',pairData.reserve0)
-        console.log('reserve0 stakable',underlyingToken1)
-          const underlyingToken2=lastPair.stakablePair.reserve1
 
-      const volume = "2";
       const apy = "1";
       return (
         <DashGrid
@@ -234,10 +223,39 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           <DataText area="liq">
             {formattedNum(stakeAmountCumulative)} LP
           </DataText>
-          <DataText area="vol">{volume}</DataText>
+          <DataText alignItems={"flex-end"} flexDirection={"column"} area="vol">
+            <AutoRow justifyContent={'space-between'} marginBottom={'2px'}  flexDirection={"row"}>
+              <TokenLogo
+                address={pairData.token0.id}
+                size={"13px"}
+                defaultText={pairData.token0.symbol}
+              />
+              <DataText>{formattedNum(pairData.reserve0)}</DataText>
+              <FormattedName
+                text={pairData.token0.symbol}
+                maxCharacters={below600 ? 8 : 16}
+                adjustSize={true}
+                link={true}
+              />
+            </AutoRow>
+            <AutoRow justifyContent={'space-between'}  flexDirection={"row"}>
+              <TokenLogo
+                address={pairData.token1.id}
+                size={"13px"}
+                defaultText={pairData.token1.symbol}
+              />
+              <DataText>{formattedNum(pairData.reserve1)}</DataText>
+              <FormattedName
+                text={pairData.token1.symbol}
+                maxCharacters={below600 ? 8 : 16}
+                adjustSize={true}
+                link={true}
+              />
+            </AutoRow>
+          </DataText>
           {!below680 && (
             <DataText area="volWeek">
-              {formattedNum(pairData.oneWeekVolumeUSD, true)}
+              {formattedNum(pairData.trackedReserveUSD, true)}
             </DataText>
           )}
 
@@ -270,8 +288,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
-        } else if (sortedColumn === SORT_FIELD.LIQ) {
-
+        } else if (sortedColumn === SORT_FIELD.STAKE) {
           const pairAStake = pairA.liquidityMiningCampaigns.reduce(
             (total, amount) => {
               return (total += parseFloat(amount.stakedAmount));
@@ -285,7 +302,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             0
           );
 
-          return pairBStake > pairAStake
+          return pairAStake > pairBStake
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
         }
@@ -324,14 +341,14 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           <ClickableText
             area="liq"
             onClick={(e) => {
-              setSortedColumn(SORT_FIELD.LIQ);
+              setSortedColumn(SORT_FIELD.STAKE);
               setSortDirection(
-                sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection
+                sortedColumn !== SORT_FIELD.STAKE ? true : !sortDirection
               );
             }}
           >
             Staked{" "}
-            {sortedColumn === SORT_FIELD.LIQ
+            {sortedColumn === SORT_FIELD.STAKE
               ? !sortDirection
                 ? "↑"
                 : "↓"
@@ -361,14 +378,14 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             <ClickableText
               area="volWeek"
               onClick={(e) => {
-                setSortedColumn(SORT_FIELD.VOL_7DAYS);
+                setSortedColumn(SORT_FIELD.TVL);
                 setSortDirection(
-                  sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
+                  sortedColumn !== SORT_FIELD.TVL ? true : !sortDirection
                 );
               }}
             >
-              Volume (7d){" "}
-              {sortedColumn === SORT_FIELD.VOL_7DAYS
+              TVL{" "}
+              {sortedColumn === SORT_FIELD.TVL
                 ? !sortDirection
                   ? "↑"
                   : "↓"

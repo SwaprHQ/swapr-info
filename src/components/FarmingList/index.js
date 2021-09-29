@@ -167,19 +167,13 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   }, [ITEMS_PER_PAGE, pairs]);
 
   const ListItem = ({ pairAddress, index }) => {
-      console.log('pair try',pairAddress)
+    console.log("pair try", pairAddress);
 
     const pairData = otherData[pairAddress];
-    console.log('real one working',pairData)
+    console.log("real one working", pairData);
     // console.log("pair data", pairData);
 
-    if (
-      otherData &&
-      otherData.length !== 0
-    ) {
-
-
-
+    if (otherData && otherData.length !== 0) {
       const apy = "1";
       return (
         <DashGrid
@@ -206,11 +200,13 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
             >
               <FormattedName
                 text={
-                  (nativeCurrencyWrapper.symbol === pairData.stakablePair.token0.symbol
+                  (nativeCurrencyWrapper.symbol ===
+                  pairData.stakablePair.token0.symbol
                     ? nativeCurrency
                     : pairData.stakablePair.token0.symbol) +
                   "-" +
-                  (nativeCurrencyWrapper.symbol === pairData.stakablePair.token1.symbol
+                  (nativeCurrencyWrapper.symbol ===
+                  pairData.stakablePair.token1.symbol
                     ? nativeCurrency
                     : pairData.stakablePair.token1.symbol)
                 }
@@ -234,7 +230,9 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
                 size={"13px"}
                 defaultText={pairData.stakablePair.token0.symbol}
               />
-              <DataText>{formattedNum(pairData.stakablePair.reserve0)}</DataText>
+              <DataText>
+                {formattedNum(pairData.stakablePair.reserve0)}
+              </DataText>
               <FormattedName
                 text={pairData.stakablePair.token0.symbol}
                 maxCharacters={below600 ? 8 : 16}
@@ -248,7 +246,9 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
                 size={"13px"}
                 defaultText={pairData.stakablePair.token1.symbol}
               />
-              <DataText>{formattedNum(pairData.stakablePair.reserve1)}</DataText>
+              <DataText>
+                {formattedNum(pairData.stakablePair.reserve1)}
+              </DataText>
               <FormattedName
                 text={pairData.stakablePair.token1.symbol}
                 maxCharacters={below600 ? 8 : 16}
@@ -263,11 +263,7 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
             </DataText>
           )}
 
-          {!below1080 && (
-            <DataText area="fees">
-              42
-            </DataText>
-          )}
+          {!below1080 && <DataText area="fees">42</DataText>}
           {!below1080 && <DataText area="apy">{apy}</DataText>}
         </DashGrid>
       );
@@ -276,50 +272,6 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
     }
   };
 
-  const pairList =
-    pairs &&
-    Object.keys(pairs)
-      .sort((addressA, addressB) => {
-        const pairA = pairs[addressA];
-        const pairB = pairs[addressB];
-        if (sortedColumn === SORT_FIELD.APY) {
-          const apy0 =
-            parseFloat(pairA.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairA.reserveUSD);
-          const apy1 =
-            parseFloat(pairB.oneDayVolumeUSD * 0.0025 * 356 * 100) /
-            parseFloat(pairB.reserveUSD);
-          return apy0 > apy1
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1;
-        } else if (sortedColumn === SORT_FIELD.STAKE) {
-          const pairAStake = 32;
-          const pairBStake = 25;
-
-          return pairAStake > pairBStake
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1;
-        }
-        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
-          parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
-          ? (sortDirection ? -1 : 1) * 1
-          : (sortDirection ? -1 : 1) * -1;
-      })
-      .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
-      .map((pairAddress, index) => {
-        return (
-          pairAddress && (
-            <div key={index}>
-              <ListItem
-                key={index}
-                index={(page - 1) * ITEMS_PER_PAGE + index + 1}
-                pairAddress={pairAddress}
-              />
-              <Divider />
-            </div>
-          )
-        );
-      });
   const otherDataList =
     otherData &&
     Object.keys(otherData)
@@ -327,7 +279,7 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
         const pairA = otherData[campaignA];
         const pairB = otherData[campaignB];
         if (sortedColumn === SORT_FIELD.APY) {
-          const apy1 = 1;
+          const apy1 = 22;
           const apy0 = 2;
           return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1

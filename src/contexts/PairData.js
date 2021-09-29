@@ -16,6 +16,8 @@ import {
   PAIRS_BULK,
   PAIRS_HISTORICAL_BULK,
   HOURLY_PAIR_RATES,
+  liquidityMiningCampaigns,
+  liquidityMiningCampaignsQuery,
 } from "../apollo/queries";
 import multicallAbi from "../abi/multicall.json";
 import { Interface } from "@ethersproject/abi";
@@ -51,6 +53,7 @@ const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_PAIR_TXNS = "UPDATE_PAIR_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
+const UPDATE_MINING_DATA = "UPDATE_MINING_DATA";
 const UPDATE_TOP_PAIRS = "UPDATE_TOP_PAIRS";
 const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 
@@ -85,6 +88,16 @@ function reducer(state, { type, payload }) {
         [pairAddress]: {
           ...state?.[pairAddress],
           ...data,
+        },
+      };
+    }
+    case UPDATE_MINING_DATA: {
+      const { liquidityMiningData } = payload;
+
+      return {
+        ...state,
+        ["MINING_DATA"]: {
+          ...liquidityMiningData,
         },
       };
     }
@@ -169,6 +182,14 @@ export default function Provider({ children }) {
       },
     });
   }, []);
+  const updateMiningData = useCallback((liquidityMiningData) => {
+    dispatch({
+      type: UPDATE_MINING_DATA,
+      payload: {
+        liquidityMiningData,
+      },
+    });
+  }, []);
 
   const updatePairTxns = useCallback((address, transactions) => {
     dispatch({
@@ -202,6 +223,7 @@ export default function Provider({ children }) {
           state,
           {
             update,
+            updateMiningData,
             updatePairTxns,
             updateChartData,
             updateTopPairs,
@@ -212,6 +234,7 @@ export default function Provider({ children }) {
         [
           state,
           update,
+          updateMiningData,
           updatePairTxns,
           updateChartData,
           updateTopPairs,
@@ -792,6 +815,31 @@ export function usePairTransactions(pairAddress) {
     checkForTxns();
   }, [pairTxns, pairAddress, updatePairTxns, client]);
   return pairTxns;
+}
+
+export function useLiqudityMiningCampaignData() {
+  const client = useSwaprSubgraphClient();
+  const selectedNetwork = useSelectedNetwork();
+  const [state, { updateMiningData }] = usePairDataContext();
+  const miningData = state?.["MINING_DATA"];
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!miningData) {
+        let {
+          data: { liquidityMiningCampaigns },
+        } = await client.query({
+          query: liquidityMiningCampaignsQuery,
+        });
+        console.log(liquidityMiningCampaigns);
+        liquidityMiningCampaigns && updateMiningData(liquidityMiningCampaigns);
+      }
+    }
+
+    fetchData();
+  }, [client, selectedNetwork, updateMiningData, miningData]);
+
+  return miningData;
 }
 
 export function usePairChartData(pairAddress) {

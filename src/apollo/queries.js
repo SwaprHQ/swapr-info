@@ -742,7 +742,33 @@ const PairFields = `
     }
   }
 `;
-
+export const liquidityMiningCampaignsQuery = gql`
+  query liquidityMiningCampaigns {
+    liquidityMiningCampaigns(where: { stakedAmount_gt: 0 }){
+      stakedAmount
+      stakablePair{
+        token0{
+          id
+          derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
+          symbol
+        }
+        token1 {
+          id
+          derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
+          symbol
+          symbol
+        }
+        reserveUSD
+        reserve1
+        reserve0
+      }
+    }
+  }
+`;
 export const PAIRS_CURRENT = gql`
   query pairs {
     pairs(
@@ -765,7 +791,6 @@ export const PAIR_DATA = (pairAddress, block) => {
         ...PairFields
       }
     }`;
-  console.log('string-',queryString)
   return gql(queryString);
 };
 

@@ -20,6 +20,7 @@ import {
 } from "../../contexts/Network";
 import { AutoRow } from "../Row";
 import TokenLogo from "../TokenLogo";
+import { LiquidityMiningCampaign } from "@swapr/sdk";
 
 dayjs.extend(utc);
 
@@ -179,6 +180,13 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         },
         0
       );
+      const upToDateLiqudityMiningCampaing =
+        pairData.liquidityMiningCampaigns[
+          pairData.liquidityMiningCampaigns.length-1
+        ];
+      console.log(upToDateLiqudityMiningCampaing);
+
+      //const liquidtyMiningObject = new LiquidityMiningCampaign();
 
       const apy = "1";
       return (
@@ -224,7 +232,11 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             {formattedNum(stakeAmountCumulative)} LP
           </DataText>
           <DataText alignItems={"flex-end"} flexDirection={"column"} area="vol">
-            <AutoRow justifyContent={'space-between'} marginBottom={'2px'}  flexDirection={"row"}>
+            <AutoRow
+              justifyContent={"space-between"}
+              marginBottom={"2px"}
+              flexDirection={"row"}
+            >
               <TokenLogo
                 address={pairData.token0.id}
                 size={"13px"}
@@ -238,7 +250,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
                 link={true}
               />
             </AutoRow>
-            <AutoRow justifyContent={'space-between'}  flexDirection={"row"}>
+            <AutoRow justifyContent={"space-between"} flexDirection={"row"}>
               <TokenLogo
                 address={pairData.token1.id}
                 size={"13px"}

@@ -3,7 +3,10 @@ import "feather-icons";
 
 import { TYPE } from "../Theme";
 import Panel from "../components/Panel";
-import { useAllPairData } from "../contexts/PairData";
+import {
+  useAllPairData,
+  useLiqudityMiningCampaignData,
+} from "../contexts/PairData";
 import { PageWrapper, FullWrapper } from "../components";
 import { RowBetween } from "../components/Row";
 import Search from "../components/Search";
@@ -12,6 +15,7 @@ import FarmingList from "../components/FarmingList";
 
 function FarmingPage() {
   const allPairs = useAllPairData();
+  const otherData = useLiqudityMiningCampaignData();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -27,7 +31,12 @@ function FarmingPage() {
           {!below800 && <Search small={true} />}
         </RowBetween>
         <Panel style={{ padding: below800 && "1rem 0 0 0 " }}>
-          <FarmingList pairs={allPairs} disbaleLinks={true} maxItems={50} />
+          <FarmingList
+            otherData={otherData}
+            pairs={allPairs}
+            disbaleLinks={true}
+            maxItems={50}
+          />
         </Panel>
       </FullWrapper>
     </PageWrapper>

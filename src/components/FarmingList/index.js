@@ -121,18 +121,19 @@ const SORT_FIELD = {
 };
 
 const FIELD_TO_VALUE = {
-  // sort with tracked volume only
+  [SORT_FIELD.STAKE]: "stakedAmount",
   [SORT_FIELD.VOL]: "oneDayVolumeUSD",
-  [SORT_FIELD.TVL]: "trackedReserveUSD",
+  [SORT_FIELD.TVL]: "stakablePair.reserveUSD",
   [SORT_FIELD.FEES]: "oneDayVolumeUSD",
 };
 
-function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
+function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia("(max-width: 600px)");
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-
+  console.log("new one", otherData);
+  console.log("old one", pairs);
   // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -166,27 +167,18 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   }, [ITEMS_PER_PAGE, pairs]);
 
   const ListItem = ({ pairAddress, index }) => {
-    const pairData = pairs[pairAddress];
-    console.log("pair data", pairData);
+      console.log('pair try',pairAddress)
+
+    const pairData = otherData[pairAddress];
+    console.log('real one working',pairData)
+    // console.log("pair data", pairData);
 
     if (
-      pairData &&
-      pairData.liquidityMiningCampaigns &&
-      pairData.liquidityMiningCampaigns.length !== 0
+      otherData &&
+      otherData.length !== 0
     ) {
-      const stakeAmountCumulative = pairData.liquidityMiningCampaigns.reduce(
-        (total, amount) => {
-          return (total += parseFloat(amount.stakedAmount));
-        },
-        0
-      );
-      const upToDateLiqudityMiningCampaing =
-        pairData.liquidityMiningCampaigns[
-          pairData.liquidityMiningCampaigns.length-1
-        ];
-      console.log(upToDateLiqudityMiningCampaing);
 
-      //const liquidtyMiningObject = new LiquidityMiningCampaign();
+
 
       const apy = "1";
       return (
@@ -201,10 +193,10 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             )}
             <DoubleTokenLogo
               size={below600 ? 16 : 20}
-              a0={pairData.token0.id}
-              a1={pairData.token1.id}
-              defaultText0={pairData.token0.symbol}
-              defaultText1={pairData.token1.symbol}
+              a0={pairData.stakablePair.token0.id}
+              a1={pairData.stakablePair.token1.id}
+              defaultText0={pairData.stakablePair.token0.symbol}
+              defaultText1={pairData.stakablePair.token1.symbol}
               margin={!below740}
             />
             <CustomLink
@@ -214,13 +206,13 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             >
               <FormattedName
                 text={
-                  (nativeCurrencyWrapper.symbol === pairData.token0.symbol
+                  (nativeCurrencyWrapper.symbol === pairData.stakablePair.token0.symbol
                     ? nativeCurrency
-                    : pairData.token0.symbol) +
+                    : pairData.stakablePair.token0.symbol) +
                   "-" +
-                  (nativeCurrencyWrapper.symbol === pairData.token1.symbol
+                  (nativeCurrencyWrapper.symbol === pairData.stakablePair.token1.symbol
                     ? nativeCurrency
-                    : pairData.token1.symbol)
+                    : pairData.stakablePair.token1.symbol)
                 }
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
@@ -229,7 +221,7 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             </CustomLink>
           </DataText>
           <DataText area="liq">
-            {formattedNum(stakeAmountCumulative)} LP
+            {formattedNum(pairData.stakedAmount)} LP
           </DataText>
           <DataText alignItems={"flex-end"} flexDirection={"column"} area="vol">
             <AutoRow
@@ -238,13 +230,13 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               flexDirection={"row"}
             >
               <TokenLogo
-                address={pairData.token0.id}
+                address={pairData.stakablePair.token0.id}
                 size={"13px"}
-                defaultText={pairData.token0.symbol}
+                defaultText={pairData.stakablePair.token0.symbol}
               />
-              <DataText>{formattedNum(pairData.reserve0)}</DataText>
+              <DataText>{formattedNum(pairData.stakablePair.reserve0)}</DataText>
               <FormattedName
-                text={pairData.token0.symbol}
+                text={pairData.stakablePair.token0.symbol}
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -252,13 +244,13 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             </AutoRow>
             <AutoRow justifyContent={"space-between"} flexDirection={"row"}>
               <TokenLogo
-                address={pairData.token1.id}
+                address={pairData.stakablePair.token1.id}
                 size={"13px"}
-                defaultText={pairData.token1.symbol}
+                defaultText={pairData.stakablePair.token1.symbol}
               />
-              <DataText>{formattedNum(pairData.reserve1)}</DataText>
+              <DataText>{formattedNum(pairData.stakablePair.reserve1)}</DataText>
               <FormattedName
-                text={pairData.token1.symbol}
+                text={pairData.stakablePair.token1.symbol}
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -267,13 +259,13 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
           </DataText>
           {!below680 && (
             <DataText area="volWeek">
-              {formattedNum(pairData.trackedReserveUSD, true)}
+              {formattedNum(pairData.stakablePair.reserveUSD, true)}
             </DataText>
           )}
 
           {!below1080 && (
             <DataText area="fees">
-              {formattedNum(pairData.oneDayVolumeUSD * 0.0025, true)}
+              42
             </DataText>
           )}
           {!below1080 && <DataText area="apy">{apy}</DataText>}
@@ -301,20 +293,43 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
         } else if (sortedColumn === SORT_FIELD.STAKE) {
-          const pairAStake = pairA.liquidityMiningCampaigns.reduce(
-            (total, amount) => {
-              return (total += parseFloat(amount.stakedAmount));
-            },
-            0
-          );
-          const pairBStake = pairB.liquidityMiningCampaigns.reduce(
-            (total, amount) => {
-              return (total += parseFloat(amount.stakedAmount));
-            },
-            0
-          );
+          const pairAStake = 32;
+          const pairBStake = 25;
 
           return pairAStake > pairBStake
+            ? (sortDirection ? -1 : 1) * 1
+            : (sortDirection ? -1 : 1) * -1;
+        }
+        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
+          parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
+          ? (sortDirection ? -1 : 1) * 1
+          : (sortDirection ? -1 : 1) * -1;
+      })
+      .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
+      .map((pairAddress, index) => {
+        return (
+          pairAddress && (
+            <div key={index}>
+              <ListItem
+                key={index}
+                index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+                pairAddress={pairAddress}
+              />
+              <Divider />
+            </div>
+          )
+        );
+      });
+  const otherDataList =
+    otherData &&
+    Object.keys(otherData)
+      .sort((campaignA, campaignB) => {
+        const pairA = otherData[campaignA];
+        const pairB = otherData[campaignB];
+        if (sortedColumn === SORT_FIELD.APY) {
+          const apy1 = 1;
+          const apy0 = 2;
+          return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
         }
@@ -449,7 +464,8 @@ function FarmingList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>
+      {/*<List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>*/}
+      <List p={0}>{!otherDataList ? <LocalLoader /> : otherDataList}</List>
       <PageButtons>
         <div
           onClick={(e) => {

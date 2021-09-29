@@ -27,8 +27,9 @@
   <component name="ChangeListManager">
     <list default="true" id="5c5d141a-7b25-4d77-ba2c-2a505a9a176a" name="Default Changelist" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/apollo/queries.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/apollo/queries.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package.json" beforeDir="false" afterPath="$PROJECT_DIR$/package.json" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/FarmingList/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FarmingList/index.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/yarn.lock" beforeDir="false" afterPath="$PROJECT_DIR$/yarn.lock" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -118,6 +119,7 @@
       <workItem from="1631035161737" duration="131000" />
       <workItem from="1632128794118" duration="54828000" />
       <workItem from="1632742058357" duration="8787000" />
+      <workItem from="1632910649855" duration="859000" />
     </task>
     <servers />
   </component>

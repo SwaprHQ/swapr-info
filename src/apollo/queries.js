@@ -744,10 +744,23 @@ const PairFields = `
 `;
 export const liquidityMiningCampaignsQuery = gql`
   query liquidityMiningCampaigns {
-    liquidityMiningCampaigns(where: { stakedAmount_gt: 0 }){
+    liquidityMiningCampaigns(where: { stakedAmount_gt: 0 }) {
+      id
+      rewardTokens {
+        address: id
+        name
+        symbol
+        decimals
+        derivedNativeCurrency
+      }
+      rewardAmounts
       stakedAmount
-      stakablePair{
-        token0{
+      startsAt
+      endsAt
+      locked
+      stakingCap
+      stakablePair {
+        token0 {
           id
           derivedNativeCurrency
           totalSupply

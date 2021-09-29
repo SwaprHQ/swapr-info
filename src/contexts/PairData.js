@@ -35,6 +35,7 @@ import {
   getBlocksFromTimestamps,
   getTimestampsForChanges,
   splitQuery,
+  toLiquidityMiningCampaign,
 } from "../utils";
 import {
   CHAIN_READONLY_PROVIDERS,
@@ -48,6 +49,9 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
+import {TokenAmount, Token, Pair} from "@swapr/sdk";
+import { getAddress } from "@ethersproject/address";
+import {parseUnits} from "@ethersproject/units";
 
 const RESET = "RESET";
 const UPDATE = "UPDATE";
@@ -831,6 +835,38 @@ export function useLiqudityMiningCampaignData() {
         } = await client.query({
           query: liquidityMiningCampaignsQuery,
         });
+        await Promise.all(
+          liquidityMiningCampaigns &&
+            liquidityMiningCampaigns.map(async (pair) => {
+              const tokenA = new Token(
+                selectedNetwork,
+                getAddress(pair.token0.id),
+                parseInt(pair.token0.decimals),
+                pair.token0.symbol,
+                pair.token0.name
+              );
+              const tokenB = new Token(
+                selectedNetwork,
+                getAddress(pair.token1.id),
+                parseInt(pair.token1.decimals),
+                pair.token1.symbol,
+                pair.token1.name
+              );
+              const tokenAmountA = new TokenAmount(
+                tokenA,
+                parseUnits(pair.reserve0, pair.token0.decimals).toString()
+              );
+              const tokenAmountB = new TokenAmount(
+                tokenB,
+                parseUnits(pair.reserve1, pair.token1.decimals).toString()
+              );
+              const final = new Pair(tokenAmountA, tokenAmountB);
+              let data = toLiquidityMiningCampaign(selectedNetwork);
+
+              console.log("paricka", data);
+            })
+        );
+
         console.log(liquidityMiningCampaigns);
         liquidityMiningCampaigns && updateMiningData(liquidityMiningCampaigns);
       }

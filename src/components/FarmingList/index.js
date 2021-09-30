@@ -48,7 +48,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: "name liq vol";
+  grid-template-areas: "name stake underlyingTokens";
   padding: 0 1.125rem;
 
   > * {
@@ -64,7 +64,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol ";
+    grid-template-areas: "name symbol stake underlyingTokens ";
 
     > * {
       justify-content: flex-end;
@@ -80,7 +80,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol price change";
+    grid-template-areas: "name symbol stake underlyingTokens price change";
   }
 `;
 
@@ -208,10 +208,14 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
               />
             </CustomLink>
           </DataText>
-          <DataText area="liq">
+          <DataText area="stake">
             {formattedNum(pairData.stakedAmount)} LP
           </DataText>
-          <DataText alignItems={"flex-end"} flexDirection={"column"} area="vol">
+          <DataText
+            alignItems={"flex-end"}
+            flexDirection={"column"}
+            area="underlyingTokens"
+          >
             <AutoRow
               justifyContent={"space-between"}
               marginBottom={"2px"}
@@ -260,12 +264,12 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             </AutoRow>
           </DataText>
           {!below680 && (
-            <DataText area="volWeek">
+            <DataText area="tvl">
               {formattedNum(pairData.stakablePair.reserveUSD, true)}
             </DataText>
           )}
           {!below1080 && (
-            <DataText area="fees">{yieldPer1k.toFixed(2)}$ /day</DataText>
+            <DataText area="yield1k">{yieldPer1k.toFixed(2)}$ /day</DataText>
           )}
           {!below1080 && (
             <DataText area="apy">
@@ -330,7 +334,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
-            area="liq"
+            area="stake"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.STAKE);
               setSortDirection(
@@ -348,7 +352,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         </Flex>
         <Flex alignItems="center">
           <ClickableText
-            area="vol"
+            area="underlyingTokens"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.UNDERLYING_TOKENS);
               setSortDirection(
@@ -369,7 +373,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         {!below680 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
-              area="volWeek"
+              area="tvl"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.TVL);
                 setSortDirection(
@@ -390,7 +394,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
-              area="fees"
+              area="yield1k"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.DAY_YIELD);
                 setSortDirection(

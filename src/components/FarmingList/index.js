@@ -132,8 +132,8 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-  console.log("new one", otherData);
-  console.log("old one", pairs);
+  // console.log("new one", otherData);
+  // console.log("old one", pairs);
   // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -167,10 +167,10 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   }, [ITEMS_PER_PAGE, pairs]);
 
   const ListItem = ({ pairAddress, index }) => {
-    console.log("pair try", pairAddress);
+    // console.log("pair try", pairAddress);
 
     const pairData = otherData[pairAddress];
-    console.log("real one working", pairData);
+    // console.log("real one working", pairData);
     // console.log("pair data", pairData);
 
     if (otherData && otherData.length !== 0) {

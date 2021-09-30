@@ -20,7 +20,7 @@ import {
 } from "../../contexts/Network";
 import { AutoRow } from "../Row";
 import TokenLogo from "../TokenLogo";
-import { LiquidityMiningCampaign } from "@swapr/sdk";
+import {LiquidityMiningCampaign, Percent} from "@swapr/sdk";
 
 dayjs.extend(utc);
 
@@ -132,8 +132,8 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-  // console.log("new one", otherData);
-  // console.log("old one", pairs);
+  console.log("new one", otherData);
+  console.log("old one", pairs);
   // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -174,7 +174,9 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
     // console.log("pair data", pairData);
 
     if (otherData && otherData.length !== 0) {
-      const apy = "1";
+        console.log(pairData)
+
+      const apy = (pairData.data.apy).toFixed(2)
       return (
         <DashGrid
           style={{ height: "48px" }}

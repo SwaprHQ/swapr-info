@@ -841,16 +841,11 @@ export function useLiqudityMiningCampaignData() {
           liquidityMiningCampaigns &&
             liquidityMiningCampaigns.map(async (pair) => {
               const pairData = pair.stakablePair;
-              console.log("fiing par", pair);
-              console.log("chain", ChainIdForSupportedNetwork[selectedNetwork]);
-              console.log("address", getAddress(pairData.token0.id));
-              console.log("decimals", parseInt(pairData.token0.decimals));
-              console.log("symbol", pairData.token0.symbol);
-              console.log("name", pairData.token0.name);
+
               const nativeCurrency = Currency.getNative(
                 ChainIdForSupportedNetwork[selectedNetwork]
               );
-              console.log(selectedNetwork);
+
               const tokenA = new Token(
                 ChainIdForSupportedNetwork[selectedNetwork],
                 getAddress(pairData.token0.id),
@@ -880,7 +875,7 @@ export function useLiqudityMiningCampaignData() {
                 ).toString()
               );
               const final = new Pair(tokenAmountA, tokenAmountB);
-              console.log(final);
+
               let data = toLiquidityMiningCampaign(
                 ChainIdForSupportedNetwork[selectedNetwork],
                 final,
@@ -889,7 +884,7 @@ export function useLiqudityMiningCampaignData() {
                 pair,
                 nativeCurrency
               );
-              return { ...pair, ["campaignObject"]: { ...data } };
+              return { ...pair,data };
             })
         );
 

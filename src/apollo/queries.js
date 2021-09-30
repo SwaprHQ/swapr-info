@@ -720,26 +720,6 @@ const PairFields = `
     token0Price
     token1Price
     createdAtTimestamp
-    liquidityMiningCampaigns{
-        stakedAmount
-        stakablePair{
-          token0{
-          derivedNativeCurrency
-          totalSupply
-          untrackedVolumeUSD
-            symbol
-          }
-          token1{
-           derivedNativeCurrency
-          totalSupply
-          untrackedVolumeUSD
-            symbol
-          symbol
-          }
-          reserve1
-          reserve0
-        }
-    }
   }
 `;
 export const liquidityMiningCampaignsQuery = gql`

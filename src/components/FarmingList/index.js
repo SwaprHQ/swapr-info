@@ -114,7 +114,7 @@ const SORT_FIELD = {
   STAKE: 0,
   UNDERLYING_TOKENS: 1,
   TVL: 3,
-  FEES: 4,
+  DAY_YIELD: 4,
   APY: 5,
 };
 
@@ -122,7 +122,6 @@ const FIELD_TO_VALUE = {
   [SORT_FIELD.STAKE]: "stakedAmount",
   [SORT_FIELD.UNDERLYING_TOKENS]: "stakablePair.totalSupply",
   [SORT_FIELD.TVL]: "stakablePair.reserveUSD",
-  [SORT_FIELD.FEES]: "oneDayVolumeUSD",
 };
 
 function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
@@ -165,8 +164,9 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
 
   const ListItem = ({ pairAddress, index }) => {
     const pairData = campaigns[pairAddress];
-
     if (campaigns && campaigns.length !== 0) {
+      const apy = pairData.miningCampaignObject.apy.toFixed(2);
+      const yieldPer1k = (parseFloat(apy) / 365) * 10;
       return (
         <DashGrid
           style={{ height: "48px" }}
@@ -226,10 +226,12 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 {formattedNum(pairData.stakablePair.reserve0)}
               </DataText>
               <FormattedName
-                text={nativeCurrencyWrapper.symbol ===
-                pairData.stakablePair.token0.symbol
+                text={
+                  nativeCurrencyWrapper.symbol ===
+                  pairData.stakablePair.token0.symbol
                     ? nativeCurrency
-                    : pairData.stakablePair.token0.symbol}
+                    : pairData.stakablePair.token0.symbol
+                }
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -245,10 +247,12 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 {formattedNum(pairData.stakablePair.reserve1)}
               </DataText>
               <FormattedName
-                text={nativeCurrencyWrapper.symbol ===
-                pairData.stakablePair.token1.symbol
+                text={
+                  nativeCurrencyWrapper.symbol ===
+                  pairData.stakablePair.token1.symbol
                     ? nativeCurrency
-                    : pairData.stakablePair.token1.symbol}
+                    : pairData.stakablePair.token1.symbol
+                }
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -260,10 +264,13 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
               {formattedNum(pairData.stakablePair.reserveUSD, true)}
             </DataText>
           )}
-
-          {!below1080 && <DataText area="fees">42</DataText>}
           {!below1080 && (
-            <DataText area="apy">{pairData.miningCampaignObject.apy.toFixed(2)} %</DataText>
+            <DataText area="fees">{yieldPer1k.toFixed(2)}$ /day</DataText>
+          )}
+          {!below1080 && (
+            <DataText area="apy">
+              {pairData.miningCampaignObject.apy.toFixed(2)} %
+            </DataText>
           )}
         </DashGrid>
       );
@@ -278,7 +285,10 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
       .sort((campaignA, campaignB) => {
         const pairA = campaigns[campaignA];
         const pairB = campaigns[campaignB];
-        if (sortedColumn === SORT_FIELD.APY) {
+        if (
+          sortedColumn === SORT_FIELD.APY ||
+          sortedColumn === SORT_FIELD.DAY_YIELD
+        ) {
           const apy1 = parseFloat(pairA.miningCampaignObject.apy.toFixed(18));
           const apy0 = parseFloat(pairB.miningCampaignObject.apy.toFixed(18));
 
@@ -342,7 +352,9 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.UNDERLYING_TOKENS);
               setSortDirection(
-                sortedColumn !== SORT_FIELD.UNDERLYING_TOKENS ? true : !sortDirection
+                sortedColumn !== SORT_FIELD.UNDERLYING_TOKENS
+                  ? true
+                  : !sortDirection
               );
             }}
           >
@@ -380,14 +392,14 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             <ClickableText
               area="fees"
               onClick={(e) => {
-                setSortedColumn(SORT_FIELD.FEES);
+                setSortedColumn(SORT_FIELD.DAY_YIELD);
                 setSortDirection(
-                  sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection
+                  sortedColumn !== SORT_FIELD.DAY_YIELD ? true : !sortDirection
                 );
               }}
             >
-              Fees (24hr){" "}
-              {sortedColumn === SORT_FIELD.FEES
+              YIELD PER $1000{" "}
+              {sortedColumn === SORT_FIELD.DAY_YIELD
                 ? !sortDirection
                   ? "↑"
                   : "↓"

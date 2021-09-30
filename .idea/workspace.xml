@@ -26,7 +26,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="5c5d141a-7b25-4d77-ba2c-2a505a9a176a" name="Default Changelist" comment="">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/FarmingList/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FarmingList/index.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />

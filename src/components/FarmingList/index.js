@@ -12,7 +12,6 @@ import { withRouter } from "react-router-dom";
 import { formattedNum } from "../../utils";
 import DoubleTokenLogo from "../DoubleLogo";
 import FormattedName from "../FormattedName";
-import QuestionHelper from "../QuestionHelper";
 import { TYPE } from "../../Theme";
 import {
   useNativeCurrencySymbol,
@@ -20,7 +19,6 @@ import {
 } from "../../contexts/Network";
 import { AutoRow } from "../Row";
 import TokenLogo from "../TokenLogo";
-import {LiquidityMiningCampaign, Percent} from "@swapr/sdk";
 
 dayjs.extend(utc);
 
@@ -114,7 +112,7 @@ const DataText = styled(Flex)`
 
 const SORT_FIELD = {
   STAKE: 0,
-  VOL: 1,
+  UNDERLYING_TOKENS: 1,
   TVL: 3,
   FEES: 4,
   APY: 5,
@@ -122,18 +120,16 @@ const SORT_FIELD = {
 
 const FIELD_TO_VALUE = {
   [SORT_FIELD.STAKE]: "stakedAmount",
-  [SORT_FIELD.VOL]: "oneDayVolumeUSD",
+  [SORT_FIELD.UNDERLYING_TOKENS]: "stakablePair.totalSupply",
   [SORT_FIELD.TVL]: "stakablePair.reserveUSD",
   [SORT_FIELD.FEES]: "oneDayVolumeUSD",
 };
 
-function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
+function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia("(max-width: 600px)");
   const below680 = useMedia("(max-width: 680px)");
   const below740 = useMedia("(max-width: 740px)");
   const below1080 = useMedia("(max-width: 1080px)");
-  console.log("new one", otherData);
-  console.log("old one", pairs);
   // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -149,34 +145,28 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
     setPage(1);
-  }, [pairs]);
+  }, [campaigns]);
 
   useEffect(() => {
-    if (pairs) {
+    if (campaigns) {
       let extraPages = 1;
-      if (Object.keys(pairs).length % ITEMS_PER_PAGE === 0) {
+      if (Object.keys(campaigns).length % ITEMS_PER_PAGE === 0) {
         extraPages = 0;
       }
       setMaxPage(
         Math.max(
           1,
-          Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages
+          Math.floor(Object.keys(campaigns).length / ITEMS_PER_PAGE) +
+            extraPages
         )
       );
     }
-  }, [ITEMS_PER_PAGE, pairs]);
+  }, [ITEMS_PER_PAGE, campaigns]);
 
   const ListItem = ({ pairAddress, index }) => {
-    // console.log("pair try", pairAddress);
+    const pairData = campaigns[pairAddress];
 
-    const pairData = otherData[pairAddress];
-    // console.log("real one working", pairData);
-    // console.log("pair data", pairData);
-
-    if (otherData && otherData.length !== 0) {
-        console.log(pairData)
-
-      const apy = (pairData.data.apy).toFixed(2)
+    if (campaigns && campaigns.length !== 0) {
       return (
         <DashGrid
           style={{ height: "48px" }}
@@ -236,7 +226,10 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
                 {formattedNum(pairData.stakablePair.reserve0)}
               </DataText>
               <FormattedName
-                text={pairData.stakablePair.token0.symbol}
+                text={nativeCurrencyWrapper.symbol ===
+                pairData.stakablePair.token0.symbol
+                    ? nativeCurrency
+                    : pairData.stakablePair.token0.symbol}
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -252,7 +245,10 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
                 {formattedNum(pairData.stakablePair.reserve1)}
               </DataText>
               <FormattedName
-                text={pairData.stakablePair.token1.symbol}
+                text={nativeCurrencyWrapper.symbol ===
+                pairData.stakablePair.token1.symbol
+                    ? nativeCurrency
+                    : pairData.stakablePair.token1.symbol}
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
@@ -266,7 +262,9 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
           )}
 
           {!below1080 && <DataText area="fees">42</DataText>}
-          {!below1080 && <DataText area="apy">{apy}</DataText>}
+          {!below1080 && (
+            <DataText area="apy">{pairData.miningCampaignObject.apy.toFixed(2)} %</DataText>
+          )}
         </DashGrid>
       );
     } else {
@@ -274,33 +272,35 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
     }
   };
 
-  const otherDataList =
-    otherData &&
-    Object.keys(otherData)
+  const campaignsList =
+    campaigns &&
+    Object.keys(campaigns)
       .sort((campaignA, campaignB) => {
-        const pairA = otherData[campaignA];
-        const pairB = otherData[campaignB];
+        const pairA = campaigns[campaignA];
+        const pairB = campaigns[campaignB];
         if (sortedColumn === SORT_FIELD.APY) {
-          const apy1 = 22;
-          const apy0 = 2;
+          const apy1 = parseFloat(pairA.miningCampaignObject.apy.toFixed(18));
+          const apy0 = parseFloat(pairB.miningCampaignObject.apy.toFixed(18));
+
           return apy0 > apy1
             ? (sortDirection ? -1 : 1) * 1
             : (sortDirection ? -1 : 1) * -1;
         }
+
         return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
           parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1;
       })
       .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
-      .map((pairAddress, index) => {
+      .map((pairIndex, index) => {
         return (
-          pairAddress && (
+          pairIndex && (
             <div key={index}>
               <ListItem
                 key={index}
                 index={(page - 1) * ITEMS_PER_PAGE + index + 1}
-                pairAddress={pairAddress}
+                pairAddress={pairIndex}
               />
               <Divider />
             </div>
@@ -340,14 +340,14 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
           <ClickableText
             area="vol"
             onClick={(e) => {
-              setSortedColumn(SORT_FIELD.VOL);
+              setSortedColumn(SORT_FIELD.UNDERLYING_TOKENS);
               setSortDirection(
-                sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection
+                sortedColumn !== SORT_FIELD.UNDERLYING_TOKENS ? true : !sortDirection
               );
             }}
           >
             Underlying Tokens
-            {sortedColumn === SORT_FIELD.VOL
+            {sortedColumn === SORT_FIELD.UNDERLYING_TOKENS
               ? !sortDirection
                 ? "↑"
                 : "↓"
@@ -406,20 +406,18 @@ function FarmingList({ otherData, pairs, color, disbaleLinks, maxItems = 10 }) {
                 );
               }}
             >
-              1y Fees / Liquidity{" "}
+              APY{" "}
               {sortedColumn === SORT_FIELD.APY
                 ? !sortDirection
                   ? "↑"
                   : "↓"
                 : ""}
             </ClickableText>
-            <QuestionHelper text={"Based on 24hr volume annualized"} />
           </Flex>
         )}
       </DashGrid>
       <Divider />
-      {/*<List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>*/}
-      <List p={0}>{!otherDataList ? <LocalLoader /> : otherDataList}</List>
+      <List p={0}>{!campaignsList ? <LocalLoader /> : campaignsList}</List>
       <PageButtons>
         <div
           onClick={(e) => {

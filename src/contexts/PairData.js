@@ -16,7 +16,6 @@ import {
   PAIRS_BULK,
   PAIRS_HISTORICAL_BULK,
   HOURLY_PAIR_RATES,
-  liquidityMiningCampaigns,
   liquidityMiningCampaignsQuery,
 } from "../apollo/queries";
 import multicallAbi from "../abi/multicall.json";
@@ -41,7 +40,6 @@ import {
   CHAIN_READONLY_PROVIDERS,
   ChainIdForSupportedNetwork,
   MULTICALL_ADDRESS,
-  SupportedNetworkForChainId,
   timeframeOptions,
 } from "../constants";
 import { useLatestBlocks } from "./Application";
@@ -102,7 +100,7 @@ function reducer(state, { type, payload }) {
 
       return {
         ...state,
-        ["MINING_DATA"]: {
+        [UPDATE_MINING_DATA]: {
           ...liquidityMiningData,
         },
       };
@@ -827,7 +825,7 @@ export function useLiqudityMiningCampaignData() {
   const client = useSwaprSubgraphClient();
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
-  const miningData = state?.["MINING_DATA"];
+  const miningData = state?.[UPDATE_MINING_DATA];
 
   useEffect(() => {
     async function fetchData() {
@@ -837,7 +835,7 @@ export function useLiqudityMiningCampaignData() {
         } = await client.query({
           query: liquidityMiningCampaignsQuery,
         });
-        const newArray = await Promise.all(
+        const arrayWithMiningCampaignObject = await Promise.all(
           liquidityMiningCampaigns &&
             liquidityMiningCampaigns.map(async (pair) => {
               const pairData = pair.stakablePair;
@@ -876,7 +874,7 @@ export function useLiqudityMiningCampaignData() {
               );
               const final = new Pair(tokenAmountA, tokenAmountB);
 
-              let data = toLiquidityMiningCampaign(
+              let miningCampaignObject = toLiquidityMiningCampaign(
                 ChainIdForSupportedNetwork[selectedNetwork],
                 final,
                 pairData.totalSupply,
@@ -884,11 +882,11 @@ export function useLiqudityMiningCampaignData() {
                 pair,
                 nativeCurrency
               );
-              return { ...pair,data };
+              return { ...pair, miningCampaignObject };
             })
         );
 
-        liquidityMiningCampaigns && updateMiningData(newArray);
+        liquidityMiningCampaigns && updateMiningData(arrayWithMiningCampaignObject);
       }
     }
 

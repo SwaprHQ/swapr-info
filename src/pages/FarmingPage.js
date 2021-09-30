@@ -32,7 +32,7 @@ function FarmingPage() {
         </RowBetween>
         <Panel style={{ padding: below800 && "1rem 0 0 0 " }}>
           <FarmingList
-            otherData={otherData}
+            campaigns={otherData}
             pairs={allPairs}
             disbaleLinks={true}
             maxItems={50}

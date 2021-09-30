@@ -29,6 +29,7 @@
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/components/FarmingList/index.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/components/FarmingList/index.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/contexts/PairData.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/contexts/PairData.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/pages/FarmingPage.js" beforeDir="false" afterPath="$PROJECT_DIR$/src/pages/FarmingPage.js" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -141,6 +142,10 @@
       <screen x="-1169" y="-1417" width="3440" height="1417" />
     </state>
     <state x="1308" y="-809" key="#ESLint/-1169.-1417.3440.1417/0.0.1440.826@-1169.-1417.3440.1417" timestamp="1631015318904" />
+    <state x="875" y="-1047" key="#com.intellij.execution.impl.EditConfigurationsDialog" timestamp="1633012334491">
+      <screen x="-1169" y="-1417" width="3440" height="1417" />
+    </state>
+    <state x="875" y="-1047" key="#com.intellij.execution.impl.EditConfigurationsDialog/-1169.-1417.3440.1417/0.23.1440.810@-1169.-1417.3440.1417" timestamp="1633012334491" />
     <state x="-1169" y="-1417" width="1733" height="904" key="MergeDialog" timestamp="1632220464617">
       <screen x="-1169" y="-1417" width="3440" height="1417" />
     </state>

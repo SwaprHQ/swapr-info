@@ -39,7 +39,9 @@ import {
 } from "../utils";
 import {
   CHAIN_READONLY_PROVIDERS,
+  ChainIdForSupportedNetwork,
   MULTICALL_ADDRESS,
+  SupportedNetworkForChainId,
   timeframeOptions,
 } from "../constants";
 import { useLatestBlocks } from "./Application";
@@ -49,9 +51,9 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
-import {TokenAmount, Token, Pair} from "@swapr/sdk";
+import { TokenAmount, Token, Pair, Currency } from "@swapr/sdk";
 import { getAddress } from "@ethersproject/address";
-import {parseUnits} from "@ethersproject/units";
+import { parseUnits } from "@ethersproject/units";
 
 const RESET = "RESET";
 const UPDATE = "UPDATE";
@@ -835,40 +837,63 @@ export function useLiqudityMiningCampaignData() {
         } = await client.query({
           query: liquidityMiningCampaignsQuery,
         });
-        await Promise.all(
+        const newArray = await Promise.all(
           liquidityMiningCampaigns &&
             liquidityMiningCampaigns.map(async (pair) => {
+              const pairData = pair.stakablePair;
+              console.log("fiing par", pair);
+              console.log("chain", ChainIdForSupportedNetwork[selectedNetwork]);
+              console.log("address", getAddress(pairData.token0.id));
+              console.log("decimals", parseInt(pairData.token0.decimals));
+              console.log("symbol", pairData.token0.symbol);
+              console.log("name", pairData.token0.name);
+              const nativeCurrency = Currency.getNative(
+                ChainIdForSupportedNetwork[selectedNetwork]
+              );
+              console.log(selectedNetwork);
               const tokenA = new Token(
-                selectedNetwork,
-                getAddress(pair.token0.id),
-                parseInt(pair.token0.decimals),
-                pair.token0.symbol,
-                pair.token0.name
+                ChainIdForSupportedNetwork[selectedNetwork],
+                getAddress(pairData.token0.id),
+                parseInt(pairData.token0.decimals),
+                pairData.token0.symbol,
+                pairData.token0.name
               );
               const tokenB = new Token(
-                selectedNetwork,
-                getAddress(pair.token1.id),
-                parseInt(pair.token1.decimals),
-                pair.token1.symbol,
-                pair.token1.name
+                ChainIdForSupportedNetwork[selectedNetwork],
+                getAddress(pairData.token1.id),
+                parseInt(pairData.token1.decimals),
+                pairData.token1.symbol,
+                pairData.token1.name
               );
               const tokenAmountA = new TokenAmount(
                 tokenA,
-                parseUnits(pair.reserve0, pair.token0.decimals).toString()
+                parseUnits(
+                  pairData.reserve0,
+                  pairData.token0.decimals
+                ).toString()
               );
               const tokenAmountB = new TokenAmount(
                 tokenB,
-                parseUnits(pair.reserve1, pair.token1.decimals).toString()
+                parseUnits(
+                  pairData.reserve1,
+                  pairData.token1.decimals
+                ).toString()
               );
               const final = new Pair(tokenAmountA, tokenAmountB);
-              let data = toLiquidityMiningCampaign(selectedNetwork);
-
-              console.log("paricka", data);
+              console.log(final);
+              let data = toLiquidityMiningCampaign(
+                ChainIdForSupportedNetwork[selectedNetwork],
+                final,
+                pairData.totalSupply,
+                pairData.reserveNativeCurrency,
+                pair,
+                nativeCurrency
+              );
+              return { ...pair, ["campaignObject"]: { ...data } };
             })
         );
 
-        console.log(liquidityMiningCampaigns);
-        liquidityMiningCampaigns && updateMiningData(liquidityMiningCampaigns);
+        liquidityMiningCampaigns && updateMiningData(newArray);
       }
     }
 

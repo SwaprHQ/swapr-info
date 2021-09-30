@@ -708,6 +708,6 @@ export function toLiquidityMiningCampaign(
         targetedPair.liquidityToken.decimals
       ).toString()
     ),
-    getAddress(campaign.address)
+    getAddress(campaign.id)
   );
 }

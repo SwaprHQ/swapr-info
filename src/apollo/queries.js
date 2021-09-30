@@ -765,6 +765,8 @@ export const liquidityMiningCampaignsQuery = gql`
           derivedNativeCurrency
           totalSupply
           untrackedVolumeUSD
+          decimals
+          name
           symbol
         }
         token1 {
@@ -772,10 +774,13 @@ export const liquidityMiningCampaignsQuery = gql`
           derivedNativeCurrency
           totalSupply
           untrackedVolumeUSD
-          symbol
+          decimals
+          name
           symbol
         }
+        totalSupply
         reserveUSD
+        reserveNativeCurrency
         reserve1
         reserve0
       }

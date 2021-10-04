@@ -79,8 +79,8 @@ const DashGrid = styled.div`
   @media screen and (min-width: 1080px) {
     display: grid;
     grid-gap: 0.5em;
-    grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: "name symbol stake underlyingTokens price change";
+    grid-template-columns: 1fr 0.6fr 1fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: "name symbol stake underlyingTokens price change other";
   }
 `;
 
@@ -116,12 +116,14 @@ const SORT_FIELD = {
   TVL: 3,
   DAY_YIELD: 4,
   APY: 5,
+  STAKE_DOLLARS: 6,
 };
 
 const FIELD_TO_VALUE = {
   [SORT_FIELD.STAKE]: "stakedAmount",
   [SORT_FIELD.UNDERLYING_TOKENS]: "totalSupply",
   [SORT_FIELD.TVL]: "reserveUSD",
+  [SORT_FIELD.STAKE_DOLLARS]: "stakedPriceInUsd",
 };
 
 function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
@@ -165,6 +167,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
   const ListItem = ({ pairAddress, index }) => {
     const pairData = campaigns[pairAddress];
     if (campaigns && campaigns.length !== 0) {
+
       const apy = pairData.miningCampaignObject.apy.toFixed(2);
       const yieldPer1k = (parseFloat(apy) / 365) * 10;
       return (
@@ -269,11 +272,18 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             </DataText>
           )}
           {!below1080 && (
-            <DataText area="yield1k">{yieldPer1k.toFixed(2)}$ /day</DataText>
+            <DataText area="yield1k">
+              {formattedNum(yieldPer1k.toFixed(2))}$ /day
+            </DataText>
           )}
           {!below1080 && (
             <DataText area="apy">
               {pairData.miningCampaignObject.apy.toFixed(2)} %
+            </DataText>
+          )}
+          {!below1080 && (
+            <DataText area="someOther">
+              {formattedNum(pairData.stakedPriceInUsd)} $
             </DataText>
           )}
         </DashGrid>
@@ -298,7 +308,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         ) {
           data1 = pairA.miningCampaignObject.apy.toFixed(18);
           data2 = pairB.miningCampaignObject.apy.toFixed(18);
-        } else if (sortedColumn === SORT_FIELD.STAKE) {
+        } else if (sortedColumn === SORT_FIELD.STAKE || sortedColumn===SORT_FIELD.STAKE_DOLLARS) {
           data1 = pairA[FIELD_TO_VALUE[sortedColumn]];
           data2 = pairB[FIELD_TO_VALUE[sortedColumn]];
         } else {
@@ -428,6 +438,28 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             >
               APY{" "}
               {sortedColumn === SORT_FIELD.APY
+                ? !sortDirection
+                  ? "↑"
+                  : "↓"
+                : ""}
+            </ClickableText>
+          </Flex>
+        )}
+        {!below1080 && (
+          <Flex alignItems="center" justifyContent="flexEnd">
+            <ClickableText
+              area="other"
+              onClick={(e) => {
+                setSortedColumn(SORT_FIELD.STAKE_DOLLARS);
+                setSortDirection(
+                  sortedColumn !== SORT_FIELD.STAKE_DOLLARS
+                    ? true
+                    : !sortDirection
+                );
+              }}
+            >
+              STAKED IN ${" "}
+              {sortedColumn === SORT_FIELD.STAKE_DOLLARS
                 ? !sortDirection
                   ? "↑"
                   : "↓"

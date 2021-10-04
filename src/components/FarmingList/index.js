@@ -120,8 +120,8 @@ const SORT_FIELD = {
 
 const FIELD_TO_VALUE = {
   [SORT_FIELD.STAKE]: "stakedAmount",
-  [SORT_FIELD.UNDERLYING_TOKENS]: "stakablePair.totalSupply",
-  [SORT_FIELD.TVL]: "stakablePair.reserveUSD",
+  [SORT_FIELD.UNDERLYING_TOKENS]: "totalSupply",
+  [SORT_FIELD.TVL]: "reserveUSD",
 };
 
 function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
@@ -289,20 +289,24 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
       .sort((campaignA, campaignB) => {
         const pairA = campaigns[campaignA];
         const pairB = campaigns[campaignB];
+
+        let data1;
+        let data2;
         if (
           sortedColumn === SORT_FIELD.APY ||
           sortedColumn === SORT_FIELD.DAY_YIELD
         ) {
-          const apy1 = parseFloat(pairA.miningCampaignObject.apy.toFixed(18));
-          const apy0 = parseFloat(pairB.miningCampaignObject.apy.toFixed(18));
-
-          return apy0 > apy1
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1;
+          data1 = pairA.miningCampaignObject.apy.toFixed(18);
+          data2 = pairB.miningCampaignObject.apy.toFixed(18);
+        } else if (sortedColumn === SORT_FIELD.STAKE) {
+          data1 = pairA[FIELD_TO_VALUE[sortedColumn]];
+          data2 = pairB[FIELD_TO_VALUE[sortedColumn]];
+        } else {
+          data1 = pairA.stakablePair[FIELD_TO_VALUE[sortedColumn]];
+          data2 = pairB.stakablePair[FIELD_TO_VALUE[sortedColumn]];
         }
 
-        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
-          parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
+        return parseFloat(data1) > parseFloat(data2)
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1;
       })

@@ -14,8 +14,7 @@ import { useMedia } from "react-use";
 import FarmingList from "../components/FarmingList";
 
 function FarmingPage() {
-  const allPairs = useAllPairData();
-  const otherData = useLiqudityMiningCampaignData();
+  const campaignData = useLiqudityMiningCampaignData();
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -32,8 +31,7 @@ function FarmingPage() {
         </RowBetween>
         <Panel style={{ padding: below800 && "1rem 0 0 0 " }}>
           <FarmingList
-            campaigns={otherData}
-            pairs={allPairs}
+            campaigns={campaignData}
             disbaleLinks={true}
             maxItems={50}
           />

@@ -15,12 +15,14 @@ import {
 } from "../constants";
 import Numeral from "numeral";
 import {
+  CurrencyAmount,
   LiquidityMiningCampaign,
   Price,
   PricedToken,
   PricedTokenAmount,
   Token,
   TokenAmount,
+  USD,
 } from "@swapr/sdk";
 import { parseUnits } from "@ethersproject/units";
 
@@ -709,5 +711,29 @@ export function toLiquidityMiningCampaign(
       ).toString()
     ),
     getAddress(campaign.id)
+  );
+}
+
+export function getStakedAmountUSD(
+  campaign,
+  nativeCurrencyUSDPrice,
+  nativeCurrency
+) {
+  const nativeCurrencyPrice = new Price(
+    nativeCurrency,
+    USD,
+    parseUnits("1", USD.decimals).toString(),
+    parseUnits(
+      new Decimal(nativeCurrencyUSDPrice).toFixed(18),
+      USD.decimals
+    ).toString()
+  );
+  return CurrencyAmount.usd(
+    parseUnits(
+      campaign.staked.nativeCurrencyAmount
+        .multiply(nativeCurrencyPrice)
+        .toFixed(USD.decimals),
+      USD.decimals
+    ).toString()
   );
 }

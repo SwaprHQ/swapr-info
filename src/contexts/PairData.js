@@ -35,6 +35,7 @@ import {
   getTimestampsForChanges,
   splitQuery,
   toLiquidityMiningCampaign,
+  getStakedAmountUSD,
 } from "../utils";
 import {
   CHAIN_READONLY_PROVIDERS,
@@ -49,9 +50,10 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
-import { TokenAmount, Token, Pair, Currency } from "@swapr/sdk";
+import { TokenAmount, Token, Pair, Currency} from "@swapr/sdk";
 import { getAddress } from "@ethersproject/address";
 import { parseUnits } from "@ethersproject/units";
+
 
 const RESET = "RESET";
 const UPDATE = "UPDATE";
@@ -826,7 +828,7 @@ export function useLiqudityMiningCampaignData() {
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
   const miningData = state?.[UPDATE_MINING_DATA];
-
+  const nativePrice = useNativeCurrencyPrice();
 
   useEffect(() => {
     async function fetchData() {
@@ -883,9 +885,16 @@ export function useLiqudityMiningCampaignData() {
               nativeCurrency
             );
 
+            const stakedPriceInUsd = getStakedAmountUSD(
+              miningCampaignObject,
+              nativePrice[0],
+              nativeCurrency
+            );
+
             arrayWithMiningCampaignObject.push({
               ...pair,
               miningCampaignObject,
+              stakedPriceInUsd: stakedPriceInUsd.toFixed(2),
             });
           });
 
@@ -895,6 +904,7 @@ export function useLiqudityMiningCampaignData() {
     }
 
     fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, selectedNetwork, updateMiningData, miningData]);
 
   return miningData;

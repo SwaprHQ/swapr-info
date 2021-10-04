@@ -723,8 +723,8 @@ const PairFields = `
   }
 `;
 export const liquidityMiningCampaignsQuery = gql`
-  query liquidityMiningCampaigns {
-    liquidityMiningCampaigns(where: { stakedAmount_gt: 0 }) {
+  query liquidityMiningCampaigns($currentTime: Int!) {
+    liquidityMiningCampaigns(where: { endsAt_gt: $currentTime }) {
       id
       rewardTokens {
         address: id

@@ -826,6 +826,7 @@ export function useLiqudityMiningCampaignData() {
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
   const miningData = state?.[UPDATE_MINING_DATA];
+  const time = dayjs.utc().unix();
 
   useEffect(() => {
     async function fetchData() {
@@ -834,6 +835,9 @@ export function useLiqudityMiningCampaignData() {
           data: { liquidityMiningCampaigns },
         } = await client.query({
           query: liquidityMiningCampaignsQuery,
+          variables: {
+            currentTime: time,
+          },
         });
         const arrayWithMiningCampaignObject = [];
 
@@ -877,12 +881,11 @@ export function useLiqudityMiningCampaignData() {
               pair,
               nativeCurrency
             );
-            if (miningCampaignObject.currentlyActive) {
-              arrayWithMiningCampaignObject.push({
-                ...pair,
-                miningCampaignObject,
-              });
-            }
+
+            arrayWithMiningCampaignObject.push({
+              ...pair,
+              miningCampaignObject,
+            });
           });
 
         liquidityMiningCampaigns &&

@@ -4,7 +4,6 @@ import "feather-icons";
 import { TYPE } from "../Theme";
 import Panel from "../components/Panel";
 import {
-  useAllPairData,
   useLiqudityMiningCampaignData,
 } from "../contexts/PairData";
 import { PageWrapper, FullWrapper } from "../components";

@@ -826,11 +826,12 @@ export function useLiqudityMiningCampaignData() {
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
   const miningData = state?.[UPDATE_MINING_DATA];
-  const time = dayjs.utc().unix();
+
 
   useEffect(() => {
     async function fetchData() {
       if (!miningData) {
+        const time = dayjs.utc().unix();
         let {
           data: { liquidityMiningCampaigns },
         } = await client.query({

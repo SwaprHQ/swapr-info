@@ -158,8 +158,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
       setMaxPage(
         Math.max(
           1,
-          Math.floor(Object.keys(campaigns).length / ITEMS_PER_PAGE) +
-          extraPages
+          Math.floor(Object.keys(campaigns).length / ITEMS_PER_PAGE) + extraPages
         )
       );
     }
@@ -234,7 +233,6 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 justifyContent="flex-end"
               />
               <DataText flexBasis={"30%"} textAlign="right" justifyContent="flex-end">
-                {/* TOP LINE */}
                 {formattedNum(pairData.stakablePair.reserve0)}
               </DataText>
               <FormattedName
@@ -259,7 +257,6 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 justifyContent="flex-end"
               />
               <DataText flexBasis={"30%"} textAlign="right" justifyContent="flex-end">
-                {/* BOTTOM LINE */}
                 {formattedNum(pairData.stakablePair.reserve1)}
               </DataText>
               <FormattedName

@@ -32,7 +32,14 @@ export function useTokenIcon(address) {
           tokenListURL =
             "https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU";
         }
-        const response = await fetch(tokenListURL);
+
+        let response;
+        try {
+          response = await fetch(tokenListURL);
+        } catch (error) {
+          console.warn(`Errow while fetching token list ${error}`);
+          return;
+        }
         if (!response.ok) {
           console.warn(`could not fetch token list at ${tokenListURL}`);
           return;

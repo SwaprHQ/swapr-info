@@ -245,7 +245,8 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
-                style={{ flexBasis: "30%", textAlign: "left" }}
+                flexBasis={"30%"}
+                textAlign={"left"}
               />
             </AutoRow>
             <AutoRow justifyContent={"space-between"} flexDirection={"row"} style={{ margin: "auto" }}>
@@ -269,7 +270,8 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
-                style={{ flexBasis: "30%", textAlign: "left" }}
+                flexBasis={"30%"}
+                textAlign={"left"}
               />
             </AutoRow>
           </DataText>

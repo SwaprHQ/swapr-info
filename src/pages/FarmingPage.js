@@ -4,76 +4,40 @@ import "feather-icons";
 import { TYPE } from "../Theme";
 import Panel from "../components/Panel";
 import {
-  useLiqudityMiningCampaignData,
+  useLiquidityMiningCampaignData,
 } from "../contexts/PairData";
+
 import { PageWrapper, FullWrapper } from "../components";
 import { RowBetween } from "../components/Row";
 import Search from "../components/Search";
 import DropdownSelect from "../components/DropdownSelect";
 import { useMedia } from "react-use";
 import FarmingList from "../components/FarmingList";
-import memoize from "../utils/memoize";
 
 function FarmingPage() {
-  // UNIX time
-  const timeNow = Math.floor(Date.now() / 1000);
 
-  const campaignData = useLiqudityMiningCampaignData();
-  const [campaigns, setCampaigns] = useState(campaignData);
+  const activeCampaigns = useLiquidityMiningCampaignData("active");
+  const expiredCampaigns = useLiquidityMiningCampaignData("expired");
+  const [campaigns, setCampaigns] = useState({});
   const [campaignStatus, setCampaignStatus] = useState("active");
 
   useEffect(() => {
-    if (campaignData) {
-      filterCampaigns("active");
+    if (campaignStatus === "active") {
+      setCampaigns(activeCampaigns);
+    } else if (campaignStatus === "expired") {
+      setCampaigns(expiredCampaigns);
     }
-  }, [campaignData]);
-
-  const filterCampaigns = (status) => {
-    if (!campaignData) { return };
-    if (status === "active") {
-      const filtered = memoizedActiveCampaigns();
-      setCampaigns(filtered);
-    } else if (status === "expired") {
-      const filtered = memoizedExpiredCampaigns();
-      setCampaigns(filtered);
-    }
-    setCampaignStatus(status);
-  }
-
-  const activeCampaigns = () => {
-    return Object.keys(campaignData)
-      .filter(key => campaignData[key].startsAt < timeNow && campaignData[key].endsAt > timeNow)
-      .reduce((obj, key) => {
-        return {
-          ...obj,
-          [key]: campaignData[key]
-        };
-      }, {});
-  }
-
-  const expiredCampaigns = () => {
-    return Object.keys(campaignData)
-      .filter(key => campaignData[key].endsAt < timeNow)
-      .reduce((obj, key) => {
-        return {
-          ...obj,
-          [key]: campaignData[key]
-        };
-      }, {});
-  }
+  }, [campaignStatus, activeCampaigns, expiredCampaigns]);
 
   const options = {
     "expired": "Expired Campaigns",
     "active": "Active Campaigns"
   }
 
-  const handleFilterCampaigns = (selected) => {
+  const handleUpdateCampaignStatus = (selected) => {
     const status = Object.keys(options).find(key => options[key] === selected);
-    filterCampaigns(status);
+    setCampaignStatus(status);
   }
-
-  const memoizedActiveCampaigns = memoize(activeCampaigns);
-  const memoizedExpiredCampaigns = memoize(expiredCampaigns);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -91,7 +55,7 @@ function FarmingPage() {
         <DropdownSelect
           options={options}
           active={options[campaignStatus]}
-          setActive={handleFilterCampaigns}
+          setActive={handleUpdateCampaignStatus}
           color={"#4526A2"}
           width={"180px"}
         />

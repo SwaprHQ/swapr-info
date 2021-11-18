@@ -53,6 +53,7 @@ const OptionsRow = styled.div`
 const CHART_VIEW = {
   VOLUME: "Volume",
   LIQUIDITY: "Liquidity",
+  UTILIZATION: "Utilization",
   RATE0: "Rate 0",
   RATE1: "Rate 1",
 };
@@ -105,6 +106,10 @@ const PairChart = ({ address, color, base0, base1 }) => {
 
   let utcStartTime = getTimeframe(timeWindow);
   chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
+  chartData = chartData?.map((entry) => {
+    entry.utilization = entry.dailyVolumeUSD / entry.reserveUSD * 100;
+    return entry;
+  })
 
   if (chartData && chartData.length === 0) {
     return (
@@ -171,6 +176,15 @@ const PairChart = ({ address, color, base0, base1 }) => {
               }}
             >
               Volume
+            </OptionButton>
+            <OptionButton
+              active={chartFilter === CHART_VIEW.UTILIZATION}
+              onClick={() => {
+                setTimeWindow(timeframeOptions.ALL_TIME);
+                setChartFilter(CHART_VIEW.UTILIZATION);
+              }}
+            >
+              Utilization
             </OptionButton>
             <OptionButton
               active={chartFilter === CHART_VIEW.RATE0}
@@ -273,6 +287,70 @@ const PairChart = ({ address, color, base0, base1 }) => {
               type="monotone"
               name={" (USD)"}
               dataKey={"reserveUSD"}
+              yAxisId={0}
+              stroke={darken(0.12, color)}
+              fill="url(#colorUv)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
+
+      {chartFilter === CHART_VIEW.UTILIZATION && (
+        <ResponsiveContainer aspect={aspect}>
+          <AreaChart
+            margin={{ top: 0, right: 10, bottom: 6, left: 0 }}
+            barCategoryGap={1}
+            data={chartData}
+          >
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={color} stopOpacity={0.35} />
+                <stop offset="95%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              tickLine={false}
+              axisLine={false}
+              interval="preserveEnd"
+              tickMargin={14}
+              minTickGap={80}
+              tickFormatter={(tick) => toNiceDate(tick)}
+              dataKey="date"
+              tick={{ fill: textColor }}
+              type={"number"}
+              domain={["dataMin", "dataMax"]}
+            />
+            <YAxis
+              type="number"
+              orientation="right"
+              tickFormatter={(tick) => toK(tick) + "%"}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveEnd"
+              minTickGap={80}
+              yAxisId={0}
+              tickMargin={16}
+              tick={{ fill: textColor }}
+            />
+            <Tooltip
+              cursor={true}
+              formatter={(val) => formattedNum(val, false) + "%"}
+              labelFormatter={(label) => toNiceDateYear(label)}
+              labelStyle={{ paddingTop: 4 }}
+              contentStyle={{
+                padding: "10px 14px",
+                borderRadius: 10,
+                borderColor: color,
+                color: "black",
+              }}
+              wrapperStyle={{ top: -70, left: -10 }}
+            />
+            <Area
+              strokeWidth={2}
+              dot={false}
+              type="monotone"
+              name={"Utilization"}
+              dataKey={"utilization"}
               yAxisId={0}
               stroke={darken(0.12, color)}
               fill="url(#colorUv)"

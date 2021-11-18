@@ -59,12 +59,12 @@ dayjs.extend(utc);
 export function safeAccess(object, path) {
   return object
     ? path.reduce(
-        (accumulator, currentValue) =>
-          accumulator && accumulator[currentValue]
-            ? accumulator[currentValue]
-            : null,
-        object
-      )
+      (accumulator, currentValue) =>
+        accumulator && accumulator[currentValue]
+          ? accumulator[currentValue]
+          : null,
+      object
+    )
     : null;
 }
 
@@ -93,9 +93,9 @@ function reducer(state, { type, payload }) {
       const { topPairs } = payload;
       const newTopPairs = topPairs
         ? topPairs.reduce((reducedPairs, pair) => {
-            reducedPairs[pair.id] = pair;
-            return reducedPairs;
-          }, {})
+          reducedPairs[pair.id] = pair;
+          return reducedPairs;
+        }, {})
         : {};
       return {
         ...newTopPairs,
@@ -302,40 +302,40 @@ async function getBulkPairData(
 
     let pairData = await Promise.all(
       current &&
-        current.data.pairs.map(async (pair) => {
-          let data = pair;
-          let oneDayHistory = oneDayData?.[pair.id];
-          if (!oneDayHistory) {
-            let newData = await client.query({
-              query: PAIR_DATA(pair.id, b1),
-            });
-            oneDayHistory = newData.data.pairs[0];
-          }
-          let twoDayHistory = twoDayData?.[pair.id];
-          if (!twoDayHistory) {
-            let newData = await client.query({
-              query: PAIR_DATA(pair.id, b2),
-            });
-            twoDayHistory = newData.data.pairs[0];
-          }
-          let oneWeekHistory = oneWeekData?.[pair.id];
-          if (!oneWeekHistory) {
-            let newData = await client.query({
-              query: PAIR_DATA(pair.id, bWeek),
-            });
-            oneWeekHistory = newData.data.pairs[0];
-          }
-          data = parseData(
-            data,
-            oneDayHistory,
-            twoDayHistory,
-            oneWeekHistory,
-            nativeCurrencyPrice,
-            b1
-          );
-          data.swapFee = swapFees[pair.id] || 25; // 25 bips is the default swap fee, fallback to it
-          return data;
-        })
+      current.data.pairs.map(async (pair) => {
+        let data = pair;
+        let oneDayHistory = oneDayData?.[pair.id];
+        if (!oneDayHistory) {
+          let newData = await client.query({
+            query: PAIR_DATA(pair.id, b1),
+          });
+          oneDayHistory = newData.data.pairs[0];
+        }
+        let twoDayHistory = twoDayData?.[pair.id];
+        if (!twoDayHistory) {
+          let newData = await client.query({
+            query: PAIR_DATA(pair.id, b2),
+          });
+          twoDayHistory = newData.data.pairs[0];
+        }
+        let oneWeekHistory = oneWeekData?.[pair.id];
+        if (!oneWeekHistory) {
+          let newData = await client.query({
+            query: PAIR_DATA(pair.id, bWeek),
+          });
+          oneWeekHistory = newData.data.pairs[0];
+        }
+        data = parseData(
+          data,
+          oneDayHistory,
+          twoDayHistory,
+          oneWeekHistory,
+          nativeCurrencyPrice,
+          b1
+        );
+        data.swapFee = swapFees[pair.id] || 25; // 25 bips is the default swap fee, fallback to it
+        return data;
+      })
     );
     return pairData;
   } catch (e) {
@@ -453,6 +453,7 @@ const getPairChartData = async (client, pairAddress) => {
       dayIndexArray.push(data[i]);
       dayData.dailyVolumeUSD = parseFloat(dayData.dailyVolumeUSD);
       dayData.reserveUSD = parseFloat(dayData.reserveUSD);
+      dayData.utilization = parseFloat(dayData.dailyVolumeUSD / dayData.reserveUSD) * 100;
     });
 
     if (data[0]) {
@@ -469,6 +470,7 @@ const getPairChartData = async (client, pairAddress) => {
             dayString: nextDay,
             dailyVolumeUSD: 0,
             reserveUSD: latestLiquidityUSD,
+            utilization: 0,
           });
         } else {
           latestLiquidityUSD = dayIndexArray[index].reserveUSD;

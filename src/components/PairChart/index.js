@@ -106,10 +106,6 @@ const PairChart = ({ address, color, base0, base1 }) => {
 
   let utcStartTime = getTimeframe(timeWindow);
   chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
-  chartData = chartData?.map((entry) => {
-    entry.utilization = entry.dailyVolumeUSD / entry.reserveUSD * 100;
-    return entry;
-  })
 
   if (chartData && chartData.length === 0) {
     return (

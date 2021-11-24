@@ -453,7 +453,7 @@ const getPairChartData = async (client, pairAddress) => {
       dayIndexArray.push(data[i]);
       dayData.dailyVolumeUSD = parseFloat(dayData.dailyVolumeUSD);
       dayData.reserveUSD = parseFloat(dayData.reserveUSD);
-      dayData.utilization = parseFloat(dayData.dailyVolumeUSD / dayData.reserveUSD) * 100;
+      dayData.utilization = parseFloat(dayData.reserveUSD === 0 ? 0 : dayData.dailyVolumeUSD / dayData.reserveUSD) * 100;
     });
 
     if (data[0]) {

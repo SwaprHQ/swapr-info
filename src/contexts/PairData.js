@@ -63,6 +63,11 @@ const UPDATE_MINING_DATA = "UPDATE_MINING_DATA";
 const UPDATE_TOP_PAIRS = "UPDATE_TOP_PAIRS";
 const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 
+export const STATUS = {
+  ACTIVE: "active",
+  EXPIRED: "expired"
+}
+
 dayjs.extend(utc);
 
 export function safeAccess(object, path) {
@@ -821,16 +826,18 @@ export function usePairTransactions(pairAddress) {
   return pairTxns;
 }
 
-export function useLiquidityMiningCampaignData(status = "active") {
+export function useLiquidityMiningCampaignData() {
   const client = useSwaprSubgraphClient();
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
-  const miningData = state?.[status];
   const nativePrice = useNativeCurrencyPrice();
 
+  let miningData = {};
+  Object.keys(STATUS).forEach((key) => miningData[STATUS[key]] = state?.[STATUS[key]]);
+
   useEffect(() => {
-    async function fetchData() {
-      if (!miningData) {
+    async function fetchData(status) {
+      if (!miningData[status]) {
         const time = dayjs.utc().unix();
         let {
           data: { liquidityMiningCampaigns },
@@ -898,7 +905,8 @@ export function useLiquidityMiningCampaignData(status = "active") {
       }
     }
 
-    fetchData();
+    Object.keys(STATUS).forEach(key => fetchData(STATUS[key]));
+
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, selectedNetwork, updateMiningData, miningData]);
 

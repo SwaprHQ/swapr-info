@@ -4,6 +4,7 @@ import "feather-icons";
 import { TYPE } from "../Theme";
 import Panel from "../components/Panel";
 import {
+  STATUS,
   useLiquidityMiningCampaignData,
 } from "../contexts/PairData";
 
@@ -16,27 +17,21 @@ import FarmingList from "../components/FarmingList";
 
 function FarmingPage() {
 
-  const activeCampaigns = useLiquidityMiningCampaignData("active");
-  const expiredCampaigns = useLiquidityMiningCampaignData("expired");
+  const miningData = useLiquidityMiningCampaignData();
   const [campaigns, setCampaigns] = useState({});
   const [campaignStatus, setCampaignStatus] = useState("active");
 
   useEffect(() => {
-    if (campaignStatus === "active") {
-      setCampaigns(activeCampaigns);
-    } else if (campaignStatus === "expired") {
-      setCampaigns(expiredCampaigns);
+    if (campaignStatus === STATUS.ACTIVE) {
+      setCampaigns(miningData[STATUS.ACTIVE]);
+    } else if (campaignStatus === STATUS.EXPIRED) {
+      setCampaigns(miningData[STATUS.EXPIRED]);
     }
-  }, [campaignStatus, activeCampaigns, expiredCampaigns]);
-
-  const options = {
-    "expired": "Expired Campaigns",
-    "active": "Active Campaigns"
-  }
+  }, [campaignStatus, miningData]);
 
   const handleUpdateCampaignStatus = (selected) => {
-    const status = Object.keys(options).find(key => options[key] === selected);
-    setCampaignStatus(status);
+    const key = Object.keys(STATUS).find(k => selected.toLowerCase().includes(STATUS[k]));
+    setCampaignStatus(STATUS[key]);
   }
 
   useEffect(() => {
@@ -53,8 +48,8 @@ function FarmingPage() {
           {!below800 && <Search small={true} />}
         </RowBetween>
         <DropdownSelect
-          options={options}
-          active={options[campaignStatus]}
+          options={["Active Campaigns", "Expired Campaigns"]}
+          active={campaignStatus === STATUS.ACTIVE ? "Active Campaigns" : "Expired Campaigns"}
           setActive={handleUpdateCampaignStatus}
           color={"#4526A2"}
           width={"180px"}

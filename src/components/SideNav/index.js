@@ -10,6 +10,7 @@ import { withRouter } from "react-router-dom";
 import { TrendingUp, List, PieChart, Disc, Menu } from "react-feather";
 import Link from "../Link";
 import { useSessionStart } from "../../contexts/Application";
+import farming from "../../assets/farming.svg";
 import DropdownSelect from "../DropdownSelect";
 import {
   useSelectedNetwork,
@@ -212,6 +213,24 @@ function SideNav({ history }) {
                   >
                     <PieChart size={20} style={{ marginRight: ".75rem" }} />
                     Pairs
+                  </Option>
+                </BasicLink>
+                <BasicLink to="/farming">
+                  <Option
+                    activeText={
+                      (history.location.pathname.split("/")[1] === "farming" ||
+                        history.location.pathname.split("/")[1] ===
+                          "farming") ??
+                      undefined
+                    }
+                  >
+                    <img
+                      style={{ marginRight: ".75rem" }}
+                      width={"20px"}
+                      src={farming}
+                      alt="farming"
+                    />
+                    Farming
                   </Option>
                 </BasicLink>
 

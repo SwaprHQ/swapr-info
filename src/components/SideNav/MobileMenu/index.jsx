@@ -6,6 +6,7 @@ import { BasicLink } from "../../Link";
 import { Option } from "../";
 import { AutoColumn } from "../../Column";
 import Row from "../../Row";
+import farming from "../../../assets/farming.svg";
 
 const StyledIcon = styled(X)`
   color: #fff;
@@ -44,6 +45,23 @@ export const MobileMenu = ({ onClose, ...rest }) => {
         >
           <PieChart size={20} style={{ marginRight: ".75rem" }} />
           Pairs
+        </Option>
+      </BasicLink>
+      <BasicLink to="/farming" onClick={onClose}>
+        <Option
+          activeText={
+            (history.location.pathname.split("/")[1] === "farming" ||
+              history.location.pathname.split("/")[1] === "farming") ??
+            undefined
+          }
+        >
+          <img
+            style={{ marginRight: ".75rem" }}
+            width={"20px"}
+            src={farming}
+            alt="farming"
+          />
+          Farming
         </Option>
       </BasicLink>
 

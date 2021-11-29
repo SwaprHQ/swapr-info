@@ -16,6 +16,7 @@ import {
   PAIRS_BULK,
   PAIRS_HISTORICAL_BULK,
   HOURLY_PAIR_RATES,
+  liquidityMiningCampaignsQuery,
 } from "../apollo/queries";
 import multicallAbi from "../abi/multicall.json";
 import { Interface } from "@ethersproject/abi";
@@ -33,9 +34,12 @@ import {
   getBlocksFromTimestamps,
   getTimestampsForChanges,
   splitQuery,
+  toLiquidityMiningCampaign,
+  getStakedAmountUSD,
 } from "../utils";
 import {
   CHAIN_READONLY_PROVIDERS,
+  ChainIdForSupportedNetwork,
   MULTICALL_ADDRESS,
   timeframeOptions,
 } from "../constants";
@@ -46,11 +50,16 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
+import { TokenAmount, Token, Pair, Currency} from "@swapr/sdk";
+import { getAddress } from "@ethersproject/address";
+import { parseUnits } from "@ethersproject/units";
+
 
 const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_PAIR_TXNS = "UPDATE_PAIR_TXNS";
 const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
+const UPDATE_MINING_DATA = "UPDATE_MINING_DATA";
 const UPDATE_TOP_PAIRS = "UPDATE_TOP_PAIRS";
 const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 
@@ -85,6 +94,16 @@ function reducer(state, { type, payload }) {
         [pairAddress]: {
           ...state?.[pairAddress],
           ...data,
+        },
+      };
+    }
+    case UPDATE_MINING_DATA: {
+      const { liquidityMiningData } = payload;
+
+      return {
+        ...state,
+        [UPDATE_MINING_DATA]: {
+          ...liquidityMiningData,
         },
       };
     }
@@ -169,6 +188,14 @@ export default function Provider({ children }) {
       },
     });
   }, []);
+  const updateMiningData = useCallback((liquidityMiningData) => {
+    dispatch({
+      type: UPDATE_MINING_DATA,
+      payload: {
+        liquidityMiningData,
+      },
+    });
+  }, []);
 
   const updatePairTxns = useCallback((address, transactions) => {
     dispatch({
@@ -202,6 +229,7 @@ export default function Provider({ children }) {
           state,
           {
             update,
+            updateMiningData,
             updatePairTxns,
             updateChartData,
             updateTopPairs,
@@ -212,6 +240,7 @@ export default function Provider({ children }) {
         [
           state,
           update,
+          updateMiningData,
           updatePairTxns,
           updateChartData,
           updateTopPairs,
@@ -792,6 +821,93 @@ export function usePairTransactions(pairAddress) {
     checkForTxns();
   }, [pairTxns, pairAddress, updatePairTxns, client]);
   return pairTxns;
+}
+
+export function useLiqudityMiningCampaignData() {
+  const client = useSwaprSubgraphClient();
+  const selectedNetwork = useSelectedNetwork();
+  const [state, { updateMiningData }] = usePairDataContext();
+  const miningData = state?.[UPDATE_MINING_DATA];
+  const nativePrice = useNativeCurrencyPrice();
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!miningData) {
+        const time = dayjs.utc().unix();
+        let {
+          data: { liquidityMiningCampaigns },
+        } = await client.query({
+          query: liquidityMiningCampaignsQuery,
+          variables: {
+            currentTime: time,
+          },
+        });
+        const arrayWithMiningCampaignObject = [];
+
+        liquidityMiningCampaigns &&
+          liquidityMiningCampaigns.forEach((pair) => {
+            const pairData = pair.stakablePair;
+
+            const nativeCurrency = Currency.getNative(
+              ChainIdForSupportedNetwork[selectedNetwork]
+            );
+
+            const tokenA = new Token(
+              ChainIdForSupportedNetwork[selectedNetwork],
+              getAddress(pairData.token0.id),
+              parseInt(pairData.token0.decimals),
+              pairData.token0.symbol,
+              pairData.token0.name
+            );
+            const tokenB = new Token(
+              ChainIdForSupportedNetwork[selectedNetwork],
+              getAddress(pairData.token1.id),
+              parseInt(pairData.token1.decimals),
+              pairData.token1.symbol,
+              pairData.token1.name
+            );
+            const tokenAmountA = new TokenAmount(
+              tokenA,
+              parseUnits(pairData.reserve0, pairData.token0.decimals).toString()
+            );
+            const tokenAmountB = new TokenAmount(
+              tokenB,
+              parseUnits(pairData.reserve1, pairData.token1.decimals).toString()
+            );
+            const final = new Pair(tokenAmountA, tokenAmountB);
+
+            let miningCampaignObject = toLiquidityMiningCampaign(
+              ChainIdForSupportedNetwork[selectedNetwork],
+              final,
+              pairData.totalSupply,
+              pairData.reserveNativeCurrency,
+              pair,
+              nativeCurrency
+            );
+
+            const stakedPriceInUsd = getStakedAmountUSD(
+              miningCampaignObject,
+              nativePrice[0],
+              nativeCurrency
+            );
+
+            arrayWithMiningCampaignObject.push({
+              ...pair,
+              miningCampaignObject,
+              stakedPriceInUsd: stakedPriceInUsd.toFixed(2),
+            });
+          });
+
+        liquidityMiningCampaigns &&
+          updateMiningData(arrayWithMiningCampaignObject);
+      }
+    }
+
+    fetchData();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [client, selectedNetwork, updateMiningData, miningData]);
+
+  return miningData;
 }
 
 export function usePairChartData(pairAddress) {

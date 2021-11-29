@@ -722,7 +722,51 @@ const PairFields = `
     createdAtTimestamp
   }
 `;
-
+export const liquidityMiningCampaignsQuery = gql`
+  query liquidityMiningCampaigns($currentTime: Int!) {
+    liquidityMiningCampaigns(where: { endsAt_gt: $currentTime }) {
+      id
+      rewardTokens {
+        address: id
+        name
+        symbol
+        decimals
+        derivedNativeCurrency
+      }
+      rewardAmounts
+      stakedAmount
+      startsAt
+      endsAt
+      locked
+      stakingCap
+      stakablePair {
+        token0 {
+          id
+          derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
+          decimals
+          name
+          symbol
+        }
+        token1 {
+          id
+          derivedNativeCurrency
+          totalSupply
+          untrackedVolumeUSD
+          decimals
+          name
+          symbol
+        }
+        totalSupply
+        reserveUSD
+        reserveNativeCurrency
+        reserve1
+        reserve0
+      }
+    }
+  }
+`;
 export const PAIRS_CURRENT = gql`
   query pairs {
     pairs(

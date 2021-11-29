@@ -14,6 +14,17 @@ import {
   ChainId,
 } from "../constants";
 import Numeral from "numeral";
+import {
+  CurrencyAmount,
+  LiquidityMiningCampaign,
+  Price,
+  PricedToken,
+  PricedTokenAmount,
+  Token,
+  TokenAmount,
+  USD,
+} from "@swapr/sdk";
+import { parseUnits } from "@ethersproject/units";
 
 // format libraries
 const Decimal = toFormat(_Decimal);
@@ -599,4 +610,130 @@ export function isEquivalent(a, b) {
     }
   }
   return true;
+}
+
+export function getLpTokenPrice(
+  pair,
+  nativeCurrency,
+  totalSupply,
+  reserveNativeCurrency
+) {
+  const decimalTotalSupply = new Decimal(totalSupply);
+  // the following check avoids division by zero when total supply is zero
+  // (case in which a pair has been created but liquidity has never been proviided)
+  const priceDenominator = decimalTotalSupply.isZero()
+    ? "1"
+    : parseUnits(
+        new Decimal(totalSupply).toFixed(pair.liquidityToken.decimals),
+        pair.liquidityToken.decimals
+      ).toString();
+  return new Price(
+    pair.liquidityToken,
+    nativeCurrency,
+    priceDenominator,
+    parseUnits(
+      new Decimal(reserveNativeCurrency).toFixed(nativeCurrency.decimals),
+      nativeCurrency.decimals
+    ).toString()
+  );
+}
+
+export function toLiquidityMiningCampaign(
+  chainId,
+  targetedPair,
+  targetedPairLpTokenTotalSupply,
+  targetedPairReserveNativeCurrency,
+  campaign,
+  nativeCurrency
+) {
+  const rewards = campaign.rewardTokens.map((rewardToken, index) => {
+    const properRewardToken = new Token(
+      chainId,
+      getAddress(rewardToken.address),
+      parseInt(rewardToken.decimals),
+      rewardToken.symbol,
+      rewardToken.name
+    );
+    const rewardTokenPriceNativeCurrency = new Price(
+      properRewardToken,
+      nativeCurrency,
+      parseUnits("1", nativeCurrency.decimals).toString(),
+      parseUnits(
+        new Decimal(rewardToken.derivedNativeCurrency).toFixed(
+          nativeCurrency.decimals
+        ),
+        nativeCurrency.decimals
+      ).toString()
+    );
+    const pricedRewardToken = new PricedToken(
+      chainId,
+      getAddress(rewardToken.address),
+      parseInt(rewardToken.decimals),
+      rewardTokenPriceNativeCurrency,
+      rewardToken.symbol,
+      rewardToken.name
+    );
+    return new PricedTokenAmount(
+      pricedRewardToken,
+      parseUnits(campaign.rewardAmounts[index], rewardToken.decimals).toString()
+    );
+  });
+  const lpTokenPriceNativeCurrency = getLpTokenPrice(
+    targetedPair,
+    nativeCurrency,
+    targetedPairLpTokenTotalSupply,
+    targetedPairReserveNativeCurrency
+  );
+  const stakedPricedToken = new PricedToken(
+    chainId,
+    getAddress(targetedPair.liquidityToken.address),
+    targetedPair.liquidityToken.decimals,
+    lpTokenPriceNativeCurrency,
+    targetedPair.liquidityToken.symbol,
+    targetedPair.liquidityToken.name
+  );
+  const staked = new PricedTokenAmount(
+    stakedPricedToken,
+    parseUnits(campaign.stakedAmount, stakedPricedToken.decimals).toString()
+  );
+  return new LiquidityMiningCampaign(
+    campaign.startsAt,
+    campaign.endsAt,
+    targetedPair,
+    rewards,
+    staked,
+    campaign.locked,
+    new TokenAmount(
+      targetedPair.liquidityToken,
+      parseUnits(
+        campaign.stakingCap,
+        targetedPair.liquidityToken.decimals
+      ).toString()
+    ),
+    getAddress(campaign.id)
+  );
+}
+
+export function getStakedAmountUSD(
+  campaign,
+  nativeCurrencyUSDPrice,
+  nativeCurrency
+) {
+  const nativeCurrencyPrice = new Price(
+    nativeCurrency,
+    USD,
+    parseUnits("1", USD.decimals).toString(),
+    parseUnits(
+      new Decimal(nativeCurrencyUSDPrice).toFixed(18),
+      USD.decimals
+    ).toString()
+  );
+  return CurrencyAmount.usd(
+    parseUnits(
+      campaign.staked.nativeCurrencyAmount
+        .multiply(nativeCurrencyPrice)
+        .toFixed(USD.decimals),
+      USD.decimals
+    ).toString()
+  );
 }

@@ -66,13 +66,13 @@ const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 export const STATUS = {
   ACTIVE: "active",
   EXPIRED: "expired"
-}
+
 
 dayjs.extend(utc);
 
-export function safeAccess(object, path) {
-  return object
-    ? path.reduce(
+  export function safeAccess(object, path) {
+    return object
+    ?path.reduce(
       (accumulator, currentValue) =>
         accumulator && accumulator[currentValue]
           ? accumulator[currentValue]
@@ -485,6 +485,7 @@ const getPairChartData = async (client, pairAddress) => {
       dayIndexArray.push(data[i]);
       dayData.dailyVolumeUSD = parseFloat(dayData.dailyVolumeUSD);
       dayData.reserveUSD = parseFloat(dayData.reserveUSD);
+      dayData.utilization = parseFloat(dayData.reserveUSD === 0 ? 0 : dayData.dailyVolumeUSD / dayData.reserveUSD) * 100;
     });
 
     if (data[0]) {

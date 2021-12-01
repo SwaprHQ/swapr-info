@@ -502,6 +502,7 @@ const getPairChartData = async (client, pairAddress) => {
             dayString: nextDay,
             dailyVolumeUSD: 0,
             reserveUSD: latestLiquidityUSD,
+            utilization: 0,
           });
         } else {
           latestLiquidityUSD = dayIndexArray[index].reserveUSD;

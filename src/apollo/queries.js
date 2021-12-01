@@ -771,7 +771,7 @@ export const liquidityMiningCampaignsQuery = (status = "active", currentTime) =>
     }
   `;
   return gql(queryString);
-}
+};
 
 export const PAIRS_CURRENT = gql`
   query pairs {

@@ -22,11 +22,7 @@ function FarmingPage() {
   const [campaignStatus, setCampaignStatus] = useState("active");
 
   useEffect(() => {
-    if (campaignStatus === STATUS.ACTIVE) {
-      setCampaigns(miningData[STATUS.ACTIVE]);
-    } else if (campaignStatus === STATUS.EXPIRED) {
-      setCampaigns(miningData[STATUS.EXPIRED]);
-    }
+    setCampaigns(miningData[campaignStatus]);
   }, [campaignStatus, miningData]);
 
   const handleUpdateCampaignStatus = (selected) => {

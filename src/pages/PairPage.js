@@ -30,6 +30,9 @@ import DoubleTokenLogo from "../components/DoubleLogo";
 import TokenLogo from "../components/TokenLogo";
 import { Hover } from "../components";
 import { useNativeCurrencyPrice } from "../contexts/GlobalData";
+import {
+  usePairChartData,
+} from "../contexts/PairData";
 
 import FormattedName from "../components/FormattedName";
 import {
@@ -136,8 +139,8 @@ function PairPage({ pairAddress, history }) {
   const liquidity = trackedReserveUSD
     ? formattedNum(trackedReserveUSD, true)
     : reserveUSD
-    ? formattedNum(reserveUSD, true)
-    : "-";
+      ? formattedNum(reserveUSD, true)
+      : "-";
   const liquidityChange = formattedPercent(liquidityChangeUSD);
 
   // mark if using untracked liquidity
@@ -150,12 +153,12 @@ function PairPage({ pairAddress, history }) {
   const volume =
     oneDayVolumeUSD || oneDayVolumeUSD === 0
       ? formattedNum(
-          oneDayVolumeUSD === 0 ? oneDayVolumeUntracked : oneDayVolumeUSD,
-          true
-        )
+        oneDayVolumeUSD === 0 ? oneDayVolumeUntracked : oneDayVolumeUSD,
+        true
+      )
       : oneDayVolumeUSD === 0
-      ? "$0"
-      : "-";
+        ? "$0"
+        : "-";
 
   // mark if using untracked volume
   const [usingUtVolume, setUsingUtVolume] = useState(false);
@@ -166,6 +169,18 @@ function PairPage({ pairAddress, history }) {
   const volumeChange = formattedPercent(
     !usingUtVolume ? volumeChangeUSD : volumeChangeUntracked
   );
+
+  // utilization
+  const chartData = usePairChartData(pairAddress);
+  let utilization = 0
+  let prevUtilization = 0
+  if (chartData && chartData.length > 0) {
+    utilization = chartData[chartData.length - 1]?.utilization
+    if (chartData.length > 1) {
+      prevUtilization = chartData[chartData.length - 2]?.utilization
+    }
+  }
+  const utilizationChange = formattedPercent(prevUtilization === 0 ? 0 : (utilization - prevUtilization) / prevUtilization * 100)
 
   // get fees	  // get fees
   const fees =
@@ -180,19 +195,19 @@ function PairPage({ pairAddress, history }) {
   const token0USD =
     token0?.derivedNativeCurrency && nativeCurrencyPrice
       ? formattedNum(
-          parseFloat(token0.derivedNativeCurrency) *
-            parseFloat(nativeCurrencyPrice),
-          true
-        )
+        parseFloat(token0.derivedNativeCurrency) *
+        parseFloat(nativeCurrencyPrice),
+        true
+      )
       : "";
 
   const token1USD =
     token1?.derivedNativeCurrency && nativeCurrencyPrice
       ? formattedNum(
-          parseFloat(token1.derivedNativeCurrency) *
-            parseFloat(nativeCurrencyPrice),
-          true
-        )
+        parseFloat(token1.derivedNativeCurrency) *
+        parseFloat(nativeCurrencyPrice),
+        true
+      )
       : "";
 
   const selectedNetwork = useSelectedNetwork();
@@ -383,11 +398,10 @@ function PairPage({ pairAddress, history }) {
                   ml={"4px"}
                 >
                   {token0 && token1
-                    ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
-                        parseFloat(token0?.derivedNativeCurrency)
-                          ? "(" + token0USD + ")"
-                          : ""
-                      }`
+                    ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${parseFloat(token0?.derivedNativeCurrency)
+                      ? "(" + token0USD + ")"
+                      : ""
+                    }`
                     : "-"}
                 </TYPE.main>
               </RowFixed>
@@ -406,11 +420,10 @@ function PairPage({ pairAddress, history }) {
                   ml={"4px"}
                 >
                   {token0 && token1
-                    ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
-                        parseFloat(token1?.derivedNativeCurrency)
-                          ? "(" + token1USD + ")"
-                          : ""
-                      }`
+                    ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${parseFloat(token1?.derivedNativeCurrency)
+                      ? "(" + token1USD + ")"
+                      : ""
+                    }`
                     : "-"}
                 </TYPE.main>
               </RowFixed>
@@ -458,6 +471,26 @@ function PairPage({ pairAddress, history }) {
                       {volume}
                     </TYPE.main>
                     <TYPE.main>{volumeChange}</TYPE.main>
+                  </RowBetween>
+                </AutoColumn>
+              </Panel>
+              <Panel style={{ height: "100%" }}>
+                <AutoColumn gap="20px">
+                  <RowBetween>
+                    <TYPE.main>
+                      Utilization (24hrs)
+                    </TYPE.main>
+                    <div />
+                  </RowBetween>
+                  <RowBetween align="flex-end">
+                    <TYPE.main
+                      fontSize={"1.5rem"}
+                      lineHeight={1}
+                      fontWeight={500}
+                    >
+                      {formattedNum(utilization) + "%"}
+                    </TYPE.main>
+                    <TYPE.main>{utilizationChange}</TYPE.main>
                   </RowBetween>
                 </AutoColumn>
               </Panel>

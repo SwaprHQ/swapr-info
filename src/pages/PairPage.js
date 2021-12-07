@@ -172,12 +172,13 @@ function PairPage({ pairAddress, history }) {
 
   // utilization
   const chartData = usePairChartData(pairAddress);
+  const interval = 7 // so 1 week; set to 1 for one day
   let utilization = 0
   let prevUtilization = 0
-  if (chartData && chartData.length > 0) {
-    utilization = chartData[chartData.length - 1]?.utilization
-    if (chartData.length > 1) {
-      prevUtilization = chartData[chartData.length - 2]?.utilization
+  if (chartData && chartData.length >= interval) {
+    utilization = chartData.slice(chartData.length - interval).map(e => e?.utilization).reduce((cum, cur) => cum + cur, 0) / interval
+    if (chartData.length >= 2 * interval) {
+      prevUtilization = chartData.slice(chartData.length - 2 * interval, chartData.length - interval).map(e => e?.utilization).reduce((cum, cur) => cum + cur, 0) / interval
     }
   }
   const utilizationChange = formattedPercent(prevUtilization === 0 ? 0 : (utilization - prevUtilization) / prevUtilization * 100)
@@ -478,7 +479,7 @@ function PairPage({ pairAddress, history }) {
                 <AutoColumn gap="20px">
                   <RowBetween>
                     <TYPE.main>
-                      Utilization (24hrs)
+                      Average Utilization (7d)
                     </TYPE.main>
                     <div />
                   </RowBetween>

@@ -109,6 +109,13 @@ const DataText = styled(Flex)`
   }
 `;
 
+const FeeText = styled.div`
+background-color: rgba(255,255,255,0.15);
+border-radius: 6px;
+margin-left: 8px;
+padding: 2px 4px;
+`
+
 const SORT_FIELD = {
   LIQ: 0,
   VOL: 1,
@@ -171,7 +178,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
       const volume = formattedNum(pairData.oneDayVolumeUSD, true);
       const apy = formattedPercent(
         (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) /
-          pairData.reserveUSD
+        pairData.reserveUSD
       );
       return (
         <DashGrid
@@ -211,6 +218,9 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
                 link={true}
               />
             </CustomLink>
+            <FeeText>
+              {pairSwapFeePercentage * 100}%
+            </FeeText>
           </DataText>
           <DataText area="liq">{liquidity}</DataText>
           <DataText area="vol">{volume}</DataText>

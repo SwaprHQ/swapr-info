@@ -9,7 +9,11 @@ import React, {
 } from "react";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
-import { useTimeframe } from "./Application";
+import {
+  isSyncedBlockAboveThreshold,
+  useLatestBlocks,
+  useTimeframe,
+} from "./Application";
 import {
   getPercentChange,
   getBlockFromTimestamp,
@@ -485,7 +489,11 @@ const getGlobalTransactions = async (client) => {
 /**
  * Gets the current price of the selected network's native currency, 24 hour price, and % change between them
  */
-const getNativeCurrencyPrice = async (client, blockClient) => {
+const getNativeCurrencyPrice = async (
+  client,
+  blockClient,
+  latestSyncedBlock
+) => {
   const utcCurrentTime = dayjs();
   const utcOneDayBack = utcCurrentTime
     .subtract(1, "day")
@@ -497,7 +505,12 @@ const getNativeCurrencyPrice = async (client, blockClient) => {
   let priceChangeNativeCurrency = 0;
 
   try {
-    let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
+    // Override the block to latest block
+    let oneDayBlock =
+      latestSyncedBlock !== undefined
+        ? latestSyncedBlock
+        : await getBlockFromTimestamp(blockClient, utcOneDayBack);
+
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),
     });
@@ -704,15 +717,27 @@ export function useGlobalTransactions() {
 export function useNativeCurrencyPrice() {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
+  const [latestSyncedBlock, headBlock] = useLatestBlocks();
+  const selectedNetwork = useSelectedNetwork();
   const [state, { updateNativeCurrencyPrice }] = useGlobalDataContext();
   const nativeCurrencyPrice = state?.[NATIVE_CURRENCY_PRICE_KEY];
   const nativeCurrencyPriceOld = state?.["oneDayPrice"];
 
   useEffect(() => {
     async function checkForNativeCurrencyPrice() {
+      const capLatestSyncedBlock = isSyncedBlockAboveThreshold(
+        latestSyncedBlock,
+        headBlock,
+        selectedNetwork
+      )
+        ? latestSyncedBlock
+        : undefined;
+
+      console.log({ capLatestSyncedBlock });
       let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
         client,
-        blockClient
+        blockClient,
+        capLatestSyncedBlock
       );
       if (newPrice !== nativeCurrencyPrice) {
         updateNativeCurrencyPrice(newPrice, oneDayPrice, priceChange);

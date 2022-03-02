@@ -7,7 +7,12 @@ import React, {
   useState,
   useEffect,
 } from "react";
-import { NETWORK_SUBGRAPH_URLS, timeframeOptions } from "../constants";
+import {
+  BLOCK_DIFFERENCE_THRESHOLD,
+  DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
+  NETWORK_SUBGRAPH_URLS,
+  timeframeOptions,
+} from "../constants";
 import dayjs from "dayjs";
 import utc from "dayjs/plugin/utc";
 import { healthClient } from "../apollo/client";
@@ -33,9 +38,9 @@ const LATEST_BLOCK = "LATEST_BLOCK";
 const HEAD_BLOCK = "HEAD_BLOCK";
 const BAD_IMAGE_URLS = "BAD_IMAGE_URLS";
 
-const ApplicationContext = createContext();
+export const ApplicationContext = createContext();
 
-function useApplicationContext() {
+export function useApplicationContext() {
   return useContext(ApplicationContext);
 }
 
@@ -239,12 +244,10 @@ export function useLatestBlocks() {
           },
         })
         .then((res) => {
-          const syncedBlock =
-            res.data.indexingStatusForCurrentVersion.chains[0].latestBlock
-              .number;
-          const headBlock =
-            res.data.indexingStatusForCurrentVersion.chains[0].chainHeadBlock
-              .number;
+          const [chainData] = res.data.indexingStatusForCurrentVersion.chains;
+          const syncedBlock = parseInt(chainData?.latestBlock?.number);
+          const headBlock = parseInt(chainData?.chainHeadBlock?.number);
+
           if (syncedBlock && headBlock) {
             updateLatestBlock(syncedBlock);
             updateHeadBlock(headBlock);
@@ -260,6 +263,23 @@ export function useLatestBlocks() {
   }, [latestBlock, updateHeadBlock, updateLatestBlock, network]);
 
   return [latestBlock, headBlock];
+}
+
+export function isSyncedBlockAboveThreshold(
+  latestBlock,
+  headBlock,
+  selectedNetwork = undefined
+) {
+  if (isNaN(latestBlock) || isNaN(headBlock)) {
+    return false;
+  }
+
+  const threshold = selectedNetwork
+    ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] ||
+      DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
+    : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD;
+
+  return Math.abs(latestBlock - headBlock) > threshold;
 }
 
 export function useTimeframe() {

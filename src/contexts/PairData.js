@@ -43,7 +43,7 @@ import {
   MULTICALL_ADDRESS,
   timeframeOptions,
 } from "../constants";
-import { useLatestBlocks } from "./Application";
+import { isSyncedBlockAboveThreshold, useLatestBlocks } from "./Application";
 import { updateNameData } from "../utils/data";
 import {
   useBlocksSubgraphClient,
@@ -290,14 +290,22 @@ async function getBulkPairData(
   blockClient,
   pairList,
   nativeCurrencyPrice,
-  selectedNetwork
+  selectedNetwork,
+  overrideBlocks
 ) {
   const [t1, t2, tWeek] = getTimestampsForChanges();
-  let [
-    { number: b1 },
-    { number: b2 },
-    { number: bWeek },
-  ] = await getBlocksFromTimestamps(blockClient, [t1, t2, tWeek]);
+
+  let b1, b2, bWeek;
+
+  if (Array.isArray(overrideBlocks) && overrideBlocks.length === 3) {
+    [b1, b2, bWeek] = overrideBlocks;
+  } else {
+    [
+      { number: b1 },
+      { number: b2 },
+      { number: bWeek },
+    ] = await getBlocksFromTimestamps(blockClient, [t1, t2, tWeek]);
+  }
 
   try {
     let current = await client.query({
@@ -607,6 +615,7 @@ export function Updater() {
   const blockClient = useBlocksSubgraphClient();
   const [, { updateTopPairs }] = usePairDataContext();
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+  const [latestSyncedBlock, headBlock] = useLatestBlocks();
 
   useEffect(() => {
     async function getData() {
@@ -622,13 +631,22 @@ export function Updater() {
         return pair.id;
       });
 
+      const overrideBlocks = isSyncedBlockAboveThreshold(
+        latestSyncedBlock,
+        headBlock,
+        selectedNetwork
+      )
+        ? [latestSyncedBlock, latestSyncedBlock, latestSyncedBlock]
+        : undefined;
+
       // get data for every pair in list
       let topPairs = await getBulkPairData(
         client,
         blockClient,
         formattedPairs,
         nativeCurrencyPrice,
-        selectedNetwork
+        selectedNetwork,
+        overrideBlocks
       );
       topPairs && updateTopPairs(topPairs);
     }
@@ -639,6 +657,8 @@ export function Updater() {
     client,
     blockClient,
     selectedNetwork,
+    latestSyncedBlock,
+    headBlock,
   ]);
   return null;
 }

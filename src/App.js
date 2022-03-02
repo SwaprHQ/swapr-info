@@ -13,9 +13,10 @@ import AllPairsPage from "./pages/AllPairsPage";
 import SideNav from "./components/SideNav";
 import AccountLookup from "./pages/AccountLookup";
 import {
+  DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
+  BLOCK_DIFFERENCE_THRESHOLD,
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
-  SupportedNetwork,
 } from "./constants";
 import LocalLoader from "./components/LocalLoader";
 import { useLatestBlocks } from "./contexts/Application";
@@ -93,14 +94,6 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
       </ContentWrapper>
     </>
   );
-};
-
-const DEFAULT_BLOCK_DIFFERENCE_THRESHOLD = 30;
-
-const BLOCK_DIFFERENCE_THRESHOLD = {
-  [SupportedNetwork.MAINNET]: DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
-  [SupportedNetwork.XDAI]: DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
-  [SupportedNetwork.ARBITRUM_ONE]: 200, // Arbitrum one has multiple blocks in the same second
 };
 
 function App() {

@@ -22,33 +22,40 @@ export function useTokenIcon(address) {
           `could not fetch token logos for network ${selectedNetwork}`
         );
       }
-      if (Object.keys(CACHE[selectedNetwork]).length === 0) {
-        let tokenListURL = "";
-        if (selectedNetwork === SupportedNetwork.MAINNET) {
-          tokenListURL = "https://tokens.coingecko.com/uniswap/all.json"; // coingecko list used for mainnet
-        } else if (selectedNetwork === SupportedNetwork.XDAI) {
-          tokenListURL = "https://tokens.honeyswap.org"; // honeyswap list used for xdai
-        } else {
-          tokenListURL =
-            "https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU";
+
+      try {
+        if (Object.keys(CACHE[selectedNetwork]).length === 0) {
+          let tokenListURL = "";
+          if (selectedNetwork === SupportedNetwork.MAINNET) {
+            tokenListURL = "https://tokens.coingecko.com/uniswap/all.json"; // coingecko list used for mainnet
+          } else if (selectedNetwork === SupportedNetwork.XDAI) {
+            tokenListURL = "https://tokens.honeyswap.org"; // honeyswap list used for xdai
+          } else {
+            tokenListURL =
+              "https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU"; // Swapr token list
+          }
+          const response = await fetch(tokenListURL);
+          if (!response.ok) {
+            console.warn(`could not fetch token list at ${tokenListURL}`);
+            return;
+          }
+          const { tokens } = await response.json();
+          const selectedNetworkChainId =
+            ChainIdForSupportedNetwork[selectedNetwork];
+          CACHE[selectedNetwork] = tokens.reduce((cache, token) => {
+            if (token.chainId !== selectedNetworkChainId) return cache;
+            cache[token.address.toLowerCase()] = token.logoURI;
+            return cache;
+          }, {});
         }
-        const response = await fetch(tokenListURL);
-        if (!response.ok) {
-          console.warn(`could not fetch token list at ${tokenListURL}`);
-          return;
-        }
-        const { tokens } = await response.json();
-        const selectedNetworkChainId =
-          ChainIdForSupportedNetwork[selectedNetwork];
-        CACHE[selectedNetwork] = tokens.reduce((cache, token) => {
-          if (token.chainId !== selectedNetworkChainId) return cache;
-          cache[token.address.toLowerCase()] = token.logoURI;
-          return cache;
-        }, {});
+        if (!cancelled) setUri(CACHE[selectedNetwork][address.toLowerCase()]);
+      } catch (e) {
+        console.log(`Failed to fetch token logo for ${address}`, e);
       }
-      if (!cancelled) setUri(CACHE[selectedNetwork][address.toLowerCase()]);
     }
+
     fetchTokenLogo();
+
     return () => {
       cancelled = true;
     };

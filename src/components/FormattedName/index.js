@@ -7,8 +7,6 @@ const TextWrapper = styled.div`
   margin-left: ${({ margin }) => margin && '4px'};
   color: ${({ theme, link }) => (link ? theme.blue : theme.text1)};
   font-size: ${({ fontSize }) => fontSize ?? 'inherit'};
-  flex-basis: ${({ flexBasis }) => (flexBasis ? flexBasis : '')};
-  text-align: ${({ textAlign }) => (textAlign ? textAlign : '')};
 
   :hover {
     cursor: pointer;
@@ -20,7 +18,7 @@ const TextWrapper = styled.div`
 `
 
 const FormattedName = ({ text, maxCharacters, margin = false, adjustSize = false, fontSize, link, ...rest }) => {
-  const [showHover, setShowHover] = useState(false);
+  const [showHover, setShowHover] = useState(false)
 
   if (!text) {
     return ''

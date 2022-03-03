@@ -13,7 +13,7 @@ const Wrapper = styled.div`
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
   border: 1px solid ${({ color, theme }) => color || theme.primary4};
-  width: ${({ width }) => (width ? width : "100px")};
+  width: 100px;
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -50,7 +50,7 @@ const ArrowStyled = styled(Arrow)`
   margin-left: 6px;
 `;
 
-const DropdownSelect = ({ options, active, setActive, color, width = null }) => {
+const DropdownSelect = ({ options, active, setActive, color }) => {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -60,7 +60,7 @@ const DropdownSelect = ({ options, active, setActive, color, width = null }) => 
   });
 
   return (
-    <Wrapper open={showDropdown} color={color} ref={containerRef} width={width}>
+    <Wrapper open={showDropdown} color={color} ref={containerRef}>
       <RowBetween
         onClick={() => toggleDropdown(!showDropdown)}
         justify="center"

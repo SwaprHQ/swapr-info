@@ -50,7 +50,7 @@ import {
   useSelectedNetwork,
   useSwaprSubgraphClient,
 } from "./Network";
-import { TokenAmount, Token, Pair, Currency } from "@swapr/sdk";
+import { TokenAmount, Token, Pair, Currency} from "@swapr/sdk";
 import { getAddress } from "@ethersproject/address";
 import { parseUnits } from "@ethersproject/units";
 
@@ -63,16 +63,11 @@ const UPDATE_MINING_DATA = "UPDATE_MINING_DATA";
 const UPDATE_TOP_PAIRS = "UPDATE_TOP_PAIRS";
 const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 
-export const STATUS = {
-  ACTIVE: "active",
-  EXPIRED: "expired"
-
-
 dayjs.extend(utc);
 
-  export function safeAccess(object, path) {
-    return object
-    ?path.reduce(
+export function safeAccess(object, path) {
+  return object
+    ? path.reduce(
       (accumulator, currentValue) =>
         accumulator && accumulator[currentValue]
           ? accumulator[currentValue]
@@ -103,11 +98,11 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_MINING_DATA: {
-      const { status, liquidityMiningData } = payload;
+      const { liquidityMiningData } = payload;
 
       return {
         ...state,
-        [status]: {
+        [UPDATE_MINING_DATA]: {
           ...liquidityMiningData,
         },
       };
@@ -193,10 +188,12 @@ export default function Provider({ children }) {
       },
     });
   }, []);
-  const updateMiningData = useCallback((status, liquidityMiningData) => {
+  const updateMiningData = useCallback((liquidityMiningData) => {
     dispatch({
       type: UPDATE_MINING_DATA,
-      payload: { status, liquidityMiningData },
+      payload: {
+        liquidityMiningData,
+      },
     });
   }, []);
 
@@ -848,23 +845,24 @@ export function usePairTransactions(pairAddress) {
   return pairTxns;
 }
 
-export function useLiquidityMiningCampaignData() {
+export function useLiqudityMiningCampaignData() {
   const client = useSwaprSubgraphClient();
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
+  const miningData = state?.[UPDATE_MINING_DATA];
   const nativePrice = useNativeCurrencyPrice();
 
-  let miningData = {};
-  Object.keys(STATUS).forEach((key) => miningData[STATUS[key]] = state?.[STATUS[key]]);
-
   useEffect(() => {
-    async function fetchData(status) {
-      if (!miningData[status]) {
+    async function fetchData() {
+      if (!miningData) {
         const time = dayjs.utc().unix();
         let {
           data: { liquidityMiningCampaigns },
         } = await client.query({
-          query: liquidityMiningCampaignsQuery(status, time)
+          query: liquidityMiningCampaignsQuery,
+          variables: {
+            currentTime: time,
+          },
         });
         const arrayWithMiningCampaignObject = [];
 
@@ -923,12 +921,11 @@ export function useLiquidityMiningCampaignData() {
           });
 
         liquidityMiningCampaigns &&
-          updateMiningData(status, arrayWithMiningCampaignObject);
+          updateMiningData(arrayWithMiningCampaignObject);
       }
     }
 
-    Object.keys(STATUS).forEach(key => fetchData(STATUS[key]));
-
+    fetchData();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, selectedNetwork, updateMiningData, miningData]);
 

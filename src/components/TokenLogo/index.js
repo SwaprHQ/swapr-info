@@ -24,8 +24,6 @@ const Inline = styled.div`
   display: flex;
   align-items: center;
   align-self: center;
-  flex-basis: ${({ flexBasis }) => flexBasis};
-  justify-content: ${({ justifyContent }) => justifyContent};
 `;
 
 const Image = styled.img`
@@ -41,8 +39,6 @@ export default function TokenLogo({
   defaultText = "?",
   header = false,
   size = "24px",
-  flexBasis,
-  justifyContent,
   ...rest
 }) {
   const updateBadImageUrls = useBadImageUrlsUpdater();
@@ -77,7 +73,7 @@ export default function TokenLogo({
     const numberSize = size ? parseInt(size.replace("px", "")) : 24;
     const fontSize = Math.ceil(numberSize / 4.5);
     return (
-      <Inline flexBasis={flexBasis} justifyContent={justifyContent}>
+      <Inline>
         <svg height={numberSize} width={numberSize} {...rest} fill="none">
           <circle
             cx={numberSize / 2}
@@ -104,7 +100,7 @@ export default function TokenLogo({
   }
 
   return (
-    <Inline flexBasis={flexBasis} justifyContent={justifyContent}>
+    <Inline>
       <Image
         {...rest}
         alt=""

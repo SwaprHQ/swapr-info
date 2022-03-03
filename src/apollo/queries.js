@@ -484,15 +484,13 @@ export const GLOBAL_CHART = gql`
 export const GLOBAL_DATA = (factoryAddress, block) => {
   const queryString = ` query swaprFactories {
       swaprFactories(
-       ${
-         block
-           ? `block: { number: ${
-               block > FACTORY_STARTING_BLOCK[factoryAddress]
-                 ? block
-                 : FACTORY_STARTING_BLOCK[factoryAddress]
-             }}`
-           : ``
-       } 
+       ${block
+      ? `block: { number: ${block > FACTORY_STARTING_BLOCK[factoryAddress]
+        ? block
+        : FACTORY_STARTING_BLOCK[factoryAddress]
+      }}`
+      : ``
+    } 
        where: { id: "${factoryAddress}" }) {
         id
         totalVolumeUSD
@@ -722,51 +720,59 @@ const PairFields = `
     createdAtTimestamp
   }
 `;
-export const liquidityMiningCampaignsQuery = gql`
-  query liquidityMiningCampaigns($currentTime: Int!) {
-    liquidityMiningCampaigns(where: { endsAt_gt: $currentTime }) {
-      id
-      rewardTokens {
-        address: id
-        name
-        symbol
-        decimals
-        derivedNativeCurrency
-      }
-      rewardAmounts
-      stakedAmount
-      startsAt
-      endsAt
-      locked
-      stakingCap
-      stakablePair {
-        token0 {
-          id
-          derivedNativeCurrency
-          totalSupply
-          untrackedVolumeUSD
-          decimals
+
+// returns active campaigns by default
+// if status "expired" is passed it will return expired campaigns
+export const liquidityMiningCampaignsQuery = (status = "active", currentTime) => {
+  const endsAtP = status === "active" ? "endsAt_gt" : "endsAt_lte";
+  const queryString = `
+    query liquidityMiningCampaigns {
+      liquidityMiningCampaigns(where: { ${endsAtP}: ${currentTime} }) {
+        id
+        rewardTokens {
+          address: id
           name
           symbol
-        }
-        token1 {
-          id
-          derivedNativeCurrency
-          totalSupply
-          untrackedVolumeUSD
           decimals
-          name
-          symbol
+          derivedNativeCurrency
         }
-        totalSupply
-        reserveUSD
-        reserveNativeCurrency
-        reserve1
-        reserve0
+        rewardAmounts
+        stakedAmount
+        startsAt
+        endsAt
+        locked
+        stakingCap
+        stakablePair {
+          token0 {
+            id
+            derivedNativeCurrency
+            totalSupply
+            untrackedVolumeUSD
+            decimals
+            name
+            symbol
+          }
+          token1 {
+            id
+            derivedNativeCurrency
+            totalSupply
+            untrackedVolumeUSD
+            decimals
+            name
+            symbol
+          }
+          totalSupply
+          reserveUSD
+          reserveNativeCurrency
+          reserve1
+          reserve0
+        }
       }
     }
-  }
-`;
+  `;
+  return gql(queryString);
+};
+
 export const PAIRS_CURRENT = gql`
   query pairs {
     pairs(
@@ -783,9 +789,8 @@ export const PAIR_DATA = (pairAddress, block) => {
   const queryString = `
     ${PairFields}
     query pairs {
-      pairs(${
-        block ? `block: {number: ${block}}` : ``
-      } where: { id: "${pairAddress}"} ) {
+      pairs(${block ? `block: {number: ${block}}` : ``
+    } where: { id: "${pairAddress}"} ) {
         ...PairFields
       }
     }`;
@@ -910,9 +915,8 @@ export const TOKEN_DATA = (tokenAddress, block) => {
   const queryString = `
     ${TokenFields}
     query tokens {
-      tokens(${
-        block ? `block : {number: ${block}}` : ``
-      } where: {id:"${tokenAddress}"}) {
+      tokens(${block ? `block : {number: ${block}}` : ``
+    } where: {id:"${tokenAddress}"}) {
         ...TokenFields
       }
       pairs0: pairs(where: {token0: "${tokenAddress}"}, first: 50, orderBy: reserveUSD, orderDirection: desc){

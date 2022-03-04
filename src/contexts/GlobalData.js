@@ -733,7 +733,6 @@ export function useNativeCurrencyPrice() {
         ? latestSyncedBlock
         : undefined;
 
-      console.log({ capLatestSyncedBlock });
       let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
         client,
         blockClient,
@@ -744,7 +743,7 @@ export function useNativeCurrencyPrice() {
       }
     }
     checkForNativeCurrencyPrice();
-  }, [updateNativeCurrencyPrice, nativeCurrencyPrice, client, blockClient]);
+  }, [updateNativeCurrencyPrice, nativeCurrencyPrice, client, blockClient, latestSyncedBlock, headBlock , selectedNetwork]);
 
   return [nativeCurrencyPrice, nativeCurrencyPriceOld];
 }

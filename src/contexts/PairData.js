@@ -66,13 +66,14 @@ const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 export const STATUS = {
   ACTIVE: "active",
   EXPIRED: "expired"
+}
 
 
 dayjs.extend(utc);
 
-  export function safeAccess(object, path) {
-    return object
-    ?path.reduce(
+export function safeAccess(object, path) {
+  return object
+    ? path.reduce(
       (accumulator, currentValue) =>
         accumulator && accumulator[currentValue]
           ? accumulator[currentValue]

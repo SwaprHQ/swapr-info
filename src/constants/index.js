@@ -25,9 +25,9 @@ export const ChainIdForSupportedNetwork = Object.freeze({
 });
 
 export const NETWORK_SUBGRAPH_URLS = Object.freeze({
-  [SupportedNetwork.MAINNET]: "luzzif/swapr-mainnet-alpha",
-  [SupportedNetwork.XDAI]: "luzzif/swapr-xdai",
-  [SupportedNetwork.ARBITRUM_ONE]: "luzzif/swapr-arbitrum-one-v2",
+  [SupportedNetwork.MAINNET]: "dxgraphs/swapr-mainnet-v2",
+  [SupportedNetwork.XDAI]: "dxgraphs/swapr-xdai-v2",
+  [SupportedNetwork.ARBITRUM_ONE]: "dxgraphs/swapr-arbitrum-one-v3",
 });
 
 export const FACTORY_ADDRESS = {

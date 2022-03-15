@@ -646,10 +646,11 @@ export function toLiquidityMiningCampaign(
   campaign,
   nativeCurrency
 ) {
-  const rewards = campaign.rewardTokens.map((rewardToken, index) => {
+  const rewards = campaign.rewards.map((reward) => {
+    const rewardToken = reward.token;
     const properRewardToken = new Token(
       chainId,
-      getAddress(rewardToken.address),
+      getAddress(rewardToken.id),
       parseInt(rewardToken.decimals),
       rewardToken.symbol,
       rewardToken.name
@@ -667,7 +668,7 @@ export function toLiquidityMiningCampaign(
     );
     const pricedRewardToken = new PricedToken(
       chainId,
-      getAddress(rewardToken.address),
+      getAddress(rewardToken.id),
       parseInt(rewardToken.decimals),
       rewardTokenPriceNativeCurrency,
       rewardToken.symbol,
@@ -675,7 +676,7 @@ export function toLiquidityMiningCampaign(
     );
     return new PricedTokenAmount(
       pricedRewardToken,
-      parseUnits(campaign.rewardAmounts[index], rewardToken.decimals).toString()
+      parseUnits(reward.amount, rewardToken.decimals).toString()
     );
   });
   const lpTokenPriceNativeCurrency = getLpTokenPrice(

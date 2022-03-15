@@ -54,7 +54,6 @@ import { TokenAmount, Token, Pair, Currency } from "@swapr/sdk";
 import { getAddress } from "@ethersproject/address";
 import { parseUnits } from "@ethersproject/units";
 
-
 const RESET = "RESET";
 const UPDATE = "UPDATE";
 const UPDATE_PAIR_TXNS = "UPDATE_PAIR_TXNS";
@@ -65,21 +64,20 @@ const UPDATE_HOURLY_DATA = "UPDATE_HOURLY_DATA";
 
 export const STATUS = {
   ACTIVE: "active",
-  EXPIRED: "expired"
-}
-
+  EXPIRED: "expired",
+};
 
 dayjs.extend(utc);
 
 export function safeAccess(object, path) {
   return object
     ? path.reduce(
-      (accumulator, currentValue) =>
-        accumulator && accumulator[currentValue]
-          ? accumulator[currentValue]
-          : null,
-      object
-    )
+        (accumulator, currentValue) =>
+          accumulator && accumulator[currentValue]
+            ? accumulator[currentValue]
+            : null,
+        object
+      )
     : null;
 }
 
@@ -118,9 +116,9 @@ function reducer(state, { type, payload }) {
       const { topPairs } = payload;
       const newTopPairs = topPairs
         ? topPairs.reduce((reducedPairs, pair) => {
-          reducedPairs[pair.id] = pair;
-          return reducedPairs;
-        }, {})
+            reducedPairs[pair.id] = pair;
+            return reducedPairs;
+          }, {})
         : {};
       return {
         ...newTopPairs,
@@ -343,40 +341,40 @@ async function getBulkPairData(
 
     let pairData = await Promise.all(
       current &&
-      current.data.pairs.map(async (pair) => {
-        let data = pair;
-        let oneDayHistory = oneDayData?.[pair.id];
-        if (!oneDayHistory) {
-          let newData = await client.query({
-            query: PAIR_DATA(pair.id, b1),
-          });
-          oneDayHistory = newData.data.pairs[0];
-        }
-        let twoDayHistory = twoDayData?.[pair.id];
-        if (!twoDayHistory) {
-          let newData = await client.query({
-            query: PAIR_DATA(pair.id, b2),
-          });
-          twoDayHistory = newData.data.pairs[0];
-        }
-        let oneWeekHistory = oneWeekData?.[pair.id];
-        if (!oneWeekHistory) {
-          let newData = await client.query({
-            query: PAIR_DATA(pair.id, bWeek),
-          });
-          oneWeekHistory = newData.data.pairs[0];
-        }
-        data = parseData(
-          data,
-          oneDayHistory,
-          twoDayHistory,
-          oneWeekHistory,
-          nativeCurrencyPrice,
-          b1
-        );
-        data.swapFee = swapFees[pair.id] || 25; // 25 bips is the default swap fee, fallback to it
-        return data;
-      })
+        current.data.pairs.map(async (pair) => {
+          let data = pair;
+          let oneDayHistory = oneDayData?.[pair.id];
+          if (!oneDayHistory) {
+            let newData = await client.query({
+              query: PAIR_DATA(pair.id, b1),
+            });
+            oneDayHistory = newData.data.pairs[0];
+          }
+          let twoDayHistory = twoDayData?.[pair.id];
+          if (!twoDayHistory) {
+            let newData = await client.query({
+              query: PAIR_DATA(pair.id, b2),
+            });
+            twoDayHistory = newData.data.pairs[0];
+          }
+          let oneWeekHistory = oneWeekData?.[pair.id];
+          if (!oneWeekHistory) {
+            let newData = await client.query({
+              query: PAIR_DATA(pair.id, bWeek),
+            });
+            oneWeekHistory = newData.data.pairs[0];
+          }
+          data = parseData(
+            data,
+            oneDayHistory,
+            twoDayHistory,
+            oneWeekHistory,
+            nativeCurrencyPrice,
+            b1
+          );
+          data.swapFee = swapFees[pair.id] || 25; // 25 bips is the default swap fee, fallback to it
+          return data;
+        })
     );
     return pairData;
   } catch (e) {
@@ -494,7 +492,12 @@ const getPairChartData = async (client, pairAddress) => {
       dayIndexArray.push(data[i]);
       dayData.dailyVolumeUSD = parseFloat(dayData.dailyVolumeUSD);
       dayData.reserveUSD = parseFloat(dayData.reserveUSD);
-      dayData.utilization = parseFloat(dayData.reserveUSD === 0 ? 0 : dayData.dailyVolumeUSD / dayData.reserveUSD) * 100;
+      dayData.utilization =
+        parseFloat(
+          dayData.reserveUSD === 0
+            ? 0
+            : dayData.dailyVolumeUSD / dayData.reserveUSD
+        ) * 100;
     });
 
     if (data[0]) {
@@ -854,19 +857,22 @@ export function useLiquidityMiningCampaignData() {
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
   const nativePrice = useNativeCurrencyPrice();
-
   let miningData = {};
-  Object.keys(STATUS).forEach((key) => miningData[STATUS[key]] = state?.[STATUS[key]]);
+  Object.keys(STATUS).forEach(
+    (key) => (miningData[STATUS[key]] = state?.[STATUS[key]])
+  );
 
   useEffect(() => {
     async function fetchData(status) {
       if (!miningData[status]) {
         const time = dayjs.utc().unix();
+
         let {
           data: { liquidityMiningCampaigns },
         } = await client.query({
-          query: liquidityMiningCampaignsQuery(status, time)
+          query: liquidityMiningCampaignsQuery(status, time),
         });
+
         const arrayWithMiningCampaignObject = [];
 
         liquidityMiningCampaigns &&
@@ -928,7 +934,7 @@ export function useLiquidityMiningCampaignData() {
       }
     }
 
-    Object.keys(STATUS).forEach(key => fetchData(STATUS[key]));
+    Object.keys(STATUS).forEach((key) => fetchData(STATUS[key]));
 
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [client, selectedNetwork, updateMiningData, miningData]);

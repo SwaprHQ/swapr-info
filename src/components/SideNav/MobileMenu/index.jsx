@@ -1,5 +1,5 @@
 import React from "react";
-import { Disc, List, PieChart, TrendingUp, X } from "react-feather";
+import { Disc, Layers, List, PieChart, TrendingUp, X } from "react-feather";
 import { useHistory } from "react-router-dom";
 import styled from "styled-components";
 import { BasicLink } from "../../Link";
@@ -17,6 +17,14 @@ export const MobileMenu = ({ onClose, ...rest }) => {
 
   return (
     <AutoColumn gap="1.25rem" style={{ padding: "24px" }} {...rest}>
+      <BasicLink to="/dashboard" onClick={onClose}>
+        <Option
+          activeText={history.location.pathname === "/dashboard" ?? undefined}
+        >
+          <Layers size={20} style={{ marginRight: ".75rem" }} />
+          Dashboard
+        </Option>
+      </BasicLink>
       <BasicLink to="/home" onClick={onClose}>
         <Option activeText={history.location.pathname === "/home" ?? undefined}>
           <TrendingUp size={20} style={{ marginRight: ".75rem" }} />

@@ -7,7 +7,7 @@ import { useMedia } from "react-use";
 import { transparentize } from "polished";
 import { TYPE } from "../../Theme";
 import { withRouter } from "react-router-dom";
-import { TrendingUp, List, PieChart, Disc, Menu } from "react-feather";
+import { TrendingUp, List, PieChart, Disc, Menu, Layers } from "react-feather";
 import Link from "../Link";
 import { useSessionStart } from "../../contexts/Application";
 import farming from "../../assets/farming.svg";
@@ -181,6 +181,16 @@ function SideNav({ history }) {
             />
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: "1rem" }}>
+                <BasicLink to="/dashboard">
+                  <Option
+                    activeText={
+                      history.location.pathname === "/dashboard" ?? undefined
+                    }
+                  >
+                    <Layers size={20} style={{ marginRight: ".75rem" }} />
+                    Dashboard
+                  </Option>
+                </BasicLink>
                 <BasicLink to="/home">
                   <Option
                     activeText={

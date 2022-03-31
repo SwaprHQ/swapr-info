@@ -8,6 +8,7 @@ import TokenDataContextProvider, {
   Updater as TokenDataContextUpdater,
 } from "./contexts/TokenData";
 import GlobalDataContextProvider from "./contexts/GlobalData";
+import DashboardContextProvider from "./contexts/Dashboard";
 import PairDataContextProvider, {
   Updater as PairDataContextUpdater,
 } from "./contexts/PairData";
@@ -26,9 +27,11 @@ function ContextProviders({ children }) {
         <NetworkContextProvider>
           <TokenDataContextProvider>
             <GlobalDataContextProvider>
-              <PairDataContextProvider>
-                <UserContextProvider>{children}</UserContextProvider>
-              </PairDataContextProvider>
+              <DashboardContextProvider>
+                <PairDataContextProvider>
+                  <UserContextProvider>{children}</UserContextProvider>
+                </PairDataContextProvider>
+              </DashboardContextProvider>
             </GlobalDataContextProvider>
           </TokenDataContextProvider>
         </NetworkContextProvider>

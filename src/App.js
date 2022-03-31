@@ -20,8 +20,10 @@ import {
 } from "./constants";
 import LocalLoader from "./components/LocalLoader";
 import { useLatestBlocks } from "./contexts/Application";
+import { useDashboardChartData } from "./contexts/Dashboard";
 import { useSelectedNetwork } from "./contexts/Network";
 import FarmingPage from "./pages/FarmingPage";
+import DashboardPage from "./pages/DashboardPage";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -101,6 +103,7 @@ function App() {
 
   const globalData = useGlobalData();
   const globalChartData = useGlobalChartData();
+  const dashboardData = useDashboardChartData();
   const [latestBlock, headBlock] = useLatestBlocks();
   const selectedNetwork = useSelectedNetwork();
 
@@ -126,7 +129,9 @@ function App() {
       {globalData &&
       Object.keys(globalData).length > 0 &&
       globalChartData &&
-      Object.keys(globalChartData).length > 0 ? (
+      Object.keys(globalChartData).length > 0 &&
+      dashboardData &&
+      Object.keys(dashboardData).length > 0 ? (
         <Switch>
           <Route
             exacts
@@ -203,6 +208,11 @@ function App() {
               }
             }}
           />
+          <Route path="/dashboard">
+            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+              <DashboardPage />
+            </LayoutWrapper>
+          </Route>
 
           <Route path="/home">
             <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>

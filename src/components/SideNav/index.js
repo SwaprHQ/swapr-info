@@ -174,11 +174,19 @@ function SideNav({ history }) {
             style={{ marginLeft: ".75rem", marginTop: "1.5rem" }}
           >
             <Title />
-            <DropdownSelect
-              active={selectedNetwork}
-              setActive={handleSelectedNetworkChange}
-              options={Object.values(SupportedNetwork)}
-            />
+            {history.location.pathname !== "/dashboard" ? (
+              <DropdownSelect
+                active={selectedNetwork}
+                setActive={handleSelectedNetworkChange}
+                options={Object.values(SupportedNetwork)}
+              />
+            ) : (
+              <DropdownSelect
+                active={"ALL"}
+                disabled={true}
+                options={[{ ALL: "All" }]}
+              />
+            )}
             {!below1080 && (
               <AutoColumn gap="1.25rem" style={{ marginTop: "1rem" }}>
                 <BasicLink to="/dashboard">

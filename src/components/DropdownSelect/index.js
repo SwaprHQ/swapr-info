@@ -22,7 +22,7 @@ const Wrapper = styled.div`
   justify-content: center;
 
   :hover {
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
   }
 `;
 
@@ -50,7 +50,14 @@ const ArrowStyled = styled(Arrow)`
   margin-left: 6px;
 `;
 
-const DropdownSelect = ({ options, active, setActive, color, width = null }) => {
+const DropdownSelect = ({
+  options,
+  active,
+  disabled,
+  setActive,
+  color,
+  width = null,
+}) => {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -60,16 +67,31 @@ const DropdownSelect = ({ options, active, setActive, color, width = null }) => 
   });
 
   return (
-    <Wrapper open={showDropdown} color={color} ref={containerRef} width={width}>
-      <RowBetween
-        onClick={() => toggleDropdown(!showDropdown)}
-        justify="center"
-      >
-        <TYPE.main>{active}</TYPE.main>
-        <StyledIcon>
-          <ArrowStyled />
-        </StyledIcon>
-      </RowBetween>
+    <Wrapper
+      open={showDropdown}
+      color={color}
+      ref={containerRef}
+      width={width}
+      disabled={disabled}
+    >
+      {disabled ? (
+        <RowBetween justify="center">
+          <TYPE.main>{active}</TYPE.main>
+          <StyledIcon>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      ) : (
+        <RowBetween
+          onClick={() => toggleDropdown(!showDropdown)}
+          justify="center"
+        >
+          <TYPE.main>{active}</TYPE.main>
+          <StyledIcon>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      )}
       {showDropdown && (
         <Dropdown>
           <div ref={dropdownRef}>

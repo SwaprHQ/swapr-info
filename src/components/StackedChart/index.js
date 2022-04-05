@@ -152,7 +152,7 @@ const StackedChart = ({ title, type, data }) => {
         title={title}
         value={formattedNum(stackedDataValue)}
         dailyChange={formattedPercent(dailyChange)}
-        date={activeDate}
+        date={dayjs(activeDate).format("MMMM D, YYYY")}
         activeFilter={activeFilter}
         filterOptions={filterOptions}
         onFilterChange={setActiveFilter}

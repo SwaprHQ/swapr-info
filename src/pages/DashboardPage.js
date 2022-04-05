@@ -10,7 +10,7 @@ import Panel from "../components/Panel";
 import { TYPE, ThemedBackground } from "../Theme";
 import { PageWrapper, ContentWrapper } from "../components";
 import { useDashboardChartData } from "../contexts/Dashboard";
-import { ResponsiveStackedChart } from "../components/DashboardStakedChart";
+import StackedChart from "../components/StackedChart";
 
 const GridRow = styled.div`
   display: grid;
@@ -31,20 +31,38 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (chartData && chartData.daily) {
+      // group daily liquidity data by date
       setFormattedLiquidityData(
-        chartData.daily.map((data) => ({
-          network: data.network,
-          time: dayjs.unix(data.date).utc().format("YYYY-MM-DD"),
-          value: parseFloat(data.totalLiquidityUSD),
-        }))
+        Object.values(
+          chartData.daily.reduce(
+            (accumulator, current) => ({
+              ...accumulator,
+              [current.date]: {
+                ...accumulator[current.date],
+                time: dayjs.unix(current.date).utc().format("YYYY-MM-DD"),
+                [current.network]: parseFloat(current.totalLiquidityUSD),
+              },
+            }),
+            {}
+          )
+        )
       );
 
+      // group daily volume data by date
       setFormattedVolumeData(
-        chartData.daily.map((data) => ({
-          network: data.network,
-          time: dayjs.unix(data.date).utc().format("YYYY-MM-DD"),
-          value: parseFloat(data.dailyVolumeUSD),
-        }))
+        Object.values(
+          chartData.daily.reduce(
+            (accumulator, current) => ({
+              ...accumulator,
+              [current.date]: {
+                ...accumulator[current.date],
+                time: dayjs.unix(current.date).utc().format("YYYY-MM-DD"),
+                [current.network]: parseFloat(current.dailyVolumeUSD),
+              },
+            }),
+            {}
+          )
+        )
       );
     }
   }, [chartData]);
@@ -65,43 +83,44 @@ const DashboardPage = () => {
             ? "Analytics Dashboard"
             : "Swapr Protocol Analytics Dashboard"}
         </TYPE.largeHeader>
-        {below800 ? (
-          <AutoColumn style={{ marginTop: "6px" }} gap="24px">
-            <Panel style={{ height: "100%", minHeight: "300px" }}>
-              <ResponsiveStackedChart
-                title={"TVL"}
-                type={"AREA"}
-                data={formattedLiquidityData}
-              />
-            </Panel>
-            <Panel style={{ height: "100%", minHeight: "300px" }}>
-              <ResponsiveStackedChart
-                title={"Volume"}
-                type={"BAR"}
-                data={formattedVolumeData}
-              />
-            </Panel>
-          </AutoColumn>
-        ) : (
-          formattedLiquidityData.length > 0 &&
-          formattedVolumeData.length > 0 && (
-            <GridRow>
-              <Panel style={{ height: "100%", minHeight: "300px" }}>
-                <ResponsiveStackedChart
-                  title={"TVL"}
-                  type={"AREA"}
-                  data={formattedLiquidityData}
-                />
-              </Panel>
-              <Panel style={{ height: "100%", minHeight: "300px" }}>
-                <ResponsiveStackedChart
-                  title={"Volume"}
-                  type={"BAR"}
-                  data={formattedVolumeData}
-                />
-              </Panel>
-            </GridRow>
-          )
+        {formattedLiquidityData && (
+          <>
+            {below800 ? (
+              <AutoColumn style={{ marginTop: "6px" }} gap="24px">
+                <Panel style={{ height: "100%" }}>
+                  <StackedChart
+                    title={"TVL"}
+                    type={"AREA"}
+                    data={formattedLiquidityData}
+                  />
+                </Panel>
+                <Panel style={{ height: "100%" }}>
+                  <StackedChart
+                    title={"Volume"}
+                    type={"BAR"}
+                    data={formattedVolumeData}
+                  />
+                </Panel>
+              </AutoColumn>
+            ) : (
+              <GridRow>
+                <Panel style={{ height: "100%" }}>
+                  <StackedChart
+                    title={"TVL"}
+                    type={"AREA"}
+                    data={formattedLiquidityData}
+                  />
+                </Panel>
+                <Panel style={{ height: "100%" }}>
+                  <StackedChart
+                    title={"Volume"}
+                    type={"BAR"}
+                    data={formattedVolumeData}
+                  />
+                </Panel>
+              </GridRow>
+            )}
+          </>
         )}
       </ContentWrapper>
     </PageWrapper>

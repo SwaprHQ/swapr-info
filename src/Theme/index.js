@@ -230,6 +230,22 @@ export const GlobalStyle = createGlobalStyle`
   pointer-events: none;
 }
 
+.basic-chart {
+  background-color: trasnparent;
+  color: white;
+}
+
+.crosshair-custom-tooltip {
+  width: 200px;
+	padding: 8px;
+	box-sizing: border-box;
+	font-size: 12px;
+	color: white;
+	background-color: rgb(34, 36, 42);
+	border: 1px solid rgb(64, 68, 79);
+	border-radius: 8px;
+}
+
 .crosshair-tooltip {
 	width: 200px;
 	position: absolute;

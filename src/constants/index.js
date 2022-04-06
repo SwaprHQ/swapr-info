@@ -2,7 +2,7 @@ import { JsonRpcProvider } from "@ethersproject/providers";
 
 export const SupportedNetwork = Object.freeze({
   MAINNET: "Mainnet",
-  XDAI: "xDAI",
+  XDAI: "Gnosis Chain",
   ARBITRUM_ONE: "Arbitrum",
 });
 

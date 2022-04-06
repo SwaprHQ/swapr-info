@@ -1,9 +1,9 @@
 import React, { useMemo } from "react";
 import styled from "styled-components";
-import EthereumLogo from "../../assets/eth.png";
-import xDAILogo from "../../assets/xdai-logo.png";
-import DXDLogo from "../../assets/dxd-logo.svg";
-import SWPRLogo from "../../assets/swpr-logo.png";
+import EthereumLogo from "../../assets/images/eth.png";
+import xDAILogo from "../../assets/images/xdai-logo.png";
+import SWPRLogo from "../../assets/images/swpr-logo.png";
+import DXDLogo from "../../assets/svg/dxd-logo.svg";
 import {
   useNativeCurrencyWrapper,
   useSelectedNetwork,
@@ -110,7 +110,7 @@ export default function TokenLogo({
         alt=""
         src={source}
         size={size}
-        onError={(event) => {
+        onError={event => {
           updateBadImageUrls(source);
           event.preventDefault();
         }}

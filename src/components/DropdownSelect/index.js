@@ -7,13 +7,23 @@ import { ChevronDown as Arrow } from "react-feather";
 import { TYPE } from "../../Theme";
 import { StyledIcon } from "..";
 import { useClickAway } from "react-use";
+import { SupportedNetwork } from "../../constants";
+import EthereumLogo from "../../assets/svg/ethereum-logo.svg";
+import GnosisLogo from "../../assets/svg/gnosis-chain-logo.svg";
+import ArbitrumLogo from "../../assets/svg/arbitrum-one-logo.svg";
+
+const NetworkLogo = {
+  [SupportedNetwork.MAINNET]: EthereumLogo,
+  [SupportedNetwork.ARBITRUM_ONE]: ArbitrumLogo,
+  [SupportedNetwork.XDAI]: GnosisLogo,
+};
 
 const Wrapper = styled.div`
   z-index: 20;
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
   border: 1px solid ${({ color, theme }) => color || theme.primary4};
-  width: ${({ width }) => (width ? width : "100px")};
+  width: ${({ width }) => (width ? width : "150px")};
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -26,11 +36,21 @@ const Wrapper = styled.div`
   }
 `;
 
+const IconWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+
+  & > img {
+    height: 20px;
+  }
+`;
+
 const Dropdown = styled.div`
   position: absolute;
   top: 38px;
   padding-top: 40px;
-  width: calc(100% - 40px);
   background-color: ${({ theme }) => theme.bg1};
   border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 10px 10px;
@@ -50,11 +70,29 @@ const ArrowStyled = styled(Arrow)`
   margin-left: 6px;
 `;
 
-const DropdownSelect = ({ options, active, setActive, color, width = null }) => {
+const Icon = ({ network }) => {
+  if (NetworkLogo[network] === undefined) {
+    return null;
+  }
+
+  return (
+    <IconWrapper size={20}>
+      <img src={NetworkLogo[network]} alt={network} />
+    </IconWrapper>
+  );
+};
+
+const DropdownSelect = ({
+  options,
+  active,
+  setActive,
+  color,
+  width = null,
+}) => {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
-  useClickAway(dropdownRef, (event) => {
+  useClickAway(dropdownRef, event => {
     if (showDropdown && !containerRef.current.contains(event.target))
       toggleDropdown(false);
   });
@@ -65,7 +103,10 @@ const DropdownSelect = ({ options, active, setActive, color, width = null }) => 
         onClick={() => toggleDropdown(!showDropdown)}
         justify="center"
       >
-        <TYPE.main>{active}</TYPE.main>
+        <TYPE.main display="flex">
+          <Icon network={active} />
+          {active}
+        </TYPE.main>
         <StyledIcon>
           <ArrowStyled />
         </StyledIcon>
@@ -85,7 +126,10 @@ const DropdownSelect = ({ options, active, setActive, color, width = null }) => 
                       }}
                       key={index}
                     >
-                      <TYPE.body fontSize={14}>{option}</TYPE.body>
+                      <TYPE.body fontSize={14} display="flex">
+                        <Icon network={option} />
+                        {option}
+                      </TYPE.body>
                     </Row>
                   )
                 );

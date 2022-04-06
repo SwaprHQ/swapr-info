@@ -304,11 +304,19 @@ function SideNav({ history }) {
           <MobileWrapper>
             <Title />
             <AutoRow justify="flex-end" gap="8px">
-              <DropdownSelect
-                active={selectedNetwork}
-                setActive={handleSelectedNetworkChange}
-                options={Object.values(SupportedNetwork)}
-              />
+              {history.location.pathname !== "/dashboard" ? (
+                <DropdownSelect
+                  active={selectedNetwork}
+                  setActive={handleSelectedNetworkChange}
+                  options={Object.values(SupportedNetwork)}
+                />
+              ) : (
+                <DropdownSelect
+                  active={"All"}
+                  disabled={true}
+                  options={[{ ALL: "All" }]}
+                />
+              )}
               <MenuIcon onClick={handleMobileMenuOpen} />
             </AutoRow>
           </MobileWrapper>

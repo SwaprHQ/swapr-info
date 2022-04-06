@@ -172,13 +172,7 @@ const StackedChart = ({ title, type, data }) => {
             }}
           >
             <defs>
-              <linearGradient
-                id={SupportedNetwork.XDAI}
-                x1="1"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
+              <linearGradient id="xdai" x1="1" y1="0" x2="1" y2="1">
                 <stop
                   offset="10%"
                   stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]}
@@ -190,13 +184,7 @@ const StackedChart = ({ title, type, data }) => {
                   stopOpacity={0.4}
                 />
               </linearGradient>
-              <linearGradient
-                id={SupportedNetwork.MAINNET}
-                x1="1"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
+              <linearGradient id="mainnet" x1="1" y1="0" x2="1" y2="1">
                 <stop
                   offset="10%"
                   stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]}
@@ -208,13 +196,7 @@ const StackedChart = ({ title, type, data }) => {
                   stopOpacity={0.4}
                 />
               </linearGradient>
-              <linearGradient
-                id={SupportedNetwork.ARBITRUM_ONE}
-                x1="1"
-                y1="0"
-                x2="1"
-                y2="1"
-              >
+              <linearGradient id="arbitrum" x1="1" y1="0" x2="1" y2="1">
                 <stop
                   offset="10%"
                   stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
@@ -236,7 +218,7 @@ const StackedChart = ({ title, type, data }) => {
               dataKey={SupportedNetwork.XDAI}
               stackId="1"
               stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill={`url(#${SupportedNetwork.XDAI})`}
+              fill="url(#xdai)"
               strokeWidth={3}
             />
             <Area
@@ -245,7 +227,7 @@ const StackedChart = ({ title, type, data }) => {
               dataKey={SupportedNetwork.MAINNET}
               stackId="1"
               stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
-              fill={`url(#${SupportedNetwork.MAINNET})`}
+              fill="url(#mainnet)"
               strokeWidth={3}
             />
             <Area
@@ -254,7 +236,7 @@ const StackedChart = ({ title, type, data }) => {
               dataKey={SupportedNetwork.ARBITRUM_ONE}
               stackId="1"
               stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
-              fill={`url(#${SupportedNetwork.ARBITRUM_ONE})`}
+              fill="url(#arbitrum)"
               strokeWidth={3}
             />
           </AreaChart>

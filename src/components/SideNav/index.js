@@ -182,7 +182,7 @@ function SideNav({ history }) {
               />
             ) : (
               <DropdownSelect
-                active={"ALL"}
+                active={"All"}
                 disabled={true}
                 options={[{ ALL: "All" }]}
               />

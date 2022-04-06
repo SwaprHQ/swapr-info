@@ -28,6 +28,18 @@ export const useDashboardDataContext = () => {
   return useContext(DashboardDataContext);
 };
 
+const SUPPORTED_CLIENTS = [
+  {
+    network: SupportedNetwork.MAINNET,
+    client: clients[SupportedNetwork.MAINNET],
+  },
+  { network: SupportedNetwork.XDAI, client: clients[SupportedNetwork.XDAI] },
+  {
+    network: SupportedNetwork.ARBITRUM_ONE,
+    client: clients[SupportedNetwork.ARBITRUM_ONE],
+  },
+];
+
 const INITIAL_STATE = { stackedChartData: {} };
 const UPDATE_CHART = "UPDATE_CHART";
 const RESET = "RESET";
@@ -92,8 +104,6 @@ export function useDashboardChartData() {
   const [state, { updateChart }] = useDashboardDataContext();
   const [oldestDateFetch, setOldestDateFetched] = useState();
   const [activeWindow] = useTimeframe();
-  // const client = useSwaprSubgraphClient();
-  // const network = useSelectedNetwork();
 
   const stackedChartDataDaily = state?.stackedChartData?.daily;
 
@@ -116,22 +126,7 @@ export function useDashboardChartData() {
    */
   useEffect(() => {
     async function fetchData() {
-      const supportedClients = [
-        clients[SupportedNetwork.MAINNET],
-        clients[SupportedNetwork.XDAI],
-        clients[SupportedNetwork.ARBITRUM_ONE],
-      ];
-      const supportedNetworks = [
-        SupportedNetwork.MAINNET,
-        SupportedNetwork.XDAI,
-        SupportedNetwork.ARBITRUM_ONE,
-      ];
-
-      const newChartDailyData = await getChartData(
-        supportedClients,
-        supportedNetworks,
-        oldestDateFetch
-      );
+      const newChartDailyData = await getChartData(oldestDateFetch);
       updateChart(newChartDailyData);
     }
     if (oldestDateFetch && !stackedChartDataDaily) {
@@ -145,18 +140,16 @@ export function useDashboardChartData() {
 /**
  * Get historical data for volume and liquidity for each network
  * used on the dashboard page
- * @param {*} clients // array of clients
- * @param {*} supportedNetworks // array of supported networks
  * @param {*} oldestDateToFetch // start of window to fetch from
  */
-const getChartData = async (clients, supportedNetworks, oldestDateToFetch) => {
+const getChartData = async (oldestDateToFetch) => {
   try {
     let data = [];
     const utcEndTime = dayjs.utc();
 
     // fetch data for each of the clients and add the
     // linked network key to each day object
-    for (const [index, client] of clients.entries()) {
+    for (const { network, client } of SUPPORTED_CLIENTS) {
       let skip = 0;
       let allFound = false;
 
@@ -173,7 +166,7 @@ const getChartData = async (clients, supportedNetworks, oldestDateToFetch) => {
         data = data.concat(
           result.data.swaprDayDatas.map((dayData) => ({
             ...dayData,
-            network: supportedNetworks[index],
+            network,
           }))
         );
 

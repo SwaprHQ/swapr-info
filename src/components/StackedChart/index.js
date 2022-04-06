@@ -1,6 +1,5 @@
 import dayjs from "dayjs";
 import PropTypes from "prop-types";
-import { useDebounce } from "react-use";
 import React, { useCallback, useEffect, useState } from "react";
 import {
   AreaChart,
@@ -18,24 +17,23 @@ import { formattedNum, formattedPercent } from "../../utils";
 import Header from "./Header";
 import CrosshairTooltip from "./CrosshairTooltip";
 
-const filterOptions = {
+const TIME_FILTER_OPTIONS = {
   MONTH_1: "1M",
   MONTH_3: "3M",
   YEAR: "1Y",
   MAX: "MAX",
 };
-
-const NETWORKS = [
-  { name: SupportedNetwork.MAINNET, color: "#e5c914" },
-  { name: SupportedNetwork.XDAI, color: "#4526A2" },
-  { name: SupportedNetwork.ARBITRUM_ONE, color: "#1fc394" },
-];
+const NETWORK_COLORS = {
+  [SupportedNetwork.MAINNET]: "#2974e0",
+  [SupportedNetwork.XDAI]: "#4526A2",
+  [SupportedNetwork.ARBITRUM_ONE]: "#feb125",
+};
 
 const StackedChart = ({ title, type, data }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(filterOptions.MONTH_1);
+  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
   const [dailyChange, setDailyChange] = useState();
 
   // set header values to the latest point of the chart
@@ -107,7 +105,7 @@ const StackedChart = ({ title, type, data }) => {
     }
   };
 
-  // set default filtered data on mount
+  // set default filtered data
   useEffect(() => {
     if (filteredData && filteredData.length > 0) {
       setDefaultHeaderValues();
@@ -120,15 +118,15 @@ const StackedChart = ({ title, type, data }) => {
       let limitDate = new Date();
 
       switch (activeFilter) {
-        case filterOptions.MONTH_1: {
+        case TIME_FILTER_OPTIONS.MONTH_1: {
           limitDate.setMonth(limitDate.getMonth() - 1);
           break;
         }
-        case filterOptions.MONTH_3: {
+        case TIME_FILTER_OPTIONS.MONTH_3: {
           limitDate.setMonth(limitDate.getMonth() - 3);
           break;
         }
-        case filterOptions.YEAR: {
+        case TIME_FILTER_OPTIONS.YEAR: {
           limitDate.setFullYear(limitDate.getFullYear() - 1);
           break;
         }
@@ -154,7 +152,7 @@ const StackedChart = ({ title, type, data }) => {
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format("MMMM D, YYYY")}
         activeFilter={activeFilter}
-        filterOptions={filterOptions}
+        filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
       <ResponsiveContainer aspect={60 / 28}>
@@ -173,6 +171,62 @@ const StackedChart = ({ title, type, data }) => {
               bottom: 0,
             }}
           >
+            <defs>
+              <linearGradient
+                id={SupportedNetwork.XDAI}
+                x1="1"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
+                <stop
+                  offset="10%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]}
+                  stopOpacity={1}
+                />
+                <stop
+                  offset="90%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]}
+                  stopOpacity={0.4}
+                />
+              </linearGradient>
+              <linearGradient
+                id={SupportedNetwork.MAINNET}
+                x1="1"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
+                <stop
+                  offset="10%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+                  stopOpacity={1}
+                />
+                <stop
+                  offset="90%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+                  stopOpacity={0.4}
+                />
+              </linearGradient>
+              <linearGradient
+                id={SupportedNetwork.ARBITRUM_ONE}
+                x1="1"
+                y1="0"
+                x2="1"
+                y2="1"
+              >
+                <stop
+                  offset="10%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+                  stopOpacity={1}
+                />
+                <stop
+                  offset="90%"
+                  stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+                  stopOpacity={0.4}
+                />
+              </linearGradient>
+            </defs>
             <XAxis dataKey="time" hide />
             <YAxis hide />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
@@ -181,24 +235,27 @@ const StackedChart = ({ title, type, data }) => {
               type="monotone"
               dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke="#4526A2"
-              fill="#4526A2"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill={`url(#${SupportedNetwork.XDAI})`}
+              strokeWidth={3}
             />
             <Area
               animationDuration={500}
               type="monotone"
               dataKey={SupportedNetwork.MAINNET}
               stackId="1"
-              stroke="#e5c914"
-              fill="#e5c914"
+              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              fill={`url(#${SupportedNetwork.MAINNET})`}
+              strokeWidth={3}
             />
             <Area
               animationDuration={500}
               type="monotone"
               dataKey={SupportedNetwork.ARBITRUM_ONE}
               stackId="1"
-              stroke="#1fc394"
-              fill="#1fc394"
+              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              fill={`url(#${SupportedNetwork.ARBITRUM_ONE})`}
+              strokeWidth={3}
             />
           </AreaChart>
         ) : type === "BAR" ? (
@@ -224,24 +281,27 @@ const StackedChart = ({ title, type, data }) => {
               type="monotone"
               dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke="#4526A2"
-              fill="#4526A2"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              strokeWidth={3}
             />
             <Bar
               animationDuration={500}
               type="monotone"
               dataKey={SupportedNetwork.MAINNET}
               stackId="1"
-              stroke="#e5c914"
-              fill="#e5c914"
+              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              fill={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              strokeWidth={3}
             />
             <Bar
               animationDuration={500}
               type="monotone"
               dataKey={SupportedNetwork.ARBITRUM_ONE}
               stackId="1"
-              stroke="#1fc394"
-              fill="#1fc394"
+              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              fill={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              strokeWidth={3}
             />
           </ComposedChart>
         ) : null}

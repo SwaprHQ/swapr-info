@@ -231,7 +231,7 @@ export const GlobalStyle = createGlobalStyle`
 }
 
 .basic-chart {
-  background-color: trasnparent;
+  background-color: transparent;
   color: white;
 }
 

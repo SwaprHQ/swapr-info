@@ -1,0 +1,124 @@
+name: 🚀 Deploy checks
+
+on:
+  push:
+  pull_request:
+    branches:
+      - master
+
+env:
+  CI: true
+  HUSKY: 0
+  FORCE_COLOR: 3
+  NODE_OPTIONS: '--max-old-space-size=5376' # 75% of 7GB
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  install:
+    name: Install
+    runs-on: ubuntu-20.04
+    steps:
+      - name: ⬇️ Checkout repo
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: '50'
+
+      - name: ⎔ Setup node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+          check-latest: true
+          cache: 'yarn'
+
+      - name: Install dependencies
+        run: yarn install --frozen-lockfile --cache-folder $(yarn cache dir)
+
+      - name: Compress workspace artifact
+        # prettier-ignore
+        run: tar --create --use-compress-program='zstd -T0' --file=/tmp/workspace.tar.zst .
+
+      - name: Upload workspace artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: workspace
+          path: /tmp/workspace.tar.zst
+          retention-days: 1
+  lint:
+    name: 🔬 Lint
+    needs: install
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 📥 Download workspace artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+
+      - name: Extract workspace artifact
+        # prettier-ignore
+        run: tar --extract --use-compress-program='zstd -d' --file=workspace.tar.zst
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Run linter
+        run: yarn run lint --quiet
+
+  check-format:
+    name: 🔎 Check format
+    needs: install
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 📥 Download workspace artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+
+      - name: Extract workspace artifact
+        # prettier-ignore
+        run: tar --extract --use-compress-program='zstd -d' --file=workspace.tar.zst
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Run formatter
+        run: yarn run format
+
+  build:
+    name: ⚙️ Build
+    needs: install
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 📥 Download workspace artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+
+      - name: Extract workspace artifact
+        # prettier-ignore
+        run: tar --extract --use-compress-program='zstd -d' --file=workspace.tar.zst
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Build app
+        run: yarn run build
+
+  cleanup:
+    name: 🧹Cleanup
+    needs: [install, lint, check-format, build]
+    runs-on: ubuntu-20.04
+    if: ${{ success() }}
+    steps:
+      - name: Delete workspace artifact
+        uses: geekyeggo/delete-artifact@v1
+        with:
+          name: workspace

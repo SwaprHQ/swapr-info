@@ -41,7 +41,7 @@ jobs:
         id: web3
         with:
           web3_token: ${{secrets.WEB3_STORAGE_TOKEN}}
-          path_to_add: "build"
+          path_to_add: 'build'
       - name: Update Deployment Status
         uses: bobheadxi/deployments@v0.6.0
         if: always()
@@ -50,4 +50,4 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           status: ${{job.status}}
           deployment_id: ${{steps.deployment.outputs.deployment_id}}
-          env_url: "https://${{steps.web3.outputs.cid}}.ipfs.infura-ipfs.io"
+          env_url: 'https://${{steps.web3.outputs.cid}}.ipfs.infura-ipfs.io'

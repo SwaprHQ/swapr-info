@@ -1,13 +1,14 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { createChart } from 'lightweight-charts';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { formattedNum } from '../../utils';
-import styled from 'styled-components';
-import { usePrevious } from 'react-use';
+import { createChart } from 'lightweight-charts';
+import React, { useState, useEffect, useRef } from 'react';
 import { Play } from 'react-feather';
-import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { usePrevious } from 'react-use';
+import styled from 'styled-components';
+
 import { IconWrapper } from '..';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { formattedNum } from '../../utils';
 
 dayjs.extend(utc);
 

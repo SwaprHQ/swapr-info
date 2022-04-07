@@ -1,14 +1,16 @@
 import React, { useMemo } from 'react';
 import styled from 'styled-components';
-import EthereumLogo from '../../assets/images/eth.png';
-import xDAILogo from '../../assets/images/xdai-logo.png';
-import SWPRLogo from '../../assets/images/swpr-logo.png';
-import DXDLogo from '../../assets/svg/dxd-logo.svg';
-import { useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network.js';
-import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants/index.js';
-import { useTokenIcon } from '../../hooks/useTokenIcon.js';
+
 import { getAddress } from '@ethersproject/address';
+
+import EthereumLogo from '../../assets/images/eth.png';
+import SWPRLogo from '../../assets/images/swpr-logo.png';
+import xDAILogo from '../../assets/images/xdai-logo.png';
+import DXDLogo from '../../assets/svg/dxd-logo.svg';
+import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants/index.js';
 import { useBadImageUrls, useBadImageUrlsUpdater } from '../../contexts/Application';
+import { useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network.js';
+import { useTokenIcon } from '../../hooks/useTokenIcon.js';
 
 const Inline = styled.div`
   display: flex;
@@ -49,7 +51,7 @@ export default function TokenLogo({ address, defaultText = '?', size = '24px', f
     return null;
   }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork, badImages]);
 
-  if (!!!source) {
+  if (!source) {
     const numberSize = size ? parseInt(size.replace('px', '')) : 24;
     const fontSize = Math.ceil(numberSize / 4.5);
     return (

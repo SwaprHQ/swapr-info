@@ -1,4 +1,4 @@
-name: 🚀 Deploy checks
+name: 🚀  Deploy checks
 
 on:
   push:
@@ -21,7 +21,7 @@ jobs:
     name: Install
     runs-on: ubuntu-20.04
     steps:
-      - name: ⬇️ Checkout repo
+      - name: ⬇️  Checkout repo
         uses: actions/checkout@v2
         with:
           fetch-depth: '50'
@@ -69,7 +69,7 @@ jobs:
         run: yarn run lint --quiet
 
   check-format:
-    name: 🔎 Check format
+    name: 🔎  Check format
     needs: install
     runs-on: ubuntu-20.04
     steps:
@@ -91,7 +91,7 @@ jobs:
         run: yarn run format
 
   build:
-    name: ⚙️ Build
+    name: ⚙️  Build
     needs: install
     runs-on: ubuntu-20.04
     steps:
@@ -113,7 +113,7 @@ jobs:
         run: yarn run build
 
   cleanup:
-    name: 🧹Cleanup
+    name: 🧹 Cleanup
     needs: [install, lint, check-format, build]
     runs-on: ubuntu-20.04
     if: ${{ success() }}

@@ -1,18 +1,18 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { useMedia } from 'react-use';
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
-import { AutoRow, RowBetween } from '../Row';
+import styled from 'styled-components';
 
+import { timeframeOptions } from '../../constants';
+import { useTimeframe } from '../../contexts/Application';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useUserPositionChart } from '../../contexts/User';
+import { useColor } from '../../hooks';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import { useMedia } from 'react-use';
-import { timeframeOptions } from '../../constants';
 import DropdownSelect from '../DropdownSelect';
-import { useUserPositionChart } from '../../contexts/User';
-import { useTimeframe } from '../../contexts/Application';
 import LocalLoader from '../LocalLoader';
-import { useColor } from '../../hooks';
-import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { AutoRow, RowBetween } from '../Row';
 
 const ChartWrapper = styled.div`
   max-height: 420px;

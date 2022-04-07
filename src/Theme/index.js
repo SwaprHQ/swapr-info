@@ -2,10 +2,10 @@ import React from 'react';
 import 'fontsource-montserrat/400.css';
 import 'fontsource-montserrat/500.css';
 import 'fontsource-montserrat/600.css';
-import { ThemeProvider as StyledComponentsThemeProvider, createGlobalStyle } from 'styled-components';
-import { useDarkModeManager } from '../contexts/LocalStorage';
-import styled from 'styled-components';
 import { Text } from 'rebass';
+import styled, { ThemeProvider as StyledComponentsThemeProvider, createGlobalStyle } from 'styled-components';
+
+import { useDarkModeManager } from '../contexts/LocalStorage';
 
 export default function ThemeProvider({ children }) {
   const [darkMode] = useDarkModeManager();

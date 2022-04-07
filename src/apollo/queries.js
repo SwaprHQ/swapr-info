@@ -1,4 +1,5 @@
 import gql from 'graphql-tag';
+
 import { BUNDLE_ID, FACTORY_ADDRESS, SupportedNetwork } from '../constants';
 
 const FACTORY_STARTING_BLOCK = {
@@ -884,7 +885,7 @@ export const TOKEN_DATA = (tokenAddress, block) => {
 };
 
 export const FILTERED_TRANSACTIONS = gql`
-  query($allPairs: [Bytes]!) {
+  query ($allPairs: [Bytes]!) {
     mints(first: 20, where: { pair_in: $allPairs }, orderBy: timestamp, orderDirection: desc) {
       transaction {
         id

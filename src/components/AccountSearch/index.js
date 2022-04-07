@@ -2,11 +2,12 @@ import React, { useState } from 'react';
 import 'feather-icons';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { ButtonLight } from '../ButtonStyled';
-import { AutoRow } from '../Row';
-import { isAddress } from '../../utils';
+
 import { useSavedAccounts } from '../../contexts/LocalStorage';
+import { isAddress } from '../../utils';
+import { ButtonLight } from '../ButtonStyled';
 import { AutoColumn } from '../Column';
+import { AutoRow } from '../Row';
 
 const Wrapper = styled.div`
   display: flex;

@@ -1,11 +1,10 @@
 import React from 'react';
-import styled from 'styled-components';
 import { Text, Box } from 'rebass';
+import styled from 'styled-components';
 
-import Link from './Link';
-
-import { urls } from '../utils';
 import { useSelectedNetwork } from '../contexts/Network';
+import { urls } from '../utils';
+import Link from './Link';
 
 const Divider = styled(Box)`
   height: 1px;

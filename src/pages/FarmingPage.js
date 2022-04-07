@@ -1,16 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import 'feather-icons';
+import { useMedia } from 'react-use';
 
 import { TYPE } from '../Theme';
-import Panel from '../components/Panel';
-import { STATUS, useLiquidityMiningCampaignData } from '../contexts/PairData';
-
 import { PageWrapper, FullWrapper } from '../components';
+import DropdownSelect from '../components/DropdownSelect';
+import FarmingList from '../components/FarmingList';
+import Panel from '../components/Panel';
 import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
-import DropdownSelect from '../components/DropdownSelect';
-import { useMedia } from 'react-use';
-import FarmingList from '../components/FarmingList';
+import { STATUS, useLiquidityMiningCampaignData } from '../contexts/PairData';
 
 function FarmingPage() {
   const miningData = useLiquidityMiningCampaignData();

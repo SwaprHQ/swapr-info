@@ -1,17 +1,18 @@
+import { darken } from 'polished';
 import React, { useState } from 'react';
-import styled from 'styled-components';
+import { useMedia } from 'react-use';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart } from 'recharts';
-import { AutoRow, RowBetween } from '../Row';
+import styled from 'styled-components';
+
+import { TYPE } from '../../Theme';
+import { timeframeOptions } from '../../constants';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useUserLiquidityChart } from '../../contexts/User';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import { darken } from 'polished';
-import { useMedia } from 'react-use';
-import { timeframeOptions } from '../../constants';
 import DropdownSelect from '../DropdownSelect';
-import { useUserLiquidityChart } from '../../contexts/User';
 import LocalLoader from '../LocalLoader';
-import { useDarkModeManager } from '../../contexts/LocalStorage';
-import { TYPE } from '../../Theme';
+import { AutoRow, RowBetween } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;

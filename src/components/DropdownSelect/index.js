@@ -1,16 +1,16 @@
 import React, { useRef, useState } from 'react';
+import { ChevronDown as Arrow } from 'react-feather';
+import { useClickAway } from 'react-use';
 import styled from 'styled-components';
 
-import Row, { RowBetween } from '../Row';
-import { AutoColumn } from '../Column';
-import { ChevronDown as Arrow } from 'react-feather';
-import { TYPE } from '../../Theme';
 import { StyledIcon } from '..';
-import { useClickAway } from 'react-use';
-import { SupportedNetwork } from '../../constants';
+import { TYPE } from '../../Theme';
+import ArbitrumLogo from '../../assets/svg/arbitrum-one-logo.svg';
 import EthereumLogo from '../../assets/svg/ethereum-logo.svg';
 import GnosisLogo from '../../assets/svg/gnosis-chain-logo.svg';
-import ArbitrumLogo from '../../assets/svg/arbitrum-one-logo.svg';
+import { SupportedNetwork } from '../../constants';
+import { AutoColumn } from '../Column';
+import Row, { RowBetween } from '../Row';
 
 const NetworkLogo = {
   [SupportedNetwork.MAINNET]: EthereumLogo,

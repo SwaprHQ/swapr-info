@@ -1,28 +1,26 @@
+import { transparentize } from 'polished';
 import React, { useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
 import { Box } from 'rebass';
 import styled from 'styled-components';
 
-import { AutoRow, RowBetween } from '../components/Row';
+import { TYPE, ThemedBackground } from '../Theme';
+import { PageWrapper, ContentWrapper } from '../components';
 import { AutoColumn } from '../components/Column';
+import GlobalChart from '../components/GlobalChart';
+import GlobalStats from '../components/GlobalStats';
+import { CustomLink } from '../components/Link';
 import PairList from '../components/PairList';
+import Panel from '../components/Panel';
+import { AutoRow, RowBetween } from '../components/Row';
+import Search from '../components/Search';
 import TopTokenList from '../components/TokenList';
 import TxnList from '../components/TxnList';
-import GlobalChart from '../components/GlobalChart';
-import Search from '../components/Search';
-import GlobalStats from '../components/GlobalStats';
-
 import { useGlobalData, useGlobalTransactions } from '../contexts/GlobalData';
 import { useAllPairData } from '../contexts/PairData';
-import { useMedia } from 'react-use';
-import Panel from '../components/Panel';
 import { useAllTokenData } from '../contexts/TokenData';
 import { formattedNum, formattedPercent } from '../utils';
-import { TYPE, ThemedBackground } from '../Theme';
-import { transparentize } from 'polished';
-import { CustomLink } from '../components/Link';
-
-import { PageWrapper, ContentWrapper } from '../components';
 
 const ListOptions = styled(AutoRow)`
   height: 40px;

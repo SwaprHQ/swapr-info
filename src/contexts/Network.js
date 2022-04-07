@@ -1,11 +1,12 @@
+import qs from 'qs';
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+
 import { blockClients, clients } from '../apollo/client';
 import { ChainId, NATIVE_CURRENCY_SYMBOL, NATIVE_CURRENCY_WRAPPER, SupportedNetworkForChainId } from '../constants';
-import { useSavedNetwork } from './LocalStorage';
-import qs from 'qs';
 import { useApplicationContextResetter } from './Application';
 import { useGlobalContextResetter } from './GlobalData';
+import { useSavedNetwork } from './LocalStorage';
 import { usePairContextResetter } from './PairData';
 import { useTokenContextResetter } from './TokenData';
 import { useUserContextResetter } from './User';

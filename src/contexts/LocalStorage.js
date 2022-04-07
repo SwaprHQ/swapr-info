@@ -1,4 +1,5 @@
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
+
 import { SupportedNetwork } from '../constants';
 
 const SWAPR = 'SWAPR';

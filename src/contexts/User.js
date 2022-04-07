@@ -1,5 +1,7 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
-import { usePairData } from './PairData';
+
 import {
   USER_TRANSACTIONS,
   USER_POSITIONS,
@@ -7,13 +9,12 @@ import {
   PAIR_DAY_DATA_BULK,
   USER_HISTORY_STAKE,
 } from '../apollo/queries';
-import { useTimeframe, useStartTimestamp } from './Application';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import { useNativeCurrencyPrice } from './GlobalData';
-import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns';
 import { timeframeOptions } from '../constants';
+import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns';
+import { useTimeframe, useStartTimestamp } from './Application';
+import { useNativeCurrencyPrice } from './GlobalData';
 import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
+import { usePairData } from './PairData';
 
 dayjs.extend(utc);
 

@@ -1,8 +1,7 @@
 import React, { Component } from 'react';
+import Select from 'react-select';
 import { Button } from 'rebass';
 import styled from 'styled-components';
-
-import Select from 'react-select';
 
 const selectStyles = {
   control: (styles) => ({

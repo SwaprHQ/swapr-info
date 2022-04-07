@@ -1,8 +1,8 @@
-import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import { isSyncedBlockAboveThreshold, useLatestBlocks, useTimeframe } from './Application';
-import { getPercentChange, getBlockFromTimestamp, getBlocksFromTimestamps, getTimeframe } from '../utils';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
+
 import {
   GLOBAL_DATA,
   GLOBAL_TXNS,
@@ -12,10 +12,11 @@ import {
   ALL_TOKENS,
   TOP_LPS_PER_PAIRS,
 } from '../apollo/queries';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
-import { useAllPairData } from './PairData';
 import { FACTORY_ADDRESS } from '../constants';
+import { getPercentChange, getBlockFromTimestamp, getBlocksFromTimestamps, getTimeframe } from '../utils';
+import { isSyncedBlockAboveThreshold, useLatestBlocks, useTimeframe } from './Application';
 import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
+import { useAllPairData } from './PairData';
 
 const UPDATE = 'UPDATE';
 const UPDATE_TXNS = 'UPDATE_TXNS';

@@ -1,9 +1,10 @@
-import { Placement } from '@popperjs/core';
+import type { Placement } from '@popperjs/core';
+import Portal from '@reach/portal';
 import { transparentize } from 'polished';
 import React, { useState } from 'react';
 import { usePopper } from 'react-popper';
 import styled from 'styled-components';
-import Portal from '@reach/portal';
+
 import useInterval from '../../hooks';
 
 const PopoverContainer = styled.div<{ show: boolean }>`

@@ -1,24 +1,22 @@
+import { transparentize } from 'polished';
 import React, { useState, useEffect, useMemo, useRef } from 'react';
+import { Search as SearchIcon, X } from 'react-feather';
+import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
+import { TYPE } from '../../Theme';
+import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries';
+import { OVERVIEW_TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants';
+import { useAllPairsInSwapr, useAllTokensInSwapr } from '../../contexts/GlobalData';
+import { useSwaprSubgraphClient } from '../../contexts/Network';
+import { useAllPairData, usePairData } from '../../contexts/PairData';
+import { useAllTokenData, useTokenData } from '../../contexts/TokenData';
+import { updateNameData } from '../../utils/data';
+import DoubleTokenLogo from '../DoubleLogo';
+import FormattedName from '../FormattedName';
+import { BasicLink } from '../Link';
 import Row, { RowFixed } from '../Row';
 import TokenLogo from '../TokenLogo';
-import { Search as SearchIcon, X } from 'react-feather';
-import { BasicLink } from '../Link';
-
-import { useAllTokenData, useTokenData } from '../../contexts/TokenData';
-import { useAllPairData, usePairData } from '../../contexts/PairData';
-import DoubleTokenLogo from '../DoubleLogo';
-import { useMedia } from 'react-use';
-import { useAllPairsInSwapr, useAllTokensInSwapr } from '../../contexts/GlobalData';
-import { OVERVIEW_TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants';
-
-import { transparentize } from 'polished';
-import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries';
-import FormattedName from '../FormattedName';
-import { TYPE } from '../../Theme';
-import { updateNameData } from '../../utils/data';
-import { useSwaprSubgraphClient } from '../../contexts/Network';
 
 const Container = styled.div`
   height: 48px;

@@ -1,8 +1,9 @@
 import React from 'react';
-import styled from 'styled-components';
-import { useCopyClipboard } from '../../hooks';
 import { CheckCircle, Copy } from 'react-feather';
+import styled from 'styled-components';
+
 import { StyledIcon } from '..';
+import { useCopyClipboard } from '../../hooks';
 
 const CopyIcon = styled.div`
   color: #aeaeae;

@@ -1,6 +1,7 @@
-import { ApolloClient } from 'apollo-client';
 import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
 import { HttpLink } from 'apollo-link-http';
+
 import { SupportedNetwork, NETWORK_SUBGRAPH_URLS } from '../constants';
 
 const BASE_SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/';

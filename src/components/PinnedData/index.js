@@ -1,16 +1,17 @@
 import React from 'react';
+import { Bookmark, ChevronRight, X } from 'react-feather';
 import { withRouter } from 'react-router-dom';
 import styled from 'styled-components';
-import { RowBetween, RowFixed } from '../Row';
-import { AutoColumn } from '../Column';
+
+import { Hover } from '..';
 import { TYPE } from '../../Theme';
 import { useSavedTokens, useSavedPairs } from '../../contexts/LocalStorage';
-import { Hover } from '..';
-import TokenLogo from '../TokenLogo';
 import AccountSearch from '../AccountSearch';
-import { Bookmark, ChevronRight, X } from 'react-feather';
 import { ButtonFaded } from '../ButtonStyled';
+import { AutoColumn } from '../Column';
 import FormattedName from '../FormattedName';
+import { RowBetween, RowFixed } from '../Row';
+import TokenLogo from '../TokenLogo';
 
 const RightColumn = styled.div`
   position: fixed;

@@ -1,3 +1,5 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 
 import {
@@ -9,12 +11,7 @@ import {
   PRICES_BY_BLOCK,
   PAIR_DATA,
 } from '../apollo/queries';
-
-import { useNativeCurrencyPrice } from './GlobalData';
-
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-
+import { timeframeOptions } from '../constants';
 import {
   get2DayPercentChange,
   getPercentChange,
@@ -23,9 +20,9 @@ import {
   getBlocksFromTimestamps,
   splitQuery,
 } from '../utils';
-import { timeframeOptions } from '../constants';
-import { useLatestBlocks } from './Application';
 import { updateNameData } from '../utils/data';
+import { useLatestBlocks } from './Application';
+import { useNativeCurrencyPrice } from './GlobalData';
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from './Network';
 
 const RESET = 'RESET';

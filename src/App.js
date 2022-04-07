@@ -1,28 +1,24 @@
 import React, { useState } from 'react';
-import styled from 'styled-components';
 import { Route, Switch, Redirect } from 'react-router-dom';
-import GlobalPage from './pages/GlobalPage';
-import TokenPage from './pages/TokenPage';
-import PairPage from './pages/PairPage';
-import { useGlobalData, useGlobalChartData } from './contexts/GlobalData';
-import { isAddress } from './utils';
-import AccountPage from './pages/AccountPage';
-import AllTokensPage from './pages/AllTokensPage';
-import AllPairsPage from './pages/AllPairsPage';
+import styled from 'styled-components';
 
+import LocalLoader from './components/LocalLoader';
 import SideNav from './components/SideNav';
-import AccountLookup from './pages/AccountLookup';
 import {
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   BLOCK_DIFFERENCE_THRESHOLD,
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
 } from './constants';
-import LocalLoader from './components/LocalLoader';
 import { useLatestBlocks } from './contexts/Application';
+import { useGlobalData, useGlobalChartData } from './contexts/GlobalData';
 import { useSelectedNetwork } from './contexts/Network';
-import FarmingPage from './pages/FarmingPage';
+import AccountLookup from './pages/AccountLookup';
+import AccountPage from './pages/AccountPage';
+import AllPairsPage from './pages/AllPairsPage';
+import AllTokensPage from './pages/AllTokensPage';
 import DashboardPage from './pages/DashboardPage';
+import FarmingPage from './pages/FarmingPage';
 
 const AppWrapper = styled.div`
   position: relative;

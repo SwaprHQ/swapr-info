@@ -1,25 +1,25 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import styled from 'styled-components';
-import { useUserTransactions, useUserPositions } from '../contexts/User';
-import TxnList from '../components/TxnList';
-import Panel from '../components/Panel';
-import { formattedNum, getExplorerLink } from '../utils';
-import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row';
-import { AutoColumn } from '../components/Column';
-import UserChart from '../components/UserChart';
-import PairReturnsChart from '../components/PairReturnsChart';
-import PositionList from '../components/PositionList';
-import { TYPE } from '../Theme';
-import { ButtonDropdown } from '../components/ButtonStyled';
-import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
-import DoubleTokenLogo from '../components/DoubleLogo';
 import { Activity } from 'react-feather';
-import Link from '../components/Link';
-import { FEE_WARNING_TOKENS } from '../constants';
-import { BasicLink } from '../components/Link';
 import { useMedia } from 'react-use';
+import styled from 'styled-components';
+
+import { TYPE } from '../Theme';
+import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
+import { ButtonDropdown } from '../components/ButtonStyled';
+import { AutoColumn } from '../components/Column';
+import DoubleTokenLogo from '../components/DoubleLogo';
+import Link, { BasicLink } from '../components/Link';
+import PairReturnsChart from '../components/PairReturnsChart';
+import Panel from '../components/Panel';
+import PositionList from '../components/PositionList';
+import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row';
 import Search from '../components/Search';
+import TxnList from '../components/TxnList';
+import UserChart from '../components/UserChart';
+import { FEE_WARNING_TOKENS } from '../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
+import { useUserTransactions, useUserPositions } from '../contexts/User';
+import { formattedNum, getExplorerLink } from '../utils';
 
 /* const AccountWrapper = styled.div`
   background-color: rgba(255, 255, 255, 0.2);

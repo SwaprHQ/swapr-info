@@ -1,12 +1,12 @@
 import React from 'react';
-import styled from 'styled-components';
-import { RowFixed, RowBetween } from '../Row';
 import { useMedia } from 'react-use';
-import { useGlobalData, useNativeCurrencyPrice } from '../../contexts/GlobalData';
-import { formattedNum, localNumber } from '../../utils';
+import styled from 'styled-components';
 
 import { TYPE } from '../../Theme';
+import { useGlobalData, useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol } from '../../contexts/Network';
+import { formattedNum, localNumber } from '../../utils';
+import { RowFixed, RowBetween } from '../Row';
 
 const Header = styled.div`
   width: 100%;

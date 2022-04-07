@@ -1,16 +1,26 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
-import ThemeProvider, { GlobalStyle } from './Theme';
-import LocalStorageContextProvider, { Updater as LocalStorageContextUpdater } from './contexts/LocalStorage';
-import TokenDataContextProvider, { Updater as TokenDataContextUpdater } from './contexts/TokenData';
-import GlobalDataContextProvider from './contexts/GlobalData';
-import DashboardContextProvider from './contexts/Dashboard';
-import PairDataContextProvider, { Updater as PairDataContextUpdater } from './contexts/PairData';
-import ApplicationContextProvider from './contexts/Application';
-import NetworkContextProvider, { Updater as NetworkContextUpdater } from './contexts/Network';
-import UserContextProvider from './contexts/User';
-import App from './App';
 import { HashRouter } from 'react-router-dom';
+
+import App from './App';
+import ThemeProvider, { GlobalStyle } from './Theme';
+import ApplicationContextProvider from './contexts/Application';
+import DashboardContextProvider from './contexts/Dashboard';
+import GlobalDataContextProvider from './contexts/GlobalData';
+import LocalStorageContextProvider, {
+  Updater as LocalStorageContextUpdater,
+  Updater as LocalStorageContextUpdater,
+} from './contexts/LocalStorage';
+import NetworkContextProvider, { Updater as NetworkContextUpdater } from './contexts/Network';
+import PairDataContextProvider, {
+  Updater as PairDataContextUpdater,
+  Updater as PairDataContextUpdater,
+} from './contexts/PairData';
+import TokenDataContextProvider, {
+  Updater as TokenDataContextUpdater,
+  Updater as TokenDataContextUpdater,
+} from './contexts/TokenData';
+import UserContextProvider from './contexts/User';
 
 function ContextProviders({ children }) {
   return (

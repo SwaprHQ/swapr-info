@@ -1,14 +1,15 @@
 import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useMedia } from 'react-use';
 import { ResponsiveContainer } from 'recharts';
+
+import { TYPE } from '../../Theme';
 import { timeframeOptions } from '../../constants';
 import { useGlobalChartData, useGlobalData } from '../../contexts/GlobalData';
-import { useMedia } from 'react-use';
-import DropdownSelect from '../DropdownSelect';
-import TradingViewChart, { CHART_TYPES } from '../TradingviewChart';
-import { RowFixed } from '../Row';
-import { OptionButton } from '../ButtonStyled';
 import { getTimeframe } from '../../utils';
-import { TYPE } from '../../Theme';
+import { OptionButton } from '../ButtonStyled';
+import DropdownSelect from '../DropdownSelect';
+import { RowFixed } from '../Row';
+import TradingViewChart, { CHART_TYPES } from '../TradingviewChart';
 
 const CHART_VIEW = {
   VOLUME: 'Volume',
@@ -29,14 +30,8 @@ const GlobalChart = ({ display }) => {
 
   // global historical data
   const [dailyData, weeklyData] = useGlobalChartData();
-  const {
-    totalLiquidityUSD,
-    oneDayVolumeUSD,
-    volumeChangeUSD,
-    liquidityChangeUSD,
-    oneWeekVolume,
-    weeklyVolumeChange,
-  } = useGlobalData();
+  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD, oneWeekVolume, weeklyVolumeChange } =
+    useGlobalData();
 
   // based on window, get starttim
   let utcStartTime = getTimeframe(timeWindow);

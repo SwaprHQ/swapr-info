@@ -1,20 +1,20 @@
+import { darken } from 'polished';
 import React, { useState, useRef, useEffect } from 'react';
-import styled from 'styled-components';
+import { Activity } from 'react-feather';
+import { useMedia, usePrevious } from 'react-use';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
-import { AutoRow, RowBetween, RowFixed } from '../Row';
+import styled from 'styled-components';
 
+import { timeframeOptions } from '../../constants';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import { darken } from 'polished';
-import { useMedia, usePrevious } from 'react-use';
-import { timeframeOptions } from '../../constants';
-import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
-import DropdownSelect from '../DropdownSelect';
 import CandleStickChart from '../CandleChart';
-import LocalLoader from '../LocalLoader';
 import { AutoColumn } from '../Column';
-import { Activity } from 'react-feather';
-import { useDarkModeManager } from '../../contexts/LocalStorage';
+import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
+import { AutoRow, RowBetween, RowFixed } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;

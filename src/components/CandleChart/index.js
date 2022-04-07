@@ -1,11 +1,12 @@
-import React, { useState, useEffect, useRef } from 'react';
-import { createChart, CrosshairMode } from 'lightweight-charts';
 import dayjs from 'dayjs';
-import { formattedNum } from '../../utils';
+import { createChart, CrosshairMode } from 'lightweight-charts';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play } from 'react-feather';
 import { usePrevious } from 'react-use';
 import styled from 'styled-components';
-import { Play } from 'react-feather';
+
 import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { formattedNum } from '../../utils';
 
 const IconWrapper = styled.div`
   position: absolute;

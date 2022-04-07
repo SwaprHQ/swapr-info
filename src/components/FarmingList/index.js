@@ -1,19 +1,19 @@
-import React, { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
 import dayjs from 'dayjs';
-import LocalLoader from '../LocalLoader';
 import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
-import { CustomLink } from '../Link';
+import { TYPE } from '../../Theme';
 import { Divider } from '../../components';
-import { withRouter } from 'react-router-dom';
+import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
 import { formattedNum } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
-import { TYPE } from '../../Theme';
-import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
+import { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
 import { AutoRow } from '../Row';
 import TokenLogo from '../TokenLogo';
 

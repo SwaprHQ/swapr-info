@@ -1,17 +1,18 @@
 import React, { useEffect } from 'react';
 import 'feather-icons';
 import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
+import styled from 'styled-components';
+
 import { TYPE } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
-import Panel from '../components/Panel';
-import LPList from '../components/LPList';
-import styled from 'styled-components';
 import AccountSearch from '../components/AccountSearch';
-import { useTopLps } from '../contexts/GlobalData';
+import LPList from '../components/LPList';
 import LocalLoader from '../components/LocalLoader';
+import Panel from '../components/Panel';
 import { RowBetween } from '../components/Row';
-import { useMedia } from 'react-use';
 import Search from '../components/Search';
+import { useTopLps } from '../contexts/GlobalData';
 import { useSwaprSubgraphClient } from '../contexts/Network';
 
 const AccountWrapper = styled.div`

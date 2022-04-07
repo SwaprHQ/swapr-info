@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
+import { useMedia } from 'react-use';
 import { Area, XAxis, YAxis, ResponsiveContainer, Bar, BarChart, CartesianGrid, Tooltip, AreaChart } from 'recharts';
 import styled from 'styled-components';
-import { useMedia } from 'react-use';
-import { toK, toNiceDate, toNiceDateYear } from '../../utils';
+
 import { useNativeCurrencySymbol } from '../../contexts/Network';
+import { toK, toNiceDate, toNiceDateYear } from '../../utils';
 
 const ChartWrapper = styled.div`
   padding-top: 1em;

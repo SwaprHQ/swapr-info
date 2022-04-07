@@ -1,5 +1,7 @@
-import { USER_MINTS_BUNRS_PER_PAIR } from '../apollo/queries';
 import dayjs from 'dayjs';
+
+import { USER_MINTS_BUNRS_PER_PAIR } from '../apollo/queries';
+
 import { getShareValueOverTime } from '.';
 
 export const priceOverrides = [

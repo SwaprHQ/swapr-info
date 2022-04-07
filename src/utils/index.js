@@ -1,14 +1,14 @@
-import React from 'react';
 import { BigNumber } from 'bignumber.js';
 import dayjs from 'dayjs';
-import { getAddress } from '@ethersproject/address';
 import utc from 'dayjs/plugin/utc';
-import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
-import { Text } from 'rebass';
 import _Decimal from 'decimal.js-light';
-import toFormat from 'toformat';
-import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId } from '../constants';
 import Numeral from 'numeral';
+import React from 'react';
+import { Text } from 'rebass';
+import toFormat from 'toformat';
+
+import { getAddress } from '@ethersproject/address';
+import { parseUnits } from '@ethersproject/units';
 import {
   CurrencyAmount,
   LiquidityMiningCampaign,
@@ -19,7 +19,9 @@ import {
   TokenAmount,
   USD,
 } from '@swapr/sdk';
-import { parseUnits } from '@ethersproject/units';
+
+import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
+import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId } from '../constants';
 
 // format libraries
 const Decimal = toFormat(_Decimal);

@@ -1,20 +1,19 @@
-import React, { useState, useEffect, useMemo } from 'react';
-import styled from 'styled-components';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-
+import React, { useState, useEffect, useMemo } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
-import TokenLogo from '../TokenLogo';
+import styled from 'styled-components';
+
+import { Divider } from '..';
+import { TYPE } from '../../Theme';
+import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
+import { formattedNum, formattedPercent } from '../../utils';
+import FormattedName from '../FormattedName';
 import { CustomLink } from '../Link';
 import Row from '../Row';
-import { Divider } from '..';
-
-import { formattedNum, formattedPercent } from '../../utils';
-import { useMedia } from 'react-use';
-import { withRouter } from 'react-router-dom';
-import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
-import FormattedName from '../FormattedName';
-import { TYPE } from '../../Theme';
+import TokenLogo from '../TokenLogo';
 
 dayjs.extend(utc);
 

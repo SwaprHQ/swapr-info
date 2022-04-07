@@ -1,21 +1,20 @@
-import React, { useState, useEffect } from 'react';
-import styled from 'styled-components';
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-
-import { formatTime, formattedNum, urls, getExplorerLink } from '../../utils';
+import React, { useState, useEffect } from 'react';
 import { useMedia } from 'react-use';
-import { RowFixed, RowBetween } from '../Row';
-
-import LocalLoader from '../LocalLoader';
 import { Box, Flex, Text } from 'rebass';
-import Link from '../Link';
+import styled from 'styled-components';
+
 import { Divider, EmptyCard } from '..';
+import { TYPE } from '../../Theme';
+import { useSelectedNetwork } from '../../contexts/Network';
+import { formatTime, formattedNum, urls, getExplorerLink } from '../../utils';
+import { updateNameData } from '../../utils/data';
 import DropdownSelect from '../DropdownSelect';
 import FormattedName from '../FormattedName';
-import { TYPE } from '../../Theme';
-import { updateNameData } from '../../utils/data';
-import { useSelectedNetwork } from '../../contexts/Network';
+import Link from '../Link';
+import LocalLoader from '../LocalLoader';
+import { RowFixed, RowBetween } from '../Row';
 
 dayjs.extend(utc);
 

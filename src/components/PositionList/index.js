@@ -1,22 +1,23 @@
-import React, { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
 import dayjs from 'dayjs';
-import LocalLoader from '../LocalLoader';
 import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
-import Link, { CustomLink } from '../Link';
-import { Divider } from '../../components';
-import DoubleTokenLogo from '../DoubleLogo';
-import { withRouter } from 'react-router-dom';
-import { formattedNum, getPoolLink } from '../../utils';
-import { AutoColumn } from '../Column';
-import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
-import { RowFixed } from '../Row';
-import { ButtonLight } from '../ButtonStyled';
+
 import { TYPE } from '../../Theme';
-import FormattedName from '../FormattedName';
+import { Divider } from '../../components';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { formattedNum, getPoolLink } from '../../utils';
+import { ButtonLight } from '../ButtonStyled';
+import { AutoColumn } from '../Column';
+import DoubleTokenLogo from '../DoubleLogo';
+import FormattedName from '../FormattedName';
+import Link, { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
+import { RowFixed } from '../Row';
 
 dayjs.extend(utc);
 

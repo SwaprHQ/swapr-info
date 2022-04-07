@@ -1,5 +1,14 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
 
+import { Interface } from '@ethersproject/abi';
+import { getAddress } from '@ethersproject/address';
+import { Contract } from '@ethersproject/contracts';
+import { parseUnits } from '@ethersproject/units';
+import { TokenAmount, Token, Pair, Currency } from '@swapr/sdk';
+
+import multicallAbi from '../abi/multicall.json';
 import {
   PAIR_DATA,
   PAIR_CHART,
@@ -10,15 +19,12 @@ import {
   HOURLY_PAIR_RATES,
   liquidityMiningCampaignsQuery,
 } from '../apollo/queries';
-import multicallAbi from '../abi/multicall.json';
-import { Interface } from '@ethersproject/abi';
-import { Contract } from '@ethersproject/contracts';
-
-import { useNativeCurrencyPrice } from './GlobalData';
-
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-
+import {
+  CHAIN_READONLY_PROVIDERS,
+  ChainIdForSupportedNetwork,
+  MULTICALL_ADDRESS,
+  timeframeOptions,
+} from '../constants';
 import {
   getPercentChange,
   get2DayPercentChange,
@@ -29,18 +35,10 @@ import {
   toLiquidityMiningCampaign,
   getStakedAmountUSD,
 } from '../utils';
-import {
-  CHAIN_READONLY_PROVIDERS,
-  ChainIdForSupportedNetwork,
-  MULTICALL_ADDRESS,
-  timeframeOptions,
-} from '../constants';
-import { isSyncedBlockAboveThreshold, useLatestBlocks } from './Application';
 import { updateNameData } from '../utils/data';
+import { isSyncedBlockAboveThreshold, useLatestBlocks } from './Application';
+import { useNativeCurrencyPrice } from './GlobalData';
 import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
-import { TokenAmount, Token, Pair, Currency } from '@swapr/sdk';
-import { getAddress } from '@ethersproject/address';
-import { parseUnits } from '@ethersproject/units';
 
 const RESET = 'RESET';
 const UPDATE = 'UPDATE';

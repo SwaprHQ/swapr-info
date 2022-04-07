@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+
 import { ChainIdForSupportedNetwork, SupportedNetwork } from '../constants';
 import { useSelectedNetwork } from '../contexts/Network';
 

@@ -1,12 +1,12 @@
 import React from 'react';
 import { useHistory } from 'react-router-dom';
+import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { Flex } from 'rebass';
-import Link from '../Link';
-import { RowFixed } from '../Row';
 import Logo from '../../assets/svg/logo_white.svg';
 import Wordmark from '../../assets/svg/wordmark_white.svg';
+import Link from '../Link';
+import { RowFixed } from '../Row';
 
 const TitleWrapper = styled.div`
   text-decoration: none;

@@ -1,14 +1,15 @@
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
 import React, { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect } from 'react';
+
+import { healthClient } from '../apollo/client';
+import { SUBGRAPH_HEALTH } from '../apollo/queries';
 import {
   BLOCK_DIFFERENCE_THRESHOLD,
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   NETWORK_SUBGRAPH_URLS,
   timeframeOptions,
 } from '../constants';
-import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import { healthClient } from '../apollo/client';
-import { SUBGRAPH_HEALTH } from '../apollo/queries';
 import { useSelectedNetwork } from './Network';
 
 dayjs.extend(utc);

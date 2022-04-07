@@ -1,17 +1,17 @@
-import React, { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
 import dayjs from 'dayjs';
-import LocalLoader from '../LocalLoader';
 import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { CustomLink } from '../Link';
 import { Divider } from '..';
-import { withRouter } from 'react-router-dom';
-import { formattedNum } from '../../utils';
 import { TYPE } from '../../Theme';
+import { formattedNum } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
+import { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
 import { RowFixed } from '../Row';
 
 dayjs.extend(utc);

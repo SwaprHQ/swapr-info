@@ -1,5 +1,6 @@
 import React from 'react';
 import styled, { css, keyframes } from 'styled-components';
+
 import { useDarkModeManager } from '../../contexts/LocalStorage';
 
 const pulse = keyframes`

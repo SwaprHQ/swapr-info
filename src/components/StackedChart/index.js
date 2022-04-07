@@ -10,6 +10,7 @@ import {
   ResponsiveContainer,
   Bar,
   ComposedChart,
+  Legend,
 } from "recharts";
 
 import { SupportedNetwork } from "../../constants";
@@ -163,12 +164,7 @@ const StackedChart = ({ title, type, data }) => {
             width={500}
             height={400}
             data={filteredData}
-            margin={{
-              top: 10,
-              right: 0,
-              left: 0,
-              bottom: 0,
-            }}
+            margin={{ top: 5 }}
           >
             <defs>
               <linearGradient id="xdai" x1="1" y1="0" x2="1" y2="1">
@@ -210,6 +206,13 @@ const StackedChart = ({ title, type, data }) => {
             </defs>
             <XAxis dataKey="time" hide />
             <YAxis hide />
+            <Legend
+              verticalAlign="top"
+              align="left"
+              iconType="circle"
+              iconSize={10}
+              fontSize={14}
+            />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
             <Area
               animationDuration={500}
@@ -248,13 +251,15 @@ const StackedChart = ({ title, type, data }) => {
             height={400}
             data={filteredData}
             throttleDelay={15}
-            margin={{
-              top: 10,
-              right: 0,
-              left: 0,
-              bottom: 0,
-            }}
+            margin={{ top: 5 }}
           >
+            <Legend
+              verticalAlign="top"
+              align="left"
+              iconType="circle"
+              iconSize={10}
+              fontSize={14}
+            />
             <XAxis dataKey="time" hide />
             <YAxis hide />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />

@@ -12,7 +12,7 @@ import React, {
   useMemo,
 } from "react";
 
-import { GLOBAL_CHART } from "../apollo/queries";
+import { DASHBOARD_CHART } from "../apollo/queries";
 import { useTimeframe } from "./Application";
 import { getTimeframe } from "../utils";
 import { clients } from "../apollo/client";
@@ -135,80 +135,32 @@ export function useDashboardChartData() {
  * @param {*} oldestDateToFetch // start of window to fetch from
  */
 const getChartData = async (oldestDateToFetch) => {
+  let data = [];
   try {
-    let data = [];
-    const utcEndTime = dayjs.utc();
-
-    // fetch data for each of the clients and add the
-    // linked network key to each day object
-    for (const { network, client } of SUPPORTED_CLIENTS) {
-      let skip = 0;
-      let allFound = false;
-
-      while (!allFound) {
-        let result = await client.query({
-          query: GLOBAL_CHART,
+    const requests = [];
+    for (const { client } of SUPPORTED_CLIENTS) {
+      requests.push(
+        client.query({
+          query: DASHBOARD_CHART,
           variables: {
             startTime: oldestDateToFetch,
-            skip,
+            skip: 0,
           },
-        });
-
-        skip += 1000;
-        data = data.concat(
-          result.data.swaprDayDatas.map((dayData) => ({
-            ...dayData,
-            network,
-          }))
-        );
-
-        if (result.data.swaprDayDatas.length < 1000) {
-          allFound = true;
-        }
-      }
+        })
+      );
     }
 
-    if (data && data.length > 0) {
-      let dayIndexSet = new Set();
-      let dayIndexArray = [];
-      const oneDay = 24 * 60 * 60;
-
-      // for each day, parse the daily volume and format for chart array
-      data.forEach((dayData, i) => {
-        // add the day index to the set of days
-        dayIndexSet.add((data[i].date / oneDay).toFixed(0));
-        dayIndexArray.push(data[i]);
-        dayData.dailyVolumeUSD = parseFloat(dayData.dailyVolumeUSD);
-      });
-
-      // fill in empty days (there will be no day datas if no trades made that day)
-      let timestamp = data[0].date ? data[0].date : oldestDateToFetch;
-      let latestLiquidityUSD = data[0].totalLiquidityUSD;
-      let latestDayDats = data[0].mostLiquidTokens;
-      let index = 1;
-      while (timestamp < utcEndTime.unix() - oneDay) {
-        const nextDay = timestamp + oneDay;
-        let currentDayIndex = (nextDay / oneDay).toFixed(0);
-        if (!dayIndexSet.has(currentDayIndex)) {
-          data.push({
-            date: nextDay,
-            dailyVolumeUSD: 0,
-            totalLiquidityUSD: latestLiquidityUSD,
-            mostLiquidTokens: latestDayDats,
-          });
-        } else {
-          latestLiquidityUSD = dayIndexArray[index].totalLiquidityUSD;
-          latestDayDats = dayIndexArray[index].mostLiquidTokens;
-          index = index + 1;
-        }
-        timestamp = nextDay;
-      }
-    }
-
-    data = data.sort((a, b) => (parseInt(a.date) > parseInt(b.date) ? 1 : -1));
-
-    return data;
+    const networksData = await Promise.all(requests);
+    networksData.forEach((networkData, index) => {
+      data = data.concat(
+        networkData.data.swaprDayDatas.map((dayData) => ({
+          ...dayData,
+          network: SUPPORTED_CLIENTS[index].network,
+        }))
+      );
+    });
   } catch (e) {
     console.log(e);
   }
+  return data;
 };

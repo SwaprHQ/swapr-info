@@ -108,11 +108,11 @@ const DropdownSelect = ({
     >
       {disabled ? (
         <RowBetween justify="center">
-          <TYPE.main display="flex">
-            <Icon network={active} />
+          <TYPE.main display="flex" color={"disabled"}>
+            <Icon network={active} disabled={true} />
             {active}
           </TYPE.main>
-          <StyledIcon>
+          <StyledIcon disabled={disabled}>
             <ArrowStyled />
           </StyledIcon>
         </RowBetween>

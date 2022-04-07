@@ -81,15 +81,7 @@ export default function Provider({ children }) {
 
   return (
     <DashboardDataContext.Provider
-      value={useMemo(
-        () => [
-          state,
-          {
-            updateChart,
-          },
-        ],
-        [state, updateChart]
-      )}
+      value={useMemo(() => [state, updateChart], [state, updateChart])}
     >
       {children}
     </DashboardDataContext.Provider>
@@ -101,7 +93,7 @@ Provider.propTypes = {
 };
 
 export function useDashboardChartData() {
-  const [state, { updateChart }] = useDashboardDataContext();
+  const [state, updateChart] = useDashboardDataContext();
   const [oldestDateFetch, setOldestDateFetched] = useState();
   const [activeWindow] = useTimeframe();
 

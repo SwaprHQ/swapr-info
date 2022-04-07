@@ -73,6 +73,7 @@ const theme = (darkMode, color) => ({
   secondary3: darkMode ? "#17000b26" : "#FDEAF1",
 
   shadow1: darkMode ? "#000" : "#2F80ED",
+  disabled: "#616161",
 
   // other
   red1: "#FF5252",

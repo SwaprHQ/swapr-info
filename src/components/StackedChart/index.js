@@ -21,7 +21,6 @@ const TIME_FILTER_OPTIONS = {
   MONTH_1: "1M",
   MONTH_3: "3M",
   YEAR: "1Y",
-  MAX: "MAX",
 };
 const NETWORK_COLORS = {
   [SupportedNetwork.MAINNET]: "#2974e0",
@@ -131,8 +130,7 @@ const StackedChart = ({ title, type, data }) => {
           break;
         }
         default: {
-          // TODO: find a cleaner way
-          limitDate.setFullYear(limitDate.getFullYear() - 10);
+          limitDate.setFullYear(limitDate.getFullYear() - 1);
         }
       }
 

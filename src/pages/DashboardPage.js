@@ -11,6 +11,7 @@ import { TYPE, ThemedBackground } from "../Theme";
 import { PageWrapper, ContentWrapper } from "../components";
 import { useDashboardChartData } from "../contexts/Dashboard";
 import StackedChart from "../components/StackedChart";
+import LocalLoader from "../components/LocalLoader";
 
 const GridRow = styled.div`
   display: grid;
@@ -31,38 +32,33 @@ const DashboardPage = () => {
 
   useEffect(() => {
     if (chartData && chartData.daily) {
-      // group daily liquidity data by date
-      setFormattedLiquidityData(
-        Object.values(
-          chartData.daily.reduce(
-            (accumulator, current) => ({
-              ...accumulator,
-              [current.date]: {
-                ...accumulator[current.date],
-                time: dayjs.unix(current.date).utc().format("YYYY-MM-DD"),
+      const formattedData = Object.values(
+        chartData.daily.reduce(
+          (accumulator, current) => ({
+            ...accumulator,
+            [current.date]: {
+              time: dayjs.unix(current.date).utc().format("YYYY-MM-DD"),
+              tvl: {
+                ...accumulator[current.date]?.tvl,
                 [current.network]: parseFloat(current.totalLiquidityUSD),
               },
-            }),
-            {}
-          )
+              volume: {
+                ...accumulator[current.date]?.volume,
+                [current.network]: parseFloat(current.dailyVolumeUSD),
+              },
+            },
+          }),
+          {}
         )
       );
 
+      // group daily liquidity data by date
+      setFormattedLiquidityData(
+        formattedData.map(({ time, tvl }) => ({ time, ...tvl }))
+      );
       // group daily volume data by date
       setFormattedVolumeData(
-        Object.values(
-          chartData.daily.reduce(
-            (accumulator, current) => ({
-              ...accumulator,
-              [current.date]: {
-                ...accumulator[current.date],
-                time: dayjs.unix(current.date).utc().format("YYYY-MM-DD"),
-                [current.network]: parseFloat(current.dailyVolumeUSD),
-              },
-            }),
-            {}
-          )
-        )
+        formattedData.map(({ time, volume }) => ({ time, ...volume }))
       );
     }
   }, [chartData]);
@@ -75,55 +71,61 @@ const DashboardPage = () => {
   }, []);
 
   return (
-    <PageWrapper>
-      <ThemedBackground backgroundColor={transparentize(0.8, "#4526A2")} />
-      <ContentWrapper>
-        <TYPE.largeHeader>
-          {below800
-            ? "Analytics Dashboard"
-            : "Swapr Protocol Analytics Dashboard"}
-        </TYPE.largeHeader>
-        {formattedLiquidityData && (
-          <>
-            {below800 ? (
-              <AutoColumn style={{ marginTop: "6px" }} gap="24px">
-                <Panel style={{ height: "100%" }}>
-                  <StackedChart
-                    title={"TVL"}
-                    type={"AREA"}
-                    data={formattedLiquidityData}
-                  />
-                </Panel>
-                <Panel style={{ height: "100%" }}>
-                  <StackedChart
-                    title={"Volume"}
-                    type={"BAR"}
-                    data={formattedVolumeData}
-                  />
-                </Panel>
-              </AutoColumn>
-            ) : (
-              <GridRow>
-                <Panel style={{ height: "100%" }}>
-                  <StackedChart
-                    title={"TVL"}
-                    type={"AREA"}
-                    data={formattedLiquidityData}
-                  />
-                </Panel>
-                <Panel style={{ height: "100%" }}>
-                  <StackedChart
-                    title={"Volume"}
-                    type={"BAR"}
-                    data={formattedVolumeData}
-                  />
-                </Panel>
-              </GridRow>
-            )}
-          </>
-        )}
-      </ContentWrapper>
-    </PageWrapper>
+    <>
+      {(chartData === undefined || Object.keys(chartData).length === 0) && (
+        <LocalLoader fill="true" />
+      )}
+      <PageWrapper>
+        <ThemedBackground backgroundColor={transparentize(0.8, "#4526A2")} />
+        <ContentWrapper>
+          <TYPE.largeHeader>
+            {below800
+              ? "Analytics Dashboard"
+              : "Swapr Protocol Analytics Dashboard"}
+          </TYPE.largeHeader>
+          {formattedLiquidityData && (
+            <>
+              {below800 ? (
+                <AutoColumn style={{ marginTop: "6px" }} gap="24px">
+                  <Panel style={{ height: "100%" }}>
+                    <StackedChart
+                      title={"TVL"}
+                      type={"AREA"}
+                      data={formattedLiquidityData}
+                    />
+                  </Panel>
+                  <Panel style={{ height: "100%" }}>
+                    <StackedChart
+                      title={"Volume"}
+                      type={"BAR"}
+                      data={formattedVolumeData}
+                    />
+                  </Panel>
+                </AutoColumn>
+              ) : (
+                <GridRow>
+                  <Panel style={{ height: "100%" }}>
+                    <StackedChart
+                      title={"TVL"}
+                      type={"AREA"}
+                      data={formattedLiquidityData}
+                    />
+                  </Panel>
+                  <Panel style={{ height: "100%" }}>
+                    <StackedChart
+                      title={"Volume"}
+                      type={"BAR"}
+                      data={formattedVolumeData}
+                    />
+                  </Panel>
+                </GridRow>
+              )}
+            </>
+          )}
+        </ContentWrapper>
+        )
+      </PageWrapper>
+    </>
   );
 };
 

@@ -1,12 +1,12 @@
-import React, { useState } from "react";
-import "feather-icons";
-import { withRouter } from "react-router-dom";
-import styled from "styled-components";
-import { ButtonLight } from "../ButtonStyled";
-import { AutoRow } from "../Row";
-import { isAddress } from "../../utils";
-import { useSavedAccounts } from "../../contexts/LocalStorage";
-import { AutoColumn } from "../Column";
+import React, { useState } from 'react';
+import 'feather-icons';
+import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { ButtonLight } from '../ButtonStyled';
+import { AutoRow } from '../Row';
+import { isAddress } from '../../utils';
+import { useSavedAccounts } from '../../contexts/LocalStorage';
+import { AutoColumn } from '../Column';
 
 const Wrapper = styled.div`
   display: flex;
@@ -72,7 +72,7 @@ function AccountSearch({ history, small }) {
 
   function handleAccountSearch() {
     if (isAddress(accountValue)) {
-      history.push("/account/" + accountValue);
+      history.push('/account/' + accountValue);
       if (!savedAccounts.includes(accountValue)) {
         addAccount(accountValue);
       }
@@ -80,7 +80,7 @@ function AccountSearch({ history, small }) {
   }
 
   return (
-    <AutoColumn gap={"1rem"}>
+    <AutoColumn gap={'1rem'}>
       {!small && (
         <>
           <AutoRow>
@@ -92,9 +92,7 @@ function AccountSearch({ history, small }) {
                 }}
               />
             </Wrapper>
-            <ButtonLight onClick={handleAccountSearch}>
-              Load Account Details
-            </ButtonLight>
+            <ButtonLight onClick={handleAccountSearch}>Load Account Details</ButtonLight>
           </AutoRow>
         </>
       )}

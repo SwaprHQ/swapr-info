@@ -1,6 +1,6 @@
-import React from "react";
-import styled, { css, keyframes } from "styled-components";
-import { useDarkModeManager } from "../../contexts/LocalStorage";
+import React from 'react';
+import styled, { css, keyframes } from 'styled-components';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
 
 const pulse = keyframes`
   0% { transform: scale(1); }
@@ -16,7 +16,7 @@ const Wrapper = styled.div`
   height: 100%;
   width: 100%;
 
-  ${props =>
+  ${(props) =>
     props.fill && !props.height
       ? css`
           height: 100vh;
@@ -40,9 +40,7 @@ const LocalLoader = ({ fill }) => {
     <Wrapper fill={fill}>
       <AnimatedImg>
         <img
-          src={require(darkMode
-            ? "../../assets/svg/logo_white.svg"
-            : "../../assets/svg/logo.svg")}
+          src={require(darkMode ? '../../assets/svg/logo_white.svg' : '../../assets/svg/logo.svg')}
           alt="loading-icon"
         />
       </AnimatedImg>

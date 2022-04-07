@@ -1,27 +1,24 @@
-import React, { useCallback, useState } from "react";
-import styled from "styled-components";
-import { AutoColumn } from "../Column";
-import Title from "../Title";
-import { BasicLink } from "../Link";
-import { useMedia } from "react-use";
-import { transparentize } from "polished";
-import { TYPE } from "../../Theme";
-import { withRouter } from "react-router-dom";
-import { TrendingUp, List, PieChart, Disc, Menu, Layers } from "react-feather";
-import Link from "../Link";
-import { useSessionStart } from "../../contexts/Application";
-import farming from "../../assets/farming.svg";
-import DropdownSelect from "../DropdownSelect";
-import {
-  useSelectedNetwork,
-  useSelectedNetworkUpdater,
-} from "../../contexts/Network";
-import { SupportedNetwork } from "../../constants";
-import { AutoRow } from "../Row";
-import { MobileMenu } from "./MobileMenu";
+import React, { useCallback, useState } from 'react';
+import styled from 'styled-components';
+import { AutoColumn } from '../Column';
+import Title from '../Title';
+import { BasicLink } from '../Link';
+import { useMedia } from 'react-use';
+import { transparentize } from 'polished';
+import { TYPE } from '../../Theme';
+import { withRouter } from 'react-router-dom';
+import { TrendingUp, List, PieChart, Disc, Menu, Layers } from 'react-feather';
+import Link from '../Link';
+import { useSessionStart } from '../../contexts/Application';
+import farming from '../../assets/farming.svg';
+import DropdownSelect from '../DropdownSelect';
+import { useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
+import { SupportedNetwork } from '../../constants';
+import { AutoRow } from '../Row';
+import { MobileMenu } from './MobileMenu';
 
 const Wrapper = styled.div`
-  height: ${({ isMobile }) => (isMobile ? "initial" : "100vh")};
+  height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
   background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
   color: ${({ theme }) => theme.text1};
   padding: 0.5rem 0.5rem 0.5rem 0.75rem;
@@ -115,7 +112,7 @@ const AnimatedMobileMenu = styled(MobileMenu)`
   position: fixed;
   right: 0;
   left: 0;
-  top: ${(props) => (props.open ? "0" : "-100%")};
+  top: ${(props) => (props.open ? '0' : '-100%')};
   background-color: ${({ theme }) => theme.bg2};
   color: #fff;
   transition: top ease 0.3s;
@@ -128,19 +125,16 @@ const Overlay = styled.div`
   left: 0;
   top: 0;
   bottom: 0;
-  background-color: ${transparentize(0.7, "#000")};
+  background-color: ${transparentize(0.7, '#000')};
   opacity: ${({ show }) => (show ? 1 : 0)};
-  transform: translateY(${(props) => (props.show ? "0" : "10000000px")});
-  transition: ${(props) =>
-    props.show
-      ? "opacity 0.3s ease"
-      : "transform 0.3s ease 0.3s, opacity 0.3s ease"};
+  transform: translateY(${(props) => (props.show ? '0' : '10000000px')});
+  transition: ${(props) => (props.show ? 'opacity 0.3s ease' : 'transform 0.3s ease 0.3s, opacity 0.3s ease')};
 `;
 
 function SideNav({ history }) {
-  const below1080 = useMedia("(max-width: 1080px)");
+  const below1080 = useMedia('(max-width: 1080px)');
 
-  const below1180 = useMedia("(max-width: 1180px)");
+  const below1180 = useMedia('(max-width: 1180px)');
 
   const seconds = useSessionStart();
 
@@ -160,94 +154,73 @@ function SideNav({ history }) {
   const handleSelectedNetworkChange = useCallback(
     (network) => {
       updateSelectedNetwork(network);
-      history.push("/");
+      history.push('/');
     },
-    [updateSelectedNetwork, history]
+    [updateSelectedNetwork, history],
   );
 
   return (
     <Wrapper isMobile={below1080}>
       {!below1080 ? (
         <DesktopWrapper>
-          <AutoColumn
-            gap="1rem"
-            style={{ marginLeft: ".75rem", marginTop: "1.5rem" }}
-          >
+          <AutoColumn gap="1rem" style={{ marginLeft: '.75rem', marginTop: '1.5rem' }}>
             <Title />
-            {history.location.pathname !== "/dashboard" ? (
+            {history.location.pathname !== '/dashboard' ? (
               <DropdownSelect
                 active={selectedNetwork}
                 setActive={handleSelectedNetworkChange}
                 options={Object.values(SupportedNetwork)}
               />
             ) : (
-              <DropdownSelect
-                active={"All"}
-                disabled={true}
-                options={[{ ALL: "All" }]}
-              />
+              <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
             )}
             {!below1080 && (
-              <AutoColumn gap="1.25rem" style={{ marginTop: "1rem" }}>
+              <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
                 <BasicLink to="/dashboard">
-                  <Option
-                    activeText={
-                      history.location.pathname === "/dashboard" ?? undefined
-                    }
-                  >
-                    <Layers size={20} style={{ marginRight: ".75rem" }} />
+                  <Option activeText={history.location.pathname === '/dashboard' ?? undefined}>
+                    <Layers size={20} style={{ marginRight: '.75rem' }} />
                     Dashboard
                   </Option>
                 </BasicLink>
                 <BasicLink to="/home">
-                  <Option
-                    activeText={
-                      history.location.pathname === "/home" ?? undefined
-                    }
-                  >
-                    <TrendingUp size={20} style={{ marginRight: ".75rem" }} />
+                  <Option activeText={history.location.pathname === '/home' ?? undefined}>
+                    <TrendingUp size={20} style={{ marginRight: '.75rem' }} />
                     Overview
                   </Option>
                 </BasicLink>
                 <BasicLink to="/tokens">
                   <Option
                     activeText={
-                      (history.location.pathname.split("/")[1] === "tokens" ||
-                        history.location.pathname.split("/")[1] === "token") ??
+                      (history.location.pathname.split('/')[1] === 'tokens' ||
+                        history.location.pathname.split('/')[1] === 'token') ??
                       undefined
                     }
                   >
-                    <Disc size={20} style={{ marginRight: ".75rem" }} />
+                    <Disc size={20} style={{ marginRight: '.75rem' }} />
                     Tokens
                   </Option>
                 </BasicLink>
                 <BasicLink to="/pairs">
                   <Option
                     activeText={
-                      (history.location.pathname.split("/")[1] === "pairs" ||
-                        history.location.pathname.split("/")[1] === "pair") ??
+                      (history.location.pathname.split('/')[1] === 'pairs' ||
+                        history.location.pathname.split('/')[1] === 'pair') ??
                       undefined
                     }
                   >
-                    <PieChart size={20} style={{ marginRight: ".75rem" }} />
+                    <PieChart size={20} style={{ marginRight: '.75rem' }} />
                     Pairs
                   </Option>
                 </BasicLink>
                 <BasicLink to="/farming">
                   <Option
                     activeText={
-                      (history.location.pathname.split("/")[1] === "farming" ||
-                        history.location.pathname.split("/")[1] ===
-                          "farming") ??
+                      (history.location.pathname.split('/')[1] === 'farming' ||
+                        history.location.pathname.split('/')[1] === 'farming') ??
                       undefined
                     }
                   >
-                    <img
-                      style={{ marginRight: ".75rem" }}
-                      width={"20px"}
-                      src={farming}
-                      alt="farming"
-                    />
+                    <img style={{ marginRight: '.75rem' }} width={'20px'} src={farming} alt="farming" />
                     Farming
                   </Option>
                 </BasicLink>
@@ -255,23 +228,19 @@ function SideNav({ history }) {
                 <BasicLink to="/accounts">
                   <Option
                     activeText={
-                      (history.location.pathname.split("/")[1] === "accounts" ||
-                        history.location.pathname.split("/")[1] ===
-                          "account") ??
+                      (history.location.pathname.split('/')[1] === 'accounts' ||
+                        history.location.pathname.split('/')[1] === 'account') ??
                       undefined
                     }
                   >
-                    <List size={20} style={{ marginRight: ".75rem" }} />
+                    <List size={20} style={{ marginRight: '.75rem' }} />
                     Accounts
                   </Option>
                 </BasicLink>
               </AutoColumn>
             )}
           </AutoColumn>
-          <AutoColumn
-            gap="0.5rem"
-            style={{ marginLeft: ".75rem", marginBottom: "4rem" }}
-          >
+          <AutoColumn gap="0.5rem" style={{ marginLeft: '.75rem', marginBottom: '4rem' }}>
             <HeaderText>
               <Link href="https://dxdao.eth.link" target="_blank">
                 DXdao
@@ -284,11 +253,11 @@ function SideNav({ history }) {
             </HeaderText>
           </AutoColumn>
           {!below1180 && (
-            <Polling style={{ marginLeft: ".5rem" }}>
+            <Polling style={{ marginLeft: '.5rem' }}>
               <PollingDot />
-              <a href="/" style={{ color: "white" }}>
-                <TYPE.small color={"white"}>
-                  Updated {!!seconds ? seconds + "s" : "-"} ago <br />
+              <a href="/" style={{ color: 'white' }}>
+                <TYPE.small color={'white'}>
+                  Updated {!!seconds ? seconds + 's' : '-'} ago <br />
                 </TYPE.small>
               </a>
             </Polling>
@@ -296,26 +265,19 @@ function SideNav({ history }) {
         </DesktopWrapper>
       ) : (
         <>
-          <AnimatedMobileMenu
-            open={mobileMenuOpen}
-            onClose={handleMobileMenuClose}
-          />
+          <AnimatedMobileMenu open={mobileMenuOpen} onClose={handleMobileMenuClose} />
           <Overlay show={mobileMenuOpen} onClick={handleMobileMenuClose} />
           <MobileWrapper>
             <Title />
             <AutoRow justify="flex-end" gap="8px">
-              {history.location.pathname !== "/dashboard" ? (
+              {history.location.pathname !== '/dashboard' ? (
                 <DropdownSelect
                   active={selectedNetwork}
                   setActive={handleSelectedNetworkChange}
                   options={Object.values(SupportedNetwork)}
                 />
               ) : (
-                <DropdownSelect
-                  active={"All"}
-                  disabled={true}
-                  options={[{ ALL: "All" }]}
-                />
+                <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
               )}
               <MenuIcon onClick={handleMobileMenuOpen} />
             </AutoRow>

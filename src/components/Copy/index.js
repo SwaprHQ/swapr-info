@@ -1,8 +1,8 @@
-import React from 'react'
-import styled from 'styled-components'
-import { useCopyClipboard } from '../../hooks'
-import { CheckCircle, Copy } from 'react-feather'
-import { StyledIcon } from '..'
+import React from 'react';
+import styled from 'styled-components';
+import { useCopyClipboard } from '../../hooks';
+import { CheckCircle, Copy } from 'react-feather';
+import { StyledIcon } from '..';
 
 const CopyIcon = styled.div`
   color: #aeaeae;
@@ -17,16 +17,16 @@ const CopyIcon = styled.div`
     opacity: 0.8;
     cursor: pointer;
   }
-`
+`;
 const TransactionStatusText = styled.span`
   margin-left: 0.25rem;
   ${({ theme }) => theme.flexRowNoWrap};
   align-items: center;
   color: black;
-`
+`;
 
 export default function CopyHelper({ toCopy }) {
-  const [isCopied, setCopied] = useCopyClipboard()
+  const [isCopied, setCopied] = useCopyClipboard();
 
   return (
     <CopyIcon onClick={() => setCopied(toCopy)}>
@@ -44,5 +44,5 @@ export default function CopyHelper({ toCopy }) {
         </TransactionStatusText>
       )}
     </CopyIcon>
-  )
+  );
 }

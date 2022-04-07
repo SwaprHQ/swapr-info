@@ -1,25 +1,8 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import {
-  isSyncedBlockAboveThreshold,
-  useLatestBlocks,
-  useTimeframe,
-} from "./Application";
-import {
-  getPercentChange,
-  getBlockFromTimestamp,
-  getBlocksFromTimestamps,
-  getTimeframe,
-} from "../utils";
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import { isSyncedBlockAboveThreshold, useLatestBlocks, useTimeframe } from './Application';
+import { getPercentChange, getBlockFromTimestamp, getBlocksFromTimestamps, getTimeframe } from '../utils';
 import {
   GLOBAL_DATA,
   GLOBAL_TXNS,
@@ -28,25 +11,21 @@ import {
   ALL_PAIRS,
   ALL_TOKENS,
   TOP_LPS_PER_PAIRS,
-} from "../apollo/queries";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import { useAllPairData } from "./PairData";
-import { FACTORY_ADDRESS } from "../constants";
-import {
-  useBlocksSubgraphClient,
-  useSelectedNetwork,
-  useSwaprSubgraphClient,
-} from "./Network";
+} from '../apollo/queries';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+import { useAllPairData } from './PairData';
+import { FACTORY_ADDRESS } from '../constants';
+import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
 
-const UPDATE = "UPDATE";
-const UPDATE_TXNS = "UPDATE_TXNS";
-const UPDATE_CHART = "UPDATE_CHART";
-const UPDATE_NATIVE_CURRENCY_PRICE = "UPDATE_NATIVE_CURRENCY_PRICE";
-const NATIVE_CURRENCY_PRICE_KEY = "NATIVE_CURRENCY_PRICE_KEY";
-const UPDATE_ALL_PAIRS_IN_SWAPR = "UPDAUPDATE_ALL_PAIRS_IN_SWAPRTE_TOP_PAIRS";
-const UPDATE_ALL_TOKENS_IN_SWAPR = "UPDATE_ALL_TOKENS_IN_SWAPR";
-const UPDATE_TOP_LPS = "UPDATE_TOP_LPS";
-const RESET = "RESET";
+const UPDATE = 'UPDATE';
+const UPDATE_TXNS = 'UPDATE_TXNS';
+const UPDATE_CHART = 'UPDATE_CHART';
+const UPDATE_NATIVE_CURRENCY_PRICE = 'UPDATE_NATIVE_CURRENCY_PRICE';
+const NATIVE_CURRENCY_PRICE_KEY = 'NATIVE_CURRENCY_PRICE_KEY';
+const UPDATE_ALL_PAIRS_IN_SWAPR = 'UPDAUPDATE_ALL_PAIRS_IN_SWAPRTE_TOP_PAIRS';
+const UPDATE_ALL_TOKENS_IN_SWAPR = 'UPDATE_ALL_TOKENS_IN_SWAPR';
+const UPDATE_TOP_LPS = 'UPDATE_TOP_LPS';
+const RESET = 'RESET';
 
 // format dayjs with the libraries that we need
 dayjs.extend(utc);
@@ -87,11 +66,7 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_NATIVE_CURRENCY_PRICE: {
-      const {
-        nativeCurrencyPrice,
-        oneDayPrice,
-        nativeCurrencyPriceChange,
-      } = payload;
+      const { nativeCurrencyPrice, oneDayPrice, nativeCurrencyPriceChange } = payload;
       return {
         [NATIVE_CURRENCY_PRICE_KEY]: nativeCurrencyPrice,
         oneDayPrice,
@@ -163,19 +138,16 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateNativeCurrencyPrice = useCallback(
-    (nativeCurrencyPrice, oneDayPrice, nativeCurrencyPriceChange) => {
-      dispatch({
-        type: UPDATE_NATIVE_CURRENCY_PRICE,
-        payload: {
-          nativeCurrencyPrice,
-          oneDayPrice,
-          nativeCurrencyPriceChange,
-        },
-      });
-    },
-    []
-  );
+  const updateNativeCurrencyPrice = useCallback((nativeCurrencyPrice, oneDayPrice, nativeCurrencyPriceChange) => {
+    dispatch({
+      type: UPDATE_NATIVE_CURRENCY_PRICE,
+      payload: {
+        nativeCurrencyPrice,
+        oneDayPrice,
+        nativeCurrencyPriceChange,
+      },
+    });
+  }, []);
 
   const updateAllPairsInSwapr = useCallback((allPairs) => {
     dispatch({
@@ -234,7 +206,7 @@ export default function Provider({ children }) {
           updateAllPairsInSwapr,
           updateAllTokensInSwapr,
           reset,
-        ]
+        ],
       )}
     >
       {children}
@@ -249,13 +221,7 @@ export default function Provider({ children }) {
  * @param {*} nativeCurrencyPrice
  * @param {*} oldNativeCurrencyPrice
  */
-async function getGlobalData(
-  factoryAddress,
-  client,
-  blockClient,
-  nativeCurrencyPrice,
-  oldNativeCurrencyPrice
-) {
+async function getGlobalData(factoryAddress, client, blockClient, nativeCurrencyPrice, oldNativeCurrencyPrice) {
   // data for each day , historic data used for % changes
   let data = {};
   let oneDayData = {};
@@ -264,18 +230,13 @@ async function getGlobalData(
   try {
     // get timestamps for the days
     const utcCurrentTime = dayjs();
-    const utcOneDayBack = utcCurrentTime.subtract(1, "day").unix();
-    const utcTwoDaysBack = utcCurrentTime.subtract(2, "day").unix();
-    const utcOneWeekBack = utcCurrentTime.subtract(1, "week").unix();
-    const utcTwoWeeksBack = utcCurrentTime.subtract(2, "week").unix();
+    const utcOneDayBack = utcCurrentTime.subtract(1, 'day').unix();
+    const utcTwoDaysBack = utcCurrentTime.subtract(2, 'day').unix();
+    const utcOneWeekBack = utcCurrentTime.subtract(1, 'week').unix();
+    const utcTwoWeeksBack = utcCurrentTime.subtract(2, 'week').unix();
 
     // get the blocks needed for time travel queries
-    let [
-      oneDayBlock,
-      twoDayBlock,
-      oneWeekBlock,
-      twoWeekBlock,
-    ] = await getBlocksFromTimestamps(blockClient, [
+    let [oneDayBlock, twoDayBlock, oneWeekBlock, twoWeekBlock] = await getBlocksFromTimestamps(blockClient, [
       utcOneDayBack,
       utcTwoDaysBack,
       utcOneWeekBack,
@@ -309,47 +270,40 @@ async function getGlobalData(
     const twoWeekData = twoWeekResult.data.swaprFactories[0];
 
     // format the total liquidity in USD
-    data.totalLiquidityUSD =
-      data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
+    data.totalLiquidityUSD = data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
 
     if (data && oneDayData) {
-      const absoluteOneDayVolumeChange =
-        parseFloat(data.totalVolumeUSD) - parseFloat(oneDayData.totalVolumeUSD);
+      const absoluteOneDayVolumeChange = parseFloat(data.totalVolumeUSD) - parseFloat(oneDayData.totalVolumeUSD);
       data.oneDayVolumeUSD = absoluteOneDayVolumeChange;
 
       data.liquidityChangeUSD = getPercentChange(
         data.totalLiquidityNativeCurrency * nativeCurrencyPrice,
-        oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice
+        oneDayData.totalLiquidityNativeCurrency * oldNativeCurrencyPrice,
       );
 
-      const absoluteOneDayTxChange =
-        parseFloat(data.txCount) - parseFloat(oneDayData.txCount);
+      const absoluteOneDayTxChange = parseFloat(data.txCount) - parseFloat(oneDayData.txCount);
       data.oneDayTxns = absoluteOneDayTxChange;
 
       if (twoDayData) {
         data.volumeChangeUSD = getPercentChange(
           absoluteOneDayVolumeChange,
-          parseFloat(oneDayData.totalVolumeUSD) -
-            parseFloat(twoDayData.totalVolumeUSD)
+          parseFloat(oneDayData.totalVolumeUSD) - parseFloat(twoDayData.totalVolumeUSD),
         );
 
         data.txnChange = getPercentChange(
           absoluteOneDayTxChange,
-          parseFloat(oneDayData.txCount) - parseFloat(twoDayData.txCount)
+          parseFloat(oneDayData.txCount) - parseFloat(twoDayData.txCount),
         );
       }
     }
     if (data && oneWeekData) {
-      let absoluteOneWeekVolumeChange =
-        parseFloat(data.totalVolumeUSD) -
-        parseFloat(oneWeekData.totalVolumeUSD);
+      let absoluteOneWeekVolumeChange = parseFloat(data.totalVolumeUSD) - parseFloat(oneWeekData.totalVolumeUSD);
       data.oneWeekVolume = absoluteOneWeekVolumeChange;
 
       if (twoWeekData) {
         data.weeklyVolumeChange = getPercentChange(
           absoluteOneWeekVolumeChange,
-          parseFloat(oneWeekData.totalVolumeUSD) -
-            parseFloat(twoWeekData.totalVolumeUSD)
+          parseFloat(oneWeekData.totalVolumeUSD) - parseFloat(twoWeekData.totalVolumeUSD),
         );
       }
     }
@@ -438,8 +392,7 @@ const getChartData = async (client, oldestDateToFetch) => {
       weeklyData[startIndexWeekly] = weeklyData[startIndexWeekly] || {};
       weeklyData[startIndexWeekly].date = data[i].date;
       weeklyData[startIndexWeekly].weeklyVolumeUSD =
-        (weeklyData[startIndexWeekly].weeklyVolumeUSD ?? 0) +
-        data[i].dailyVolumeUSD;
+        (weeklyData[startIndexWeekly].weeklyVolumeUSD ?? 0) + data[i].dailyVolumeUSD;
     });
   } catch (e) {
     console.log(e);
@@ -489,16 +442,9 @@ const getGlobalTransactions = async (client) => {
 /**
  * Gets the current price of the selected network's native currency, 24 hour price, and % change between them
  */
-const getNativeCurrencyPrice = async (
-  client,
-  blockClient,
-  latestSyncedBlock
-) => {
+const getNativeCurrencyPrice = async (client, blockClient, latestSyncedBlock) => {
   const utcCurrentTime = dayjs();
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, "day")
-    .startOf("minute")
-    .unix();
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
 
   let nativeCurrencyPrice = 0;
   let nativeCurrencyPriceOneDay = 0;
@@ -507,9 +453,7 @@ const getNativeCurrencyPrice = async (
   try {
     // Override the block to latest block
     let oneDayBlock =
-      latestSyncedBlock !== undefined
-        ? latestSyncedBlock
-        : await getBlockFromTimestamp(blockClient, utcOneDayBack);
+      latestSyncedBlock !== undefined ? latestSyncedBlock : await getBlockFromTimestamp(blockClient, utcOneDayBack);
 
     let result = await client.query({
       query: NATIVE_CURRENCY_PRICE(),
@@ -526,11 +470,7 @@ const getNativeCurrencyPrice = async (
     console.log(e);
   }
 
-  return [
-    nativeCurrencyPrice,
-    nativeCurrencyPriceOneDay,
-    priceChangeNativeCurrency,
-  ];
+  return [nativeCurrencyPrice, nativeCurrencyPriceOneDay, priceChangeNativeCurrency];
 };
 
 const PAIRS_TO_FETCH = 500;
@@ -553,10 +493,7 @@ async function getAllPairsOnSwapr(client) {
       });
       skipCount = skipCount + PAIRS_TO_FETCH;
       pairs = pairs.concat(result?.data?.pairs);
-      if (
-        result?.data?.pairs.length < PAIRS_TO_FETCH ||
-        pairs.length > PAIRS_TO_FETCH
-      ) {
+      if (result?.data?.pairs.length < PAIRS_TO_FETCH || pairs.length > PAIRS_TO_FETCH) {
         allFound = true;
       }
     }
@@ -582,10 +519,7 @@ async function getAllTokensOnSwapr(client) {
         },
       });
       tokens = tokens.concat(result?.data?.tokens);
-      if (
-        result?.data?.tokens?.length < TOKENS_TO_FETCH ||
-        tokens.length > TOKENS_TO_FETCH
-      ) {
+      if (result?.data?.tokens?.length < TOKENS_TO_FETCH || tokens.length > TOKENS_TO_FETCH) {
         allFound = true;
       }
       skipCount = skipCount += TOKENS_TO_FETCH;
@@ -602,14 +536,8 @@ async function getAllTokensOnSwapr(client) {
 export function useGlobalData() {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
-  const [
-    state,
-    { update, updateAllPairsInSwapr, updateAllTokensInSwapr },
-  ] = useGlobalDataContext();
-  const [
-    nativeCurrencyPrice,
-    oldNativeCurrencyPrice,
-  ] = useNativeCurrencyPrice();
+  const [state, { update, updateAllPairsInSwapr, updateAllTokensInSwapr }] = useGlobalDataContext();
+  const [nativeCurrencyPrice, oldNativeCurrencyPrice] = useNativeCurrencyPrice();
   const selectedNetwork = useSelectedNetwork();
 
   const data = state?.globalData;
@@ -621,7 +549,7 @@ export function useGlobalData() {
         client,
         blockClient,
         nativeCurrencyPrice,
-        oldNativeCurrencyPrice
+        oldNativeCurrencyPrice,
       );
       globalData && update(globalData);
 
@@ -631,12 +559,7 @@ export function useGlobalData() {
       let allTokens = await getAllTokensOnSwapr(client, blockClient);
       updateAllTokensInSwapr(allTokens);
     }
-    if (
-      selectedNetwork &&
-      !data &&
-      nativeCurrencyPrice &&
-      oldNativeCurrencyPrice
-    ) {
+    if (selectedNetwork && !data && nativeCurrencyPrice && oldNativeCurrencyPrice) {
       fetchData();
     }
   }, [
@@ -683,10 +606,7 @@ export function useGlobalChartData() {
   useEffect(() => {
     async function fetchData() {
       // historical stuff for chart
-      let [newChartData, newWeeklyData] = await getChartData(
-        client,
-        oldestDateFetch
-      );
+      let [newChartData, newWeeklyData] = await getChartData(client, oldestDateFetch);
       updateChart(newChartData, newWeeklyData);
     }
     if (oldestDateFetch && !(chartDataDaily && chartDataWeekly)) {
@@ -721,29 +641,33 @@ export function useNativeCurrencyPrice() {
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateNativeCurrencyPrice }] = useGlobalDataContext();
   const nativeCurrencyPrice = state?.[NATIVE_CURRENCY_PRICE_KEY];
-  const nativeCurrencyPriceOld = state?.["oneDayPrice"];
+  const nativeCurrencyPriceOld = state?.['oneDayPrice'];
 
   useEffect(() => {
     async function checkForNativeCurrencyPrice() {
-      const capLatestSyncedBlock = isSyncedBlockAboveThreshold(
-        latestSyncedBlock,
-        headBlock,
-        selectedNetwork
-      )
+      const capLatestSyncedBlock = isSyncedBlockAboveThreshold(latestSyncedBlock, headBlock, selectedNetwork)
         ? latestSyncedBlock
         : undefined;
 
       let [newPrice, oneDayPrice, priceChange] = await getNativeCurrencyPrice(
         client,
         blockClient,
-        capLatestSyncedBlock
+        capLatestSyncedBlock,
       );
       if (newPrice !== nativeCurrencyPrice) {
         updateNativeCurrencyPrice(newPrice, oneDayPrice, priceChange);
       }
     }
     checkForNativeCurrencyPrice();
-  }, [updateNativeCurrencyPrice, nativeCurrencyPrice, client, blockClient, latestSyncedBlock, headBlock , selectedNetwork]);
+  }, [
+    updateNativeCurrencyPrice,
+    nativeCurrencyPrice,
+    client,
+    blockClient,
+    latestSyncedBlock,
+    headBlock,
+    selectedNetwork,
+  ]);
 
   return [nativeCurrencyPrice, nativeCurrencyPriceOld];
 }
@@ -776,12 +700,7 @@ export function useTopLps(client) {
     async function fetchData() {
       // get top 20 by reserves
       let topPairs = Object.keys(allPairs)
-        ?.sort((a, b) =>
-          parseFloat(allPairs[a].reserveUSD) >
-          parseFloat(allPairs[b].reserveUSD)
-            ? -1
-            : 1
-        )
+        ?.sort((a, b) => (parseFloat(allPairs[a].reserveUSD) > parseFloat(allPairs[b].reserveUSD) ? -1 : 1))
         ?.slice(0, 99);
 
       let topLpLists = await Promise.all(
@@ -797,25 +716,18 @@ export function useTopLps(client) {
             if (results) {
               return results.liquidityPositions.map((position) => {
                 const stakedAmount = results.liquidityMiningPositions
-                  .filter(
-                    (stakingPosition) =>
-                      stakingPosition.user.id === position.user.id
-                  )
+                  .filter((stakingPosition) => stakingPosition.user.id === position.user.id)
                   .reduce((total, stakingPosition) => {
-                    return (
-                      total + parseFloat(stakingPosition.liquidityTokenBalance)
-                    );
+                    return total + parseFloat(stakingPosition.liquidityTokenBalance);
                   }, 0);
-                position.liquidityTokenBalance = (
-                  parseFloat(position.liquidityTokenBalance) + stakedAmount
-                ).toString();
+                position.liquidityTokenBalance = (parseFloat(position.liquidityTokenBalance) + stakedAmount).toString();
                 return position;
               });
             }
           } catch (e) {
             console.error(e);
           }
-        })
+        }),
       );
 
       // get the top lps from the results formatted
@@ -827,15 +739,14 @@ export function useTopLps(client) {
             const pairData = allPairs[entry.pair.id];
             return topLps.push({
               user: entry.user,
-              pairName: pairData.token0.symbol + "-" + pairData.token1.symbol,
+              pairName: pairData.token0.symbol + '-' + pairData.token1.symbol,
               pairAddress: entry.pair.id,
               token0: pairData.token0.id,
               token1: pairData.token1.id,
               token0Symbol: pairData.token0.symbol,
               token1Symbol: pairData.token1.symbol,
               usd:
-                (parseFloat(entry.liquidityTokenBalance) /
-                  parseFloat(pairData.totalSupply)) *
+                (parseFloat(entry.liquidityTokenBalance) / parseFloat(pairData.totalSupply)) *
                 parseFloat(pairData.reserveUSD),
             });
           });

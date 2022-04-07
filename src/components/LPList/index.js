@@ -1,18 +1,18 @@
-import React, { useState, useEffect } from "react";
-import { useMedia } from "react-use";
-import dayjs from "dayjs";
-import LocalLoader from "../LocalLoader";
-import utc from "dayjs/plugin/utc";
-import { Box, Flex } from "rebass";
-import styled from "styled-components";
+import React, { useState, useEffect } from 'react';
+import { useMedia } from 'react-use';
+import dayjs from 'dayjs';
+import LocalLoader from '../LocalLoader';
+import utc from 'dayjs/plugin/utc';
+import { Box, Flex } from 'rebass';
+import styled from 'styled-components';
 
-import { CustomLink } from "../Link";
-import { Divider } from "..";
-import { withRouter } from "react-router-dom";
-import { formattedNum } from "../../utils";
-import { TYPE } from "../../Theme";
-import DoubleTokenLogo from "../DoubleLogo";
-import { RowFixed } from "../Row";
+import { CustomLink } from '../Link';
+import { Divider } from '..';
+import { withRouter } from 'react-router-dom';
+import { formattedNum } from '../../utils';
+import { TYPE } from '../../Theme';
+import DoubleTokenLogo from '../DoubleLogo';
+import { RowFixed } from '../Row';
 
 dayjs.extend(utc);
 
@@ -42,7 +42,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 10px 1.5fr 1fr 1fr;
-  grid-template-areas: "number name pair value";
+  grid-template-areas: 'number name pair value';
   padding: 0 4px;
 
   > * {
@@ -51,12 +51,12 @@ const DashGrid = styled.div`
 
   @media screen and (max-width: 1080px) {
     grid-template-columns: 10px 1.5fr 1fr 1fr;
-    grid-template-areas: "number name pair value";
+    grid-template-areas: 'number name pair value';
   }
 
   @media screen and (max-width: 600px) {
     grid-template-columns: 1fr 1fr 1fr;
-    grid-template-areas: "name pair value";
+    grid-template-areas: 'name pair value';
   }
 `;
 
@@ -76,8 +76,8 @@ const DataText = styled(Flex)`
 `;
 
 function LPList({ lps, disbaleLinks, maxItems = 10 }) {
-  const below600 = useMedia("(max-width: 600px)");
-  const below800 = useMedia("(max-width: 800px)");
+  const below600 = useMedia('(max-width: 600px)');
+  const below800 = useMedia('(max-width: 800px)');
 
   // pagination
   const [page, setPage] = useState(1);
@@ -95,32 +95,21 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
       if (Object.keys(lps).length % ITEMS_PER_PAGE === 0) {
         extraPages = 0;
       }
-      setMaxPage(
-        Math.floor(Object.keys(lps).length / ITEMS_PER_PAGE) + extraPages
-      );
+      setMaxPage(Math.floor(Object.keys(lps).length / ITEMS_PER_PAGE) + extraPages);
     }
   }, [ITEMS_PER_PAGE, lps]);
 
   const ListItem = ({ lp, index }) => {
     return (
-      <DashGrid
-        style={{ height: "48px" }}
-        disbaleLinks={disbaleLinks}
-        focus={true}
-      >
+      <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
         {!below600 && (
           <DataText area="number" fontWeight="500">
             {index}
           </DataText>
         )}
         <DataText area="name" fontWeight="500" justifyContent="flex-start">
-          <CustomLink
-            style={{ marginLeft: below600 ? 0 : "1rem", whiteSpace: "nowrap" }}
-            to={"/account/" + lp.user.id}
-          >
-            {below800
-              ? lp.user.id.slice(0, 4) + "..." + lp.user.id.slice(38, 42)
-              : lp.user.id}
+          <CustomLink style={{ marginLeft: below600 ? 0 : '1rem', whiteSpace: 'nowrap' }} to={'/account/' + lp.user.id}>
+            {below800 ? lp.user.id.slice(0, 4) + '...' + lp.user.id.slice(38, 42) : lp.user.id}
           </CustomLink>
         </DataText>
 
@@ -131,7 +120,7 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
         )} */}
 
         <DataText>
-          <CustomLink area="pair" to={"/pair/" + lp.pairAddress}>
+          <CustomLink area="pair" to={'/pair/' + lp.pairAddress}>
             <RowFixed>
               {!below600 && (
                 <DoubleTokenLogo
@@ -154,24 +143,18 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
 
   const lpList =
     lps &&
-    lps
-      .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
-      .map((lp, index) => {
-        return (
-          <div key={index}>
-            <ListItem key={index} index={(page - 1) * 10 + index + 1} lp={lp} />
-            <Divider />
-          </div>
-        );
-      });
+    lps.slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE).map((lp, index) => {
+      return (
+        <div key={index}>
+          <ListItem key={index} index={(page - 1) * 10 + index + 1} lp={lp} />
+          <Divider />
+        </div>
+      );
+    });
 
   return (
     <ListWrapper>
-      <DashGrid
-        center={true}
-        disbaleLinks={disbaleLinks}
-        style={{ height: "fit-content", padding: " 0 0 1rem 0" }}
-      >
+      <DashGrid center={true} disbaleLinks={disbaleLinks} style={{ height: 'fit-content', padding: ' 0 0 1rem 0' }}>
         {!below600 && (
           <Flex alignItems="center" justifyContent="flex-start">
             <TYPE.main area="number">#</TYPE.main>
@@ -198,7 +181,7 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{"Page " + page + " of " + maxPage}</TYPE.body>
+        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
         <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
           <Arrow faded={page === maxPage ? true : false}>→</Arrow>
         </div>

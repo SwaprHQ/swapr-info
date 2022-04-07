@@ -1,5 +1,5 @@
-import styled from 'styled-components'
-import { Box } from 'rebass'
+import styled from 'styled-components';
+import { Box } from 'rebass';
 
 const Dashboard = styled(Box)`
   width: 100%;
@@ -26,6 +26,6 @@ const Dashboard = styled(Box)`
       'listOptions listOptions listOptions'
       'transactions  transactions transactions';
   }
-`
+`;
 
-export default Dashboard
+export default Dashboard;

@@ -1,16 +1,16 @@
-import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import React, { useRef, useState } from 'react';
+import styled from 'styled-components';
 
-import Row, { RowBetween } from "../Row";
-import { AutoColumn } from "../Column";
-import { ChevronDown as Arrow } from "react-feather";
-import { TYPE } from "../../Theme";
-import { StyledIcon } from "..";
-import { useClickAway } from "react-use";
-import { SupportedNetwork } from "../../constants";
-import EthereumLogo from "../../assets/svg/ethereum-logo.svg";
-import GnosisLogo from "../../assets/svg/gnosis-chain-logo.svg";
-import ArbitrumLogo from "../../assets/svg/arbitrum-one-logo.svg";
+import Row, { RowBetween } from '../Row';
+import { AutoColumn } from '../Column';
+import { ChevronDown as Arrow } from 'react-feather';
+import { TYPE } from '../../Theme';
+import { StyledIcon } from '..';
+import { useClickAway } from 'react-use';
+import { SupportedNetwork } from '../../constants';
+import EthereumLogo from '../../assets/svg/ethereum-logo.svg';
+import GnosisLogo from '../../assets/svg/gnosis-chain-logo.svg';
+import ArbitrumLogo from '../../assets/svg/arbitrum-one-logo.svg';
 
 const NetworkLogo = {
   [SupportedNetwork.MAINNET]: EthereumLogo,
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
   border: 1px solid ${({ color, theme }) => color || theme.primary4};
-  width: ${({ width }) => (width ? width : "150px")};
+  width: ${({ width }) => (width ? width : '150px')};
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -32,7 +32,7 @@ const Wrapper = styled.div`
   justify-content: center;
 
   :hover {
-    cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
+    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   }
 `;
 
@@ -82,33 +82,19 @@ const Icon = ({ network }) => {
   );
 };
 
-const DropdownSelect = ({
-  options,
-  active,
-  disabled,
-  setActive,
-  color,
-  width = null,
-}) => {
+const DropdownSelect = ({ options, active, disabled, setActive, color, width = null }) => {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
   useClickAway(dropdownRef, (event) => {
-    if (showDropdown && !containerRef.current.contains(event.target))
-      toggleDropdown(false);
+    if (showDropdown && !containerRef.current.contains(event.target)) toggleDropdown(false);
   });
 
   return (
-    <Wrapper
-      open={showDropdown}
-      color={color}
-      ref={containerRef}
-      width={width}
-      disabled={disabled}
-    >
+    <Wrapper open={showDropdown} color={color} ref={containerRef} width={width} disabled={disabled}>
       {disabled ? (
         <RowBetween justify="center">
-          <TYPE.main display="flex" color={"disabled"}>
+          <TYPE.main display="flex" color={'disabled'}>
             {active}
           </TYPE.main>
           <StyledIcon disabled={disabled}>
@@ -116,10 +102,7 @@ const DropdownSelect = ({
           </StyledIcon>
         </RowBetween>
       ) : (
-        <RowBetween
-          onClick={() => toggleDropdown(!showDropdown)}
-          justify="center"
-        >
+        <RowBetween onClick={() => toggleDropdown(!showDropdown)} justify="center">
           <TYPE.main display="flex">
             <Icon network={active} />
             {active}

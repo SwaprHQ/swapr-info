@@ -1,25 +1,25 @@
-import React from "react";
-import { withRouter } from "react-router-dom";
-import styled from "styled-components";
-import { RowBetween, RowFixed } from "../Row";
-import { AutoColumn } from "../Column";
-import { TYPE } from "../../Theme";
-import { useSavedTokens, useSavedPairs } from "../../contexts/LocalStorage";
-import { Hover } from "..";
-import TokenLogo from "../TokenLogo";
-import AccountSearch from "../AccountSearch";
-import { Bookmark, ChevronRight, X } from "react-feather";
-import { ButtonFaded } from "../ButtonStyled";
-import FormattedName from "../FormattedName";
+import React from 'react';
+import { withRouter } from 'react-router-dom';
+import styled from 'styled-components';
+import { RowBetween, RowFixed } from '../Row';
+import { AutoColumn } from '../Column';
+import { TYPE } from '../../Theme';
+import { useSavedTokens, useSavedPairs } from '../../contexts/LocalStorage';
+import { Hover } from '..';
+import TokenLogo from '../TokenLogo';
+import AccountSearch from '../AccountSearch';
+import { Bookmark, ChevronRight, X } from 'react-feather';
+import { ButtonFaded } from '../ButtonStyled';
+import FormattedName from '../FormattedName';
 
 const RightColumn = styled.div`
   position: fixed;
   right: 0;
   top: 0px;
   height: 100vh;
-  width: ${({ open }) => (open ? "160px" : "23px")};
+  width: ${({ open }) => (open ? '160px' : '23px')};
   padding: 1.25rem;
-  border-left: ${({ theme, open }) => "1px solid" + theme.bg3};
+  border-left: ${({ theme, open }) => '1px solid' + theme.bg3};
   background-color: ${({ theme }) => theme.bg1};
   z-index: 9999;
   overflow: auto;
@@ -29,9 +29,9 @@ const RightColumn = styled.div`
 `;
 
 const SavedButton = styled(RowBetween)`
-  padding-bottom: ${({ open }) => open && "20px"};
-  border-bottom: ${({ theme, open }) => open && "1px solid" + theme.bg3};
-  margin-bottom: ${({ open }) => open && "1.25rem"};
+  padding-bottom: ${({ open }) => open && '20px'};
+  border-bottom: ${({ theme, open }) => open && '1px solid' + theme.bg3};
+  margin-bottom: ${({ open }) => open && '1.25rem'};
 
   :hover {
     cursor: pointer;
@@ -66,15 +66,15 @@ function PinnedData({ history, open, setSavedOpen }) {
           <StyledIcon>
             <Bookmark size={16} />
           </StyledIcon>
-          <TYPE.main ml={"4px"}>Saved</TYPE.main>
+          <TYPE.main ml={'4px'}>Saved</TYPE.main>
         </RowFixed>
         <StyledIcon>
           <ChevronRight />
         </StyledIcon>
       </SavedButton>
       <AccountSearch small={true} />
-      <AutoColumn gap="40px" style={{ marginTop: "2rem" }}>
-        <AutoColumn gap={"12px"}>
+      <AutoColumn gap="40px" style={{ marginTop: '2rem' }}>
+        <AutoColumn gap={'12px'}>
           <TYPE.main>Pinned Pairs</TYPE.main>
           {Object.keys(savedPairs).filter((key) => {
             return !!savedPairs[key];
@@ -87,15 +87,13 @@ function PinnedData({ history, open, setSavedOpen }) {
                 const pair = savedPairs[address];
                 return (
                   <RowBetween key={pair.address}>
-                    <ButtonFaded
-                      onClick={() => history.push("/pair/" + address)}
-                    >
+                    <ButtonFaded onClick={() => history.push('/pair/' + address)}>
                       <RowFixed>
                         <TYPE.header>
                           <FormattedName
-                            text={pair.token0Symbol + "/" + pair.token1Symbol}
+                            text={pair.token0Symbol + '/' + pair.token1Symbol}
                             maxCharacters={12}
-                            fontSize={"12px"}
+                            fontSize={'12px'}
                           />
                         </TYPE.header>
                       </RowFixed>
@@ -112,7 +110,7 @@ function PinnedData({ history, open, setSavedOpen }) {
             <TYPE.light>Pinned pairs will appear here.</TYPE.light>
           )}
         </AutoColumn>
-        <ScrollableDiv gap={"12px"}>
+        <ScrollableDiv gap={'12px'}>
           <TYPE.main>Pinned Tokens</TYPE.main>
           {Object.keys(savedTokens).filter((key) => {
             return !!savedTokens[key];
@@ -125,21 +123,11 @@ function PinnedData({ history, open, setSavedOpen }) {
                 const token = savedTokens[address];
                 return (
                   <RowBetween key={address}>
-                    <ButtonFaded
-                      onClick={() => history.push("/token/" + address)}
-                    >
+                    <ButtonFaded onClick={() => history.push('/token/' + address)}>
                       <RowFixed>
-                        <TokenLogo
-                          address={address}
-                          defaultText={token.symbol}
-                          size={"14px"}
-                        />
-                        <TYPE.header ml={"6px"}>
-                          <FormattedName
-                            text={token.symbol}
-                            maxCharacters={12}
-                            fontSize={"12px"}
-                          />
+                        <TokenLogo address={address} defaultText={token.symbol} size={'14px'} />
+                        <TYPE.header ml={'6px'}>
+                          <FormattedName text={token.symbol} maxCharacters={12} fontSize={'12px'} />
                         </TYPE.header>
                       </RowFixed>
                     </ButtonFaded>

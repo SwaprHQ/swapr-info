@@ -130,7 +130,7 @@ const StackedChart = ({ title, type, data }) => {
           break;
         }
         default: {
-          limitDate.setFullYear(limitDate.getFullYear() - 1);
+          limitDate.setFullYear(limitDate.getMonth() - 1);
           break;
         }
       }

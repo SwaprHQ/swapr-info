@@ -247,6 +247,7 @@ const StackedChart = ({ title, type, data }) => {
             width={500}
             height={400}
             data={filteredData}
+            throttleDelay={15}
             margin={{
               top: 10,
               right: 0,

@@ -15,6 +15,7 @@ import {
 
 import { SupportedNetwork } from "../../constants";
 import { formattedNum, formattedPercent } from "../../utils";
+import { TYPE } from "../../Theme";
 import Header from "./Header";
 import CrosshairTooltip from "./CrosshairTooltip";
 
@@ -28,6 +29,11 @@ const NETWORK_COLORS = {
   [SupportedNetwork.XDAI]: "#4526A2",
   [SupportedNetwork.ARBITRUM_ONE]: "#feb125",
 };
+const LegendItem = (value) => (
+  <TYPE.light color="text1" as="span">
+    {value}
+  </TYPE.light>
+);
 
 const StackedChart = ({ title, type, data }) => {
   const [filteredData, setFilteredData] = useState(data);
@@ -103,10 +109,6 @@ const StackedChart = ({ title, type, data }) => {
       setActiveDate(activePayload.find((series) => series).payload.time);
       setStackedDataValue(currentStackedDataValue);
     }
-  };
-
-  const renderLegendItem = (value) => {
-    return <span style={{ color: "#fff" }}>{value}</span>;
   };
 
   // set default filtered data
@@ -216,7 +218,7 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
-              formatter={renderLegendItem}
+              formatter={LegendItem}
             />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
             <Area
@@ -264,7 +266,7 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
-              formatter={renderLegendItem}
+              formatter={LegendItem}
             />
             <XAxis dataKey="time" hide />
             <YAxis hide />

@@ -105,6 +105,10 @@ const StackedChart = ({ title, type, data }) => {
     }
   };
 
+  const renderLegendItem = (value) => {
+    return <span style={{ color: "#fff" }}>{value}</span>;
+  };
+
   // set default filtered data
   useEffect(() => {
     if (filteredData && filteredData.length > 0) {
@@ -212,6 +216,7 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              formatter={renderLegendItem}
             />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
             <Area
@@ -259,6 +264,7 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              formatter={renderLegendItem}
             />
             <XAxis dataKey="time" hide />
             <YAxis hide />

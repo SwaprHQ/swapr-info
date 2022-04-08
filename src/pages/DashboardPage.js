@@ -64,9 +64,9 @@ const DashboardPage = () => {
   }, [chartData]);
 
   useEffect(() => {
-    document.querySelector("body").scrollTo({
-      behavior: "smooth",
+    window.scrollTo({
       top: 0,
+      behavior: "smooth",
     });
   }, []);
 

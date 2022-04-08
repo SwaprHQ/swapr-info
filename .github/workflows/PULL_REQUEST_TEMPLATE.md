@@ -1,11 +1,23 @@
-## Description
+# Summary
 
-Please include a summary of the change and which issue is fixed.
+<<if there's an issue>> Fixes #issueNumber
 
-Please also include relevant motivation and context.
+High-level description of what your changes are accomplishing
 
-Issue No:
+Add screenshots if applicable. Images are nice :)
 
-## How Can This Be Manually Verified?
+# How To Test
+<< Step one >>
+1.  Open the page `about`
+- [ ] <<What to expect?>> Verify it contains about information...
+- [ ] Checkbox Style list of things a QA person could verify, i.e.
+- [ ] Should display Text Input our storybook
+- [ ] Input should not accept Numbers
 
-Please add steps on how this ticket can be manually verified.
+<< Step two >>
+
+2.  ...
+
+# Background
+
+*Optional: Give background information for changes you've made, that might be difficult to explain via comments*

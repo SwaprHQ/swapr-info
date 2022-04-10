@@ -2,11 +2,12 @@ import React from 'react';
 import { Disc, Layers, List, PieChart, TrendingUp, X } from 'react-feather';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
-import { BasicLink } from '../../Link';
+
 import { Option } from '../';
-import { AutoColumn } from '../../Column';
-import Row from '../../Row';
 import farming from '../../../assets/farming.svg';
+import { AutoColumn } from '../../Column';
+import { BasicLink } from '../../Link';
+import Row from '../../Row';
 
 const StyledIcon = styled(X)`
   color: #fff;

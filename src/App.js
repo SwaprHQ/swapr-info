@@ -19,6 +19,10 @@ import AllPairsPage from './pages/AllPairsPage';
 import AllTokensPage from './pages/AllTokensPage';
 import DashboardPage from './pages/DashboardPage';
 import FarmingPage from './pages/FarmingPage';
+import GlobalPage from './pages/GlobalPage';
+import PairPage from './pages/PairPage';
+import TokenPage from './pages/TokenPage';
+import { isAddress } from './utils';
 
 const AppWrapper = styled.div`
   position: relative;

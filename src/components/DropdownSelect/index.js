@@ -32,7 +32,7 @@ const Wrapper = styled.div`
   justify-content: center;
 
   :hover {
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? "default" : "pointer")};
   }
 `;
 
@@ -85,6 +85,7 @@ const Icon = ({ network }) => {
 const DropdownSelect = ({
   options,
   active,
+  disabled,
   setActive,
   color,
   width = null,
@@ -92,25 +93,42 @@ const DropdownSelect = ({
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
-  useClickAway(dropdownRef, event => {
+  useClickAway(dropdownRef, (event) => {
     if (showDropdown && !containerRef.current.contains(event.target))
       toggleDropdown(false);
   });
 
   return (
-    <Wrapper open={showDropdown} color={color} ref={containerRef} width={width}>
-      <RowBetween
-        onClick={() => toggleDropdown(!showDropdown)}
-        justify="center"
-      >
-        <TYPE.main display="flex">
-          <Icon network={active} />
-          {active}
-        </TYPE.main>
-        <StyledIcon>
-          <ArrowStyled />
-        </StyledIcon>
-      </RowBetween>
+    <Wrapper
+      open={showDropdown}
+      color={color}
+      ref={containerRef}
+      width={width}
+      disabled={disabled}
+    >
+      {disabled ? (
+        <RowBetween justify="center">
+          <TYPE.main display="flex" color={"disabled"}>
+            {active}
+          </TYPE.main>
+          <StyledIcon disabled={disabled}>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      ) : (
+        <RowBetween
+          onClick={() => toggleDropdown(!showDropdown)}
+          justify="center"
+        >
+          <TYPE.main display="flex">
+            <Icon network={active} />
+            {active}
+          </TYPE.main>
+          <StyledIcon>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      )}
       {showDropdown && (
         <Dropdown>
           <div ref={dropdownRef}>

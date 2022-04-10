@@ -461,6 +461,22 @@ export const PAIR_DAY_DATA_BULK = (pairs, startTimestamp) => {
   return gql(queryString);
 };
 
+export const DASHBOARD_CHART = gql`
+  query swaprDayDatas($startTime: Int!, $skip: Int!) {
+    swaprDayDatas(
+      first: 365
+      skip: $skip
+      where: { date_gt: $startTime }
+      orderBy: date
+      orderDirection: asc
+    ) {
+      date
+      dailyVolumeUSD
+      totalLiquidityUSD
+    }
+  }
+`;
+
 export const GLOBAL_CHART = gql`
   query swaprDayDatas($startTime: Int!, $skip: Int!) {
     swaprDayDatas(

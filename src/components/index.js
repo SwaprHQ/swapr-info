@@ -64,7 +64,7 @@ export const Hover = styled.div`
 `;
 
 export const StyledIcon = styled.div`
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme, disabled }) => (disabled ? theme.disabled : theme.text1)};
 `;
 
 const EmptyCard = styled.div`

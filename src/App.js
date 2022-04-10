@@ -22,6 +22,7 @@ import LocalLoader from "./components/LocalLoader";
 import { useLatestBlocks } from "./contexts/Application";
 import { useSelectedNetwork } from "./contexts/Network";
 import FarmingPage from "./pages/FarmingPage";
+import DashboardPage from "./pages/DashboardPage";
 
 const AppWrapper = styled.div`
   position: relative;
@@ -203,6 +204,11 @@ function App() {
               }
             }}
           />
+          <Route path="/dashboard">
+            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+              <DashboardPage />
+            </LayoutWrapper>
+          </Route>
 
           <Route path="/home">
             <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>

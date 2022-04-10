@@ -73,6 +73,7 @@ const theme = (darkMode, color) => ({
   secondary3: darkMode ? "#17000b26" : "#FDEAF1",
 
   shadow1: darkMode ? "#000" : "#2F80ED",
+  disabled: "#616161",
 
   // other
   red1: "#FF5252",
@@ -228,6 +229,52 @@ export const GlobalStyle = createGlobalStyle`
 	text-align: left;
 	z-index: 10;
   pointer-events: none;
+}
+
+.basic-chart {
+  background-color: transparent;
+  color: white;
+}
+
+.crosshair-custom-tooltip {
+  width: 200px;
+	padding: 8px;
+	box-sizing: border-box;
+	font-size: 12px;
+	color: white;
+	background-color: rgb(34, 36, 42);
+	border: 1px solid rgb(64, 68, 79);
+	border-radius: 8px;
+}
+
+.crosshair-tooltip {
+	width: 200px;
+	position: absolute;
+	display: none;
+	padding: 8px;
+	box-sizing: border-box;
+	font-size: 12px;
+	color: white;
+	background-color: rgb(34, 36, 42);
+	z-index: 10;
+	top: 12px;
+	left: 12px;
+	pointer-events: none;
+	border: 1px solid rgb(64, 68, 79);
+	border-radius: 8px;
+}
+
+.crosshair-item {
+  display: flex;
+  justify-content: space-between;
+}
+
+.crosshair-item-legend {
+  display: inline-block;
+  width: 10px;
+  height: 10px;
+  border-radius: 2px;
+  margin-right: 8px;
 }
 
 @media screen and (max-width: 800px) {

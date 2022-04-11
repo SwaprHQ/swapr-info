@@ -26,7 +26,7 @@ const TOKEN_OVERRIDES: { [address: string]: { name: string; symbol: string } } =
 };
 
 // override tokens with incorrect symbol or names
-export function updateNameData(data: BasicData): BasicData | undefined {
+export function updateNameData(data: BasicData | undefined): BasicData | undefined {
   if (data?.token0?.id && Object.keys(TOKEN_OVERRIDES).includes(data.token0.id)) {
     data.token0.name = TOKEN_OVERRIDES[data.token0.id].name;
     data.token0.symbol = TOKEN_OVERRIDES[data.token0.id].symbol;

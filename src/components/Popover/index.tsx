@@ -25,7 +25,7 @@ const ReferenceElement = styled.div`
   display: inline-block;
 `;
 
-const Arrow = styled.div`
+const Arrow = styled.div<{ faded?: boolean }>`
   width: 8px;
   height: 8px;
   z-index: 9998;

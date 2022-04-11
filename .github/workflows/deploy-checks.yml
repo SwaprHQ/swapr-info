@@ -51,7 +51,7 @@ jobs:
     needs: install
     runs-on: ubuntu-20.04
     steps:
-      - name: 📥 Download workspace artifact
+      - name: 📥  Download workspace artifact
         uses: actions/download-artifact@v3
         with:
           name: workspace
@@ -73,7 +73,7 @@ jobs:
     needs: install
     runs-on: ubuntu-20.04
     steps:
-      - name: 📥 Download workspace artifact
+      - name: 📥  Download workspace artifact
         uses: actions/download-artifact@v3
         with:
           name: workspace
@@ -89,6 +89,28 @@ jobs:
 
       - name: Run formatter
         run: yarn run format
+
+  typecheck:
+    name: ⬡ Typecheck
+    needs: install
+    runs-on: ubuntu-20.04
+    steps:
+      - name: 📥  Download workspace artifact
+        uses: actions/download-artifact@v3
+        with:
+          name: workspace
+
+      - name: Extract workspace artifact
+        # prettier-ignore
+        run: tar --extract --use-compress-program='zstd -d' --file=workspace.tar.zst
+
+      - name: Setup Node
+        uses: actions/setup-node@v3
+        with:
+          node-version: '16'
+
+      - name: Run typescript check
+        run: yarn typecheck
 
   build:
     name: ⚙️  Build
@@ -114,7 +136,7 @@ jobs:
 
   cleanup:
     name: 🧹 Cleanup
-    needs: [install, lint, check-format, build]
+    needs: [install, lint, check-format, typecheck, build]
     runs-on: ubuntu-20.04
     if: ${{ success() }}
     steps:

@@ -6,7 +6,7 @@ import { hex } from 'wcag-contrast';
 
 import { isAddress } from '../utils';
 
-export function useColor(tokenAddress, token) {
+export function useColor(tokenAddress, token?: string) {
   const [color, setColor] = useState('#2172E5');
   if (tokenAddress) {
     const path = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${isAddress(
@@ -33,10 +33,10 @@ export function useColor(tokenAddress, token) {
   return color;
 }
 
-export function useCopyClipboard(timeout = 500) {
+export function useCopyClipboard(timeout = 500): [boolean, (x: string) => void] {
   const [isCopied, setIsCopied] = useState(false);
 
-  const staticCopy = useCallback((text) => {
+  const staticCopy = useCallback((text: string) => {
     const didCopy = copy(text);
     setIsCopied(didCopy);
   }, []);

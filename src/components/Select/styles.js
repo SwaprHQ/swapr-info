@@ -2,7 +2,7 @@ import theme from '../Theme/theme';
 const color = theme.colors;
 
 export const customStyles = {
-  control: (styles, state) => ({
+  control: (styles) => ({
     ...styles,
     borderRadius: 20,
     backgroundColor: 'white',

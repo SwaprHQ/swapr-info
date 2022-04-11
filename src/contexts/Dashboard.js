@@ -1,22 +1,14 @@
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import weekOfYear from "dayjs/plugin/weekOfYear";
-import PropTypes from "prop-types";
-import React, {
-  useCallback,
-  useEffect,
-  useReducer,
-  useState,
-  createContext,
-  useContext,
-  useMemo,
-} from "react";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import weekOfYear from 'dayjs/plugin/weekOfYear';
+import PropTypes from 'prop-types';
+import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
-import { DASHBOARD_CHART } from "../apollo/queries";
-import { useTimeframe } from "./Application";
-import { getTimeframe } from "../utils";
-import { clients } from "../apollo/client";
-import { SupportedNetwork } from "../constants";
+import { clients } from '../apollo/client';
+import { DASHBOARD_CHART } from '../apollo/queries';
+import { SupportedNetwork } from '../constants';
+import { getTimeframe } from '../utils';
+import { useTimeframe } from './Application';
 
 // format dayjs with the libraries needed
 dayjs.extend(utc);
@@ -41,8 +33,8 @@ const SUPPORTED_CLIENTS = [
 ];
 
 const INITIAL_STATE = { stackedChartData: {} };
-const UPDATE_CHART = "UPDATE_CHART";
-const RESET = "RESET";
+const UPDATE_CHART = 'UPDATE_CHART';
+const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -61,9 +53,7 @@ function reducer(state, { type, payload }) {
     }
 
     default: {
-      throw Error(
-        `Unexpected action type in DashboardContext reducer: '${type}'.`
-      );
+      throw Error(`Unexpected action type in DashboardContext reducer: '${type}'.`);
     }
   }
 }
@@ -80,9 +70,7 @@ export default function Provider({ children }) {
   }, []);
 
   return (
-    <DashboardDataContext.Provider
-      value={useMemo(() => [state, updateChart], [state, updateChart])}
-    >
+    <DashboardDataContext.Provider value={useMemo(() => [state, updateChart], [state, updateChart])}>
       {children}
     </DashboardDataContext.Provider>
   );
@@ -146,7 +134,7 @@ const getChartData = async (oldestDateToFetch) => {
             startTime: oldestDateToFetch,
             skip: 0,
           },
-        })
+        }),
       );
     }
 
@@ -156,7 +144,7 @@ const getChartData = async (oldestDateToFetch) => {
         networkData.data.swaprDayDatas.map((dayData) => ({
           ...dayData,
           network: SUPPORTED_CLIENTS[index].network,
-        }))
+        })),
       );
     });
   } catch (e) {

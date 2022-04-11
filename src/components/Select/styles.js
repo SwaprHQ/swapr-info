@@ -1,5 +1,5 @@
-import theme from '../Theme/theme'
-const color = theme.colors
+import theme from '../Theme/theme';
+const color = theme.colors;
 
 export const customStyles = {
   control: (styles, state) => ({
@@ -77,7 +77,7 @@ export const customStyles = {
     color: color.text,
     padding: 0,
   }),
-}
+};
 
 export const customStylesMobile = {
   control: (styles, state) => ({
@@ -148,7 +148,7 @@ export const customStylesMobile = {
     color: color.text,
     padding: '8px',
   }),
-}
+};
 
 export const customStylesTime = {
   control: (styles, state) => ({
@@ -224,6 +224,6 @@ export const customStylesTime = {
     color: color.text,
     padding: 0,
   }),
-}
+};
 
-export default customStyles
+export default customStyles;

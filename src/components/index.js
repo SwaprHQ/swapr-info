@@ -1,11 +1,10 @@
-import React from "react";
-import styled from "styled-components";
-import { Text, Box } from "rebass";
+import React from 'react';
+import { Text, Box } from 'rebass';
+import styled from 'styled-components';
 
-import Link from "./Link";
-
-import { urls } from "../utils";
-import { useSelectedNetwork } from "../contexts/Network";
+import { useSelectedNetwork } from '../contexts/Network';
+import { urls } from '../utils';
+import Link from './Link';
 
 const Divider = styled(Box)`
   height: 1px;
@@ -42,13 +41,9 @@ const Address = ({ address, token, ...rest }) => {
   return (
     <Link
       color="button"
-      href={
-        token
-          ? urls.showToken(address, selectedNetwork)
-          : urls.showAddress(address, selectedNetwork)
-      }
+      href={token ? urls.showToken(address, selectedNetwork) : urls.showAddress(address, selectedNetwork)}
       external
-      style={{ wordBreak: "break-all" }}
+      style={{ wordBreak: 'break-all' }}
       {...rest}
     >
       {address}
@@ -59,7 +54,7 @@ const Address = ({ address, token, ...rest }) => {
 export const Hover = styled.div`
   :hover {
     cursor: pointer;
-    opacity: ${({ fade }) => fade && "0.7"};
+    opacity: ${({ fade }) => fade && '0.7'};
   }
 `;
 

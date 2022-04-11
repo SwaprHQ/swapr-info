@@ -1,27 +1,28 @@
-import React, { useState, useEffect, useRef } from 'react'
-import { createChart } from 'lightweight-charts'
-import dayjs from 'dayjs'
-import utc from 'dayjs/plugin/utc'
-import { formattedNum } from '../../utils'
-import styled from 'styled-components'
-import { usePrevious } from 'react-use'
-import { Play } from 'react-feather'
-import { useDarkModeManager } from '../../contexts/LocalStorage'
-import { IconWrapper } from '..'
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import { createChart } from 'lightweight-charts';
+import React, { useState, useEffect, useRef } from 'react';
+import { Play } from 'react-feather';
+import { usePrevious } from 'react-use';
+import styled from 'styled-components';
 
-dayjs.extend(utc)
+import { IconWrapper } from '..';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { formattedNum } from '../../utils';
+
+dayjs.extend(utc);
 
 export const CHART_TYPES = {
   BAR: 'BAR',
   AREA: 'AREA',
-}
+};
 
 const Wrapper = styled.div`
   position: relative;
-`
+`;
 
 // constant height for charts
-const HEIGHT = 300
+const HEIGHT = 300;
 
 const TradingViewChart = ({
   type = CHART_TYPES.BAR,
@@ -34,49 +35,49 @@ const TradingViewChart = ({
   useWeekly = false,
 }) => {
   // reference for DOM element to create with chart
-  const ref = useRef()
+  const ref = useRef();
 
   // pointer to the chart object
-  const [chartCreated, setChartCreated] = useState(false)
-  const dataPrev = usePrevious(data)
+  const [chartCreated, setChartCreated] = useState(false);
+  const dataPrev = usePrevious(data);
 
   useEffect(() => {
     if (data !== dataPrev && chartCreated && type === CHART_TYPES.BAR) {
       // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id' + type)
-      let node = document.getElementById('test-id' + type)
-      node.removeChild(tooltip)
-      chartCreated.resize(0, 0)
-      setChartCreated()
+      let tooltip = document.getElementById('tooltip-id' + type);
+      let node = document.getElementById('test-id' + type);
+      node.removeChild(tooltip);
+      chartCreated.resize(0, 0);
+      setChartCreated();
     }
-  }, [chartCreated, data, dataPrev, type])
+  }, [chartCreated, data, dataPrev, type]);
 
   // parese the data and format for tardingview consumption
   const formattedData = data?.map((entry) => {
     return {
       time: dayjs.unix(entry.date).utc().format('YYYY-MM-DD'),
       value: parseFloat(entry[field]),
-    }
-  })
+    };
+  });
 
   // adjust the scale based on the type of chart
-  const topScale = type === CHART_TYPES.AREA ? 0.32 : 0.2
+  const topScale = type === CHART_TYPES.AREA ? 0.32 : 0.2;
 
-  const [darkMode] = useDarkModeManager()
-  const textColor = darkMode ? 'white' : 'black'
-  const previousTheme = usePrevious(darkMode)
+  const [darkMode] = useDarkModeManager();
+  const textColor = darkMode ? 'white' : 'black';
+  const previousTheme = usePrevious(darkMode);
 
   // reset the chart if them switches
   useEffect(() => {
     if (chartCreated && previousTheme !== darkMode) {
       // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id' + type)
-      let node = document.getElementById('test-id' + type)
-      node.removeChild(tooltip)
-      chartCreated.resize(0, 0)
-      setChartCreated()
+      let tooltip = document.getElementById('tooltip-id' + type);
+      let node = document.getElementById('test-id' + type);
+      node.removeChild(tooltip);
+      chartCreated.resize(0, 0);
+      setChartCreated();
     }
-  }, [chartCreated, darkMode, previousTheme, type])
+  }, [chartCreated, darkMode, previousTheme, type]);
 
   // if no chart created yet, create one with options and add to DOM manually
   useEffect(() => {
@@ -124,7 +125,7 @@ const TradingViewChart = ({
         localization: {
           priceFormatter: (val) => formattedNum(val, true),
         },
-      })
+      });
 
       var series =
         type === CHART_TYPES.BAR
@@ -145,23 +146,23 @@ const TradingViewChart = ({
               bottomColor: 'rgba(69, 38, 162, 0)',
               lineColor: '#4526A2',
               lineWidth: 3,
-            })
+            });
 
-      series.setData(formattedData)
-      var toolTip = document.createElement('div')
-      toolTip.setAttribute('id', 'tooltip-id' + type)
-      toolTip.className = darkMode ? 'three-line-legend-dark' : 'three-line-legend'
-      ref.current.appendChild(toolTip)
-      toolTip.style.display = 'block'
-      toolTip.style.fontWeight = '500'
-      toolTip.style.left = -4 + 'px'
-      toolTip.style.top = '-' + 8 + 'px'
-      toolTip.style.backgroundColor = 'transparent'
+      series.setData(formattedData);
+      var toolTip = document.createElement('div');
+      toolTip.setAttribute('id', 'tooltip-id' + type);
+      toolTip.className = darkMode ? 'three-line-legend-dark' : 'three-line-legend';
+      ref.current.appendChild(toolTip);
+      toolTip.style.display = 'block';
+      toolTip.style.fontWeight = '500';
+      toolTip.style.left = -4 + 'px';
+      toolTip.style.top = '-' + 8 + 'px';
+      toolTip.style.backgroundColor = 'transparent';
 
       // format numbers
-      let percentChange = baseChange?.toFixed(2)
-      let formattedPercentChange = percentChange ? (percentChange > 0 ? '+' : '') + percentChange + '%' : '0%'
-      let color = percentChange >= 0 ? 'green' : 'red'
+      let percentChange = baseChange?.toFixed(2);
+      let formattedPercentChange = percentChange ? (percentChange > 0 ? '+' : '') + percentChange + '%' : '0%';
+      let color = percentChange >= 0 ? 'green' : 'red';
 
       // get the title of the chart
       function setLastBarText() {
@@ -172,9 +173,9 @@ const TradingViewChart = ({
           `<div style="font-size: 22px; margin: 4px 0px; color:${textColor}" >` +
           formattedNum(base ?? 0, true) +
           `<span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>` +
-          '</div>'
+          '</div>';
       }
-      setLastBarText()
+      setLastBarText();
 
       // update the title when hovering on the chart
       chart.subscribeCrosshairMove(function (param) {
@@ -186,7 +187,7 @@ const TradingViewChart = ({
           param.point.y < 0 ||
           param.point.y > HEIGHT
         ) {
-          setLastBarText()
+          setLastBarText();
         } else {
           let dateStr = useWeekly
             ? dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
@@ -196,8 +197,8 @@ const TradingViewChart = ({
               dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
                 .endOf('week')
                 .format('MMMM D, YYYY')
-            : dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day).format('MMMM D, YYYY')
-          var price = param.seriesPrices.get(series)
+            : dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day).format('MMMM D, YYYY');
+          var price = param.seriesPrices.get(series);
 
           toolTip.innerHTML =
             `<div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">${title}</div>` +
@@ -206,13 +207,13 @@ const TradingViewChart = ({
             '</div>' +
             '<div>' +
             dateStr +
-            '</div>'
+            '</div>';
         }
-      })
+      });
 
-      chart.timeScale().fitContent()
+      chart.timeScale().fitContent();
 
-      setChartCreated(chart)
+      setChartCreated(chart);
     }
   }, [
     base,
@@ -227,15 +228,15 @@ const TradingViewChart = ({
     type,
     useWeekly,
     width,
-  ])
+  ]);
 
   // responsiveness
   useEffect(() => {
     if (width) {
-      chartCreated && chartCreated.resize(width, HEIGHT)
-      chartCreated && chartCreated.timeScale().scrollToPosition(0)
+      chartCreated && chartCreated.resize(width, HEIGHT);
+      chartCreated && chartCreated.timeScale().scrollToPosition(0);
     }
-  }, [chartCreated, width])
+  }, [chartCreated, width]);
 
   return (
     <Wrapper>
@@ -243,12 +244,12 @@ const TradingViewChart = ({
       <IconWrapper>
         <Play
           onClick={() => {
-            chartCreated && chartCreated.timeScale().fitContent()
+            chartCreated && chartCreated.timeScale().fitContent();
           }}
         />
       </IconWrapper>
     </Wrapper>
-  )
-}
+  );
+};
 
-export default TradingViewChart
+export default TradingViewChart;

@@ -1,28 +1,28 @@
-import React, { useState } from "react";
-import styled from "styled-components";
-import { Route, Switch, Redirect } from "react-router-dom";
-import GlobalPage from "./pages/GlobalPage";
-import TokenPage from "./pages/TokenPage";
-import PairPage from "./pages/PairPage";
-import { useGlobalData, useGlobalChartData } from "./contexts/GlobalData";
-import { isAddress } from "./utils";
-import AccountPage from "./pages/AccountPage";
-import AllTokensPage from "./pages/AllTokensPage";
-import AllPairsPage from "./pages/AllPairsPage";
+import React, { useState } from 'react';
+import { Route, Switch, Redirect } from 'react-router-dom';
+import styled from 'styled-components';
 
-import SideNav from "./components/SideNav";
-import AccountLookup from "./pages/AccountLookup";
+import LocalLoader from './components/LocalLoader';
+import SideNav from './components/SideNav';
 import {
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   BLOCK_DIFFERENCE_THRESHOLD,
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
-} from "./constants";
-import LocalLoader from "./components/LocalLoader";
-import { useLatestBlocks } from "./contexts/Application";
-import { useSelectedNetwork } from "./contexts/Network";
-import FarmingPage from "./pages/FarmingPage";
-import DashboardPage from "./pages/DashboardPage";
+} from './constants';
+import { useLatestBlocks } from './contexts/Application';
+import { useGlobalData, useGlobalChartData } from './contexts/GlobalData';
+import { useSelectedNetwork } from './contexts/Network';
+import AccountLookup from './pages/AccountLookup';
+import AccountPage from './pages/AccountPage';
+import AllPairsPage from './pages/AllPairsPage';
+import AllTokensPage from './pages/AllTokensPage';
+import DashboardPage from './pages/DashboardPage';
+import FarmingPage from './pages/FarmingPage';
+import GlobalPage from './pages/GlobalPage';
+import PairPage from './pages/PairPage';
+import TokenPage from './pages/TokenPage';
+import { isAddress } from './utils';
 
 const AppWrapper = styled.div`
   position: relative;
@@ -30,7 +30,7 @@ const AppWrapper = styled.div`
 `;
 const ContentWrapper = styled.div`
   display: grid;
-  grid-template-columns: ${({ open }) => (open ? "220px 1fr" : "220px 1fr")};
+  grid-template-columns: ${({ open }) => (open ? '220px 1fr' : '220px 1fr')};
 
   @media screen and (max-width: 1400px) {
     grid-template-columns: 220px 1fr;
@@ -43,20 +43,6 @@ const ContentWrapper = styled.div`
     grid-gap: 0;
   }
 `;
-
-/* const Right = styled.div`
-  position: fixed;
-  right: 0;
-  bottom: 0rem;
-  z-index: 99;
-  width: ${({ open }) => (open ? "220px" : "64px")};
-  height: ${({ open }) => (open ? "fit-content" : "64px")};
-  overflow: auto;
-  background-color: ${({ theme }) => theme.bg1};
-  @media screen and (max-width: 1400px) {
-    display: none;
-  }
-`; */
 
 const Center = styled.div`
   height: 100%;
@@ -110,8 +96,7 @@ function App() {
     headBlock && latestBlock
       ? headBlock - latestBlock >
         (selectedNetwork
-          ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] ||
-            DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
+          ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] || DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
           : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD)
       : false;
 
@@ -134,22 +119,13 @@ function App() {
             strict
             path="/token/:tokenAddress"
             render={({ match }) => {
-              if (
-                OVERVIEW_TOKEN_BLACKLIST.includes(
-                  match.params.tokenAddress.toLowerCase()
-                )
-              ) {
+              if (OVERVIEW_TOKEN_BLACKLIST.includes(match.params.tokenAddress.toLowerCase())) {
                 return <Redirect to="/home" />;
               }
               if (isAddress(match.params.tokenAddress.toLowerCase())) {
                 return (
-                  <LayoutWrapper
-                    savedOpen={savedOpen}
-                    setSavedOpen={setSavedOpen}
-                  >
-                    <TokenPage
-                      address={match.params.tokenAddress.toLowerCase()}
-                    />
+                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                    <TokenPage address={match.params.tokenAddress.toLowerCase()} />
                   </LayoutWrapper>
                 );
               } else {
@@ -162,20 +138,13 @@ function App() {
             strict
             path="/pair/:pairAddress"
             render={({ match }) => {
-              if (
-                PAIR_BLACKLIST.includes(match.params.pairAddress.toLowerCase())
-              ) {
+              if (PAIR_BLACKLIST.includes(match.params.pairAddress.toLowerCase())) {
                 return <Redirect to="/home" />;
               }
               if (isAddress(match.params.pairAddress.toLowerCase())) {
                 return (
-                  <LayoutWrapper
-                    savedOpen={savedOpen}
-                    setSavedOpen={setSavedOpen}
-                  >
-                    <PairPage
-                      pairAddress={match.params.pairAddress.toLowerCase()}
-                    />
+                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                    <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
                   </LayoutWrapper>
                 );
               } else {
@@ -190,13 +159,8 @@ function App() {
             render={({ match }) => {
               if (isAddress(match.params.accountAddress.toLowerCase())) {
                 return (
-                  <LayoutWrapper
-                    savedOpen={savedOpen}
-                    setSavedOpen={setSavedOpen}
-                  >
-                    <AccountPage
-                      account={match.params.accountAddress.toLowerCase()}
-                    />
+                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                    <AccountPage account={match.params.accountAddress.toLowerCase()} />
                   </LayoutWrapper>
                 );
               } else {

@@ -1,25 +1,10 @@
-import PropTypes from "prop-types";
-import React from "react";
-import DropdownSelect from "../../DropdownSelect";
+import PropTypes from 'prop-types';
+import React from 'react';
 
-import {
-  Container,
-  Title,
-  DailyChange,
-  Date,
-  FlexContainer,
-  Value,
-} from "./styled";
+import DropdownSelect from '../../DropdownSelect';
+import { Container, Title, DailyChange, Date, FlexContainer, Value } from './styled';
 
-const Header = ({
-  title,
-  value,
-  dailyChange,
-  date,
-  filterOptions,
-  activeFilter,
-  onFilterChange,
-}) => (
+const Header = ({ title, value, dailyChange, date, filterOptions, activeFilter, onFilterChange }) => (
   <Container>
     <div>
       <Title>{title}</Title>
@@ -30,12 +15,7 @@ const Header = ({
       <Date>{date}</Date>
     </div>
     <div>
-      <DropdownSelect
-        active={activeFilter}
-        setActive={onFilterChange}
-        options={filterOptions}
-        width={80}
-      />
+      <DropdownSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
     </div>
   </Container>
 );

@@ -1,6 +1,7 @@
-import { useEffect, useState } from "react";
-import { ChainIdForSupportedNetwork, SupportedNetwork } from "../constants";
-import { useSelectedNetwork } from "../contexts/Network";
+import { useEffect, useState } from 'react';
+
+import { ChainIdForSupportedNetwork, SupportedNetwork } from '../constants';
+import { useSelectedNetwork } from '../contexts/Network';
 
 const CACHE = {
   [SupportedNetwork.MAINNET]: {},
@@ -18,21 +19,18 @@ export function useTokenIcon(address) {
       if (!address) return undefined;
 
       if (Object.values(SupportedNetwork).indexOf(selectedNetwork) < 0) {
-        console.warn(
-          `could not fetch token logos for network ${selectedNetwork}`
-        );
+        console.warn(`could not fetch token logos for network ${selectedNetwork}`);
       }
 
       try {
         if (Object.keys(CACHE[selectedNetwork]).length === 0) {
-          let tokenListURL = "";
+          let tokenListURL = '';
           if (selectedNetwork === SupportedNetwork.MAINNET) {
-            tokenListURL = "https://tokens.coingecko.com/uniswap/all.json"; // coingecko list used for mainnet
+            tokenListURL = 'https://tokens.coingecko.com/uniswap/all.json'; // coingecko list used for mainnet
           } else if (selectedNetwork === SupportedNetwork.XDAI) {
-            tokenListURL = "https://tokens.honeyswap.org"; // honeyswap list used for xdai
+            tokenListURL = 'https://tokens.honeyswap.org'; // honeyswap list used for xdai
           } else {
-            tokenListURL =
-              "https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU"; // Swapr token list
+            tokenListURL = 'https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU'; // Swapr token list
           }
           const response = await fetch(tokenListURL);
           if (!response.ok) {
@@ -40,8 +38,7 @@ export function useTokenIcon(address) {
             return;
           }
           const { tokens } = await response.json();
-          const selectedNetworkChainId =
-            ChainIdForSupportedNetwork[selectedNetwork];
+          const selectedNetworkChainId = ChainIdForSupportedNetwork[selectedNetwork];
           CACHE[selectedNetwork] = tokens.reduce((cache, token) => {
             if (token.chainId !== selectedNetworkChainId) return cache;
             cache[token.address.toLowerCase()] = token.logoURI;

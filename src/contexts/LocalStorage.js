@@ -1,36 +1,23 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useEffect,
-} from "react";
-import { SupportedNetwork } from "../constants";
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 
-const SWAPR = "SWAPR";
+import { SupportedNetwork } from '../constants';
 
-const VERSION = "VERSION";
+const SWAPR = 'SWAPR';
+
+const VERSION = 'VERSION';
 const CURRENT_VERSION = 0;
-const LAST_SAVED = "LAST_SAVED";
-const DISMISSED_PATHS = "DISMISSED_PATHS";
-const SAVED_ACCOUNTS = "SAVED_ACCOUNTS";
-const SAVED_TOKENS = "SAVED_TOKENS";
-const SAVED_PAIRS = "SAVED_PAIRS";
-const SAVED_SELECTED_NETWORK = "SAVED_SELECTED_NETWORK";
+const LAST_SAVED = 'LAST_SAVED';
+const DISMISSED_PATHS = 'DISMISSED_PATHS';
+const SAVED_ACCOUNTS = 'SAVED_ACCOUNTS';
+const SAVED_TOKENS = 'SAVED_TOKENS';
+const SAVED_PAIRS = 'SAVED_PAIRS';
+const SAVED_SELECTED_NETWORK = 'SAVED_SELECTED_NETWORK';
 
-const DARK_MODE = "DARK_MODE";
+const DARK_MODE = 'DARK_MODE';
 
-const UPDATABLE_KEYS = [
-  DARK_MODE,
-  DISMISSED_PATHS,
-  SAVED_ACCOUNTS,
-  SAVED_PAIRS,
-  SAVED_TOKENS,
-  SAVED_SELECTED_NETWORK,
-];
+const UPDATABLE_KEYS = [DARK_MODE, DISMISSED_PATHS, SAVED_ACCOUNTS, SAVED_PAIRS, SAVED_TOKENS, SAVED_SELECTED_NETWORK];
 
-const UPDATE_KEY = "UPDATE_KEY";
+const UPDATE_KEY = 'UPDATE_KEY';
 
 const LocalStorageContext = createContext();
 
@@ -52,9 +39,7 @@ function reducer(state, { type, payload }) {
       }
     }
     default: {
-      throw Error(
-        `Unexpected action type in LocalStorageContext reducer: '${type}'.`
-      );
+      throw Error(`Unexpected action type in LocalStorageContext reducer: '${type}'.`);
     }
   }
 }
@@ -91,9 +76,7 @@ export default function Provider({ children }) {
   }, []);
 
   return (
-    <LocalStorageContext.Provider
-      value={useMemo(() => [state, { updateKey }], [state, updateKey])}
-    >
+    <LocalStorageContext.Provider value={useMemo(() => [state, { updateKey }], [state, updateKey])}>
       {children}
     </LocalStorageContext.Provider>
   );
@@ -103,10 +86,7 @@ export function Updater() {
   const [state] = useLocalStorageContext();
 
   useEffect(() => {
-    window.localStorage.setItem(
-      SWAPR,
-      JSON.stringify({ ...state, [LAST_SAVED]: Math.floor(Date.now() / 1000) })
-    );
+    window.localStorage.setItem(SWAPR, JSON.stringify({ ...state, [LAST_SAVED]: Math.floor(Date.now() / 1000) }));
   });
 
   return null;
@@ -136,7 +116,7 @@ export function useSavedAccounts() {
     (account) => {
       updateKey(SAVED_ACCOUNTS, [...(savedAccounts ?? []), account]);
     },
-    [savedAccounts, updateKey]
+    [savedAccounts, updateKey],
   );
 
   const removeAccount = useCallback(
@@ -149,7 +129,7 @@ export function useSavedAccounts() {
         ]);
       }
     },
-    [savedAccounts, updateKey]
+    [savedAccounts, updateKey],
   );
 
   return [savedAccounts, addAccount, removeAccount];
@@ -159,13 +139,7 @@ export function useSavedPairs() {
   const [state, { updateKey }] = useLocalStorageContext();
   const savedPairs = state?.[SAVED_PAIRS];
 
-  function addPair(
-    address,
-    token0Address,
-    token1Address,
-    token0Symbol,
-    token1Symbol
-  ) {
+  function addPair(address, token0Address, token1Address, token0Symbol, token1Symbol) {
     let newList = state?.[SAVED_PAIRS];
     newList[address] = {
       address,

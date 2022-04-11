@@ -1,42 +1,35 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useState,
-  useEffect,
-} from "react";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect } from 'react';
+
+import { healthClient } from '../apollo/client';
+import { SUBGRAPH_HEALTH } from '../apollo/queries';
 import {
   BLOCK_DIFFERENCE_THRESHOLD,
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   NETWORK_SUBGRAPH_URLS,
   timeframeOptions,
-} from "../constants";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { healthClient } from "../apollo/client";
-import { SUBGRAPH_HEALTH } from "../apollo/queries";
-import { useSelectedNetwork } from "./Network";
+} from '../constants';
+import { useSelectedNetwork } from './Network';
 
 dayjs.extend(utc);
 
-const RESET = "RESET";
-const UPDATE = "UPDATE";
-const UPDATE_TIMEFRAME = "UPDATE_TIMEFRAME";
-const UPDATE_SESSION_START = "UPDATE_SESSION_START";
-const UPDATED_SUPPORTED_TOKENS = "UPDATED_SUPPORTED_TOKENS";
-const UPDATE_LATEST_BLOCK = "UPDATE_LATEST_BLOCK";
-const UPDATE_HEAD_BLOCK = "UPDATE_HEAD_BLOCK";
-const UPDATE_BAD_IMAGE_URLS = "UPDATE_BAD_IMAGE_URLS";
+const RESET = 'RESET';
+const UPDATE = 'UPDATE';
+const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME';
+const UPDATE_SESSION_START = 'UPDATE_SESSION_START';
+const UPDATED_SUPPORTED_TOKENS = 'UPDATED_SUPPORTED_TOKENS';
+const UPDATE_LATEST_BLOCK = 'UPDATE_LATEST_BLOCK';
+const UPDATE_HEAD_BLOCK = 'UPDATE_HEAD_BLOCK';
+const UPDATE_BAD_IMAGE_URLS = 'UPDATE_BAD_IMAGE_URLS';
 
-const SUPPORTED_TOKENS = "SUPPORTED_TOKENS";
-const TIME_KEY = "TIME_KEY";
-const CURRENCY = "CURRENCY";
-const SESSION_START = "SESSION_START";
-const LATEST_BLOCK = "LATEST_BLOCK";
-const HEAD_BLOCK = "HEAD_BLOCK";
-const BAD_IMAGE_URLS = "BAD_IMAGE_URLS";
+const SUPPORTED_TOKENS = 'SUPPORTED_TOKENS';
+const TIME_KEY = 'TIME_KEY';
+const CURRENCY = 'CURRENCY';
+const SESSION_START = 'SESSION_START';
+const LATEST_BLOCK = 'LATEST_BLOCK';
+const HEAD_BLOCK = 'HEAD_BLOCK';
+const BAD_IMAGE_URLS = 'BAD_IMAGE_URLS';
 
 export const ApplicationContext = createContext();
 
@@ -45,7 +38,7 @@ export function useApplicationContext() {
 }
 
 const INITIAL_STATE = {
-  CURRENCY: "USD",
+  CURRENCY: 'USD',
   TIME_KEY: timeframeOptions.ALL_TIME,
   [BAD_IMAGE_URLS]: {},
 };
@@ -216,7 +209,7 @@ export default function Provider({ children }) {
           updateHeadBlock,
           updateBadImageUrls,
           reset,
-        ]
+        ],
       )}
     >
       {children}
@@ -225,10 +218,7 @@ export default function Provider({ children }) {
 }
 
 export function useLatestBlocks() {
-  const [
-    state,
-    { updateLatestBlock, updateHeadBlock },
-  ] = useApplicationContext();
+  const [state, { updateLatestBlock, updateHeadBlock }] = useApplicationContext();
   const network = useSelectedNetwork();
 
   const latestBlock = state?.[LATEST_BLOCK];
@@ -265,18 +255,13 @@ export function useLatestBlocks() {
   return [latestBlock, headBlock];
 }
 
-export function isSyncedBlockAboveThreshold(
-  latestBlock,
-  headBlock,
-  selectedNetwork = undefined
-) {
+export function isSyncedBlockAboveThreshold(latestBlock, headBlock, selectedNetwork = undefined) {
   if (isNaN(latestBlock) || isNaN(headBlock)) {
     return false;
   }
 
   const threshold = selectedNetwork
-    ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] ||
-      DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
+    ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] || DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
     : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD;
 
   return Math.abs(latestBlock - headBlock) > threshold;
@@ -300,12 +285,12 @@ export function useStartTimestamp() {
         .subtract(
           1,
           activeWindow === timeframeOptions.week
-            ? "week"
+            ? 'week'
             : activeWindow === timeframeOptions.ALL_TIME
-            ? "year"
-            : "year"
+            ? 'year'
+            : 'year',
         )
-        .startOf("day")
+        .startOf('day')
         .unix() - 1;
     // if we find a new start time less than the current startrtime - update oldest pooint to fetch
     setStartDateTimestamp(startTime);

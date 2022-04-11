@@ -1,28 +1,17 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useEffect,
-} from "react";
-import { useLocation } from "react-router-dom";
-import { blockClients, clients } from "../apollo/client";
-import {
-  ChainId,
-  NATIVE_CURRENCY_SYMBOL,
-  NATIVE_CURRENCY_WRAPPER,
-  SupportedNetworkForChainId,
-} from "../constants";
-import { useSavedNetwork } from "./LocalStorage";
-import qs from "qs";
-import { useApplicationContextResetter } from "./Application";
-import { useGlobalContextResetter } from "./GlobalData";
-import { usePairContextResetter } from "./PairData";
-import { useTokenContextResetter } from "./TokenData";
-import { useUserContextResetter } from "./User";
+import qs from 'qs';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
+import { useLocation } from 'react-router-dom';
 
-export const UPDATE_SELECTED_NETWORK = "UPDATE_SELECTED_NETWORK";
+import { blockClients, clients } from '../apollo/client';
+import { ChainId, NATIVE_CURRENCY_SYMBOL, NATIVE_CURRENCY_WRAPPER, SupportedNetworkForChainId } from '../constants';
+import { useApplicationContextResetter } from './Application';
+import { useGlobalContextResetter } from './GlobalData';
+import { useSavedNetwork } from './LocalStorage';
+import { usePairContextResetter } from './PairData';
+import { useTokenContextResetter } from './TokenData';
+import { useUserContextResetter } from './User';
+
+export const UPDATE_SELECTED_NETWORK = 'UPDATE_SELECTED_NETWORK';
 
 const NetworkContext = createContext();
 
@@ -46,10 +35,7 @@ function reducer(state, { type, payload }) {
 }
 
 export default function Provider({ children }) {
-  const [
-    previouslySelectedNetwork,
-    updateSavedSelectedNetwork,
-  ] = useSavedNetwork();
+  const [previouslySelectedNetwork, updateSavedSelectedNetwork] = useSavedNetwork();
   const INITIAL_STATE = {
     selectedNetwork: previouslySelectedNetwork,
   };
@@ -63,16 +49,11 @@ export default function Provider({ children }) {
       });
       updateSavedSelectedNetwork(selectedNetwork);
     },
-    [updateSavedSelectedNetwork]
+    [updateSavedSelectedNetwork],
   );
 
   return (
-    <NetworkContext.Provider
-      value={useMemo(() => [state, { updateSelectedNetwork }], [
-        state,
-        updateSelectedNetwork,
-      ])}
-    >
+    <NetworkContext.Provider value={useMemo(() => [state, { updateSelectedNetwork }], [state, updateSelectedNetwork])}>
       {children}
     </NetworkContext.Provider>
   );
@@ -91,9 +72,7 @@ export function Updater() {
     const currentlySelectedChainId = ChainId[state.selectedNetwork];
     if (
       chainIdFromUrl &&
-      Object.values(ChainId).some(
-        (chainId) => chainId === parseInt(chainIdFromUrl)
-      ) &&
+      Object.values(ChainId).some((chainId) => chainId === parseInt(chainIdFromUrl)) &&
       currentlySelectedChainId !== parseInt(chainIdFromUrl)
     ) {
       updateSelectedNetwork(SupportedNetworkForChainId[chainIdFromUrl]);

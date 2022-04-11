@@ -1,18 +1,18 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-import { XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from 'recharts'
-import { AutoRow, RowBetween } from '../Row'
+import React, { useState } from 'react';
+import { useMedia } from 'react-use';
+import { XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
+import styled from 'styled-components';
 
-import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils'
-import { OptionButton } from '../ButtonStyled'
-import { useMedia } from 'react-use'
-import { timeframeOptions } from '../../constants'
-import DropdownSelect from '../DropdownSelect'
-import { useUserPositionChart } from '../../contexts/User'
-import { useTimeframe } from '../../contexts/Application'
-import LocalLoader from '../LocalLoader'
-import { useColor } from '../../hooks'
-import { useDarkModeManager } from '../../contexts/LocalStorage'
+import { timeframeOptions } from '../../constants';
+import { useTimeframe } from '../../contexts/Application';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useUserPositionChart } from '../../contexts/User';
+import { useColor } from '../../hooks';
+import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
+import { OptionButton } from '../ButtonStyled';
+import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
+import { AutoRow, RowBetween } from '../Row';
 
 const ChartWrapper = styled.div`
   max-height: 420px;
@@ -20,39 +20,39 @@ const ChartWrapper = styled.div`
   @media screen and (max-width: 600px) {
     min-height: 200px;
   }
-`
+`;
 
 const OptionsRow = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
   margin-bottom: 40px;
-`
+`;
 
 const CHART_VIEW = {
   VALUE: 'Value',
   FEES: 'Fees',
-}
+};
 
 const PairReturnsChart = ({ account, position }) => {
-  let data = useUserPositionChart(position, account)
+  let data = useUserPositionChart(position, account);
 
-  const [timeWindow, setTimeWindow] = useTimeframe()
+  const [timeWindow, setTimeWindow] = useTimeframe();
 
-  const below600 = useMedia('(max-width: 600px)')
+  const below600 = useMedia('(max-width: 600px)');
 
-  const color = useColor(position?.pair.token0.id)
+  const color = useColor(position?.pair.token0.id);
 
-  const [chartView, setChartView] = useState(CHART_VIEW.VALUE)
+  const [chartView, setChartView] = useState(CHART_VIEW.VALUE);
 
   // based on window, get starttime
-  let utcStartTime = getTimeframe(timeWindow)
-  data = data?.filter((entry) => entry.date >= utcStartTime)
+  let utcStartTime = getTimeframe(timeWindow);
+  data = data?.filter((entry) => entry.date >= utcStartTime);
 
-  const aspect = below600 ? 60 / 42 : 60 / 16
+  const aspect = below600 ? 60 / 42 : 60 / 16;
 
-  const [darkMode] = useDarkModeManager()
-  const textColor = darkMode ? 'white' : 'black'
+  const [darkMode] = useDarkModeManager();
+  const textColor = darkMode ? 'white' : 'black';
 
   return (
     <ChartWrapper>
@@ -152,7 +152,7 @@ const PairReturnsChart = ({ account, position }) => {
         )}
       </ResponsiveContainer>
     </ChartWrapper>
-  )
-}
+  );
+};
 
-export default PairReturnsChart
+export default PairReturnsChart;

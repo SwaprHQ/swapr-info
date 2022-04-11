@@ -1,17 +1,18 @@
-import { ApolloClient } from "apollo-client";
-import { InMemoryCache } from "apollo-cache-inmemory";
-import { HttpLink } from "apollo-link-http";
-import { SupportedNetwork, NETWORK_SUBGRAPH_URLS } from "../constants";
+import { InMemoryCache } from 'apollo-cache-inmemory';
+import { ApolloClient } from 'apollo-client';
+import { HttpLink } from 'apollo-link-http';
 
-const BASE_SUBGRAPH = "https://api.thegraph.com/subgraphs/name/";
+import { SupportedNetwork, NETWORK_SUBGRAPH_URLS } from '../constants';
+
+const BASE_SUBGRAPH = 'https://api.thegraph.com/subgraphs/name/';
 const defaultApolloConfig = {
   watchQuery: {
-    fetchPolicy: "network-only",
-    errorPolicy: "ignore",
+    fetchPolicy: 'network-only',
+    errorPolicy: 'ignore',
   },
   query: {
-    fetchPolicy: "network-only",
-    errorPolicy: "all",
+    fetchPolicy: 'network-only',
+    errorPolicy: 'all',
   },
 };
 export const clients = {
@@ -43,7 +44,7 @@ export const clients = {
 
 export const healthClient = new ApolloClient({
   link: new HttpLink({
-    uri: "https://api.thegraph.com/index-node/graphql",
+    uri: 'https://api.thegraph.com/index-node/graphql',
   }),
   cache: new InMemoryCache(),
   shouldBatch: true,
@@ -53,21 +54,21 @@ export const healthClient = new ApolloClient({
 export const blockClients = {
   [SupportedNetwork.MAINNET]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + "blocklytics/ethereum-blocks",
+      uri: BASE_SUBGRAPH + 'blocklytics/ethereum-blocks',
     }),
     cache: new InMemoryCache(),
     defaultOptions: defaultApolloConfig,
   }),
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + "1hive/xdai-blocks",
+      uri: BASE_SUBGRAPH + '1hive/xdai-blocks',
     }),
     cache: new InMemoryCache(),
     defaultOptions: defaultApolloConfig,
   }),
   [SupportedNetwork.ARBITRUM_ONE]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + "dodoex/arbitrum-one-blocks",
+      uri: BASE_SUBGRAPH + 'dodoex/arbitrum-one-blocks',
     }),
     cache: new InMemoryCache(),
     defaultOptions: defaultApolloConfig,

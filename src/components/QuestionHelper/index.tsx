@@ -1,7 +1,8 @@
-import React, { useCallback, useState } from 'react'
-import { HelpCircle as Question } from 'react-feather'
-import styled from 'styled-components'
-import Popover, { PopoverProps } from '../Popover'
+import React, { useCallback, useState } from 'react';
+import { HelpCircle as Question } from 'react-feather';
+import styled from 'styled-components';
+
+import Popover, { PopoverProps } from '../Popover';
 
 const QuestionWrapper = styled.div`
   display: flex;
@@ -20,28 +21,28 @@ const QuestionWrapper = styled.div`
   :focus {
     opacity: 0.7;
   }
-`
+`;
 
 const TooltipContainer = styled.div`
   width: 228px;
   padding: 0.6rem 1rem;
   line-height: 150%;
   font-weight: 400;
-`
+`;
 
 interface TooltipProps extends Omit<PopoverProps, 'content'> {
-  text: string
+  text: string;
 }
 
 export function Tooltip({ text, ...rest }: TooltipProps) {
-  return <Popover content={<TooltipContainer>{text}</TooltipContainer>} {...rest} />
+  return <Popover content={<TooltipContainer>{text}</TooltipContainer>} {...rest} />;
 }
 
 export default function QuestionHelper({ text, disabled }: { text: string; disabled?: boolean }) {
-  const [show, setShow] = useState<boolean>(false)
+  const [show, setShow] = useState<boolean>(false);
 
-  const open = useCallback(() => setShow(true), [setShow])
-  const close = useCallback(() => setShow(false), [setShow])
+  const open = useCallback(() => setShow(true), [setShow]);
+  const close = useCallback(() => setShow(false), [setShow]);
 
   return (
     <span style={{ marginLeft: 4 }}>
@@ -51,5 +52,5 @@ export default function QuestionHelper({ text, disabled }: { text: string; disab
         </QuestionWrapper>
       </Tooltip>
     </span>
-  )
+  );
 }

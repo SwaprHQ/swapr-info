@@ -1,29 +1,28 @@
-import React, { useState, useMemo, useEffect, useRef } from "react";
-import { ResponsiveContainer } from "recharts";
-import { timeframeOptions } from "../../constants";
-import { useGlobalChartData, useGlobalData } from "../../contexts/GlobalData";
-import { useMedia } from "react-use";
-import DropdownSelect from "../DropdownSelect";
-import TradingViewChart, { CHART_TYPES } from "../TradingviewChart";
-import { RowFixed } from "../Row";
-import { OptionButton } from "../ButtonStyled";
-import { getTimeframe } from "../../utils";
-import { TYPE } from "../../Theme";
+import React, { useState, useMemo, useEffect, useRef } from 'react';
+import { useMedia } from 'react-use';
+import { ResponsiveContainer } from 'recharts';
+
+import { TYPE } from '../../Theme';
+import { timeframeOptions } from '../../constants';
+import { useGlobalChartData, useGlobalData } from '../../contexts/GlobalData';
+import { getTimeframe } from '../../utils';
+import { OptionButton } from '../ButtonStyled';
+import DropdownSelect from '../DropdownSelect';
+import { RowFixed } from '../Row';
+import TradingViewChart, { CHART_TYPES } from '../TradingviewChart';
 
 const CHART_VIEW = {
-  VOLUME: "Volume",
-  LIQUIDITY: "Liquidity",
+  VOLUME: 'Volume',
+  LIQUIDITY: 'Liquidity',
 };
 
 const VOLUME_WINDOW = {
-  WEEKLY: "WEEKLY",
-  DAYS: "DAYS",
+  WEEKLY: 'WEEKLY',
+  DAYS: 'DAYS',
 };
 const GlobalChart = ({ display }) => {
   // chart options
-  const [chartView, setChartView] = useState(
-    display === "volume" ? CHART_VIEW.VOLUME : CHART_VIEW.LIQUIDITY
-  );
+  const [chartView, setChartView] = useState(display === 'volume' ? CHART_VIEW.VOLUME : CHART_VIEW.LIQUIDITY);
 
   // time window and window size for chart
   const timeWindow = timeframeOptions.ALL_TIME;
@@ -31,21 +30,14 @@ const GlobalChart = ({ display }) => {
 
   // global historical data
   const [dailyData, weeklyData] = useGlobalChartData();
-  const {
-    totalLiquidityUSD,
-    oneDayVolumeUSD,
-    volumeChangeUSD,
-    liquidityChangeUSD,
-    oneWeekVolume,
-    weeklyVolumeChange,
-  } = useGlobalData();
+  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD, oneWeekVolume, weeklyVolumeChange } =
+    useGlobalData();
 
   // based on window, get starttim
   let utcStartTime = getTimeframe(timeWindow);
 
   const chartDataFiltered = useMemo(() => {
-    let currentData =
-      volumeWindow === VOLUME_WINDOW.DAYS ? dailyData : weeklyData;
+    let currentData = volumeWindow === VOLUME_WINDOW.DAYS ? dailyData : weeklyData;
     return (
       currentData &&
       Object.keys(currentData)
@@ -62,11 +54,11 @@ const GlobalChart = ({ display }) => {
         })
     );
   }, [dailyData, utcStartTime, volumeWindow, weeklyData]);
-  const below800 = useMedia("(max-width: 800px)");
+  const below800 = useMedia('(max-width: 800px)');
 
   // update the width on a window resize
   const ref = useRef();
-  const isClient = typeof window === "object";
+  const isClient = typeof window === 'object';
   const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
   useEffect(() => {
     if (!isClient) {
@@ -75,19 +67,14 @@ const GlobalChart = ({ display }) => {
     function handleResize() {
       setWidth(ref?.current?.container?.clientWidth ?? width);
     }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [isClient, width]); // Empty array ensures that effect is only run on mount and unmount
 
   return chartDataFiltered ? (
     <>
       {below800 && (
-        <DropdownSelect
-          options={CHART_VIEW}
-          active={chartView}
-          setActive={setChartView}
-          color={"#4526A2"}
-        />
+        <DropdownSelect options={CHART_VIEW} active={chartView} setActive={setChartView} color={'#4526A2'} />
       )}
 
       {chartDataFiltered && chartView === CHART_VIEW.LIQUIDITY && (
@@ -107,36 +94,22 @@ const GlobalChart = ({ display }) => {
         <ResponsiveContainer aspect={60 / 28}>
           <TradingViewChart
             data={chartDataFiltered}
-            base={
-              volumeWindow === VOLUME_WINDOW.WEEKLY
-                ? oneWeekVolume
-                : oneDayVolumeUSD
-            }
-            baseChange={
-              volumeWindow === VOLUME_WINDOW.WEEKLY
-                ? weeklyVolumeChange
-                : volumeChangeUSD
-            }
-            title={
-              volumeWindow === VOLUME_WINDOW.WEEKLY ? "Volume (7d)" : "Volume"
-            }
-            field={
-              volumeWindow === VOLUME_WINDOW.WEEKLY
-                ? "weeklyVolumeUSD"
-                : "dailyVolumeUSD"
-            }
+            base={volumeWindow === VOLUME_WINDOW.WEEKLY ? oneWeekVolume : oneDayVolumeUSD}
+            baseChange={volumeWindow === VOLUME_WINDOW.WEEKLY ? weeklyVolumeChange : volumeChangeUSD}
+            title={volumeWindow === VOLUME_WINDOW.WEEKLY ? 'Volume (7d)' : 'Volume'}
+            field={volumeWindow === VOLUME_WINDOW.WEEKLY ? 'weeklyVolumeUSD' : 'dailyVolumeUSD'}
             width={width}
             type={CHART_TYPES.BAR}
             useWeekly={volumeWindow === VOLUME_WINDOW.WEEKLY}
           />
         </ResponsiveContainer>
       )}
-      {display === "volume" && (
+      {display === 'volume' && (
         <RowFixed
           style={{
-            bottom: "70px",
-            position: "absolute",
-            left: "20px",
+            bottom: '70px',
+            position: 'absolute',
+            left: '20px',
             zIndex: 10,
           }}
         >
@@ -147,7 +120,7 @@ const GlobalChart = ({ display }) => {
             <TYPE.body>D</TYPE.body>
           </OptionButton>
           <OptionButton
-            style={{ marginLeft: "4px" }}
+            style={{ marginLeft: '4px' }}
             active={volumeWindow === VOLUME_WINDOW.WEEKLY}
             onClick={() => setVolumeWindow(VOLUME_WINDOW.WEEKLY)}
           >
@@ -157,7 +130,7 @@ const GlobalChart = ({ display }) => {
       )}
     </>
   ) : (
-    ""
+    ''
   );
 };
 

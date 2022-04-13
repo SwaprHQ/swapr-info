@@ -10,7 +10,7 @@ import {
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
 } from './constants';
-import { useLatestBlocks } from './contexts/Application';
+import { useLatestBlocks, useTokensLists } from './contexts/Application';
 import { useGlobalData, useGlobalChartData } from './contexts/GlobalData';
 import { useSelectedNetwork } from './contexts/Network';
 import AccountLookup from './pages/AccountLookup';
@@ -86,6 +86,7 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
 function App() {
   const [savedOpen, setSavedOpen] = useState(false);
 
+  const tokensLists = useTokensLists();
   const globalData = useGlobalData();
   const globalChartData = useGlobalChartData();
   const [latestBlock, headBlock] = useLatestBlocks();
@@ -112,7 +113,9 @@ function App() {
       {globalData &&
       Object.keys(globalData).length > 0 &&
       globalChartData &&
-      Object.keys(globalChartData).length > 0 ? (
+      Object.keys(globalChartData).length > 0 &&
+      tokensLists &&
+      tokensLists.length > 0 ? (
         <Switch>
           <Route
             exacts

@@ -34,20 +34,35 @@ export default function TokenLogo({ address, defaultText = '?', size = '24px', f
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const tokenIcon = useTokenIcon(address);
+
   const source = useMemo(() => {
     if (!address) return [];
+
     const lowercaseAddress = address.toLowerCase();
+
     if (lowercaseAddress === nativeCurrencyWrapper.address.toLowerCase()) {
       return selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo;
     }
-    if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase()) return DXDLogo;
-    if (SWPR_ADDRESS[selectedNetwork] && lowercaseAddress === SWPR_ADDRESS[selectedNetwork].toLowerCase())
+    if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase()) {
+      return DXDLogo;
+    }
+    if (SWPR_ADDRESS[selectedNetwork] && lowercaseAddress === SWPR_ADDRESS[selectedNetwork].toLowerCase()) {
       return SWPRLogo;
+    }
+
+    if (tokenIcon && !badImages[tokenIcon]) {
+      console.log('NOT BAD', tokenIcon, badImages);
+      return tokenIcon;
+    }
+
     const trustWalletIcon = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
       address,
     )}/logo.png`;
-    if (!badImages[trustWalletIcon]) return trustWalletIcon;
-    if (tokenIcon && !badImages[tokenIcon]) return tokenIcon;
+
+    if (!badImages[trustWalletIcon]) {
+      return trustWalletIcon;
+    }
+
     return null;
   }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork, badImages]);
 

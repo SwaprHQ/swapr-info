@@ -9,6 +9,7 @@ import {
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   NETWORK_SUBGRAPH_URLS,
   timeframeOptions,
+  TOKEN_LISTS,
 } from '../constants';
 import { useSelectedNetwork } from './Network';
 
@@ -19,6 +20,7 @@ const UPDATE = 'UPDATE';
 const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME';
 const UPDATE_SESSION_START = 'UPDATE_SESSION_START';
 const UPDATED_SUPPORTED_TOKENS = 'UPDATED_SUPPORTED_TOKENS';
+const UPDATED_TOKENS_LISTS = 'UPDATE_TOKENS_LISTS';
 const UPDATE_LATEST_BLOCK = 'UPDATE_LATEST_BLOCK';
 const UPDATE_HEAD_BLOCK = 'UPDATE_HEAD_BLOCK';
 const UPDATE_BAD_IMAGE_URLS = 'UPDATE_BAD_IMAGE_URLS';
@@ -41,6 +43,7 @@ const INITIAL_STATE = {
   CURRENCY: 'USD',
   TIME_KEY: timeframeOptions.ALL_TIME,
   [BAD_IMAGE_URLS]: {},
+  TOKEN_LISTS: [],
 };
 
 function reducer(state, { type, payload }) {
@@ -52,6 +55,7 @@ function reducer(state, { type, payload }) {
         [CURRENCY]: currency,
       };
     }
+
     case UPDATE_TIMEFRAME: {
       const { newTimeFrame } = payload;
       return {
@@ -59,6 +63,7 @@ function reducer(state, { type, payload }) {
         [TIME_KEY]: newTimeFrame,
       };
     }
+
     case UPDATE_SESSION_START: {
       const { timestamp } = payload;
       return {
@@ -99,6 +104,14 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         [SUPPORTED_TOKENS]: supportedTokens,
+      };
+    }
+
+    case UPDATED_TOKENS_LISTS: {
+      const { tokens } = payload;
+      return {
+        ...state,
+        TOKEN_LISTS: tokens,
       };
     }
 
@@ -179,6 +192,15 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateTokenLists = useCallback((tokens) => {
+    dispatch({
+      type: UPDATED_TOKENS_LISTS,
+      payload: {
+        tokens,
+      },
+    });
+  }, []);
+
   const reset = useCallback(() => {
     dispatch({ type: RESET });
   }, []);
@@ -193,6 +215,7 @@ export default function Provider({ children }) {
             updateSessionStart,
             updateTimeframe,
             updateSupportedTokens,
+            updateTokenLists,
             updateLatestBlock,
             updateHeadBlock,
             updateBadImageUrls,
@@ -205,6 +228,7 @@ export default function Provider({ children }) {
           updateTimeframe,
           updateSessionStart,
           updateSupportedTokens,
+          updateTokenLists,
           updateLatestBlock,
           updateHeadBlock,
           updateBadImageUrls,
@@ -333,7 +357,42 @@ export function useBadImageUrlsUpdater() {
   const [, { updateBadImageUrls }] = useApplicationContext();
   return updateBadImageUrls;
 }
+
 export function useBadImageUrls() {
   const [state] = useApplicationContext();
   return state[BAD_IMAGE_URLS];
+}
+
+export function useTokensLists() {
+  const [state, { updateTokenLists }] = useApplicationContext();
+
+  useEffect(() => {
+    async function fetchTokensLists() {
+      const tokensLists = [];
+
+      for (const list of TOKEN_LISTS) {
+        try {
+          const response = await fetch(list);
+
+          if (!response.ok) {
+            console.warn("Couldn't load a token list");
+            continue;
+          }
+
+          tokensLists.push(await response.json());
+        } catch (error) {
+          console.warn("Couldn't load a token list");
+          continue;
+        }
+      }
+
+      updateTokenLists(tokensLists);
+    }
+
+    if (!state.TOKEN_LISTS || state.TOKEN_LISTS.length === 0) {
+      fetchTokensLists();
+    }
+  }, [state.TOKEN_LISTS, updateTokenLists]);
+
+  return state.TOKEN_LISTS;
 }

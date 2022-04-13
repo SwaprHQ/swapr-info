@@ -1,16 +1,14 @@
 import { useEffect, useState } from 'react';
 
-import { ChainIdForSupportedNetwork, SupportedNetwork } from '../constants';
+import { useTokensLists } from '../contexts/Application';
 import { useSelectedNetwork } from '../contexts/Network';
+import { uriToHttp } from '../utils';
 
-const CACHE = {
-  [SupportedNetwork.MAINNET]: {},
-  [SupportedNetwork.XDAI]: {},
-  [SupportedNetwork.ARBITRUM_ONE]: {},
-};
+const LOGO_CACHE = {};
 
 export function useTokenIcon(address) {
   const selectedNetwork = useSelectedNetwork();
+  const tokensLists = useTokensLists();
   const [uri, setUri] = useState();
 
   useEffect(() => {
@@ -18,34 +16,29 @@ export function useTokenIcon(address) {
     async function fetchTokenLogo() {
       if (!address) return undefined;
 
-      if (Object.values(SupportedNetwork).indexOf(selectedNetwork) < 0) {
-        console.warn(`could not fetch token logos for network ${selectedNetwork}`);
-      }
-
       try {
-        if (Object.keys(CACHE[selectedNetwork]).length === 0) {
-          let tokenListURL = '';
-          if (selectedNetwork === SupportedNetwork.MAINNET) {
-            tokenListURL = 'https://tokens.coingecko.com/uniswap/all.json'; // coingecko list used for mainnet
-          } else if (selectedNetwork === SupportedNetwork.XDAI) {
-            tokenListURL = 'https://tokens.honeyswap.org'; // honeyswap list used for xdai
-          } else {
-            tokenListURL = 'https://ipfs.io/ipfs/QmPQcxPxytZEGBdNSj1gu9QNQScXVVZNat3VcqzdDyR8QU'; // Swapr token list
+        if (LOGO_CACHE[address.toLowerCase()]) {
+          if (!cancelled) {
+            setUri(LOGO_CACHE[address.toLowerCase()]);
           }
-          const response = await fetch(tokenListURL);
-          if (!response.ok) {
-            console.warn(`could not fetch token list at ${tokenListURL}`);
-            return;
-          }
-          const { tokens } = await response.json();
-          const selectedNetworkChainId = ChainIdForSupportedNetwork[selectedNetwork];
-          CACHE[selectedNetwork] = tokens.reduce((cache, token) => {
-            if (token.chainId !== selectedNetworkChainId) return cache;
-            cache[token.address.toLowerCase()] = token.logoURI;
-            return cache;
-          }, {});
+
+          return;
         }
-        if (!cancelled) setUri(CACHE[selectedNetwork][address.toLowerCase()]);
+
+        const matchingTokens = tokensLists.map((list) =>
+          list.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase() && token.logoURI),
+        );
+
+        const firstValidToken = matchingTokens.find((token) => !!token);
+        if (firstValidToken && firstValidToken.logoURI) {
+          LOGO_CACHE[address.toLowerCase()] = uriToHttp(firstValidToken.logoURI)[0];
+
+          if (!cancelled) {
+            setUri(LOGO_CACHE[address.toLowerCase()]);
+          }
+
+          return;
+        }
       } catch (e) {
         console.log(`Failed to fetch token logo for ${address}`, e);
       }
@@ -56,7 +49,7 @@ export function useTokenIcon(address) {
     return () => {
       cancelled = true;
     };
-  }, [selectedNetwork, address]);
+  }, [selectedNetwork, address, tokensLists]);
 
   return uri;
 }

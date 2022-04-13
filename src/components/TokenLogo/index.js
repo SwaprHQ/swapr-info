@@ -51,7 +51,6 @@ export default function TokenLogo({ address, defaultText = '?', size = '24px', f
     }
 
     if (tokenIcon && !badImages[tokenIcon]) {
-      console.log('NOT BAD', tokenIcon, badImages);
       return tokenIcon;
     }
 

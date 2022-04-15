@@ -651,16 +651,17 @@ export function useDataForList(pairList) {
         selectedNetwork,
         [],
       );
+
       setFetched(newFetched.concat(newPairData));
     }
-    if (nativeCurrencyPrice && pairList && pairList.length > 0 && !fetched && !stale) {
+    if (nativeCurrencyPrice && pairList && pairList.length > 0 && fetched.length === 0 && !stale) {
       setStale(true);
       fetchNewPairData();
     }
   }, [nativeCurrencyPrice, state, pairList, stale, fetched, client, blockClient, selectedNetwork]);
 
   const formattedFetch =
-    fetched &&
+    fetched.length > 0 &&
     fetched.reduce((obj, cur) => {
       return { ...obj, [cur?.id]: cur };
     }, {});
@@ -779,7 +780,7 @@ export function useLiquidityMiningCampaignData() {
               pair,
               nativeCurrency,
             );
-
+            console.log('nativePrice[0]', nativePrice[0]);
             const stakedPriceInUsd = getStakedAmountUSD(miningCampaignObject, nativePrice[0], nativeCurrency);
 
             arrayWithMiningCampaignObject.push({

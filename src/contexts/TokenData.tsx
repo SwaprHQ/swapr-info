@@ -26,8 +26,6 @@ import { useLatestBlocks } from './Application';
 import { useNativeCurrencyPrice } from './GlobalData';
 import { useBlocksSubgraphClient, useSwaprSubgraphClient } from './Network';
 
-type TokenData = {};
-
 const RESET = 'RESET';
 const UPDATE = 'UPDATE';
 const UPDATE_TOKEN_TXNS = 'UPDATE_TOKEN_TXNS';
@@ -40,7 +38,7 @@ const TOKEN_PAIRS_KEY = 'TOKEN_PAIRS_KEY';
 
 dayjs.extend(utc);
 
-const TokenDataContext = createContext([]);
+const TokenDataContext = createContext();
 
 function useTokenDataContext() {
   return useContext(TokenDataContext);
@@ -723,9 +721,13 @@ export function useTokenChartData(tokenAddress) {
  */
 export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
   const client = useSwaprSubgraphClient();
+  // console.log('client', client);
   const blockClient = useBlocksSubgraphClient();
+  // console.log('blockClient', blockClient);
   const [state, { updatePriceData }] = useTokenDataContext();
+
   const chartData = state?.[tokenAddress]?.[timeWindow]?.[interval];
+
   const [latestBlock] = useLatestBlocks();
 
   useEffect(() => {
@@ -738,6 +740,7 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 
     async function fetch() {
       const data = await getIntervalTokenData(client, blockClient, tokenAddress, startTime, interval, latestBlock);
+      console.log('data', data);
       updatePriceData(tokenAddress, data, timeWindow, interval);
     }
     if (!chartData) {

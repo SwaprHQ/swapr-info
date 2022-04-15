@@ -202,11 +202,11 @@ export const Search = ({ small = false }) => {
             },
           });
 
-          setSearchedPairs([
-            updateNameData(pairs.data.as0),
-            updateNameData(pairs.data.as1),
-            updateNameData(pairs.data.asAddress),
-          ]);
+          setSearchedPairs(
+            updateNameData(pairs.data.as0) //@ts-ignore
+              .concat(updateNameData(pairs.data.as1)) //@ts-ignore
+              .concat(updateNameData(pairs.data.asAddress)), //@ts-ignore
+          );
           const foundTokens = tokens.data.asSymbol.concat(tokens.data.asAddress).concat(tokens.data.asName);
           setSearchedTokens(foundTokens);
         }

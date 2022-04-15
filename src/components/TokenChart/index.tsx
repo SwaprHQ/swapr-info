@@ -1,5 +1,6 @@
+import isEqual from 'lodash/isEqual';
 import { darken } from 'polished';
-import React, { useState, useRef, useEffect } from 'react';
+import React, { useState, useRef, useEffect, memo } from 'react';
 import { Activity } from 'react-feather';
 import { useMedia, usePrevious } from 'react-use';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
@@ -44,8 +45,8 @@ const DATA_FREQUENCY = {
 
 const TokenChart = ({ address, color, base }) => {
   // settings for the window and candle width
-  const [chartFilter, setChartFilter] = useState(CHART_VIEW.PRICE);
-  const [frequency, setFrequency] = useState(DATA_FREQUENCY.HOUR);
+  const [chartFilter, setChartFilter] = useState(CHART_VIEW.LIQUIDITY);
+  const [frequency, setFrequency] = useState(DATA_FREQUENCY.DAY);
 
   const [darkMode] = useDarkModeManager();
   const textColor = darkMode ? 'white' : 'black';
@@ -59,7 +60,6 @@ const TokenChart = ({ address, color, base }) => {
   }, [address, addressPrev]);
 
   let chartData = useTokenChartData(address);
-
   const [timeWindow, setTimeWindow] = useState(timeframeOptions.WEEK);
   const prevWindow = usePrevious(timeWindow);
 
@@ -108,24 +108,20 @@ const TokenChart = ({ address, color, base }) => {
   const below600 = useMedia('(max-width: 600px)');
 
   const utcStartTime = getTimeframe(timeWindow);
-  // const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax'];
+  const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax'];
   const aspect = below1080 ? 60 / 32 : below600 ? 60 / 42 : 60 / 22;
 
   chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
-
   // update the width on a window resize
   const ref = useRef();
   const isClient = typeof window === 'object';
-  const [width, setWidth] = useState();
+  // @ts-ignore
+  const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
+
   useEffect(() => {
     function handleResize() {
       // @ts-ignore
-      if (ref?.current?.container?.clientWidth !== undefined && ref?.current?.container?.clientHeight !== undefined) {
-        // @ts-ignore
-        setWidth(ref?.current?.container?.clientWidth);
-      } else {
-        setWidth(width);
-      }
+      setWidth(ref?.current?.container?.clientWidth ?? width);
     }
     if (isClient) {
       window.addEventListener('resize', handleResize);
@@ -153,7 +149,7 @@ const TokenChart = ({ address, color, base }) => {
           }
           align="flex-start"
         >
-          <AutoColumn gap="8px">
+          <AutoColumn gap="8px" width="100%">
             <RowFixed>
               <OptionButton
                 active={chartFilter === CHART_VIEW.LIQUIDITY}
@@ -306,7 +302,8 @@ const TokenChart = ({ address, color, base }) => {
                 dataKey="date"
                 tick={{ fill: textColor }}
                 type={'number'}
-                domain={['dataMin', 'dataMax']}
+                //@ts-ignore
+                domain={domain}
               />
               <YAxis
                 type="number"
@@ -410,4 +407,4 @@ const TokenChart = ({ address, color, base }) => {
   );
 };
 
-export default TokenChart;
+export default memo(TokenChart, isEqual);

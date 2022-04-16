@@ -48,6 +48,7 @@
     "react-app-rewired": "^2.1.6",
     "react-device-detect": "^1.9.10",
     "react-dom": "^16.9.0",
+    "react-fast-compare": "^3.2.0",
     "react-feather": "^2.0.3",
     "react-iframe": "^1.8.0",
     "react-parallax": "^2.2.4",

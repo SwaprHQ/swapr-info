@@ -17,7 +17,7 @@ import { AutoRow, RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import TopTokenList from '../components/TokenList';
 import TxnList from '../components/TxnList';
-import { useGlobalData, useGlobalTransactions } from '../contexts/GlobalData';
+import { useGlobalChartData, useGlobalData, useGlobalTransactions } from '../contexts/GlobalData';
 import { useAllPairData } from '../contexts/PairData';
 import { useAllTokenData } from '../contexts/TokenData';
 import { formattedNum, formattedPercent } from '../utils';
@@ -47,7 +47,10 @@ function GlobalPage() {
   const allPairs = useAllPairData();
   const allTokens = useAllTokenData();
   const transactions = useGlobalTransactions();
-  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD } = useGlobalData();
+  const globalData = useGlobalData();
+  // global historical data
+  const [dailyData, weeklyData] = useGlobalChartData();
+  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD } = globalData;
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
@@ -82,9 +85,15 @@ function GlobalPage() {
                         <div />
                       </RowBetween>
                       <RowBetween align="flex-end">
-                        <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                          {formattedNum(oneDayVolumeUSD, true)}
-                        </TYPE.main>
+                        {oneDayVolumeUSD ? (
+                          <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
+                            {formattedNum(oneDayVolumeUSD, true)}
+                          </TYPE.main>
+                        ) : (
+                          <div style={{ width: '35px', margin: '0px 0px 0px 16px' }}>
+                            <div className="dot-flashing"></div>
+                          </div>
+                        )}
                         <TYPE.main fontSize={12}>{formattedPercent(volumeChangeUSD)}</TYPE.main>
                       </RowBetween>
                     </AutoColumn>
@@ -94,9 +103,15 @@ function GlobalPage() {
                         <div />
                       </RowBetween>
                       <RowBetween align="flex-end">
-                        <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                          {formattedNum(totalLiquidityUSD, true)}
-                        </TYPE.main>
+                        {totalLiquidityUSD ? (
+                          <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
+                            {formattedNum(totalLiquidityUSD, true)}
+                          </TYPE.main>
+                        ) : (
+                          <div style={{ width: '35px', margin: '0px 0px 0px 16px' }}>
+                            <div className="dot-flashing"></div>
+                          </div>
+                        )}
                         <TYPE.main fontSize={12}>{formattedPercent(liquidityChangeUSD)}</TYPE.main>
                       </RowBetween>
                     </AutoColumn>
@@ -108,17 +123,17 @@ function GlobalPage() {
           {!below800 && (
             <GridRow>
               <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" />
+                <GlobalChart display="liquidity" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
               </Panel>
               <Panel style={{ height: '100%' }}>
-                <GlobalChart display="volume" />
+                <GlobalChart display="volume" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
               </Panel>
             </GridRow>
           )}
           {below800 && (
             <AutoColumn style={{ marginTop: '6px' }} gap="24px">
               <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" />
+                <GlobalChart display="liquidity" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
               </Panel>
             </AutoColumn>
           )}

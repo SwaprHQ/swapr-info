@@ -1,13 +1,14 @@
-import React, { useState, useMemo, useEffect, useRef } from 'react';
+import React, { useState, useMemo, memo } from 'react';
+import isEqual from 'react-fast-compare';
 import { useMedia } from 'react-use';
 import { ResponsiveContainer } from 'recharts';
 
 import { TYPE } from '../../Theme';
 import { timeframeOptions } from '../../constants';
-import { useGlobalChartData, useGlobalData } from '../../contexts/GlobalData';
 import { getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
 import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
 import { RowFixed } from '../Row';
 import TradingViewChart, { CHART_TYPES } from '../TradingviewChart';
 
@@ -20,18 +21,23 @@ const VOLUME_WINDOW = {
   WEEKLY: 'WEEKLY',
   DAYS: 'DAYS',
 };
-const GlobalChart = ({ display }) => {
+const GlobalChart = ({
+  display,
+  totalLiquidityUSD,
+  oneDayVolumeUSD,
+  volumeChangeUSD,
+  liquidityChangeUSD,
+  oneWeekVolume,
+  weeklyVolumeChange,
+  dailyData,
+  weeklyData,
+}) => {
   // chart options
   const [chartView, setChartView] = useState(display === 'volume' ? CHART_VIEW.VOLUME : CHART_VIEW.LIQUIDITY);
 
   // time window and window size for chart
   const timeWindow = timeframeOptions.ALL_TIME;
   const [volumeWindow, setVolumeWindow] = useState(VOLUME_WINDOW.DAYS);
-
-  // global historical data
-  const [dailyData, weeklyData] = useGlobalChartData();
-  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD, oneWeekVolume, weeklyVolumeChange } =
-    useGlobalData();
 
   // based on window, get starttim
   let utcStartTime = getTimeframe(timeWindow);
@@ -56,21 +62,6 @@ const GlobalChart = ({ display }) => {
   }, [dailyData, utcStartTime, volumeWindow, weeklyData]);
   const below800 = useMedia('(max-width: 800px)');
 
-  // update the width on a window resize
-  const ref = useRef();
-  const isClient = typeof window === 'object';
-  const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
-  useEffect(() => {
-    if (!isClient) {
-      return false;
-    }
-    function handleResize() {
-      setWidth(ref?.current?.container?.clientWidth ?? width);
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [isClient, width]); // Empty array ensures that effect is only run on mount and unmount
-
   return chartDataFiltered ? (
     <>
       {below800 && (
@@ -78,16 +69,19 @@ const GlobalChart = ({ display }) => {
       )}
 
       {chartDataFiltered && chartView === CHART_VIEW.LIQUIDITY && (
-        <ResponsiveContainer aspect={60 / 28} ref={ref}>
-          <TradingViewChart
-            data={dailyData}
-            base={totalLiquidityUSD}
-            baseChange={liquidityChangeUSD}
-            title="Liquidity"
-            field="totalLiquidityUSD"
-            width={width}
-            type={CHART_TYPES.AREA}
-          />
+        <ResponsiveContainer aspect={60 / 28}>
+          {dailyData ? (
+            <TradingViewChart
+              data={dailyData}
+              base={totalLiquidityUSD}
+              baseChange={liquidityChangeUSD}
+              title="Liquidity"
+              field="totalLiquidityUSD"
+              type={CHART_TYPES.AREA}
+            />
+          ) : (
+            <LocalLoader />
+          )}
         </ResponsiveContainer>
       )}
       {chartDataFiltered && chartView === CHART_VIEW.VOLUME && (
@@ -98,7 +92,6 @@ const GlobalChart = ({ display }) => {
             baseChange={volumeWindow === VOLUME_WINDOW.WEEKLY ? weeklyVolumeChange : volumeChangeUSD}
             title={volumeWindow === VOLUME_WINDOW.WEEKLY ? 'Volume (7d)' : 'Volume'}
             field={volumeWindow === VOLUME_WINDOW.WEEKLY ? 'weeklyVolumeUSD' : 'dailyVolumeUSD'}
-            width={width}
             type={CHART_TYPES.BAR}
             useWeekly={volumeWindow === VOLUME_WINDOW.WEEKLY}
           />
@@ -134,4 +127,4 @@ const GlobalChart = ({ display }) => {
   );
 };
 
-export default GlobalChart;
+export default memo(GlobalChart, isEqual);

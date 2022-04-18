@@ -1,7 +1,7 @@
 import { transparentize } from 'polished';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, memo } from 'react';
 import 'feather-icons';
-import { withRouter } from 'react-router-dom';
+import isEqual from 'react-fast-compare';
 import { useMedia } from 'react-use';
 import { Text } from 'rebass';
 import styled from 'styled-components';
@@ -79,7 +79,7 @@ const TokenDetailsLayout = styled.div`
   }
 `;
 
-function TokenPage({ address, history }) {
+function TokenPage({ address }) {
   const {
     id,
     name,
@@ -389,4 +389,4 @@ function TokenPage({ address, history }) {
   );
 }
 
-export default withRouter(TokenPage);
+export default memo(TokenPage, isEqual);

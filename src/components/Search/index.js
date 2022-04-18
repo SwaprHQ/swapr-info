@@ -150,7 +150,7 @@ const Blue = styled.span`
   }
 `;
 
-export const Search = ({ small = false }) => {
+export default function Search({ small = false }) {
   const client = useSwaprSubgraphClient();
   let allTokens = useAllTokensInSwapr();
   const allTokenData = useAllTokenData();
@@ -552,6 +552,4 @@ export const Search = ({ small = false }) => {
       </Menu>
     </Container>
   );
-};
-
-export default Search;
+}

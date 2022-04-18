@@ -1,7 +1,7 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
-import React, { useState, useEffect, useMemo } from 'react';
-import { withRouter } from 'react-router-dom';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import isEqual from 'react-fast-compare';
 import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
@@ -12,6 +12,7 @@ import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import FormattedName from '../FormattedName';
 import { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
 import Row from '../Row';
 import TokenLogo from '../TokenLogo';
 
@@ -131,6 +132,8 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   const below1080 = useMedia('(max-width: 1080px)');
   const below680 = useMedia('(max-width: 680px)');
   const below600 = useMedia('(max-width: 600px)');
+
+  const showLoader = !tokens || Object.keys(tokens).length === 0;
 
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
@@ -292,7 +295,10 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       <Divider />
 
       <List p={0}>
-        {filteredList &&
+        {showLoader ? (
+          <LocalLoader />
+        ) : (
+          filteredList &&
           filteredList.map((item, index) => {
             return (
               <div key={index}>
@@ -300,8 +306,10 @@ function TopTokenList({ tokens, itemMax = 10 }) {
                 <Divider />
               </div>
             );
-          })}
+          })
+        )}
       </List>
+
       <PageButtons>
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
@@ -315,4 +323,4 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   );
 }
 
-export default withRouter(TopTokenList);
+export default memo(TopTokenList, isEqual);

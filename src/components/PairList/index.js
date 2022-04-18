@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import React, { useState, useEffect } from 'react';
-import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
@@ -128,7 +127,7 @@ const FIELD_TO_VALUE = {
   [SORT_FIELD.FEES]: 'oneDayVolumeUSD',
 };
 
-function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
+export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
   const below740 = useMedia('(max-width: 740px)');
@@ -317,7 +316,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>
+      <List p={0}>{!pairList || Object.keys(pairs).length === 0 ? <LocalLoader /> : pairList}</List>
       <PageButtons>
         <div
           onClick={(e) => {
@@ -338,5 +337,3 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
     </ListWrapper>
   );
 }
-
-export default withRouter(PairList);

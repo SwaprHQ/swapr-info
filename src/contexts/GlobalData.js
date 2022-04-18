@@ -272,7 +272,6 @@ async function getGlobalData(factoryAddress, client, blockClient, nativeCurrency
 
     // format the total liquidity in USD
     data.totalLiquidityUSD = data.totalLiquidityNativeCurrency * nativeCurrencyPrice;
-
     if (data && oneDayData) {
       const absoluteOneDayVolumeChange = parseFloat(data.totalVolumeUSD) - parseFloat(oneDayData.totalVolumeUSD);
       data.oneDayVolumeUSD = absoluteOneDayVolumeChange;

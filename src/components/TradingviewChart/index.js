@@ -1,7 +1,8 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { createChart } from 'lightweight-charts';
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, memo } from 'react';
+import isEqual from 'react-fast-compare';
 import { Play } from 'react-feather';
 import { usePrevious } from 'react-use';
 import styled from 'styled-components';
@@ -11,6 +12,17 @@ import { useDarkModeManager } from '../../contexts/LocalStorage';
 import { formattedNum } from '../../utils';
 
 dayjs.extend(utc);
+
+const removeNode = (type) => {
+  // remove the tooltip element
+  let tooltip = document.getElementById('tooltip-id' + type);
+  let node = document.getElementById('test-id' + type);
+  try {
+    node.removeChild(tooltip);
+  } catch (e) {
+    console.log(e);
+  }
+};
 
 export const CHART_TYPES = {
   BAR: 'BAR',
@@ -43,10 +55,7 @@ const TradingViewChart = ({
 
   useEffect(() => {
     if (data !== dataPrev && chartCreated && type === CHART_TYPES.BAR) {
-      // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id' + type);
-      let node = document.getElementById('test-id' + type);
-      node.removeChild(tooltip);
+      removeNode(type);
       chartCreated.resize(0, 0);
       setChartCreated();
     }
@@ -66,18 +75,20 @@ const TradingViewChart = ({
   const [darkMode] = useDarkModeManager();
   const textColor = darkMode ? 'white' : 'black';
   const previousTheme = usePrevious(darkMode);
+  const previousBase = usePrevious(base);
 
   // reset the chart if them switches
   useEffect(() => {
-    if (chartCreated && previousTheme !== darkMode) {
+    const reset = () => {
       // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id' + type);
-      let node = document.getElementById('test-id' + type);
-      node.removeChild(tooltip);
+      removeNode(type);
       chartCreated.resize(0, 0);
       setChartCreated();
+    };
+    if ((chartCreated && previousTheme !== darkMode) || (chartCreated && previousBase !== base)) {
+      reset();
     }
-  }, [chartCreated, darkMode, previousTheme, type]);
+  }, [chartCreated, darkMode, previousTheme, type, previousBase, base]);
 
   // if no chart created yet, create one with options and add to DOM manually
   useEffect(() => {
@@ -166,14 +177,19 @@ const TradingViewChart = ({
 
       // get the title of the chart
       function setLastBarText() {
-        toolTip.innerHTML =
-          `<div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">${title} ${
-            type === CHART_TYPES.BAR && !useWeekly ? '(24hr)' : ''
-          }</div>` +
-          `<div style="font-size: 22px; margin: 4px 0px; color:${textColor}" >` +
-          formattedNum(base ?? 0, true) +
-          `<span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>` +
-          '</div>';
+        toolTip.innerHTML = `
+        <div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">
+        ${title} 
+        ${type === CHART_TYPES.BAR && !useWeekly ? '(24hr)' : ''}
+        </div>
+          <div style="font-size: 22px; margin: 4px 0px; color:${textColor}; display: flex; align-items: center; align-content: center;" >
+          ${
+            base
+              ? `<div> ${formattedNum(base ?? 0, true)}</div>
+                <span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>`
+              : `<div style="width: 35px; margin-left: 16px;"><div class="dot-flashing"></div></div>`
+          }
+          </div>`;
       }
       setLastBarText();
 
@@ -200,14 +216,14 @@ const TradingViewChart = ({
             : dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day).format('MMMM D, YYYY');
           var price = param.seriesPrices.get(series);
 
-          toolTip.innerHTML =
-            `<div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">${title}</div>` +
-            `<div style="font-size: 22px; margin: 4px 0px; color: ${textColor}">` +
-            formattedNum(price, true) +
-            '</div>' +
-            '<div>' +
-            dateStr +
-            '</div>';
+          toolTip.innerHTML = `<div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">${title}</div>
+            <div style="font-size: 22px; margin: 4px 0px; color: ${textColor}">
+            ${formattedNum(price, true)}
+           
+            </div>
+            <div>
+            ${dateStr}
+            </div>`;
         }
       });
 
@@ -252,4 +268,4 @@ const TradingViewChart = ({
   );
 };
 
-export default TradingViewChart;
+export default memo(TradingViewChart, isEqual);

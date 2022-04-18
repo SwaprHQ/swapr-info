@@ -2,7 +2,6 @@ import React, { useState } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 
-import LocalLoader from './components/LocalLoader';
 import SideNav from './components/SideNav';
 import {
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
@@ -10,8 +9,7 @@ import {
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
 } from './constants';
-import { useLatestBlocks, useTokensLists } from './contexts/Application';
-import { useGlobalData, useGlobalChartData } from './contexts/GlobalData';
+import { useLatestBlocks } from './contexts/Application';
 import { useSelectedNetwork } from './contexts/Network';
 import AccountLookup from './pages/AccountLookup';
 import AccountPage from './pages/AccountPage';
@@ -68,7 +66,7 @@ const WarningBanner = styled.div`
 /**
  * Wrap the component with the header and sidebar pinned tab
  */
-const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
+const LayoutWrapper = ({ children, savedOpen }) => {
   return (
     <>
       <ContentWrapper open={savedOpen}>
@@ -86,9 +84,6 @@ const LayoutWrapper = ({ children, savedOpen, setSavedOpen }) => {
 function App() {
   const [savedOpen, setSavedOpen] = useState(false);
 
-  const tokensLists = useTokensLists();
-  const globalData = useGlobalData();
-  const globalChartData = useGlobalChartData();
   const [latestBlock, headBlock] = useLatestBlocks();
   const selectedNetwork = useSelectedNetwork();
 
@@ -110,108 +105,99 @@ function App() {
           </WarningBanner>
         </WarningWrapper>
       )}
-      {globalData &&
-      Object.keys(globalData).length > 0 &&
-      globalChartData &&
-      Object.keys(globalChartData).length > 0 &&
-      tokensLists &&
-      tokensLists.length > 0 ? (
-        <Switch>
-          <Route
-            exacts
-            strict
-            path="/token/:tokenAddress"
-            render={({ match }) => {
-              if (OVERVIEW_TOKEN_BLACKLIST.includes(match.params.tokenAddress.toLowerCase())) {
-                return <Redirect to="/home" />;
-              }
-              if (isAddress(match.params.tokenAddress.toLowerCase())) {
-                return (
-                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                    <TokenPage address={match.params.tokenAddress.toLowerCase()} />
-                  </LayoutWrapper>
-                );
-              } else {
-                return <Redirect to="/home" />;
-              }
-            }}
-          />
-          <Route
-            exacts
-            strict
-            path="/pair/:pairAddress"
-            render={({ match }) => {
-              if (PAIR_BLACKLIST.includes(match.params.pairAddress.toLowerCase())) {
-                return <Redirect to="/home" />;
-              }
-              if (isAddress(match.params.pairAddress.toLowerCase())) {
-                return (
-                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                    <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
-                  </LayoutWrapper>
-                );
-              } else {
-                return <Redirect to="/home" />;
-              }
-            }}
-          />
-          <Route
-            exacts
-            strict
-            path="/account/:accountAddress"
-            render={({ match }) => {
-              if (isAddress(match.params.accountAddress.toLowerCase())) {
-                return (
-                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-                    <AccountPage account={match.params.accountAddress.toLowerCase()} />
-                  </LayoutWrapper>
-                );
-              } else {
-                return <Redirect to="/home" />;
-              }
-            }}
-          />
-          <Route path="/dashboard">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <DashboardPage />
-            </LayoutWrapper>
-          </Route>
+      <Switch>
+        <Route
+          exacts
+          strict
+          path="/token/:tokenAddress"
+          render={({ match }) => {
+            if (OVERVIEW_TOKEN_BLACKLIST.includes(match.params.tokenAddress.toLowerCase())) {
+              return <Redirect to="/home" />;
+            }
+            if (isAddress(match.params.tokenAddress.toLowerCase())) {
+              return (
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <TokenPage address={match.params.tokenAddress.toLowerCase()} />
+                </LayoutWrapper>
+              );
+            } else {
+              return <Redirect to="/home" />;
+            }
+          }}
+        />
+        <Route
+          exacts
+          strict
+          path="/pair/:pairAddress"
+          render={({ match }) => {
+            if (PAIR_BLACKLIST.includes(match.params.pairAddress.toLowerCase())) {
+              return <Redirect to="/home" />;
+            }
+            if (isAddress(match.params.pairAddress.toLowerCase())) {
+              return (
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <PairPage pairAddress={match.params.pairAddress.toLowerCase()} />
+                </LayoutWrapper>
+              );
+            } else {
+              return <Redirect to="/home" />;
+            }
+          }}
+        />
+        <Route
+          exacts
+          strict
+          path="/account/:accountAddress"
+          render={({ match }) => {
+            if (isAddress(match.params.accountAddress.toLowerCase())) {
+              return (
+                <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                  <AccountPage account={match.params.accountAddress.toLowerCase()} />
+                </LayoutWrapper>
+              );
+            } else {
+              return <Redirect to="/home" />;
+            }
+          }}
+        />
+        <Route path="/dashboard">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <DashboardPage />
+          </LayoutWrapper>
+        </Route>
 
-          <Route path="/home">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <GlobalPage />
-            </LayoutWrapper>
-          </Route>
+        <Route path="/home">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <GlobalPage />
+          </LayoutWrapper>
+        </Route>
 
-          <Route path="/tokens">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <AllTokensPage />
-            </LayoutWrapper>
-          </Route>
+        <Route path="/tokens">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <AllTokensPage />
+          </LayoutWrapper>
+        </Route>
 
-          <Route path="/pairs">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <AllPairsPage />
-            </LayoutWrapper>
-          </Route>
+        <Route path="/pairs">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <AllPairsPage />
+          </LayoutWrapper>
+        </Route>
 
-          <Route path="/accounts">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <AccountLookup />
-            </LayoutWrapper>
-          </Route>
+        <Route path="/accounts">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <AccountLookup />
+          </LayoutWrapper>
+        </Route>
 
-          <Route path="/farming">
-            <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <FarmingPage />
-            </LayoutWrapper>
-          </Route>
+        <Route path="/farming">
+          <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+            <FarmingPage />
+          </LayoutWrapper>
+        </Route>
 
-          <Redirect to="/home" />
-        </Switch>
-      ) : (
-        <LocalLoader fill="true" />
-      )}
+        <Redirect to="/home" />
+      </Switch>
     </AppWrapper>
   );
 }

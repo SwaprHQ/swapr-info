@@ -389,7 +389,7 @@ export function useTokensLists() {
       updateTokenLists(tokensLists);
     }
 
-    if (!state.TOKEN_LISTS || state.TOKEN_LISTS.length === 0) {
+    if (state.TOKEN_LISTS.length === 0) {
       fetchTokensLists();
     }
   }, [state.TOKEN_LISTS, updateTokenLists]);

@@ -185,10 +185,10 @@ const TradingViewChart = ({
           <div style="font-size: 22px; margin: 4px 0px; color:${textColor}; display: flex; align-items: center; align-content: center;" >
           ${
             base
-              ? formattedNum(base ?? 0, true)
-              : `<div style="width: 35px; margin-left: 16px"><div class="dot-flashing"></div></div>`
+              ? `<div> ${formattedNum(base ?? 0, true)}</div>
+                <span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>`
+              : `<div style="width: 35px; margin-left: 16px;"><div class="dot-flashing"></div></div>`
           }
-          <span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>
           </div>`;
       }
       setLastBarText();

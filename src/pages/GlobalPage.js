@@ -94,7 +94,7 @@ function GlobalPage() {
                             <div className="dot-flashing"></div>
                           </div>
                         )}
-                        <TYPE.main fontSize={12}>{formattedPercent(volumeChangeUSD)}</TYPE.main>
+                        {oneDayVolumeUSD && <TYPE.main fontSize={12}>{formattedPercent(volumeChangeUSD)}</TYPE.main>}
                       </RowBetween>
                     </AutoColumn>
                     <AutoColumn gap="20px">
@@ -112,7 +112,9 @@ function GlobalPage() {
                             <div className="dot-flashing"></div>
                           </div>
                         )}
-                        <TYPE.main fontSize={12}>{formattedPercent(liquidityChangeUSD)}</TYPE.main>
+                        {totalLiquidityUSD && (
+                          <TYPE.main fontSize={12}>{formattedPercent(liquidityChangeUSD)}</TYPE.main>
+                        )}
                       </RowBetween>
                     </AutoColumn>
                   </AutoColumn>

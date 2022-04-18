@@ -139,14 +139,12 @@ const StackedChart = ({ title, type, data }) => {
         filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
-      <ResponsiveContainer aspect={60 / 28}>
+      <ResponsiveContainer maxHeight={400} maxWith={500} minHeight={300}>
         {type === 'AREA' ? (
           <AreaChart
             className="basic-chart"
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
-            width={500}
-            height={400}
             data={filteredData}
             margin={{ top: 5 }}
           >
@@ -208,8 +206,6 @@ const StackedChart = ({ title, type, data }) => {
             className="basic-chart"
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
-            width={500}
-            height={400}
             data={filteredData}
             throttleDelay={15}
             margin={{ top: 5 }}

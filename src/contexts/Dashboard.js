@@ -5,7 +5,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
 import { clients } from '../apollo/client';
-import { DASHBOARD_CHART } from '../apollo/queries';
+import { DASHBOARD_CHART, DASHBOARD_COMULATIVE_DATA } from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
@@ -32,8 +32,9 @@ const SUPPORTED_CLIENTS = [
   },
 ];
 
-const INITIAL_STATE = { stackedChartData: {} };
+const INITIAL_STATE = { stackedChartData: {}, comulativeData: {} };
 const UPDATE_CHART = 'UPDATE_CHART';
+const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -44,6 +45,16 @@ function reducer(state, { type, payload }) {
         ...state,
         stackedChartData: {
           daily,
+        },
+      };
+    }
+
+    case UPDATE_COMULATIVE_DATA: {
+      const { comulativeNetworksData } = payload;
+      return {
+        ...state,
+        comulativeData: {
+          ...comulativeNetworksData,
         },
       };
     }
@@ -69,11 +80,21 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  return (
-    <DashboardDataContext.Provider value={useMemo(() => [state, updateChart], [state, updateChart])}>
-      {children}
-    </DashboardDataContext.Provider>
+  const updateComulativeData = useCallback((comulativeNetworksData) => {
+    dispatch({
+      type: UPDATE_COMULATIVE_DATA,
+      payload: {
+        comulativeNetworksData,
+      },
+    });
+  }, []);
+
+  const value = useMemo(
+    () => [state, { updateChart, updateComulativeData }],
+    [state, updateChart, updateComulativeData],
   );
+
+  return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>;
 }
 
 Provider.propTypes = {
@@ -81,7 +102,7 @@ Provider.propTypes = {
 };
 
 export function useDashboardChartData() {
-  const [state, updateChart] = useDashboardDataContext();
+  const [state, { updateChart }] = useDashboardDataContext();
   const [oldestDateFetch, setOldestDateFetched] = useState();
   const [activeWindow] = useTimeframe();
 
@@ -117,9 +138,62 @@ export function useDashboardChartData() {
   return state?.stackedChartData;
 }
 
+export const useDashboardComulativeData = () => {
+  const [state, { updateComulativeData }] = useDashboardDataContext();
+
+  const existingComulativeData = state?.comulativeData;
+
+  useEffect(() => {
+    async function fetchData() {
+      const comulativeNetworksData = await getComulativeData();
+      updateComulativeData(comulativeNetworksData);
+    }
+
+    if (!existingComulativeData || Object.keys(existingComulativeData).length === 0) {
+      fetchData();
+    }
+  }, [updateComulativeData, existingComulativeData]);
+
+  return existingComulativeData;
+};
+
+/**
+ * Get comulative data for volume, txs count and liquidity
+ * for each network
+ */
+const getComulativeData = async () => {
+  try {
+    const requests = [];
+    for (const { client } of SUPPORTED_CLIENTS) {
+      requests.push(client.query({ query: DASHBOARD_COMULATIVE_DATA }));
+    }
+
+    const networksData = await Promise.all(requests);
+    const comulativeNetworksData = networksData.reduce(
+      (accumulator, current, index) => {
+        const swaprFactoryData = current.data.swaprFactories[0];
+
+        return {
+          ...accumulator,
+          totalTrades: accumulator.totalTrades + Number(swaprFactoryData.txCount),
+          totalVolume: accumulator.totalVolume + Number(swaprFactoryData.totalVolumeUSD),
+          [SUPPORTED_CLIENTS[index].network]: {
+            totalTrades: Number(swaprFactoryData.txCount),
+            totalVolume: Number(swaprFactoryData.totalVolumeUSD),
+          },
+        };
+      },
+      { totalTrades: 0, totalVolume: 0 },
+    );
+
+    return comulativeNetworksData;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 /**
  * Get historical data for volume and liquidity for each network
- * used on the dashboard page
  * @param {*} oldestDateToFetch // start of window to fetch from
  */
 const getChartData = async (oldestDateToFetch) => {
@@ -147,8 +221,8 @@ const getChartData = async (oldestDateToFetch) => {
         })),
       );
     });
-  } catch (e) {
-    console.log(e);
+  } catch (error) {
+    console.error(error);
   }
   return data;
 };

@@ -23,7 +23,6 @@ const UPDATED_SUPPORTED_TOKENS = 'UPDATED_SUPPORTED_TOKENS';
 const UPDATED_TOKENS_LISTS = 'UPDATE_TOKENS_LISTS';
 const UPDATE_LATEST_BLOCK = 'UPDATE_LATEST_BLOCK';
 const UPDATE_HEAD_BLOCK = 'UPDATE_HEAD_BLOCK';
-const UPDATE_BAD_IMAGE_URLS = 'UPDATE_BAD_IMAGE_URLS';
 
 const SUPPORTED_TOKENS = 'SUPPORTED_TOKENS';
 const TIME_KEY = 'TIME_KEY';
@@ -85,17 +84,6 @@ function reducer(state, { type, payload }) {
       return {
         ...state,
         [HEAD_BLOCK]: block,
-      };
-    }
-
-    case UPDATE_BAD_IMAGE_URLS: {
-      const { url } = payload;
-      return {
-        ...state,
-        [BAD_IMAGE_URLS]: {
-          ...state[BAD_IMAGE_URLS],
-          [url]: true,
-        },
       };
     }
 
@@ -183,15 +171,6 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateBadImageUrls = useCallback((url) => {
-    dispatch({
-      type: UPDATE_BAD_IMAGE_URLS,
-      payload: {
-        url,
-      },
-    });
-  }, []);
-
   const updateTokenLists = useCallback((tokens) => {
     dispatch({
       type: UPDATED_TOKENS_LISTS,
@@ -218,7 +197,6 @@ export default function Provider({ children }) {
             updateTokenLists,
             updateLatestBlock,
             updateHeadBlock,
-            updateBadImageUrls,
             reset,
           },
         ],
@@ -231,7 +209,6 @@ export default function Provider({ children }) {
           updateTokenLists,
           updateLatestBlock,
           updateHeadBlock,
-          updateBadImageUrls,
           reset,
         ],
       )}
@@ -351,16 +328,6 @@ export function useSessionStart() {
 export function useApplicationContextResetter() {
   const [, { reset }] = useApplicationContext();
   return reset;
-}
-
-export function useBadImageUrlsUpdater() {
-  const [, { updateBadImageUrls }] = useApplicationContext();
-  return updateBadImageUrls;
-}
-
-export function useBadImageUrls() {
-  const [state] = useApplicationContext();
-  return state[BAD_IMAGE_URLS];
 }
 
 export function useTokensLists() {

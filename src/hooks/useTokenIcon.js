@@ -13,7 +13,7 @@ export function useTokenIcon(address) {
 
   useEffect(() => {
     let cancelled = false;
-    async function fetchTokenLogo() {
+    function getTokenLogo() {
       if (!address) return undefined;
 
       try {
@@ -31,7 +31,7 @@ export function useTokenIcon(address) {
 
         const firstValidToken = matchingTokens.find((token) => !!token);
         if (firstValidToken && firstValidToken.logoURI) {
-          LOGO_CACHE[address.toLowerCase()] = uriToHttp(firstValidToken.logoURI)[0];
+          LOGO_CACHE[address.toLowerCase()] = uriToHttp(firstValidToken.logoURI);
 
           if (!cancelled) {
             setUri(LOGO_CACHE[address.toLowerCase()]);
@@ -44,7 +44,7 @@ export function useTokenIcon(address) {
       }
     }
 
-    fetchTokenLogo();
+    getTokenLogo();
 
     return () => {
       cancelled = true;

@@ -648,7 +648,7 @@ export function uriToHttp(uri) {
       return ['https' + uri.substr(4), uri];
     case 'ipfs':
       const hash = uri.match(/^ipfs:(\/\/)?(.*)$/i)?.[2];
-      return [`https://ipfs.io/ipfs/${hash}/`, `https://ipfs.io/ipfs/${hash}/`];
+      return [`https://ipfs.io/ipfs/${hash}/`, `http://ipfs.io/ipfs/${hash}/`];
     case 'ipns':
       const name = uri.match(/^ipns:(\/\/)?(.*)$/i)?.[2];
       return [`https://cloudflare-ipfs.com/ipns/${name}/`, `https://ipfs.io/ipns/${name}/`];

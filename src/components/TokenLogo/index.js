@@ -1,14 +1,11 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from 'styled-components';
-
-import { getAddress } from '@ethersproject/address';
 
 import EthereumLogo from '../../assets/images/eth.png';
 import SWPRLogo from '../../assets/images/swpr-logo.png';
 import xDAILogo from '../../assets/images/xdai-logo.png';
 import DXDLogo from '../../assets/svg/dxd-logo.svg';
 import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants/index.js';
-import { useBadImageUrls, useBadImageUrlsUpdater } from '../../contexts/Application';
 import { useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network.js';
 import { useTokenIcon } from '../../hooks/useTokenIcon.js';
 
@@ -28,78 +25,75 @@ const Image = styled.img`
   box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
 `;
 
+const BAD_URLS = {};
+
 export default function TokenLogo({ address, defaultText = '?', size = '24px', flexBasis, justifyContent, ...rest }) {
-  const updateBadImageUrls = useBadImageUrlsUpdater();
-  const badImages = useBadImageUrls();
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
-  const tokenIcon = useTokenIcon(address);
+  const tokenIcons = useTokenIcon(address);
+  const [, refresh] = useState(0);
 
-  const source = useMemo(() => {
+  const sources = useMemo(() => {
     if (!address) return [];
 
     const lowercaseAddress = address.toLowerCase();
 
     if (lowercaseAddress === nativeCurrencyWrapper.address.toLowerCase()) {
-      return selectedNetwork === SupportedNetwork.XDAI ? xDAILogo : EthereumLogo;
+      return selectedNetwork === SupportedNetwork.XDAI ? [xDAILogo] : [EthereumLogo];
     }
+
     if (lowercaseAddress === DXD_ADDRESS[selectedNetwork].toLowerCase()) {
-      return DXDLogo;
+      return [DXDLogo];
     }
+
     if (SWPR_ADDRESS[selectedNetwork] && lowercaseAddress === SWPR_ADDRESS[selectedNetwork].toLowerCase()) {
-      return SWPRLogo;
+      return [SWPRLogo];
     }
 
-    if (tokenIcon && !badImages[tokenIcon]) {
-      return tokenIcon;
+    if (tokenIcons) {
+      return tokenIcons;
     }
 
-    const trustWalletIcon = `https://raw.githubusercontent.com/trustwallet/assets/master/blockchains/ethereum/assets/${getAddress(
-      address,
-    )}/logo.png`;
+    return [];
+  }, [address, tokenIcons, nativeCurrencyWrapper, selectedNetwork]);
 
-    if (!badImages[trustWalletIcon]) {
-      return trustWalletIcon;
-    }
+  const src = sources.find((url) => !BAD_URLS[url]);
 
-    return null;
-  }, [address, tokenIcon, nativeCurrencyWrapper, selectedNetwork, badImages]);
-
-  if (!source) {
-    const numberSize = size ? parseInt(size.replace('px', '')) : 24;
-    const fontSize = Math.ceil(numberSize / 4.5);
+  if (src) {
     return (
       <Inline flexBasis={flexBasis} justifyContent={justifyContent}>
-        <svg height={numberSize} width={numberSize} {...rest} fill="none">
-          <circle cx={numberSize / 2} cy={numberSize / 2} r={numberSize / 2} fill="#fff" />
-          <text
-            fill="#000"
-            stroke="none"
-            fontSize={fontSize}
-            fontWeight="600"
-            x={numberSize / 2}
-            y={numberSize / 2 + Math.floor(fontSize / 2)}
-            textAnchor="middle"
-          >
-            {defaultText.length > 4 ? `${defaultText.slice(0, 4).toUpperCase()}...` : defaultText.toUpperCase()}
-          </text>
-        </svg>
+        <Image
+          {...rest}
+          alt=""
+          src={src}
+          size={size}
+          onError={() => {
+            BAD_URLS[src] = true;
+            refresh((i) => i + 1);
+          }}
+        />
       </Inline>
     );
   }
 
+  const numberSize = size ? parseInt(size.replace('px', '')) : 24;
+  const fontSize = Math.ceil(numberSize / 4.5);
   return (
     <Inline flexBasis={flexBasis} justifyContent={justifyContent}>
-      <Image
-        {...rest}
-        alt=""
-        src={source}
-        size={size}
-        onError={(event) => {
-          updateBadImageUrls(source);
-          event.preventDefault();
-        }}
-      />
+      <svg height={numberSize} width={numberSize} {...rest} fill="none">
+        <circle cx={numberSize / 2} cy={numberSize / 2} r={numberSize / 2} fill="#fff" />
+        <text
+          fill="#000"
+          stroke="none"
+          fontSize={fontSize}
+          fontWeight="600"
+          x={numberSize / 2}
+          y={numberSize / 2 + Math.floor(fontSize / 2)}
+          textAnchor="middle"
+        >
+          {defaultText.length > 4 ? `${defaultText.slice(0, 4).toUpperCase()}...` : defaultText.toUpperCase()}
+        </text>
+      </svg>
     </Inline>
   );
 }

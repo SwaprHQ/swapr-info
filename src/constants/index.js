@@ -98,15 +98,13 @@ export const PAIR_BLACKLIST = ['0xb6a741f37d6e455ebcc9f17e2c16d0586c3f57a5'];
  */
 export const FEE_WARNING_TOKENS = ['0xd46ba6d942050d489dbd938a2c909a5d5039a161'];
 export const TOKEN_LISTS = [
-  'https://ipfs.io/ipfs/QmSbyVo6Kz5BuqyAHYcN7UkeCk5cALFp6QmPUN6NtPpDWL',
+  'https://ipfs.io/ipfs/QmUWnK6AFHZ3S1hR7Up1h3Ntax3fP1ZyiTptDNG2cWLTeK',
   'https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json',
   'https://umaproject.org/uma.tokenlist.json',
   'http://tokenlist.aave.eth',
   'http://synths.snx.eth',
   'http://wrapped.tokensoft.eth',
-  'https://raw.githubusercontent.com/',
   'https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json',
-  'https://raw.githubusercontent.com/opynfinance/opyn-tokenlist/master/opyn-v1.tokenlist.json',
   'https://app.tryroll.com/tokens.json',
   'https://tokens.coingecko.com/uniswap/all.json',
   'http://defi.cmc.eth',

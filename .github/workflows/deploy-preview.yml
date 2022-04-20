@@ -1,4 +1,4 @@
-name: IPFS preview build
+name: IPFS Preview Deploy
 on:
   push:
     branches:
@@ -9,18 +9,16 @@ jobs:
   ipfs-preview-build:
     runs-on: ubuntu-latest
     steps:
-      - name: Github unsafe repository fix
-        run: |
-          #FIXME: see https://github.com/actions/checkout/issues/760
-          git config --global --add safe.directory '/github/workspace'
       - name: Inject slug variables
         uses: rlespinasse/github-slug-action@3.5.1
       - name: Checkout
         uses: actions/checkout@v3
-      - name: Use Node.js ${{matrix.node-version}}
+      - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
+          check-latest: true
+          cache: 'yarn'
       - name: Start Deployment
         uses: bobheadxi/deployments@v0.6.0
         id: deployment
@@ -29,12 +27,6 @@ jobs:
           token: ${{secrets.GITHUB_TOKEN}}
           env: ${{env.GITHUB_HEAD_REF_SLUG_URL || env.GITHUB_REF_SLUG_URL}}
           ref: ${{github.head_ref}}
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '16'
-          check-latest: true
-          cache: 'yarn'
 
       - name: Install dependencies
         run: yarn install --frozen-lockfile --cache-folder $(yarn cache dir)

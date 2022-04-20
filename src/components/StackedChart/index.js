@@ -34,21 +34,23 @@ const StackedChart = ({ title, type, data }) => {
 
   // set header values to the latest point of the chart
   const setDefaultHeaderValues = useCallback(() => {
-    let pastStackedDataValue = 0;
-    let currentStackedDataValue = 0;
+    if (data && Object.keys(data).length > 0) {
+      let pastStackedDataValue = 0;
+      let currentStackedDataValue = 0;
 
-    Object.keys(data[data.length - 1])
-      .filter((key) => key !== 'time')
-      .forEach((key) => {
-        currentStackedDataValue += data[data.length - 1][key];
-        pastStackedDataValue += data[data.length - 2][key];
-      });
+      Object.keys(data[data.length - 1])
+        .filter((key) => key !== 'time')
+        .forEach((key) => {
+          currentStackedDataValue += data[data.length - 1][key];
+          pastStackedDataValue += data[data.length - 2][key];
+        });
 
-    const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
+      const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
 
-    setDailyChange(dailyChange);
-    setActiveDate(data[data.length - 1].time);
-    setStackedDataValue(currentStackedDataValue);
+      setDailyChange(dailyChange);
+      setActiveDate(data[data.length - 1].time);
+      setStackedDataValue(currentStackedDataValue);
+    }
   }, [data]);
 
   // set header values to the current point of the chart
@@ -170,6 +172,9 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              wrapperStyle={{
+                paddingBottom: 24,
+              }}
               formatter={LegendItem}
             />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
@@ -216,6 +221,9 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              wrapperStyle={{
+                paddingBottom: 24,
+              }}
               formatter={LegendItem}
             />
             <XAxis dataKey="time" hide />

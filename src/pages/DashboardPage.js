@@ -108,75 +108,77 @@ const DashboardPage = () => {
     });
   }, []);
 
+  if (
+    chartData === undefined ||
+    Object.keys(chartData).length === 0 ||
+    comulativeData === undefined ||
+    Object.keys(comulativeData).length === 0
+  ) {
+    return <LocalLoader fill="true" />;
+  }
+
   return (
-    <>
-      {(chartData === undefined ||
-        Object.keys(chartData).length === 0 ||
-        comulativeData === undefined ||
-        Object.keys(comulativeData).length === 0) && <LocalLoader fill="true" />}
-      <PageWrapper>
-        <ThemedBackground backgroundColor={transparentize(0.8, '#4526A2')} />
-        <ContentWrapper>
-          <TYPE.largeHeader>{below800 ? 'Analytics Dashboard' : 'Swapr Protocol Analytics Dashboard'}</TYPE.largeHeader>
-          {formattedLiquidityData && (
-            <>
-              {below800 ? (
-                <AutoColumn style={{ marginTop: '6px' }} gap="24px">
-                  <Panel style={{ height: '100%' }}>
-                    <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
-                  </Panel>
-                  <Panel style={{ height: '100%' }}>
-                    <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
-                  </Panel>
-                  <ComulativeNetworkDataCard
-                    title={'All time volume'}
-                    icon={<DollarSign size={22} color="#50dfb6" />}
-                    comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
-                    networksValues={formattedTotalVolume}
-                  />
-                  <ComulativeNetworkDataCard
-                    title={'Total trades'}
-                    icon={<FileText size={22} color="#50dfb6" />}
-                    comulativeValue={formattedNum(comulativeData.totalTrades)}
-                    networksValues={formattedTotalTrades}
-                  />
-                </AutoColumn>
-              ) : (
-                <GridRow>
-                  <div>
-                    <GridChart>
-                      <Panel style={{ height: '100%' }}>
-                        <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
-                      </Panel>
-                      <Panel style={{ height: '100%' }}>
-                        <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
-                      </Panel>
-                    </GridChart>
-                  </div>
-                  <div>
-                    <GridCard>
-                      <ComulativeNetworkDataCard
-                        title={'All time volume'}
-                        icon={<DollarSign size={22} color="#50dfb6" />}
-                        comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
-                        networksValues={formattedTotalVolume}
-                      />
-                      <ComulativeNetworkDataCard
-                        title={'Total trades'}
-                        icon={<FileText size={22} color="#50dfb6" />}
-                        comulativeValue={formattedNum(comulativeData.totalTrades)}
-                        networksValues={formattedTotalTrades}
-                      />
-                    </GridCard>
-                  </div>
-                </GridRow>
-              )}
-            </>
-          )}
-        </ContentWrapper>
-        )
-      </PageWrapper>
-    </>
+    <PageWrapper>
+      <ThemedBackground backgroundColor={transparentize(0.8, '#4526A2')} />
+      <ContentWrapper>
+        <TYPE.largeHeader>{below800 ? 'Analytics Dashboard' : 'Swapr Protocol Analytics Dashboard'}</TYPE.largeHeader>
+        {formattedLiquidityData && (
+          <>
+            {below800 ? (
+              <AutoColumn style={{ marginTop: '6px' }} gap="24px">
+                <Panel style={{ height: '100%' }}>
+                  <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                </Panel>
+                <Panel style={{ height: '100%' }}>
+                  <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                </Panel>
+                <ComulativeNetworkDataCard
+                  title={'All time volume'}
+                  icon={<DollarSign size={22} color="#50dfb6" />}
+                  comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                  networksValues={formattedTotalVolume}
+                />
+                <ComulativeNetworkDataCard
+                  title={'Total trades'}
+                  icon={<FileText size={22} color="#50dfb6" />}
+                  comulativeValue={formattedNum(comulativeData.totalTrades)}
+                  networksValues={formattedTotalTrades}
+                />
+              </AutoColumn>
+            ) : (
+              <GridRow>
+                <div>
+                  <GridChart>
+                    <Panel style={{ height: '100%' }}>
+                      <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                    </Panel>
+                    <Panel style={{ height: '100%' }}>
+                      <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                    </Panel>
+                  </GridChart>
+                </div>
+                <div>
+                  <GridCard>
+                    <ComulativeNetworkDataCard
+                      title={'All time volume'}
+                      icon={<DollarSign size={22} color="#50dfb6" />}
+                      comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                      networksValues={formattedTotalVolume}
+                    />
+                    <ComulativeNetworkDataCard
+                      title={'Total trades'}
+                      icon={<FileText size={22} color="#50dfb6" />}
+                      comulativeValue={formattedNum(comulativeData.totalTrades)}
+                      networksValues={formattedTotalTrades}
+                    />
+                  </GridCard>
+                </div>
+              </GridRow>
+            )}
+          </>
+        )}
+      </ContentWrapper>
+    </PageWrapper>
   );
 };
 

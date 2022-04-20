@@ -5,6 +5,11 @@ on:
       - develop
   pull_request:
     types: [opened, synchronize, reopened]
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   ipfs-preview-build:
     runs-on: ubuntu-latest

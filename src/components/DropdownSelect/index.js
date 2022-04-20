@@ -1,4 +1,4 @@
-import React, { useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ChevronDown as Arrow } from 'react-feather';
 import { useClickAway } from 'react-use';
 import styled from 'styled-components';
@@ -41,7 +41,8 @@ const IconWrapper = styled.span`
   align-items: center;
   justify-content: center;
   margin-right: 8px;
-
+  width: ${({ size }) => (size ? `${size}px` : '20px')};
+  height: ${({ size }) => (size ? `${size}px` : '20px')};
   & > img {
     height: 20px;
   }
@@ -82,13 +83,20 @@ const Icon = ({ network }) => {
   );
 };
 
-const DropdownSelect = ({ options, active, disabled, setActive, color, width = null }) => {
+export default function DropdownSelect({ options, active, disabled, setActive, color, width = null }) {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
+
   useClickAway(dropdownRef, (event) => {
     if (showDropdown && !containerRef.current.contains(event.target)) toggleDropdown(false);
   });
+  // Preload network logos
+  useEffect(() => {
+    Object.values(NetworkLogo).forEach((image) => {
+      new Image().src = image;
+    });
+  }, []);
 
   return (
     <Wrapper open={showDropdown} color={color} ref={containerRef} width={width} disabled={disabled}>
@@ -141,6 +149,4 @@ const DropdownSelect = ({ options, active, disabled, setActive, color, width = n
       )}
     </Wrapper>
   );
-};
-
-export default DropdownSelect;
+}

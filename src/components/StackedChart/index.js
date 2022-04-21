@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
 import { TYPE } from '../../Theme';
-import { SupportedNetwork } from '../../constants';
+import { NETWORK_COLORS, SupportedNetwork } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
@@ -14,18 +14,14 @@ const TIME_FILTER_OPTIONS = {
   MONTH_3: '3M',
   YEAR: '1Y',
 };
-const NETWORK_COLORS = {
-  [SupportedNetwork.MAINNET]: '#2974e0',
-  [SupportedNetwork.XDAI]: '#4526A2',
-  [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
-};
+
 const LegendItem = (value) => (
   <TYPE.light color="text1" as="span">
     {value}
   </TYPE.light>
 );
 
-const StackedChart = ({ title, type, data }) => {
+const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
@@ -141,7 +137,7 @@ const StackedChart = ({ title, type, data }) => {
         filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
-      <ResponsiveContainer maxHeight={400} maxWith={500} minHeight={300}>
+      <ResponsiveContainer maxHeight={maxHeight} maxWith={maxWith} minHeight={minHeight}>
         {type === 'AREA' ? (
           <AreaChart
             className="basic-chart"
@@ -181,19 +177,19 @@ const StackedChart = ({ title, type, data }) => {
             <Area
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.XDAI}
+              dataKey={SupportedNetwork.MAINNET}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill="url(#xdai)"
+              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              fill="url(#mainnet)"
               strokeWidth={3}
             />
             <Area
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.MAINNET}
+              dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
-              fill="url(#mainnet)"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill="url(#xdai)"
               strokeWidth={3}
             />
             <Area
@@ -232,19 +228,19 @@ const StackedChart = ({ title, type, data }) => {
             <Bar
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.XDAI}
+              dataKey={SupportedNetwork.MAINNET}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              fill={NETWORK_COLORS[SupportedNetwork.MAINNET]}
               strokeWidth={3}
             />
             <Bar
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.MAINNET}
+              dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
-              fill={NETWORK_COLORS[SupportedNetwork.MAINNET]}
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
               strokeWidth={3}
             />
             <Bar
@@ -266,12 +262,18 @@ const StackedChart = ({ title, type, data }) => {
 StackedChart.propTypes = {
   title: PropTypes.string.isRequired,
   data: PropTypes.any.isRequired,
+  maxHeight: PropTypes.number,
+  maxWith: PropTypes.number,
+  minHeight: PropTypes.number,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
 };
 
 StackedChart.defaultProps = {
   type: 'AREA',
   data: [],
+  maxHeight: 400,
+  maxWith: 500,
+  minHeight: 300,
 };
 
 export default StackedChart;

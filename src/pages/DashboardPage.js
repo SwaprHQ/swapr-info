@@ -38,6 +38,12 @@ const GridCard = styled.div`
   row-gap: 16px;
 `;
 
+const GridCardRow = styled.div`
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  column-gap: 16px;
+`;
+
 const DashboardPage = () => {
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
@@ -48,6 +54,7 @@ const DashboardPage = () => {
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
+  const below1400 = useMedia('(max-width: 1400px)');
 
   useEffect(() => {
     if (chartData && chartData.daily) {
@@ -125,7 +132,7 @@ const DashboardPage = () => {
         {formattedLiquidityData && (
           <>
             {below800 ? (
-              <AutoColumn style={{ marginTop: '6px' }} gap="24px">
+              <AutoColumn style={{ marginTop: '6px' }} gap="16px">
                 <Panel style={{ height: '100%' }}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
                 </Panel>
@@ -144,6 +151,29 @@ const DashboardPage = () => {
                   comulativeValue={formattedNum(comulativeData.totalTrades)}
                   networksValues={formattedTotalTrades}
                 />
+              </AutoColumn>
+            ) : below1400 ? (
+              <AutoColumn style={{ marginTop: '6px' }} gap="16px">
+                <Panel style={{ height: '100%' }}>
+                  <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                </Panel>
+                <Panel style={{ height: '100%' }}>
+                  <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                </Panel>
+                <GridCardRow>
+                  <ComulativeNetworkDataCard
+                    title={'All time volume'}
+                    icon={<DollarSign size={22} color="#50dfb6" />}
+                    comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                    networksValues={formattedTotalVolume}
+                  />
+                  <ComulativeNetworkDataCard
+                    title={'Total trades'}
+                    icon={<FileText size={22} color="#50dfb6" />}
+                    comulativeValue={formattedNum(comulativeData.totalTrades)}
+                    networksValues={formattedTotalTrades}
+                  />
+                </GridCardRow>
               </AutoColumn>
             ) : (
               <GridRow>

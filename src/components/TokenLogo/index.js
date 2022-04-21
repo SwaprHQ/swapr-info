@@ -22,7 +22,7 @@ const Image = styled.img`
   height: ${({ size }) => size};
   background-color: white;
   border-radius: 50%;
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.075);
+  padding: 1px;
 `;
 
 const BAD_URLS = {};
@@ -64,7 +64,7 @@ export default function TokenLogo({ address, defaultText = '?', size = '24px', f
       <Inline flexBasis={flexBasis} justifyContent={justifyContent}>
         <Image
           {...rest}
-          alt=""
+          alt={defaultText}
           src={src}
           size={size}
           onError={() => {

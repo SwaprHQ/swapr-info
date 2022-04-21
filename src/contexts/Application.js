@@ -42,7 +42,7 @@ const INITIAL_STATE = {
   CURRENCY: 'USD',
   TIME_KEY: timeframeOptions.ALL_TIME,
   [BAD_IMAGE_URLS]: {},
-  TOKEN_LISTS: [],
+  TOKEN_LISTS: new Map(),
 };
 
 function reducer(state, { type, payload }) {
@@ -334,29 +334,35 @@ export function useTokensLists() {
   const [state, { updateTokenLists }] = useApplicationContext();
 
   useEffect(() => {
+    const tokenMap = new Map();
     async function fetchTokensLists() {
-      const tokensLists = [];
-
-      for (const list of TOKEN_LISTS) {
-        try {
-          const response = await fetch(list);
-
-          if (!response.ok) {
-            console.warn("Couldn't load a token list");
-            continue;
+      const tokensLists = await Promise.all(
+        TOKEN_LISTS.map(async (url) => {
+          try {
+            const resp = await fetch(url);
+            return resp.json();
+          } catch (error) {
+            console.warn("error Couldn't load a token list");
           }
+        }),
+      );
 
-          tokensLists.push(await response.json());
-        } catch (error) {
-          console.warn("Couldn't load a token list");
-          continue;
-        }
-      }
+      tokensLists
+        .filter((list) => list)
+        .forEach((list) => {
+          if (list?.tokens?.length > 0) {
+            list.tokens.forEach(({ address, logoURI }) => {
+              if (address && logoURI) {
+                tokenMap.set(address.toLowerCase(), { logoURI });
+              }
+            });
+          }
+        });
 
-      updateTokenLists(tokensLists);
+      updateTokenLists(tokenMap);
     }
 
-    if (state.TOKEN_LISTS.length === 0) {
+    if (state.TOKEN_LISTS.size === 0) {
       fetchTokensLists();
     }
   }, [state.TOKEN_LISTS, updateTokenLists]);

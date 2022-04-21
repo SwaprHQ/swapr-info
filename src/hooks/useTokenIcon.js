@@ -14,33 +14,27 @@ export function useTokenIcon(address) {
   useEffect(() => {
     let cancelled = false;
     function getTokenLogo() {
-      if (!address) return undefined;
+      if (!address) {
+        return;
+      }
 
+      const lowercaseAddress = address.toLowerCase();
       try {
-        if (LOGO_CACHE[address.toLowerCase()]) {
-          if (!cancelled) {
-            setUri(LOGO_CACHE[address.toLowerCase()]);
-          }
-
+        if (LOGO_CACHE[lowercaseAddress] && !cancelled) {
+          setUri(LOGO_CACHE[lowercaseAddress]);
           return;
         }
 
-        const matchingTokens = tokensLists.map((list) =>
-          list.tokens.find((token) => token.address.toLowerCase() === address.toLowerCase() && token.logoURI),
-        );
-
-        const firstValidToken = matchingTokens.find((token) => !!token);
-        if (firstValidToken && firstValidToken.logoURI) {
-          LOGO_CACHE[address.toLowerCase()] = uriToHttp(firstValidToken.logoURI);
-
+        const validToken = tokensLists.get(lowercaseAddress);
+        if (validToken && validToken?.logoURI) {
+          LOGO_CACHE[lowercaseAddress] = uriToHttp(validToken.logoURI);
           if (!cancelled) {
-            setUri(LOGO_CACHE[address.toLowerCase()]);
+            setUri(LOGO_CACHE[lowercaseAddress]);
           }
-
           return;
         }
       } catch (e) {
-        console.log(`Failed to fetch token logo for ${address}`, e);
+        console.log(`Failed to get token logo for ${address}`, e);
       }
     }
 

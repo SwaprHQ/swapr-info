@@ -98,7 +98,7 @@ function App() {
           : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD)
       : false;
 
-  return tokensLists && tokensLists.length > 0 ? (
+  return tokensLists?.size > 0 ? (
     <AppWrapper>
       {showWarning && (
         <WarningWrapper>

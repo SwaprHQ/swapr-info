@@ -97,6 +97,19 @@ export const PAIR_BLACKLIST = ['0xb6a741f37d6e455ebcc9f17e2c16d0586c3f57a5'];
  * For tokens that cause erros on fee calculations
  */
 export const FEE_WARNING_TOKENS = ['0xd46ba6d942050d489dbd938a2c909a5d5039a161'];
+export const TOKEN_LISTS = [
+  'https://ipfs.io/ipfs/QmUWnK6AFHZ3S1hR7Up1h3Ntax3fP1ZyiTptDNG2cWLTeK',
+  'https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json',
+  'https://umaproject.org/uma.tokenlist.json',
+  'https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json',
+  'https://app.tryroll.com/tokens.json',
+  'https://tokens.coingecko.com/uniswap/all.json',
+  'https://www.gemini.com/uniswap/manifest.json',
+  'https://raw.githubusercontent.com/The-Blockchain-Association/sec-notice-list/master/ba-sec-list.json',
+  'https://tokens.honeyswap.org',
+  'https://ipfs.io/ipfs/QmUWxthidUYXUJ2kiZLLPxkMKYDAinnpA591R3SRN6wufs?filename=levinswap-default.tokenlist.json',
+  'https://raw.githubusercontent.com/baofinance/tokenlists/main/xdai.json',
+];
 
 export const CHAIN_READONLY_PROVIDERS = {
   [SupportedNetwork.MAINNET]: new JsonRpcProvider('https://mainnet.infura.io/v3/0ebf4dd05d6740f482938b8a80860d13'),

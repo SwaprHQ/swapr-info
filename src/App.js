@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Route, Switch, Redirect } from 'react-router-dom';
 import styled from 'styled-components';
 
+import LocalLoader from './components/LocalLoader';
 import SideNav from './components/SideNav';
 import {
   DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
@@ -9,7 +10,7 @@ import {
   OVERVIEW_TOKEN_BLACKLIST,
   PAIR_BLACKLIST,
 } from './constants';
-import { useLatestBlocks } from './contexts/Application';
+import { useLatestBlocks, useTokensLists } from './contexts/Application';
 import { useSelectedNetwork } from './contexts/Network';
 import AccountLookup from './pages/AccountLookup';
 import AccountPage from './pages/AccountPage';
@@ -86,6 +87,7 @@ function App() {
 
   const [latestBlock, headBlock] = useLatestBlocks();
   const selectedNetwork = useSelectedNetwork();
+  const tokensLists = useTokensLists();
 
   // show warning
   const showWarning =
@@ -96,7 +98,7 @@ function App() {
           : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD)
       : false;
 
-  return (
+  return tokensLists?.size > 0 ? (
     <AppWrapper>
       {showWarning && (
         <WarningWrapper>
@@ -105,7 +107,6 @@ function App() {
           </WarningBanner>
         </WarningWrapper>
       )}
-
       <Switch>
         <Route
           exacts
@@ -200,6 +201,8 @@ function App() {
         <Redirect to="/home" />
       </Switch>
     </AppWrapper>
+  ) : (
+    <LocalLoader fill="true" />
   );
 }
 

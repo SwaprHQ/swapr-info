@@ -14,7 +14,7 @@ import LocalLoader from '../components/LocalLoader';
 import Panel from '../components/Panel';
 import StackedChart from '../components/StackedChart';
 import { SupportedNetwork } from '../constants';
-import { useDashboardChartData, useDashboardComulativeData, useTransactionsData } from '../contexts/Dashboard';
+import { useDashboardChartData, useDashboardComulativeData } from '../contexts/Dashboard';
 import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
@@ -49,7 +49,6 @@ const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <Loc
 const DashboardPage = () => {
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
-  const transactions = useTransactionsData();
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
   const [formattedVolumeData, setFormattedVolumeData] = useState([]);
   const [formattedTotalTrades, setFormattedTotalTrades] = useState([]);
@@ -121,7 +120,6 @@ const DashboardPage = () => {
   const isVolumeAndTvlLoading = chartData === undefined || Object.keys(chartData).length === 0;
   const isAllTimeVolumeLoading = formattedTotalVolume.length === 0;
   const isTotalTradesLoading = formattedTotalTrades.length === 0;
-  const isTransactionsLoading = !transactions || transactions.length === 0;
 
   return (
     <PageWrapper>
@@ -154,15 +152,6 @@ const DashboardPage = () => {
                     networksValues={formattedTotalTrades}
                   />
                 </PanelLoaderWrapper>
-                <PanelLoaderWrapper isLoading={isTransactionsLoading}>
-                  <StackedChart
-                    title={'Transactions'}
-                    type={'AREA'}
-                    data={transactions}
-                    isCurrency={false}
-                    showTimeFilter={false}
-                  />
-                </PanelLoaderWrapper>
               </AutoColumn>
             ) : below1400 ? (
               <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
@@ -172,35 +161,24 @@ const DashboardPage = () => {
                 <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
                 </PanelLoaderWrapper>
-                <GridCardRow>
-                  <AutoColumn gap={'16px'}>
-                    <PanelLoaderWrapper isLoading={isAllTimeVolumeLoading}>
-                      <ComulativeNetworkDataCard
-                        title={'All time volume'}
-                        icon={<DollarSign size={22} color={'#50dfb6'} />}
-                        comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
-                        networksValues={formattedTotalVolume}
-                      />
-                    </PanelLoaderWrapper>
-                    <PanelLoaderWrapper isLoading={isTotalTradesLoading}>
-                      <ComulativeNetworkDataCard
-                        title={'Total trades'}
-                        icon={<FileText size={22} color={'#50dfb6'} />}
-                        comulativeValue={formattedNum(comulativeData.totalTrades)}
-                        networksValues={formattedTotalTrades}
-                      />
-                    </PanelLoaderWrapper>
-                  </AutoColumn>
-                  <PanelLoaderWrapper isLoading={isTransactionsLoading}>
-                    <StackedChart
-                      title={'Transactions'}
-                      type={'AREA'}
-                      data={transactions}
-                      isCurrency={false}
-                      showTimeFilter={false}
+                <AutoColumn gap={'16px'}>
+                  <PanelLoaderWrapper isLoading={isAllTimeVolumeLoading}>
+                    <ComulativeNetworkDataCard
+                      title={'All time volume'}
+                      icon={<DollarSign size={22} color={'#50dfb6'} />}
+                      comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                      networksValues={formattedTotalVolume}
                     />
                   </PanelLoaderWrapper>
-                </GridCardRow>
+                  <PanelLoaderWrapper isLoading={isTotalTradesLoading}>
+                    <ComulativeNetworkDataCard
+                      title={'Total trades'}
+                      icon={<FileText size={22} color={'#50dfb6'} />}
+                      comulativeValue={formattedNum(comulativeData.totalTrades)}
+                      networksValues={formattedTotalTrades}
+                    />
+                  </PanelLoaderWrapper>
+                </AutoColumn>
               </AutoColumn>
             ) : (
               <GridRow>
@@ -228,15 +206,6 @@ const DashboardPage = () => {
                         icon={<FileText size={22} color={'#50dfb6'} />}
                         comulativeValue={formattedNum(comulativeData.totalTrades)}
                         networksValues={formattedTotalTrades}
-                      />
-                    </PanelLoaderWrapper>
-                    <PanelLoaderWrapper isLoading={isTransactionsLoading}>
-                      <StackedChart
-                        title={'Transactions'}
-                        type={'AREA'}
-                        data={transactions}
-                        isCurrency={false}
-                        showTimeFilter={false}
                       />
                     </PanelLoaderWrapper>
                   </GridCard>

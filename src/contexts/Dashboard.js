@@ -192,7 +192,7 @@ export const useTransactionsData = () => {
 };
 
 /**
- * Get historical data for transaction for each network (last 3 months)
+ * Get historical data for transactions for each network (last 1 month)
  */
 const getTransactions = async () => {
   try {

@@ -14,7 +14,7 @@ import LocalLoader from '../components/LocalLoader';
 import Panel from '../components/Panel';
 import StackedChart from '../components/StackedChart';
 import { SupportedNetwork } from '../constants';
-import { useDashboardChartData, useDashboardComulativeData } from '../contexts/Dashboard';
+import { useDashboardChartData, useDashboardComulativeData, useTransactionsData } from '../contexts/Dashboard';
 import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
@@ -44,9 +44,12 @@ const GridCardRow = styled.div`
   column-gap: 16px;
 `;
 
+const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <LocalLoader /> : children}</Panel>;
+
 const DashboardPage = () => {
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
+  const transactions = useTransactionsData();
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
   const [formattedVolumeData, setFormattedVolumeData] = useState([]);
   const [formattedTotalTrades, setFormattedTotalTrades] = useState([]);
@@ -115,14 +118,10 @@ const DashboardPage = () => {
     });
   }, []);
 
-  if (
-    chartData === undefined ||
-    Object.keys(chartData).length === 0 ||
-    comulativeData === undefined ||
-    Object.keys(comulativeData).length === 0
-  ) {
-    return <LocalLoader fill="true" />;
-  }
+  const isVolumeAndTvlLoading = chartData === undefined || Object.keys(chartData).length === 0;
+  const isAllTimeVolumeLoading = formattedTotalVolume.length === 0;
+  const isTotalTradesLoading = formattedTotalTrades.length === 0;
+  const isTransactionsLoading = !transactions || transactions.length === 0;
 
   return (
     <PageWrapper>
@@ -132,75 +131,114 @@ const DashboardPage = () => {
         {formattedLiquidityData && (
           <>
             {below800 ? (
-              <AutoColumn style={{ marginTop: '6px' }} gap="16px">
-                <Panel style={{ height: '100%' }}>
+              <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
+                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
-                </Panel>
-                <Panel style={{ height: '100%' }}>
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
-                </Panel>
-                <ComulativeNetworkDataCard
-                  title={'All time volume'}
-                  icon={<DollarSign size={22} color="#50dfb6" />}
-                  comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
-                  networksValues={formattedTotalVolume}
-                />
-                <ComulativeNetworkDataCard
-                  title={'Total trades'}
-                  icon={<FileText size={22} color="#50dfb6" />}
-                  comulativeValue={formattedNum(comulativeData.totalTrades)}
-                  networksValues={formattedTotalTrades}
-                />
-              </AutoColumn>
-            ) : below1400 ? (
-              <AutoColumn style={{ marginTop: '6px' }} gap="16px">
-                <Panel style={{ height: '100%' }}>
-                  <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
-                </Panel>
-                <Panel style={{ height: '100%' }}>
-                  <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
-                </Panel>
-                <GridCardRow>
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isAllTimeVolumeLoading}>
                   <ComulativeNetworkDataCard
                     title={'All time volume'}
-                    icon={<DollarSign size={22} color="#50dfb6" />}
+                    icon={<DollarSign size={22} color={'#50dfb6'} />}
                     comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                     networksValues={formattedTotalVolume}
                   />
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isTotalTradesLoading}>
                   <ComulativeNetworkDataCard
                     title={'Total trades'}
-                    icon={<FileText size={22} color="#50dfb6" />}
+                    icon={<FileText size={22} color={'#50dfb6'} />}
                     comulativeValue={formattedNum(comulativeData.totalTrades)}
                     networksValues={formattedTotalTrades}
                   />
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isTransactionsLoading}>
+                  <StackedChart
+                    title={'Transactions'}
+                    type={'AREA'}
+                    data={transactions}
+                    isCurrency={false}
+                    showTimeFilter={false}
+                  />
+                </PanelLoaderWrapper>
+              </AutoColumn>
+            ) : below1400 ? (
+              <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
+                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                  <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                  <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                </PanelLoaderWrapper>
+                <GridCardRow>
+                  <AutoColumn gap={'16px'}>
+                    <PanelLoaderWrapper isLoading={isAllTimeVolumeLoading}>
+                      <ComulativeNetworkDataCard
+                        title={'All time volume'}
+                        icon={<DollarSign size={22} color={'#50dfb6'} />}
+                        comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                        networksValues={formattedTotalVolume}
+                      />
+                    </PanelLoaderWrapper>
+                    <PanelLoaderWrapper isLoading={isTotalTradesLoading}>
+                      <ComulativeNetworkDataCard
+                        title={'Total trades'}
+                        icon={<FileText size={22} color={'#50dfb6'} />}
+                        comulativeValue={formattedNum(comulativeData.totalTrades)}
+                        networksValues={formattedTotalTrades}
+                      />
+                    </PanelLoaderWrapper>
+                  </AutoColumn>
+                  <PanelLoaderWrapper isLoading={isTransactionsLoading}>
+                    <StackedChart
+                      title={'Transactions'}
+                      type={'AREA'}
+                      data={transactions}
+                      isCurrency={false}
+                      showTimeFilter={false}
+                    />
+                  </PanelLoaderWrapper>
                 </GridCardRow>
               </AutoColumn>
             ) : (
               <GridRow>
-                <div>
-                  <GridChart>
-                    <Panel style={{ height: '100%' }}>
-                      <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
-                    </Panel>
-                    <Panel style={{ height: '100%' }}>
-                      <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
-                    </Panel>
-                  </GridChart>
-                </div>
+                <GridChart>
+                  <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                    <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                  </PanelLoaderWrapper>
+                  <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                    <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                  </PanelLoaderWrapper>
+                </GridChart>
                 <div>
                   <GridCard>
-                    <ComulativeNetworkDataCard
-                      title={'All time volume'}
-                      icon={<DollarSign size={22} color="#50dfb6" />}
-                      comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
-                      networksValues={formattedTotalVolume}
-                    />
-                    <ComulativeNetworkDataCard
-                      title={'Total trades'}
-                      icon={<FileText size={22} color="#50dfb6" />}
-                      comulativeValue={formattedNum(comulativeData.totalTrades)}
-                      networksValues={formattedTotalTrades}
-                    />
+                    <PanelLoaderWrapper isLoading={isAllTimeVolumeLoading}>
+                      <ComulativeNetworkDataCard
+                        title={'All time volume'}
+                        icon={<DollarSign size={22} color={'#50dfb6'} />}
+                        comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
+                        networksValues={formattedTotalVolume}
+                      />
+                    </PanelLoaderWrapper>
+                    <PanelLoaderWrapper isLoading={isTotalTradesLoading}>
+                      <ComulativeNetworkDataCard
+                        title={'Total trades'}
+                        icon={<FileText size={22} color={'#50dfb6'} />}
+                        comulativeValue={formattedNum(comulativeData.totalTrades)}
+                        networksValues={formattedTotalTrades}
+                      />
+                    </PanelLoaderWrapper>
+                    <PanelLoaderWrapper isLoading={isTransactionsLoading}>
+                      <StackedChart
+                        title={'Transactions'}
+                        type={'AREA'}
+                        data={transactions}
+                        isCurrency={false}
+                        showTimeFilter={false}
+                      />
+                    </PanelLoaderWrapper>
                   </GridCard>
                 </div>
               </GridRow>

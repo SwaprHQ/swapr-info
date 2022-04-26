@@ -3,11 +3,10 @@ import React from 'react';
 
 import { TYPE } from '../../Theme';
 import { NETWORK_COLORS } from '../../constants';
-import Panel from '../Panel';
 import { Header, Value, Content, Network, NetworkData, Title, Icon } from './styled';
 
 const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
-  <Panel>
+  <>
     <Header>
       <Title>
         <Icon>{icon}</Icon>
@@ -23,13 +22,13 @@ const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
         </NetworkData>
       ))}
     </Content>
-  </Panel>
+  </>
 );
 
 DataCard.propTypes = {
   title: PropTypes.string.isRequired,
   icon: PropTypes.node,
-  comulativeValue: PropTypes.number,
+  comulativeValue: PropTypes.any,
   networksValues: PropTypes.array,
 };
 

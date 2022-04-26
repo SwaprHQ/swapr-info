@@ -1,18 +1,15 @@
 import dayjs from 'dayjs';
-import utc from 'dayjs/plugin/utc';
-import weekOfYear from 'dayjs/plugin/weekOfYear';
+import dayOfYear from 'dayjs/plugin/dayOfYear';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
 import { clients } from '../apollo/client';
-import { DASHBOARD_CHART, DASHBOARD_COMULATIVE_DATA } from '../apollo/queries';
+import { DASHBOARD_CHART, DASHBOARD_COMULATIVE_DATA, DASHBOARD_TRANSACTION_HISTORY } from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
 
-// format dayjs with the libraries needed
-dayjs.extend(utc);
-dayjs.extend(weekOfYear);
+dayjs.extend(dayOfYear);
 
 const DashboardDataContext = createContext();
 
@@ -32,9 +29,10 @@ const SUPPORTED_CLIENTS = [
   },
 ];
 
-const INITIAL_STATE = { stackedChartData: {}, comulativeData: {} };
+const INITIAL_STATE = { stackedChartData: {}, comulativeData: {}, transactions: [] };
 const UPDATE_CHART = 'UPDATE_CHART';
 const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
+const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -56,6 +54,14 @@ function reducer(state, { type, payload }) {
         comulativeData: {
           ...comulativeNetworksData,
         },
+      };
+    }
+
+    case UPDATE_TRANSACTIONS: {
+      const { transactions } = payload;
+      return {
+        ...state,
+        transactions,
       };
     }
 
@@ -89,9 +95,18 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateTransactions = useCallback((transactions) => {
+    dispatch({
+      type: UPDATE_TRANSACTIONS,
+      payload: {
+        transactions,
+      },
+    });
+  }, []);
+
   const value = useMemo(
-    () => [state, { updateChart, updateComulativeData }],
-    [state, updateChart, updateComulativeData],
+    () => [state, { updateChart, updateComulativeData, updateTransactions }],
+    [state, updateChart, updateComulativeData, updateTransactions],
   );
 
   return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>;
@@ -155,6 +170,80 @@ export const useDashboardComulativeData = () => {
   }, [updateComulativeData, existingComulativeData]);
 
   return existingComulativeData;
+};
+
+export const useTransactionsData = () => {
+  const [state, { updateTransactions }] = useDashboardDataContext();
+
+  const existingTransactions = state?.transactions;
+
+  useEffect(() => {
+    async function fetchData() {
+      const transactions = await getTransactions();
+      updateTransactions(transactions);
+    }
+
+    if (!existingTransactions || existingTransactions.length === 0) {
+      fetchData();
+    }
+  }, [existingTransactions, updateTransactions]);
+
+  return existingTransactions;
+};
+
+/**
+ * Get historical data for transaction for each network (last 3 months)
+ */
+const getTransactions = async () => {
+  try {
+    let transactions = [];
+
+    const utcCurrentTime = dayjs();
+    const utcThreeMonthsBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      let lastId = '';
+      let fetchMore = true;
+
+      while (fetchMore) {
+        const { data } = await client.query({
+          query: DASHBOARD_TRANSACTION_HISTORY,
+          variables: {
+            startTime: utcThreeMonthsBack,
+            lastId,
+          },
+        });
+
+        if (data.transactions.length === 0) {
+          fetchMore = false;
+          continue;
+        }
+
+        lastId = data.transactions[data.transactions.length - 1].id;
+        transactions = transactions.concat(data.transactions.map((transaction) => ({ transaction, network })));
+      }
+    }
+
+    const stackedTransactions = transactions.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.transaction.timestamp).dayOfYear();
+
+      return {
+        ...accumulator,
+        [dayOfTheYear]: {
+          ...accumulator[dayOfTheYear],
+          time: dayjs().dayOfYear(dayOfTheYear).utc().format('YYYY-MM-DD'),
+          [current.network]:
+            accumulator[dayOfTheYear] && accumulator[dayOfTheYear][current.network]
+              ? Number(accumulator[dayOfTheYear][current.network]) + 1
+              : 1,
+        },
+      };
+    }, {});
+
+    return Object.values(stackedTransactions);
+  } catch (error) {
+    console.error(error);
+  }
 };
 
 /**

@@ -21,7 +21,7 @@ const LegendItem = (value) => (
   </TYPE.light>
 );
 
-const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
+const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight, maxWith, minHeight }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
@@ -131,6 +131,8 @@ const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
       <Header
         title={title}
         value={formattedNum(stackedDataValue)}
+        isValueCurrency={isCurrency}
+        showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
         activeFilter={activeFilter}
@@ -173,7 +175,7 @@ const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
               }}
               formatter={LegendItem}
             />
-            <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
+            <Tooltip isAnimationActive={false} content={<CrosshairTooltip isValueCurrency={isCurrency} />} />
             <Area
               animationDuration={500}
               type="monotone"
@@ -186,19 +188,19 @@ const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
             <Area
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.XDAI}
+              dataKey={SupportedNetwork.ARBITRUM_ONE}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill="url(#xdai)"
+              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              fill="url(#arbitrum)"
               strokeWidth={3}
             />
             <Area
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.ARBITRUM_ONE}
+              dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
-              fill="url(#arbitrum)"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill="url(#xdai)"
               strokeWidth={3}
             />
           </AreaChart>
@@ -237,19 +239,19 @@ const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
             <Bar
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.XDAI}
+              dataKey={SupportedNetwork.ARBITRUM_ONE}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              fill={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
               strokeWidth={3}
             />
             <Bar
               animationDuration={500}
               type="monotone"
-              dataKey={SupportedNetwork.ARBITRUM_ONE}
+              dataKey={SupportedNetwork.XDAI}
               stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
-              fill={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
               strokeWidth={3}
             />
           </ComposedChart>
@@ -262,6 +264,8 @@ const StackedChart = ({ title, type, data, maxHeight, maxWith, minHeight }) => {
 StackedChart.propTypes = {
   title: PropTypes.string.isRequired,
   data: PropTypes.any.isRequired,
+  isCurrency: PropTypes.bool,
+  showTimeFilter: PropTypes.bool,
   maxHeight: PropTypes.number,
   maxWith: PropTypes.number,
   minHeight: PropTypes.number,
@@ -271,6 +275,8 @@ StackedChart.propTypes = {
 StackedChart.defaultProps = {
   type: 'AREA',
   data: [],
+  isCurrency: true,
+  showTimeFilter: true,
   maxHeight: 400,
   maxWith: 500,
   minHeight: 300,

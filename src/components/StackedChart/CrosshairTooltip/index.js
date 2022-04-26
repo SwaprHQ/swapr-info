@@ -3,7 +3,7 @@ import React from 'react';
 
 import { formattedNum } from '../../../utils';
 
-const CrosshairTooltip = ({ active, payload }) => {
+const CrosshairTooltip = ({ active, payload, isValueCurrency }) => {
   if (active && payload && payload.length) {
     return (
       <div className="crosshair-custom-tooltip">
@@ -13,7 +13,7 @@ const CrosshairTooltip = ({ active, payload }) => {
               <div className="crosshair-item-legend" style={{ backgroundColor: series.color }}></div>
               {series.name}
             </div>
-            $ {formattedNum(series.value)}
+            {isValueCurrency && '$'} {formattedNum(series.value)}
           </div>
         ))}
       </div>
@@ -26,6 +26,11 @@ const CrosshairTooltip = ({ active, payload }) => {
 CrosshairTooltip.propTypes = {
   active: PropTypes.bool,
   payload: PropTypes.array,
+  isValueCurrency: PropTypes.bool,
+};
+
+CrosshairTooltip.defaultProps = {
+  isValueCurrency: true,
 };
 
 export default CrosshairTooltip;

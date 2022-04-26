@@ -38,12 +38,6 @@ const GridCard = styled.div`
   row-gap: 16px;
 `;
 
-const GridCardRow = styled.div`
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  column-gap: 16px;
-`;
-
 const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <LocalLoader /> : children}</Panel>;
 
 const DashboardPage = () => {

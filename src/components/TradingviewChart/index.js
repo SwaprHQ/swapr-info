@@ -9,20 +9,11 @@ import styled from 'styled-components';
 
 import { IconWrapper } from '..';
 import { useDarkModeManager } from '../../contexts/LocalStorage';
+import useEventCallback from '../../hooks/useEventCallback';
 import { formattedNum } from '../../utils';
+import Tooltip from './Tooltip';
 
 dayjs.extend(utc);
-
-const removeNode = (type) => {
-  // remove the tooltip element
-  let tooltip = document.getElementById('tooltip-id' + type);
-  let node = document.getElementById('test-id' + type);
-  try {
-    node.removeChild(tooltip);
-  } catch (e) {
-    console.log(e);
-  }
-};
 
 export const CHART_TYPES = {
   BAR: 'BAR',
@@ -35,6 +26,7 @@ const Wrapper = styled.div`
 
 // constant height for charts
 const HEIGHT = 300;
+const InitialMouseOverValues = { dateStr: '', price: 0 };
 
 const TradingViewChart = ({
   type = CHART_TYPES.BAR,
@@ -52,10 +44,10 @@ const TradingViewChart = ({
   // pointer to the chart object
   const [chartCreated, setChartCreated] = useState(false);
   const dataPrev = usePrevious(data);
+  const [mouseOverValues, setMouseOverValues] = useState(InitialMouseOverValues);
 
   useEffect(() => {
     if (data !== dataPrev && chartCreated && type === CHART_TYPES.BAR) {
-      removeNode(type);
       chartCreated.resize(0, 0);
       setChartCreated();
     }
@@ -69,6 +61,33 @@ const TradingViewChart = ({
     };
   });
 
+  const onMouseMove = useEventCallback((param, series) => {
+    if (
+      param !== undefined &&
+      param.time !== undefined &&
+      param.point.x > 0 &&
+      param.point.x < width &&
+      param.point.y > 0 &&
+      param.point.y < HEIGHT
+    ) {
+      const dateStr = useWeekly
+        ? dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
+            .startOf('week')
+            .format('MMMM D, YYYY') +
+          '-' +
+          dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
+            .endOf('week')
+            .format('MMMM D, YYYY')
+        : dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day).format('MMMM D, YYYY');
+
+      const price = param.seriesPrices.get(series);
+
+      setMouseOverValues({ dateStr, price });
+    } else {
+      setMouseOverValues(InitialMouseOverValues);
+    }
+  });
+
   // adjust the scale based on the type of chart
   const topScale = type === CHART_TYPES.AREA ? 0.32 : 0.2;
 
@@ -80,8 +99,6 @@ const TradingViewChart = ({
   // reset the chart if them switches
   useEffect(() => {
     const reset = () => {
-      // remove the tooltip element
-      removeNode(type);
       chartCreated.resize(0, 0);
       setChartCreated();
     };
@@ -160,71 +177,10 @@ const TradingViewChart = ({
             });
 
       series.setData(formattedData);
-      var toolTip = document.createElement('div');
-      toolTip.setAttribute('id', 'tooltip-id' + type);
-      toolTip.className = darkMode ? 'three-line-legend-dark' : 'three-line-legend';
-      ref.current.appendChild(toolTip);
-      toolTip.style.display = 'block';
-      toolTip.style.fontWeight = '500';
-      toolTip.style.left = -4 + 'px';
-      toolTip.style.top = '-' + 8 + 'px';
-      toolTip.style.backgroundColor = 'transparent';
-
-      // format numbers
-      let percentChange = baseChange?.toFixed(2);
-      let formattedPercentChange = percentChange ? (percentChange > 0 ? '+' : '') + percentChange + '%' : '0%';
-      let color = percentChange >= 0 ? 'green' : 'red';
-
-      // get the title of the chart
-      function setLastBarText() {
-        toolTip.innerHTML = `
-        <div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">
-        ${title} 
-        ${type === CHART_TYPES.BAR && !useWeekly ? '(24hr)' : ''}
-        </div>
-          <div style="font-size: 22px; margin: 4px 0px; color:${textColor}; display: flex; align-items: center; align-content: center;" >
-          ${
-            base
-              ? `<div> ${formattedNum(base ?? 0, true)}</div>
-                <span style="margin-left: 10px; font-size: 16px; color: ${color};">${formattedPercentChange}</span>`
-              : `<div style="width: 35px; margin-left: 16px;"><div class="dot-flashing"></div></div>`
-          }
-          </div>`;
-      }
-      setLastBarText();
 
       // update the title when hovering on the chart
       chart.subscribeCrosshairMove(function (param) {
-        if (
-          param === undefined ||
-          param.time === undefined ||
-          param.point.x < 0 ||
-          param.point.x > width ||
-          param.point.y < 0 ||
-          param.point.y > HEIGHT
-        ) {
-          setLastBarText();
-        } else {
-          let dateStr = useWeekly
-            ? dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
-                .startOf('week')
-                .format('MMMM D, YYYY') +
-              '-' +
-              dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day)
-                .endOf('week')
-                .format('MMMM D, YYYY')
-            : dayjs(param.time.year + '-' + param.time.month + '-' + param.time.day).format('MMMM D, YYYY');
-          var price = param.seriesPrices.get(series);
-
-          toolTip.innerHTML = `<div style="font-size: 16px; margin: 4px 0px; color: ${textColor};">${title}</div>
-            <div style="font-size: 22px; margin: 4px 0px; color: ${textColor}">
-            ${formattedNum(price, true)}
-           
-            </div>
-            <div>
-            ${dateStr}
-            </div>`;
-        }
+        onMouseMove(param, series);
       });
 
       chart.timeScale().fitContent();
@@ -235,9 +191,9 @@ const TradingViewChart = ({
     base,
     baseChange,
     chartCreated,
-    darkMode,
     data,
     formattedData,
+    onMouseMove,
     textColor,
     title,
     topScale,
@@ -256,7 +212,16 @@ const TradingViewChart = ({
 
   return (
     <Wrapper>
-      <div ref={ref} id={'test-id' + type} />
+      <div ref={ref} id={'test-id' + type} style={{ marginTop: '50px' }} />
+      <Tooltip
+        type={type}
+        base={base}
+        textColor={textColor}
+        title={title}
+        useWeekly={useWeekly}
+        baseChange={baseChange}
+        {...mouseOverValues}
+      />
       <IconWrapper>
         <Play
           onClick={() => {

@@ -51,9 +51,7 @@ function reducer(state, { type, payload }) {
       const { comulativeNetworksData } = payload;
       return {
         ...state,
-        comulativeData: {
-          ...comulativeNetworksData,
-        },
+        comulativeData: comulativeNetworksData,
       };
     }
 
@@ -199,7 +197,7 @@ const getTransactions = async () => {
     let transactions = [];
 
     const utcCurrentTime = dayjs();
-    const utcThreeMonthsBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
+    const utcOneMonthBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
       let lastId = '';
@@ -209,7 +207,7 @@ const getTransactions = async () => {
         const { data } = await client.query({
           query: DASHBOARD_TRANSACTION_HISTORY,
           variables: {
-            startTime: utcThreeMonthsBack,
+            startTime: utcOneMonthBack,
             lastId,
           },
         });

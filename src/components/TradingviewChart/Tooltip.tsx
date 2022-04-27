@@ -27,12 +27,22 @@ const Container = styled.div`
   background-color: transparent;
 `;
 
-export default function Tooltip({ type, base, title, useWeekly, baseChange, dateStr, price }) {
+interface TooltipProps {
+  type: string;
+  title: string;
+  base: number;
+  baseChange: number;
+  useWeekly: boolean;
+  dateStr: string;
+  price: number;
+}
+
+export default function Tooltip({ type, title, base, baseChange, useWeekly, dateStr, price }: TooltipProps) {
   const [darkMode] = useDarkModeManager();
 
   const percentChange = baseChange?.toFixed(2);
-  const color = percentChange >= 0 ? 'green' : 'red';
-  const formattedPercentChange = percentChange ? (percentChange > 0 ? '+' : '') + percentChange + '%' : '0%';
+  const color = baseChange >= 0 ? 'green' : 'red';
+  const formattedPercentChange = percentChange ? (baseChange > 0 ? '+' : '') + percentChange + '%' : '0%';
 
   return (
     <Container className={darkMode ? 'three-line-legend-dark' : 'three-line-legend'}>
@@ -46,7 +56,15 @@ export default function Tooltip({ type, base, title, useWeekly, baseChange, date
   );
 }
 
-function ValueContainer({ date, price, base, percent, color }) {
+interface ValueContainerProps {
+  date: string;
+  price: number;
+  base: number;
+  percent: string;
+  color: string;
+}
+
+function ValueContainer({ date, price, base, percent, color }: ValueContainerProps) {
   if (date === '' && base !== undefined) {
     return (
       <Value>

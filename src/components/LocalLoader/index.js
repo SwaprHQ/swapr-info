@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  height: 100%;
+  min-height: 180px;
   width: 100%;
 
   ${(props) =>
@@ -23,7 +23,7 @@ const Wrapper = styled.div`
           height: 100vh;
         `
       : css`
-          height: 180px;
+          height: 100%;
         `}
 `;
 

@@ -435,6 +435,24 @@ export const PAIR_DAY_DATA_BULK = (pairs, startTimestamp) => {
   return gql(queryString);
 };
 
+export const DASHBOARD_COMULATIVE_DATA = gql`
+  query swaprFactories {
+    swaprFactories(first: 1) {
+      totalVolumeUSD
+      txCount
+    }
+  }
+`;
+
+export const DASHBOARD_TRANSACTION_HISTORY = gql`
+  query transactions($lastId: ID!, $startTime: Int!) {
+    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }, orderBy: id, orderDirection: asc) {
+      id
+      timestamp
+    }
+  }
+`;
+
 export const DASHBOARD_CHART = gql`
   query swaprDayDatas($startTime: Int!, $skip: Int!) {
     swaprDayDatas(first: 365, skip: $skip, where: { date_gt: $startTime }, orderBy: date, orderDirection: asc) {

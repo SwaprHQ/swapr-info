@@ -130,3 +130,9 @@ export const BLOCK_DIFFERENCE_THRESHOLD = {
   [SupportedNetwork.XDAI]: DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
   [SupportedNetwork.ARBITRUM_ONE]: 200, // Arbitrum one has multiple blocks in the same second
 };
+
+export const NETWORK_COLORS = {
+  [SupportedNetwork.MAINNET]: '#2974e0',
+  [SupportedNetwork.XDAI]: '#4526A2',
+  [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
+};

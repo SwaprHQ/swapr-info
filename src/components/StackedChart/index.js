@@ -4,7 +4,7 @@ import React, { useCallback, useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
 import { TYPE } from '../../Theme';
-import { SupportedNetwork } from '../../constants';
+import { NETWORK_COLORS, SupportedNetwork } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
@@ -14,18 +14,14 @@ const TIME_FILTER_OPTIONS = {
   MONTH_3: '3M',
   YEAR: '1Y',
 };
-const NETWORK_COLORS = {
-  [SupportedNetwork.MAINNET]: '#2974e0',
-  [SupportedNetwork.XDAI]: '#4526A2',
-  [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
-};
+
 const LegendItem = (value) => (
   <TYPE.light color="text1" as="span">
     {value}
   </TYPE.light>
 );
 
-const StackedChart = ({ title, type, data }) => {
+const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight, maxWith, minHeight }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
@@ -34,21 +30,23 @@ const StackedChart = ({ title, type, data }) => {
 
   // set header values to the latest point of the chart
   const setDefaultHeaderValues = useCallback(() => {
-    let pastStackedDataValue = 0;
-    let currentStackedDataValue = 0;
+    if (data && Object.keys(data).length > 0) {
+      let pastStackedDataValue = 0;
+      let currentStackedDataValue = 0;
 
-    Object.keys(data[data.length - 1])
-      .filter((key) => key !== 'time')
-      .forEach((key) => {
-        currentStackedDataValue += data[data.length - 1][key];
-        pastStackedDataValue += data[data.length - 2][key];
-      });
+      Object.keys(data[data.length - 1])
+        .filter((key) => key !== 'time')
+        .forEach((key) => {
+          currentStackedDataValue += data[data.length - 1][key];
+          pastStackedDataValue += data[data.length - 2][key];
+        });
 
-    const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
+      const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
 
-    setDailyChange(dailyChange);
-    setActiveDate(data[data.length - 1].time);
-    setStackedDataValue(currentStackedDataValue);
+      setDailyChange(dailyChange);
+      setActiveDate(data[data.length - 1].time);
+      setStackedDataValue(currentStackedDataValue);
+    }
   }, [data]);
 
   // set header values to the current point of the chart
@@ -133,20 +131,20 @@ const StackedChart = ({ title, type, data }) => {
       <Header
         title={title}
         value={formattedNum(stackedDataValue)}
+        isValueCurrency={isCurrency}
+        showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
         activeFilter={activeFilter}
         filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
-      <ResponsiveContainer aspect={60 / 28}>
+      <ResponsiveContainer maxHeight={maxHeight} maxWith={maxWith} minHeight={minHeight}>
         {type === 'AREA' ? (
           <AreaChart
             className="basic-chart"
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
-            width={500}
-            height={400}
             data={filteredData}
             margin={{ top: 5 }}
           >
@@ -172,18 +170,12 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              wrapperStyle={{
+                paddingBottom: 24,
+              }}
               formatter={LegendItem}
             />
-            <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
-            <Area
-              animationDuration={500}
-              type="monotone"
-              dataKey={SupportedNetwork.XDAI}
-              stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill="url(#xdai)"
-              strokeWidth={3}
-            />
+            <Tooltip isAnimationActive={false} content={<CrosshairTooltip isValueCurrency={isCurrency} />} />
             <Area
               animationDuration={500}
               type="monotone"
@@ -202,14 +194,21 @@ const StackedChart = ({ title, type, data }) => {
               fill="url(#arbitrum)"
               strokeWidth={3}
             />
+            <Area
+              animationDuration={500}
+              type="monotone"
+              dataKey={SupportedNetwork.XDAI}
+              stackId="1"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill="url(#xdai)"
+              strokeWidth={3}
+            />
           </AreaChart>
         ) : type === 'BAR' ? (
           <ComposedChart
             className="basic-chart"
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
-            width={500}
-            height={400}
             data={filteredData}
             throttleDelay={15}
             margin={{ top: 5 }}
@@ -220,20 +219,14 @@ const StackedChart = ({ title, type, data }) => {
               iconType="circle"
               iconSize={10}
               fontSize={14}
+              wrapperStyle={{
+                paddingBottom: 24,
+              }}
               formatter={LegendItem}
             />
             <XAxis dataKey="time" hide />
             <YAxis hide />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
-            <Bar
-              animationDuration={500}
-              type="monotone"
-              dataKey={SupportedNetwork.XDAI}
-              stackId="1"
-              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              strokeWidth={3}
-            />
             <Bar
               animationDuration={500}
               type="monotone"
@@ -252,6 +245,15 @@ const StackedChart = ({ title, type, data }) => {
               fill={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
               strokeWidth={3}
             />
+            <Bar
+              animationDuration={500}
+              type="monotone"
+              dataKey={SupportedNetwork.XDAI}
+              stackId="1"
+              stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
+              strokeWidth={3}
+            />
           </ComposedChart>
         ) : null}
       </ResponsiveContainer>
@@ -262,12 +264,22 @@ const StackedChart = ({ title, type, data }) => {
 StackedChart.propTypes = {
   title: PropTypes.string.isRequired,
   data: PropTypes.any.isRequired,
+  isCurrency: PropTypes.bool,
+  showTimeFilter: PropTypes.bool,
+  maxHeight: PropTypes.number,
+  maxWith: PropTypes.number,
+  minHeight: PropTypes.number,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
 };
 
 StackedChart.defaultProps = {
   type: 'AREA',
   data: [],
+  isCurrency: true,
+  showTimeFilter: true,
+  maxHeight: 400,
+  maxWith: 500,
+  minHeight: 300,
 };
 
 export default StackedChart;

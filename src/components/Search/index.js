@@ -493,7 +493,7 @@ export default function Search({ small = false }) {
                       defaultText1={pair?.token1?.symbol}
                       margin={true}
                     />
-                    <TYPE.body style={{ marginLeft: '10px' }}>
+                    <TYPE.body style={{ marginLeft: '20px' }}>
                       {pair.token0.symbol + '-' + pair.token1.symbol} Pair
                     </TYPE.body>
                   </MenuItem>

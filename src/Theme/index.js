@@ -1,7 +1,5 @@
+import 'inter-ui';
 import React from 'react';
-import 'fontsource-montserrat/400.css';
-import 'fontsource-montserrat/500.css';
-import 'fontsource-montserrat/600.css';
 import { Text } from 'rebass';
 import styled, { ThemeProvider as StyledComponentsThemeProvider, createGlobalStyle } from 'styled-components';
 
@@ -159,7 +157,13 @@ export const ThemedBackground = styled.div`
 `;
 
 export const GlobalStyle = createGlobalStyle`
-  html { font-family: 'Montserrat', sans-serif; }
+  html { font-family: "Inter", sans-serif; }
+
+  @supports (font-variation-settings: normal) {
+    html, input, textarea, button {
+      font-family: 'Inter var', sans-serif;
+    }
+  }
   
   html,
   body {

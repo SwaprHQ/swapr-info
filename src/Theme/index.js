@@ -31,6 +31,10 @@ const theme = (darkMode, color) => ({
   text4: darkMode ? '#565A69' : '#C3C5CB',
   text5: darkMode ? '#2C2F36' : '#EDEEF2',
 
+  swaprLink: '#8c6fff',
+  loaderBase: '#2A2F42',
+  loaderHighlight: '#3E4259',
+
   // special case text types
   white: '#FFFFFF',
 
@@ -164,7 +168,7 @@ export const GlobalStyle = createGlobalStyle`
       font-family: 'Inter var', sans-serif;
     }
   }
-  
+ 
   html,
   body {
     margin: 0;
@@ -281,59 +285,4 @@ export const GlobalStyle = createGlobalStyle`
     -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
     height: 100%;
   }
-
-  /**
- * ==============================================
- * Dot Flashing
- * ==============================================
- */
-.dot-flashing {
-  position: relative;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #4526A2;
-  color: #4526A2;
-  animation: dotFlashing 1s infinite linear alternate;
-  animation-delay: .5s;
-}
-
-.dot-flashing::before, .dot-flashing::after {
-  content: '';
-  display: inline-block;
-  position: absolute;
-  top: 0;
-}
-
-.dot-flashing::before {
-  left: -15px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #4526A2;
-  color: #4526A2;
-  animation: dotFlashing 1s infinite alternate;
-  animation-delay: 0s;
-}
-
-.dot-flashing::after {
-  left: 15px;
-  width: 10px;
-  height: 10px;
-  border-radius: 5px;
-  background-color: #4526A2;
-  color: #4526A2;
-  animation: dotFlashing 1s infinite alternate;
-  animation-delay: 1s;
-}
-
-@keyframes dotFlashing {
-  0% {
-    background-color: #4526A2;
-  }
-  50%,
-  100% {
-    background-color: #ebe6ff;
-  }
-}
 `;

@@ -132,7 +132,7 @@ function LPList({ lps, disbaleLinks, maxItems = 10 }) {
                   margin={true}
                 />
               )}
-              {lp.pairName}
+              <span style={{ marginLeft: '8px' }}>{lp.pairName}</span>
             </RowFixed>
           </CustomLink>
         </DataText>

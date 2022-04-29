@@ -388,6 +388,7 @@ export const formatDollarAmount = (num, digits) => {
   const formatter = new Intl.NumberFormat([], {
     style: 'currency',
     currency: 'USD',
+    currencyDisplay: 'narrowSymbol',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
@@ -620,7 +621,7 @@ export function toLiquidityMiningCampaign(
   );
 }
 
-export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice, nativeCurrency) {
+export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice = 1, nativeCurrency) {
   const nativeCurrencyPrice = new Price(
     nativeCurrency,
     USD,

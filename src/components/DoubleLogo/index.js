@@ -19,7 +19,7 @@ const HigherLogo = styled(TokenLogo)`
 
 const CoveredLogo = styled(TokenLogo)`
   position: absolute;
-  left: ${({ sizeraw }) => (sizeraw / 2).toString() + 'px'};
+  left: ${({ sizeraw }) => (sizeraw / 1.2).toString() + 'px'};
   background-color: white;
   border-radius: 50%;
 `;

@@ -1,5 +1,6 @@
 import { transparentize } from 'polished';
 import React, { useEffect } from 'react';
+import Skeleton from 'react-loading-skeleton';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import { Box } from 'rebass';
@@ -90,9 +91,7 @@ function GlobalPage() {
                             {formattedNum(oneDayVolumeUSD, true)}
                           </TYPE.main>
                         ) : (
-                          <div style={{ width: '35px', margin: '0px 0px 0px 16px' }}>
-                            <div className="dot-flashing"></div>
-                          </div>
+                          <Skeleton style={{ width: '80px' }} />
                         )}
                         {oneDayVolumeUSD && <TYPE.main fontSize={12}>{formattedPercent(volumeChangeUSD)}</TYPE.main>}
                       </RowBetween>
@@ -108,9 +107,7 @@ function GlobalPage() {
                             {formattedNum(totalLiquidityUSD, true)}
                           </TYPE.main>
                         ) : (
-                          <div style={{ width: '35px', margin: '0px 0px 0px 16px' }}>
-                            <div className="dot-flashing"></div>
-                          </div>
+                          <Skeleton style={{ width: '80px' }} />
                         )}
                         {totalLiquidityUSD && (
                           <TYPE.main fontSize={12}>{formattedPercent(liquidityChangeUSD)}</TYPE.main>

@@ -99,7 +99,7 @@ export const TYPE = {
   },
 
   header(props) {
-    return <TextWrapper fontWeight={600} color={'text1'} {...props} />;
+    return <TextWrapper fontWeight={600} color="text1" {...props} />;
   },
 
   largeHeader(props) {
@@ -161,14 +161,18 @@ export const ThemedBackground = styled.div`
 `;
 
 export const GlobalStyle = createGlobalStyle`
-  html { font-family: "Inter", sans-serif; }
+  html { 
+    font-family: "Inter", sans-serif;    
+   -webkit-font-smoothing: antialiased;
+  }
 
   @supports (font-variation-settings: normal) {
     html, input, textarea, button {
       font-family: 'Inter var', sans-serif;
+      font-feature-settings: "zero","ss01";
     }
   }
- 
+
   html,
   body {
     margin: 0;
@@ -276,13 +280,5 @@ export const GlobalStyle = createGlobalStyle`
 }
 
 
-  html {
-    font-size: 1rem;
-    font-variant: none;
-    color: 'black';
-    -webkit-font-smoothing: antialiased;
-    -moz-osx-font-smoothing: grayscale;
-    -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
-    height: 100%;
-  }
+ 
 `;

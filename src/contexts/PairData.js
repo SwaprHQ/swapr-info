@@ -89,9 +89,7 @@ function reducer(state, { type, payload }) {
 
       return {
         ...state,
-        [status]: {
-          ...liquidityMiningData,
-        },
+        [status]: liquidityMiningData,
       };
     }
 
@@ -104,6 +102,7 @@ function reducer(state, { type, payload }) {
           }, {})
         : {};
       return {
+        ...state,
         ...newTopPairs,
       };
     }
@@ -719,9 +718,8 @@ export function useLiquidityMiningCampaignData() {
 
   useEffect(() => {
     async function fetchData(status) {
-      if (!miningData[status]) {
+      if (miningData[status] === undefined) {
         const time = dayjs.utc().unix();
-
         let {
           data: { liquidityMiningCampaigns },
         } = await client.query({
@@ -729,7 +727,6 @@ export function useLiquidityMiningCampaignData() {
         });
 
         const arrayWithMiningCampaignObject = [];
-
         liquidityMiningCampaigns &&
           liquidityMiningCampaigns.forEach((pair) => {
             const pairData = pair.stakablePair;

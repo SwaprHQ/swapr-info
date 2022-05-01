@@ -69,6 +69,7 @@ function reducer(state, { type, payload }) {
     case UPDATE_NATIVE_CURRENCY_PRICE: {
       const { nativeCurrencyPrice, oneDayPrice, nativeCurrencyPriceChange } = payload;
       return {
+        ...state,
         [NATIVE_CURRENCY_PRICE_KEY]: nativeCurrencyPrice,
         oneDayPrice,
         nativeCurrencyPriceChange,

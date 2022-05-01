@@ -7,14 +7,7 @@ import styled from 'styled-components';
 
 import { TYPE } from '../../Theme';
 import { Divider } from '../../components';
-import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
-import { formattedNum } from '../../utils';
-import DoubleTokenLogo from '../DoubleLogo';
-import FormattedName from '../FormattedName';
-import { CustomLink } from '../Link';
 import LocalLoader from '../LocalLoader';
-import { AutoRow } from '../Row';
-import TokenLogo from '../TokenLogo';
 import ListItem, { DashGrid } from './ListItem';
 
 dayjs.extend(utc);
@@ -53,23 +46,9 @@ const ClickableText = styled(Text)`
   user-select: none;
 `;
 
-const DataText = styled(Flex)`
-  align-items: center;
-  text-align: center;
-  color: ${({ theme }) => theme.text1};
-
-  & > * {
-    font-size: 14px;
-  }
-
-  @media screen and (max-width: 600px) {
-    font-size: 12px;
-  }
-`;
-
 const SORT_FIELD = {
   STAKE: 0,
-  UNDERLYING_TOKENS: 1,
+  REWARD_TOKENS: 1,
   // TVL: 3,
   DAY_YIELD: 4,
   APY: 5,
@@ -78,15 +57,11 @@ const SORT_FIELD = {
 
 const FIELD_TO_VALUE = {
   [SORT_FIELD.STAKE]: 'stakedAmount',
-  [SORT_FIELD.UNDERLYING_TOKENS]: 'totalSupply',
-  // [SORT_FIELD.TVL]: 'reserveUSD',
+  [SORT_FIELD.REWARD_TOKENS]: 'totalSupply',
   [SORT_FIELD.STAKE_DOLLARS]: 'stakedPriceInUsd',
 };
 
-function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
-  const below600 = useMedia('(max-width: 600px)');
-  const below680 = useMedia('(max-width: 680px)');
-  const below740 = useMedia('(max-width: 740px)');
+function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
   const below1080 = useMedia('(max-width: 1080px)');
   // pagination
   const [page, setPage] = useState(1);
@@ -96,9 +71,6 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
   // sorting
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.STAKE);
-
-  const nativeCurrency = useNativeCurrencySymbol();
-  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
 
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
@@ -114,107 +86,6 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
       setMaxPage(Math.max(1, Math.floor(Object.keys(campaigns).length / ITEMS_PER_PAGE) + extraPages));
     }
   }, [ITEMS_PER_PAGE, campaigns]);
-
-  // const ListItem = ({ pairAddress, index }) => {
-  //   const pairData = campaigns[pairAddress];
-  //   if (campaigns && campaigns.length !== 0) {
-  //     const apy = pairData.miningCampaignObject.apy.toFixed(2);
-  //     const yieldPer1k = (parseFloat(apy) / 365) * 10;
-  //     return (
-  //       <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
-  //         <DataText area="name" fontWeight="500">
-  //           {!below680 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
-  //           <DoubleTokenLogo
-  //             size={below600 ? 16 : 20}
-  //             a0={pairData.stakablePair.token0.id}
-  //             a1={pairData.stakablePair.token1.id}
-  //             defaultText0={pairData.stakablePair.token0.symbol}
-  //             defaultText1={pairData.stakablePair.token1.symbol}
-  //             margin={!below740}
-  //           />
-  //           <CustomLink style={{ marginLeft: '20px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress} color={color}>
-  //             <FormattedName
-  //               text={
-  //                 (nativeCurrencyWrapper.symbol === pairData.stakablePair.token0.symbol
-  //                   ? nativeCurrency
-  //                   : pairData.stakablePair.token0.symbol) +
-  //                 '-' +
-  //                 (nativeCurrencyWrapper.symbol === pairData.stakablePair.token1.symbol
-  //                   ? nativeCurrency
-  //                   : pairData.stakablePair.token1.symbol)
-  //               }
-  //               maxCharacters={below600 ? 8 : 16}
-  //               adjustSize={true}
-  //               link={true}
-  //             />
-  //           </CustomLink>
-  //         </DataText>
-  //         <DataText area="stake">{formattedNum(pairData.stakedAmount)} LP</DataText>
-  //         <DataText alignItems={'flex-end'} flexDirection={'column'} area="underlyingTokens">
-  //           <AutoRow
-  //             justifyContent={'space-between'}
-  //             marginBottom={'2px'}
-  //             flexDirection={'row'}
-  //             style={{ margin: 'auto' }}
-  //           >
-  //             <TokenLogo
-  //               address={pairData.stakablePair.token0.id}
-  //               size={'13px'}
-  //               defaultText={pairData.stakablePair.token0.symbol}
-  //               flexBasis={'30%'}
-  //               justifyContent="flex-end"
-  //             />
-  //             <DataText flexBasis={'30%'} textAlign="right" justifyContent="flex-end">
-  //               {formattedNum(pairData.stakablePair.reserve0)}
-  //             </DataText>
-  //             <FormattedName
-  //               text={
-  //                 nativeCurrencyWrapper.symbol === pairData.stakablePair.token0.symbol
-  //                   ? nativeCurrency
-  //                   : pairData.stakablePair.token0.symbol
-  //               }
-  //               maxCharacters={below600 ? 8 : 16}
-  //               adjustSize={true}
-  //               link={true}
-  //               flexBasis={'30%'}
-  //               textAlign={'left'}
-  //             />
-  //           </AutoRow>
-  //           <AutoRow justifyContent={'space-between'} flexDirection={'row'} style={{ margin: 'auto' }}>
-  //             <TokenLogo
-  //               address={pairData.stakablePair.token1.id}
-  //               size={'13px'}
-  //               defaultText={pairData.stakablePair.token1.symbol}
-  //               flexBasis={'30%'}
-  //               justifyContent="flex-end"
-  //             />
-  //             <DataText flexBasis={'30%'} textAlign="right" justifyContent="flex-end">
-  //               {formattedNum(pairData.stakablePair.reserve1)}
-  //             </DataText>
-  //             <FormattedName
-  //               text={
-  //                 nativeCurrencyWrapper.symbol === pairData.stakablePair.token1.symbol
-  //                   ? nativeCurrency
-  //                   : pairData.stakablePair.token1.symbol
-  //               }
-  //               maxCharacters={below600 ? 8 : 16}
-  //               adjustSize={true}
-  //               link={true}
-  //               flexBasis={'30%'}
-  //               textAlign={'left'}
-  //             />
-  //           </AutoRow>
-  //         </DataText>
-  //         {!below680 && <DataText area="tvl">{formattedNum(pairData.stakablePair.reserveUSD, true)}</DataText>}
-  //         {!below1080 && <DataText area="someOther">{formattedNum(pairData.stakedPriceInUsd)} $</DataText>}
-  //         {!below1080 && <DataText area="yield1k">{formattedNum(yieldPer1k.toFixed(2))}$ /day</DataText>}
-  //         {!below1080 && <DataText area="apy">{pairData.miningCampaignObject.apy.toFixed(2)} %</DataText>}
-  //       </DashGrid>
-  //     );
-  //   } else {
-  //     return null;
-  //   }
-  // };
 
   let campaignsList =
     campaigns &&
@@ -263,7 +134,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             area="stake"
-            onClick={(e) => {
+            onClick={() => {
               setSortedColumn(SORT_FIELD.STAKE);
               setSortDirection(sortedColumn !== SORT_FIELD.STAKE ? true : !sortDirection);
             }}
@@ -271,36 +142,24 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
             Staked {sortedColumn === SORT_FIELD.STAKE ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center">
+        <Flex alignItems="center" justifyContent="center">
           <ClickableText
-            area="underlyingTokens"
-            onClick={(e) => {
-              setSortedColumn(SORT_FIELD.UNDERLYING_TOKENS);
-              setSortDirection(sortedColumn !== SORT_FIELD.UNDERLYING_TOKENS ? true : !sortDirection);
+            area="rewardTokens"
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.REWARD_TOKENS);
+              setSortDirection(sortedColumn !== SORT_FIELD.REWARD_TOKENS ? true : !sortDirection);
             }}
           >
-            Underlying Tokens
-            {sortedColumn === SORT_FIELD.UNDERLYING_TOKENS ? (!sortDirection ? '↑' : '↓') : ''}
+            Reward Tokens
+            {sortedColumn === SORT_FIELD.REWARD_TOKENS ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
-        {/* {!below680 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText
-              area="tvl"
-              onClick={(e) => {
-                setSortedColumn(SORT_FIELD.TVL);
-                setSortDirection(sortedColumn !== SORT_FIELD.TVL ? true : !sortDirection);
-              }}
-            >
-              TVL {sortedColumn === SORT_FIELD.TVL ? (!sortDirection ? '↑' : '↓') : ''}
-            </ClickableText>
-          </Flex>
-        )} */}
+
         {!below1080 && (
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
               area="other"
-              onClick={(e) => {
+              onClick={() => {
                 setSortedColumn(SORT_FIELD.STAKE_DOLLARS);
                 setSortDirection(sortedColumn !== SORT_FIELD.STAKE_DOLLARS ? true : !sortDirection);
               }}
@@ -313,7 +172,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
               area="yield1k"
-              onClick={(e) => {
+              onClick={() => {
                 setSortedColumn(SORT_FIELD.DAY_YIELD);
                 setSortDirection(sortedColumn !== SORT_FIELD.DAY_YIELD ? true : !sortDirection);
               }}
@@ -326,7 +185,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             area="apy"
-            onClick={(e) => {
+            onClick={() => {
               setSortedColumn(SORT_FIELD.APY);
               setSortDirection(sortedColumn !== SORT_FIELD.APY ? true : !sortDirection);
             }}
@@ -340,7 +199,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
       {campaignsList && (
         <PageButtons>
           <div
-            onClick={(e) => {
+            onClick={() => {
               setPage(page === 1 ? page : page - 1);
             }}
           >
@@ -348,7 +207,7 @@ function FarmingList({ campaigns, color, disbaleLinks, maxItems = 10 }) {
           </div>
           <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
           <div
-            onClick={(e) => {
+            onClick={() => {
               setPage(page === maxPage ? page : page + 1);
             }}
           >

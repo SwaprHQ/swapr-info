@@ -3,6 +3,7 @@ import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
+import carrotListLogoUrl from '../../assets/images/carrot.png';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
 import { formattedNum } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
@@ -11,11 +12,13 @@ import { CustomLink } from '../Link';
 import { AutoRow } from '../Row';
 import TokenLogo from '../TokenLogo';
 
+const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/gm);
+
 export const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 80px 1fr 1.2fr 0.4fr;
-  grid-template-areas: 'name stake underlyingTokens apy';
+  grid-template-areas: 'name stake rewardTokens apy';
   padding: 0 1.125rem;
 
   > * {
@@ -31,7 +34,7 @@ export const DashGrid = styled.div`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 150px 1fr 1.2fr 0.6fr;
-    grid-template-areas: 'name stake underlyingTokens apy';
+    grid-template-areas: 'name stake rewardTokens apy';
 
     > * {
       justify-content: flex-end;
@@ -47,7 +50,7 @@ export const DashGrid = styled.div`
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 1fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
-    grid-template-areas: 'name stake underlyingTokens staked yield apy';
+    grid-template-areas: 'name stake rewardTokens staked yield apy';
   }
 `;
 
@@ -79,7 +82,7 @@ export default function ListItem({ pairData, index }) {
     const apy = pairData.miningCampaignObject.apy.toFixed(2);
     const yieldPer1k = (parseFloat(apy) / 365) * 10;
     return (
-      <DashGrid style={{ margin: '5px 0px' }}>
+      <DashGrid style={{ margin: '10px 0px' }}>
         <DataText area="name">
           {!below680 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
           <DoubleTokenLogo
@@ -111,69 +114,73 @@ export default function ListItem({ pairData, index }) {
           </CustomLink>
         </DataText>
         <DataText area="stake">{formattedNum(pairData.stakedAmount)} LP</DataText>
-        <DataText alignItems={'flex-end'} flexDirection={'column'} area="underlyingTokens">
-          <AutoRow justifyContent={'end'} marginBottom={'2px'} flexDirection={'row'} style={{ margin: 'auto' }}>
-            {/* <TokenLogo
-              address={pairData.stakablePair.token0.id}
-              size={'13px'}
-              defaultText={pairData.stakablePair.token0.symbol}
-              flexBasis={'30%'}
-              justifyContent="flex-end"
-            /> */}
-            <DataText flexBasis={'30%'} textAlign="right" justifyContent="flex-end">
-              {formattedNum(pairData.stakablePair.reserve0)}
-            </DataText>
-            <CustomLink
-              style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
-              to={'/token/' + pairData.stakablePair.token0.id}
-            >
-              <FormattedName
-                text={
-                  nativeCurrencyWrapper.symbol === pairData.stakablePair.token0.symbol
-                    ? nativeCurrency
-                    : pairData.stakablePair.token0.symbol
-                }
-                maxCharacters={below600 ? 8 : 16}
-                adjustSize={true}
-                link={true}
-                flexBasis={'30%'}
-                textAlign={'left'}
-              />
-            </CustomLink>
-          </AutoRow>
-          <AutoRow justifyContent={'end'} flexDirection={'row'} style={{ margin: 'auto' }}>
-            {/* <TokenLogo
-              address={pairData.stakablePair.token1.id}
-              size={'13px'}
-              defaultText={pairData.stakablePair.token1.symbol}
-              flexBasis={'30%'}
-              justifyContent="flex-end"
-            /> */}
-            <DataText flexBasis={'30%'} textAlign="right" justifyContent="flex-end">
-              {formattedNum(pairData.stakablePair.reserve1)}
-            </DataText>
-            <CustomLink
-              style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
-              to={'/token/' + pairData.stakablePair.token1.id}
-            >
-              <FormattedName
-                text={
-                  nativeCurrencyWrapper.symbol === pairData.stakablePair.token1.symbol
-                    ? nativeCurrency
-                    : pairData.stakablePair.token1.symbol
-                }
-                maxCharacters={below600 ? 8 : 16}
-                adjustSize={true}
-                link={true}
-                flexBasis={'30%'}
-                textAlign={'left'}
-              />
-            </CustomLink>
-          </AutoRow>
+        <DataText
+          alignItems={'center'}
+          flexDirection={'row'}
+          flexWrap={'wrap'}
+          justifyContent={'flex-end'}
+          area="rewardTokens"
+        >
+          {pairData.miningCampaignObject.rewards.map((reward) => {
+            const carrotLogo = `${window.location.origin}${
+              carrotListLogoUrl.startsWith('.') ? carrotListLogoUrl.substring(1) : carrotListLogoUrl
+            }`;
+            const isCarrotToken = carrotTokenRegex.test(reward.token.symbol);
+            return (
+              <AutoRow
+                width="auto!important"
+                justifyContent={'end'}
+                marginBottom={'5px'}
+                flexDirection={'row'}
+                key={reward.address}
+              >
+                <TokenLogo
+                  address={reward.token.address.toLowerCase()}
+                  source={isCarrotToken ? carrotLogo : undefined}
+                  size={'16px'}
+                  defaultText={isCarrotToken ? 'Carrot' : reward.token.symbol}
+                  flexBasis={'30%'}
+                  justifyContent="flex-end"
+                />
+                {isCarrotToken ? (
+                  <FormattedName
+                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
+                    text="Carrot"
+                    maxCharacters={below600 ? 8 : 16}
+                    adjustSize={true}
+                    link={false}
+                    textAlign={'left'}
+                  />
+                ) : (
+                  <CustomLink
+                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
+                    to={'/token/' + reward.token.address.toLowerCase()}
+                  >
+                    <FormattedName
+                      text={nativeCurrencyWrapper.symbol === reward.token.symbol ? nativeCurrency : reward.token.symbol}
+                      maxCharacters={below600 ? 8 : 16}
+                      adjustSize={true}
+                      link={true}
+                      flexBasis={'30%'}
+                      textAlign={'left'}
+                    />
+                  </CustomLink>
+                )}
+              </AutoRow>
+            );
+          })}
         </DataText>
-        {/* {!below680 && <DataText area="tvl">{formattedNum(pairData.stakablePair.reserveUSD, true)}</DataText>} */}
-        {!below1080 && <DataText area="someOther">${formattedNum(pairData.stakedPriceInUsd)}</DataText>}
-        {!below1080 && <DataText area="yield1k">${formattedNum(yieldPer1k.toFixed(2))}/day</DataText>}
+        {!below1080 && (
+          <DataText area="staked" flexDirection={'column'}>
+            <AutoRow justifyContent={'end'} flexDirection={'row'} marginBottom={'5px'}>
+              ${formattedNum(pairData.stakedPriceInUsd)}
+            </AutoRow>
+            <AutoRow justifyContent={'end'} flexDirection={'row'}>
+              {((pairData.stakedPriceInUsd / pairData.stakablePair.reserveUSD) * 100).toFixed(2)}% of TVL
+            </AutoRow>
+          </DataText>
+        )}
+        {!below1080 && <DataText area="yield">${formattedNum(yieldPer1k.toFixed(2))}/day</DataText>}
         <DataText area="apy">{pairData.miningCampaignObject.apy.toFixed(2)}%</DataText>
       </DashGrid>
     );

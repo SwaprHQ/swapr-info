@@ -142,7 +142,7 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
             Staked {sortedColumn === SORT_FIELD.STAKE ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
-        <Flex alignItems="center" justifyContent="center">
+        <Flex alignItems="center" justifyContent="flex-end">
           <ClickableText
             area="rewardTokens"
             onClick={() => {

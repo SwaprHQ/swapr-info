@@ -49,7 +49,7 @@ export const DashGrid = styled.div`
   @media screen and (min-width: 1080px) {
     display: grid;
     grid-gap: 0.5em;
-    grid-template-columns: 1fr 0.8fr 1fr 0.8fr 0.8fr 0.8fr;
+    grid-template-columns: 1fr 0.8fr 1fr 0.8fr 0.8fr 0.6fr;
     grid-template-areas: 'name stake rewardTokens staked yield apy';
   }
 `;
@@ -121,7 +121,7 @@ export default function ListItem({ pairData, index }) {
           justifyContent={'flex-end'}
           area="rewardTokens"
         >
-          {pairData.miningCampaignObject.rewards.map((reward) => {
+          {pairData.miningCampaignObject.rewards.map((reward, index) => {
             const carrotLogo = `${window.location.origin}${
               carrotListLogoUrl.startsWith('.') ? carrotListLogoUrl.substring(1) : carrotListLogoUrl
             }`;
@@ -130,41 +130,44 @@ export default function ListItem({ pairData, index }) {
               <AutoRow
                 width="auto!important"
                 justifyContent={'end'}
+                marginTop={'5px'}
                 marginBottom={'5px'}
+                marginLeft={below1080 ? '5px' : '10px'}
                 flexDirection={'row'}
-                key={reward.address}
+                key={`${reward.address}${index}`}
               >
                 <TokenLogo
                   address={reward.token.address.toLowerCase()}
                   source={isCarrotToken ? carrotLogo : undefined}
                   size={'16px'}
-                  defaultText={isCarrotToken ? 'Carrot' : reward.token.symbol}
-                  flexBasis={'30%'}
+                  defaultText={isCarrotToken ? 'CARROT' : reward.token.symbol}
+                  flexBasis={'auto'}
                   justifyContent="flex-end"
                 />
                 {isCarrotToken ? (
                   <FormattedName
-                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
-                    text="Carrot"
+                    style={{ marginLeft: '5px', whiteSpace: 'nowrap', minWidth: '52px', marginRight: '5px' }}
+                    text="CARROT"
                     maxCharacters={below600 ? 8 : 16}
                     adjustSize={true}
                     link={false}
                     textAlign={'left'}
                   />
                 ) : (
-                  <CustomLink
-                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
-                    to={'/token/' + reward.token.address.toLowerCase()}
-                  >
-                    <FormattedName
-                      text={nativeCurrencyWrapper.symbol === reward.token.symbol ? nativeCurrency : reward.token.symbol}
-                      maxCharacters={below600 ? 8 : 16}
-                      adjustSize={true}
-                      link={true}
-                      flexBasis={'30%'}
-                      textAlign={'left'}
-                    />
-                  </CustomLink>
+                  // <CustomLink
+                  //   style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '50px' }}
+                  //   to={'/token/' + reward.token.address.toLowerCase()}
+                  // >
+                  <FormattedName
+                    text={nativeCurrencyWrapper.symbol === reward.token.symbol ? nativeCurrency : reward.token.symbol}
+                    maxCharacters={below600 ? 8 : 16}
+                    adjustSize={true}
+                    link={false}
+                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '52px', marginRight: '5px' }}
+                    // flexBasis={'30%'}
+                    textAlign={'left'}
+                  />
+                  // </CustomLink>
                 )}
               </AutoRow>
             );

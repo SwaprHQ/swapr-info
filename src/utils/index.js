@@ -569,6 +569,7 @@ export function toLiquidityMiningCampaign(
       rewardToken.symbol,
       rewardToken.name,
     );
+
     const rewardTokenPriceNativeCurrency = new Price(
       properRewardToken,
       nativeCurrency,
@@ -578,6 +579,7 @@ export function toLiquidityMiningCampaign(
         nativeCurrency.decimals,
       ).toString(),
     );
+
     const pricedRewardToken = new PricedToken(
       chainId,
       getAddress(rewardToken.id),

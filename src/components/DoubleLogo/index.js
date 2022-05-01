@@ -7,7 +7,8 @@ const TokenWrapper = styled.div`
   position: relative;
   display: flex;
   flex-direction: row;
-  margin-right: ${({ sizeraw, margin }) => margin && (sizeraw / 3 + 8).toString() + 'px'};
+  min-width: ${({ sizeraw }) => `${sizeraw * 2}px`};
+  margin-right: ${({ sizeraw, margin }) => margin && (sizeraw / 3).toString() + 'px'};
 `;
 
 const HigherLogo = styled(TokenLogo)`

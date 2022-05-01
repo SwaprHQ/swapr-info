@@ -18,7 +18,7 @@ const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/gm);
 export const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 80px 0.6fr 0.4fr 1fr 40px;
+  grid-template-columns: 80px 0.6fr 0.4fr 0.5fr 40px;
   grid-template-areas: 'name stake apy rewardTokens swaprLink';
   padding: 0 1.125rem;
 
@@ -34,7 +34,7 @@ export const DashGrid = styled.div`
   @media screen and (min-width: 680px) {
     display: grid;
     grid-gap: 1em;
-    grid-template-columns: 150px 0.6fr 0.6fr 1fr 40px;
+    grid-template-columns: 150px 0.6fr 0.6fr 0.6fr 24px;
     grid-template-areas: 'name stake apy rewardTokens swaprLink';
 
     > * {
@@ -156,18 +156,22 @@ export default function ListItem({ pairData, index }: ListItemProps) {
           </DataText>
         )}
         {!below1080 && <DataText area="yield">${formattedNum(yieldPer1k.toFixed(2))}/day</DataText>}
-        <DataText area="apy">
-          {pairData.miningCampaignObject.apy.toFixed(2)}%{`${hasCarrotToken ? ' + ' : ''}`}
+        <DataText area="apy" flexDirection="row" flexWrap="wrap">
+          <AutoRow width="auto!important">
+            {pairData.miningCampaignObject.apy.toFixed(2)}%{`${hasCarrotToken ? ' + ' : ''}`}
+          </AutoRow>
           {hasCarrotToken && (
-            <TokenLogo
-              address={''}
-              source={carrotLogo}
-              size="16px"
-              defaultText={'CARROT'}
-              flexBasis="auto"
-              justifyContent="flex-end"
-              style={{ marginLeft: '5px' }}
-            />
+            <AutoRow width="auto!important">
+              <TokenLogo
+                address={''}
+                source={carrotLogo}
+                size="16px"
+                defaultText={'CARROT'}
+                flexBasis="auto"
+                justifyContent="flex-end"
+                style={{ marginLeft: '5px' }}
+              />
+            </AutoRow>
           )}
         </DataText>
         <DataText alignItems="center" flexDirection="column" justifyContent="flex-end" area="rewardTokens">

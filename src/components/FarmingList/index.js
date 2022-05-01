@@ -128,7 +128,7 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
         style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
       >
         <Flex alignItems="center" justifyContent="flexStart">
-          <TYPE.main area="name">Name</TYPE.main>
+          <TYPE.main area="name">Pair</TYPE.main>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
@@ -138,19 +138,7 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
               setSortDirection(sortedColumn !== SORT_FIELD.STAKE ? true : !sortDirection);
             }}
           >
-            Staked {sortedColumn === SORT_FIELD.STAKE ? (!sortDirection ? '↑' : '↓') : ''}
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText
-            area="rewardTokens"
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.REWARD_TOKENS);
-              setSortDirection(sortedColumn !== SORT_FIELD.REWARD_TOKENS ? true : !sortDirection);
-            }}
-          >
-            Reward Tokens
-            {sortedColumn === SORT_FIELD.REWARD_TOKENS ? (!sortDirection ? '↑' : '↓') : ''}
+            Staked (LP) {sortedColumn === SORT_FIELD.STAKE ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
 
@@ -163,7 +151,7 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
                 setSortDirection(sortedColumn !== SORT_FIELD.STAKE_DOLLARS ? true : !sortDirection);
               }}
             >
-              Staked in $ {sortedColumn === SORT_FIELD.STAKE_DOLLARS ? (!sortDirection ? '↑' : '↓') : ''}
+              Staked in USD {sortedColumn === SORT_FIELD.STAKE_DOLLARS ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -180,7 +168,6 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
             </ClickableText>
           </Flex>
         )}
-
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             area="apy"
@@ -191,6 +178,21 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
           >
             APY {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end">
+          <ClickableText
+            area="rewardTokens"
+            onClick={() => {
+              setSortedColumn(SORT_FIELD.REWARD_TOKENS);
+              setSortDirection(sortedColumn !== SORT_FIELD.REWARD_TOKENS ? true : !sortDirection);
+            }}
+          >
+            Reward Tokens
+            {sortedColumn === SORT_FIELD.REWARD_TOKENS ? (!sortDirection ? '↑' : '↓') : ''}
+          </ClickableText>
+        </Flex>
+        <Flex alignItems="center" justifyContent="flex-end" area="swaprLink">
+          <TYPE.main>Link</TYPE.main>
         </Flex>
       </DashGrid>
       <Divider />

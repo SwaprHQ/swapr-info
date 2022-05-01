@@ -68,8 +68,28 @@ const DataText = styled(Flex)`
     font-size: 12px;
   }
 `;
+/** TODO: Need to add proper typings */
+type Pair = {
+  stakedAmount: number;
+  stakedPriceInUsd: number;
+  stakablePair: {
+    token0: any;
+    token1: any;
+    reserveUSD: number;
+  };
+  miningCampaignObject: {
+    apy: any;
+    targetedPair: any;
+    rewards: any;
+  };
+};
 
-export default function ListItem({ pairData, index }) {
+interface ListItemProps {
+  pairData: Pair;
+  index: string;
+}
+
+export default function ListItem({ pairData, index }: ListItemProps) {
   const below740 = useMedia('(max-width: 740px)');
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
@@ -146,7 +166,7 @@ export default function ListItem({ pairData, index }) {
                 />
                 {isCarrotToken ? (
                   <FormattedName
-                    style={{ marginLeft: '5px', whiteSpace: 'nowrap', minWidth: '52px', marginRight: '5px' }}
+                    style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '52px', marginRight: '5px' }}
                     text="CARROT"
                     maxCharacters={below600 ? 8 : 16}
                     adjustSize={true}
@@ -164,7 +184,6 @@ export default function ListItem({ pairData, index }) {
                     adjustSize={true}
                     link={false}
                     style={{ marginLeft: '10px', whiteSpace: 'nowrap', minWidth: '52px', marginRight: '5px' }}
-                    // flexBasis={'30%'}
                     textAlign={'left'}
                   />
                   // </CustomLink>

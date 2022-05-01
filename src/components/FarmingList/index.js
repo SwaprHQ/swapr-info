@@ -49,7 +49,6 @@ const ClickableText = styled(Text)`
 const SORT_FIELD = {
   STAKE: 0,
   REWARD_TOKENS: 1,
-  // TVL: 3,
   DAY_YIELD: 4,
   APY: 5,
   STAKE_DOLLARS: 6,

@@ -118,12 +118,12 @@ export default function ListItem({ pairData, index }: ListItemProps) {
         <DataText area="name">
           {!below680 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
           <DoubleTokenLogo
-            size={below600 ? 16 : 24}
+            size={below740 ? 16 : 24}
             a0={pairData.stakablePair.token0.id}
             a1={pairData.stakablePair.token1.id}
             defaultText0={pairData.stakablePair.token0.symbol}
             defaultText1={pairData.stakablePair.token1.symbol}
-            margin={!below740}
+            margin={true}
           />
           <CustomLink
             style={{ whiteSpace: 'nowrap' }}
@@ -150,7 +150,7 @@ export default function ListItem({ pairData, index }: ListItemProps) {
         {!below1080 && (
           <DataText area="staked" flexDirection="column" justifyContent="center">
             <AutoRow justifyContent="end" flexDirection="row" marginBottom="8px">
-              ${formattedNum(pairData.stakedPriceInUsd)}
+              {formattedNum(pairData.stakedPriceInUsd, true)}
             </AutoRow>
             <AutoRow justifyContent="end" flexDirection="row" fontSize="0.8rem!important" color="#7e7e7e">
               {((pairData.stakedPriceInUsd / pairData.stakablePair.reserveUSD) * 100).toFixed(2)}% of TVL
@@ -220,7 +220,6 @@ export default function ListItem({ pairData, index }: ListItemProps) {
           <Link
             style={{ whiteSpace: 'nowrap' }}
             external={true}
-            rel="noopener noreferrer"
             href={getSwaprLink(
               `/rewards/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
               ChainId[selectedNetwork],

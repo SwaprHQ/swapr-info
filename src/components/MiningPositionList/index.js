@@ -243,7 +243,7 @@ function MiningPositionList({ miningPositions }) {
     <ListWrapper>
       <DashGrid center={true} style={{ height: '32px', padding: 0 }}>
         {!below740 && (
-          <Flex alignItems="flex-start" justifyContent="flexStart">
+          <Flex alignItems="flex-start" sx={{ justifyContent: 'center !important' }}>
             <TYPE.main area="number">#</TYPE.main>
           </Flex>
         )}

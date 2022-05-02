@@ -324,7 +324,7 @@ function PositionList({ positions }) {
             <TYPE.main area="number">#</TYPE.main>
           </Flex>
         )}
-        <Flex alignItems="flex-start" justifyContent="flex-start">
+        <Flex alignItems="flex-start" sx={{ justifyContent: 'center !important' }}>
           <TYPE.main area="number">Name</TYPE.main>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">

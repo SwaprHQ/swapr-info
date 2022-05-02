@@ -5,8 +5,9 @@ import { Flex } from 'rebass';
 import styled from 'styled-components';
 
 import carrotListLogoUrl from '../../assets/images/carrot.png';
-import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
-import { formattedNum } from '../../utils';
+import { ChainId } from '../../constants';
+import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { formattedNum, getSwaprLink } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
 import Link, { CustomLink } from '../Link';
@@ -100,6 +101,7 @@ export default function ListItem({ pairData, index }: ListItemProps) {
 
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
+  const selectedNetwork = useSelectedNetwork();
 
   const carrotLogo = `${window.location.origin}${
     carrotListLogoUrl.startsWith('.') ? carrotListLogoUrl.substring(1) : carrotListLogoUrl
@@ -218,7 +220,11 @@ export default function ListItem({ pairData, index }: ListItemProps) {
           <Link
             style={{ whiteSpace: 'nowrap' }}
             external={true}
-            href={`https://swapr.eth.link/#/rewards/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`}
+            rel="noopener noreferrer"
+            href={getSwaprLink(
+              `/rewards/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
+              ChainId[selectedNetwork],
+            )}
           >
             <ExternalLink size={20} />
           </Link>

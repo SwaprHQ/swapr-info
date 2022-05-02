@@ -21,7 +21,7 @@ import {
 } from '@swapr/sdk';
 
 import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
-import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId } from '../constants';
+import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
 const Decimal = toFormat(_Decimal);
@@ -59,7 +59,7 @@ export function getPoolLink(
 ) {
   if (!token1Address) {
     return (
-      `https://swapr.eth.link/#/` +
+      `${SWAPR_LINK}` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${nativeCurrency}?chainId=${
         ChainId[selectedNetwork]
@@ -67,7 +67,7 @@ export function getPoolLink(
     );
   } else {
     return (
-      `https://swapr.eth.link/#/` +
+      `${SWAPR_LINK}` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${
         token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address
@@ -84,9 +84,9 @@ export function getSwapLink(
   token1Address = null,
 ) {
   if (!token1Address) {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
+    return `${SWAPR_LINK}/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
   } else {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${
+    return `${SWAPR_LINK}/swap?inputCurrency=${
       token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address
     }&outputCurrency=${token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address}&chainId=${
       ChainId[selectedNetwork]
@@ -133,12 +133,15 @@ export function getExplorerLink(selectedNetwork, data, type) {
 }
 
 export function getSwaprAppLink(nativeCurrency, linkVariable, selectedNetwork) {
-  let baseSwaprUrl = 'https://swapr.eth.link/#/';
   if (!linkVariable) {
-    return baseSwaprUrl;
+    return SWAPR_LINK;
   }
 
-  return `${baseSwaprUrl}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
+  return `${SWAPR_LINK}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
+}
+
+export function getSwaprLink(route, networkId) {
+  return `${SWAPR_LINK}${route}?chainId=${networkId}`;
 }
 
 export function localNumber(val) {

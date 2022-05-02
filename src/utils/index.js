@@ -626,7 +626,7 @@ export function toLiquidityMiningCampaign(
   );
 }
 
-export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice = 1, nativeCurrency) {
+export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice, nativeCurrency) {
   const nativeCurrencyPrice = new Price(
     nativeCurrency,
     USD,

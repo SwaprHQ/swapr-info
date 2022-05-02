@@ -712,20 +712,19 @@ export function useLiquidityMiningCampaignData() {
   const client = useSwaprSubgraphClient();
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
-  const nativePrice = useNativeCurrencyPrice();
+  const [nativeCurrencyUSDPrice] = useNativeCurrencyPrice();
   let miningData = {};
   Object.keys(STATUS).forEach((key) => (miningData[STATUS[key]] = state?.[STATUS[key]]));
 
   useEffect(() => {
     async function fetchData(status) {
-      if (miningData[status] === undefined) {
+      if (miningData[status] === undefined && nativeCurrencyUSDPrice !== undefined) {
         const time = dayjs.utc().unix();
         let {
           data: { liquidityMiningCampaigns },
         } = await client.query({
           query: liquidityMiningCampaignsQuery(status, time),
         });
-
         const arrayWithMiningCampaignObject = [];
         liquidityMiningCampaigns &&
           liquidityMiningCampaigns.forEach((pair) => {
@@ -766,12 +765,12 @@ export function useLiquidityMiningCampaignData() {
               nativeCurrency,
             );
 
-            const stakedPriceInUsd = getStakedAmountUSD(miningCampaignObject, nativePrice[0], nativeCurrency);
+            const stakedPriceInUsd = getStakedAmountUSD(miningCampaignObject, nativeCurrencyUSDPrice, nativeCurrency);
 
             arrayWithMiningCampaignObject.push({
               ...pair,
               miningCampaignObject,
-              stakedPriceInUsd: stakedPriceInUsd.toFixed(2),
+              stakedPriceInUsd: stakedPriceInUsd?.toFixed(2),
             });
           });
 
@@ -780,9 +779,8 @@ export function useLiquidityMiningCampaignData() {
     }
 
     Object.keys(STATUS).forEach((key) => fetchData(STATUS[key]));
-
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, selectedNetwork, updateMiningData, miningData]);
+  }, [client, selectedNetwork, updateMiningData, nativeCurrencyUSDPrice]);
 
   return miningData;
 }

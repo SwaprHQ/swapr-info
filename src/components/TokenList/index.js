@@ -182,7 +182,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       <DashGrid style={{ height: '48px' }} focus={true}>
         <DataText area="name" fontWeight="500">
           <Row>
-            {!below680 && <div style={{ marginRight: '1rem', width: '10px' }}>{index}</div>}
+            {!below680 && <div style={{ marginRight: '1rem', minWidth: '16px' }}>{index}</div>}
             <TokenLogo address={item.id} defaultText={item.symbol} />
             <CustomLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
               <FormattedName
@@ -214,14 +214,14 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   return (
     <ListWrapper>
       <DashGrid center={true} style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}>
-        <Flex alignItems="center" justifyContent="flexStart">
+        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
           <ClickableText
             color="text"
             area="name"
             fontWeight="500"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.NAME);
-              setSortDirection(sortedColumn !== SORT_FIELD.NAMe ? true : !sortDirection);
+              setSortDirection(sortedColumn !== SORT_FIELD.NAME ? true : !sortDirection);
             }}
           >
             {below680 ? 'Symbol' : 'Name'} {sortedColumn === SORT_FIELD.NAME ? (!sortDirection ? '↑' : '↓') : ''}

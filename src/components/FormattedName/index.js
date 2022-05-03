@@ -12,7 +12,7 @@ const TextWrapper = styled.div`
   text-align: ${({ textAlign }) => (textAlign ? textAlign : '')};
 
   :hover {
-    cursor: pointer;
+    cursor: ${({ link }) => (link ? 'pointer' : 'default')};
   }
 
   @media screen and (max-width: 600px) {

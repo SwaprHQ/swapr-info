@@ -1,5 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 
+export enum Networks {
+  MAINNET = 'Mainnet',
+  XDAI = 'Gnosis Chain',
+  ARBITRUM_ONE = 'Arbitrum',
+}
+
 export const SupportedNetwork = Object.freeze({
   MAINNET: 'Mainnet',
   XDAI: 'Gnosis Chain',

@@ -46,7 +46,7 @@ function FarmingPage() {
           width={'180px'}
         />
         <Panel style={{ padding: below800 && '1rem 0 0 0 ' }}>
-          <FarmingList campaigns={campaigns} disbaleLinks={true} maxItems={50} />
+          <FarmingList campaigns={campaigns} disbaleLinks={true} maxItems={20} />
         </Panel>
       </FullWrapper>
     </PageWrapper>

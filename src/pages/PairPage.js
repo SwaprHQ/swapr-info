@@ -251,7 +251,7 @@ function PairPage({ pairAddress, history }) {
                       margin={true}
                     />
                   )}{' '}
-                  <TYPE.main fontSize={below1080 ? '1.5rem' : '2rem'} style={{ margin: '0 1rem' }}>
+                  <TYPE.main fontSize={below1080 ? '1.5rem' : '2rem'}>
                     {token0 && token1 ? (
                       <>
                         <HoverSpan onClick={() => history.push(`/token/${token0?.id}`)}>

@@ -136,3 +136,5 @@ export const NETWORK_COLORS = {
   [SupportedNetwork.XDAI]: '#4526A2',
   [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
 };
+
+export const SWAPR_LINK = 'https://swapr.eth.limo/#';

@@ -27,7 +27,15 @@ const Image = styled.img`
 
 const BAD_URLS = {};
 
-export default function TokenLogo({ address, defaultText = '?', size = '24px', flexBasis, justifyContent, ...rest }) {
+export default function TokenLogo({
+  address,
+  defaultText = '?',
+  size = '24px',
+  flexBasis,
+  justifyContent,
+  source,
+  ...rest
+}) {
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const tokenIcons = useTokenIcon(address);
@@ -57,7 +65,7 @@ export default function TokenLogo({ address, defaultText = '?', size = '24px', f
     return [];
   }, [address, tokenIcons, nativeCurrencyWrapper, selectedNetwork]);
 
-  const src = sources.find((url) => !BAD_URLS[url]);
+  const src = source ? source : sources.find((url) => !BAD_URLS[url]);
 
   if (src) {
     return (

@@ -182,7 +182,7 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
               defaultText1={pairData.token1.symbol}
               margin={!below740}
             />
-            <CustomLink style={{ marginLeft: '20px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress} color={color}>
+            <CustomLink style={{ marginLeft: '10px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress} color={color}>
               <FormattedName
                 text={
                   (nativeCurrencyWrapper.symbol === pairData.token0.symbol ? nativeCurrency : pairData.token0.symbol) +
@@ -207,7 +207,7 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
         </DashGrid>
       );
     } else {
-      return '';
+      return null;
     }
   };
 
@@ -239,7 +239,6 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
           )
         );
       });
-
   return (
     <ListWrapper>
       <DashGrid
@@ -247,8 +246,8 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
         disbaleLinks={disbaleLinks}
         style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
       >
-        <Flex alignItems="center" justifyContent="flexStart">
-          <TYPE.main area="name">Name</TYPE.main>
+        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
+          <TYPE.main area="name">Pair / Swap Fee</TYPE.main>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
@@ -316,7 +315,9 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!pairList || Object.keys(pairs).length === 0 ? <LocalLoader /> : pairList}</List>
+      <List p={0}>
+        {!pairList || pairList.length === 0 || Object.keys(pairs).length <= 2 ? <LocalLoader /> : pairList}
+      </List>
       <PageButtons>
         <div
           onClick={(e) => {

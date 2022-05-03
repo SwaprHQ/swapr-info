@@ -1,42 +1,30 @@
-import React, { useEffect, useState } from "react";
-import { withRouter } from "react-router-dom";
-import "feather-icons";
-import styled from "styled-components";
-import Panel from "../components/Panel";
-import { PageWrapper, ContentWrapperLarge } from "../components/index";
-import { AutoRow, RowBetween, RowFixed } from "../components/Row";
-import Column, { AutoColumn } from "../components/Column";
-import { ButtonLight, ButtonDark } from "../components/ButtonStyled";
-import PairChart from "../components/PairChart";
-import Link from "../components/Link";
-import TxnList from "../components/TxnList";
-import Loader from "../components/LocalLoader";
-import { BasicLink } from "../components/Link";
-import Search from "../components/Search";
-import {
-  formattedNum,
-  formattedPercent,
-  getExplorerLink,
-  getPoolLink,
-  getSwapLink,
-} from "../utils";
-import { useColor } from "../hooks";
-import { usePairData, usePairTransactions } from "../contexts/PairData";
-import { TYPE, ThemedBackground } from "../Theme";
-import { transparentize } from "polished";
-import CopyHelper from "../components/Copy";
-import { useMedia } from "react-use";
-import DoubleTokenLogo from "../components/DoubleLogo";
-import TokenLogo from "../components/TokenLogo";
-import { Hover } from "../components";
-import { useNativeCurrencyPrice } from "../contexts/GlobalData";
+import 'feather-icons';
+import { transparentize } from 'polished';
+import React, { useEffect, useState } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
+import styled from 'styled-components';
 
-import FormattedName from "../components/FormattedName";
-import {
-  useNativeCurrencySymbol,
-  useNativeCurrencyWrapper,
-  useSelectedNetwork,
-} from "../contexts/Network";
+import { ThemedBackground, TYPE } from '../Theme';
+import { Hover, ContentWrapperLarge, PageWrapper } from '../components';
+import { ButtonDark, ButtonLight } from '../components/ButtonStyled';
+import Column, { AutoColumn } from '../components/Column';
+import CopyHelper from '../components/Copy';
+import DoubleTokenLogo from '../components/DoubleLogo';
+import FormattedName from '../components/FormattedName';
+import Link, { BasicLink } from '../components/Link';
+import Loader from '../components/LocalLoader';
+import PairChart from '../components/PairChart';
+import Panel from '../components/Panel';
+import { AutoRow, RowBetween, RowFixed } from '../components/Row';
+import Search from '../components/Search';
+import TokenLogo from '../components/TokenLogo';
+import TxnList from '../components/TxnList';
+import { useNativeCurrencyPrice } from '../contexts/GlobalData';
+import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
+import { usePairChartData, usePairData, usePairTransactions } from '../contexts/PairData';
+import { useColor } from '../hooks';
+import { formattedNum, formattedPercent, getExplorerLink, getPoolLink, getSwapLink } from '../utils';
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -125,7 +113,7 @@ function PairPage({ pairAddress, history }) {
   } = usePairData(pairAddress);
 
   useEffect(() => {
-    document.querySelector("body").scrollTo(0, 0);
+    document.querySelector('body').scrollTo(0, 0);
   }, []);
 
   const transactions = usePairTransactions(pairAddress);
@@ -137,7 +125,7 @@ function PairPage({ pairAddress, history }) {
     ? formattedNum(trackedReserveUSD, true)
     : reserveUSD
     ? formattedNum(reserveUSD, true)
-    : "-";
+    : '-';
   const liquidityChange = formattedPercent(liquidityChangeUSD);
 
   // mark if using untracked liquidity
@@ -149,13 +137,10 @@ function PairPage({ pairAddress, history }) {
   // volume	  // volume
   const volume =
     oneDayVolumeUSD || oneDayVolumeUSD === 0
-      ? formattedNum(
-          oneDayVolumeUSD === 0 ? oneDayVolumeUntracked : oneDayVolumeUSD,
-          true
-        )
+      ? formattedNum(oneDayVolumeUSD === 0 ? oneDayVolumeUntracked : oneDayVolumeUSD, true)
       : oneDayVolumeUSD === 0
-      ? "$0"
-      : "-";
+      ? '$0'
+      : '-';
 
   // mark if using untracked volume
   const [usingUtVolume, setUsingUtVolume] = useState(false);
@@ -163,8 +148,29 @@ function PairPage({ pairAddress, history }) {
     setUsingUtVolume(oneDayVolumeUSD === 0 ? true : false);
   }, [oneDayVolumeUSD]);
 
-  const volumeChange = formattedPercent(
-    !usingUtVolume ? volumeChangeUSD : volumeChangeUntracked
+  const volumeChange = formattedPercent(!usingUtVolume ? volumeChangeUSD : volumeChangeUntracked);
+
+  // utilization
+  const chartData = usePairChartData(pairAddress);
+  const interval = 7; // so 1 week; set to 1 for one day
+  let utilization = 0;
+  let prevUtilization = 0;
+  if (chartData && chartData.length >= interval) {
+    utilization =
+      chartData
+        .slice(chartData.length - interval)
+        .map((e) => e?.utilization)
+        .reduce((cum, cur) => cum + cur, 0) / interval;
+    if (chartData.length >= 2 * interval) {
+      prevUtilization =
+        chartData
+          .slice(chartData.length - 2 * interval, chartData.length - interval)
+          .map((e) => e?.utilization)
+          .reduce((cum, cur) => cum + cur, 0) / interval;
+    }
+  }
+  const utilizationChange = formattedPercent(
+    prevUtilization === 0 ? 0 : ((utilization - prevUtilization) / prevUtilization) * 100,
   );
 
   // get fees	  // get fees
@@ -173,55 +179,39 @@ function PairPage({ pairAddress, history }) {
       ? usingUtVolume
         ? formattedNum(oneDayVolumeUntracked * (pairSwapFeeBips / 10000), true)
         : formattedNum(oneDayVolumeUSD * (pairSwapFeeBips / 10000), true)
-      : "-";
+      : '-';
 
   // token data for usd
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
   const token0USD =
     token0?.derivedNativeCurrency && nativeCurrencyPrice
-      ? formattedNum(
-          parseFloat(token0.derivedNativeCurrency) *
-            parseFloat(nativeCurrencyPrice),
-          true
-        )
-      : "";
+      ? formattedNum(parseFloat(token0.derivedNativeCurrency) * parseFloat(nativeCurrencyPrice), true)
+      : '';
 
   const token1USD =
     token1?.derivedNativeCurrency && nativeCurrencyPrice
-      ? formattedNum(
-          parseFloat(token1.derivedNativeCurrency) *
-            parseFloat(nativeCurrencyPrice),
-          true
-        )
-      : "";
+      ? formattedNum(parseFloat(token1.derivedNativeCurrency) * parseFloat(nativeCurrencyPrice), true)
+      : '';
 
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
 
   // rates
-  const token0Rate =
-    reserve0 && reserve1 ? formattedNum(reserve1 / reserve0) : "-";
-  const token1Rate =
-    reserve0 && reserve1 ? formattedNum(reserve0 / reserve1) : "-";
+  const token0Rate = reserve0 && reserve1 ? formattedNum(reserve1 / reserve0) : '-';
+  const token1Rate = reserve0 && reserve1 ? formattedNum(reserve0 / reserve1) : '-';
 
   // formatted symbols for overflow
-  const formattedSymbol0 =
-    token0?.symbol.length > 6
-      ? token0?.symbol.slice(0, 5) + "..."
-      : token0?.symbol;
-  const formattedSymbol1 =
-    token1?.symbol.length > 6
-      ? token1?.symbol.slice(0, 5) + "..."
-      : token1?.symbol;
+  const formattedSymbol0 = token0?.symbol.length > 6 ? token0?.symbol.slice(0, 5) + '...' : token0?.symbol;
+  const formattedSymbol1 = token1?.symbol.length > 6 ? token1?.symbol.slice(0, 5) + '...' : token1?.symbol;
 
-  const below1080 = useMedia("(max-width: 1080px)");
-  const below900 = useMedia("(max-width: 900px)");
-  const below600 = useMedia("(max-width: 600px)");
+  const below1080 = useMedia('(max-width: 1080px)');
+  const below900 = useMedia('(max-width: 900px)');
+  const below600 = useMedia('(max-width: 600px)');
 
   useEffect(() => {
     window.scrollTo({
-      behavior: "smooth",
+      behavior: 'smooth',
       top: 0,
     });
   }, []);
@@ -230,74 +220,60 @@ function PairPage({ pairAddress, history }) {
 
   return (
     <PageWrapper>
-      <ThemedBackground
-        backgroundColor={transparentize(0.6, backgroundColor)}
-      />
+      <ThemedBackground backgroundColor={transparentize(0.6, backgroundColor)} />
       <span />
       <ContentWrapperLarge>
         <RowBetween>
           <TYPE.body>
-            <BasicLink to="/pairs">{"Pairs "}</BasicLink>→ {token0?.symbol}-
-            {token1?.symbol}
+            <BasicLink to="/pairs">{'Pairs '}</BasicLink>→ {token0?.symbol}-{token1?.symbol}
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>
         <DashboardWrapper>
-          <AutoColumn gap="40px" style={{ marginBottom: "1.5rem" }}>
+          <AutoColumn gap="40px" style={{ marginBottom: '1.5rem' }}>
             <div
               style={{
-                display: "flex",
-                justifyContent: "space-between",
-                flexWrap: "wrap",
-                width: "100%",
+                display: 'flex',
+                justifyContent: 'space-between',
+                flexWrap: 'wrap',
+                width: '100%',
               }}
             >
-              <RowFixed style={{ flexWrap: "wrap", minWidth: "100px" }}>
+              <RowFixed style={{ flexWrap: 'wrap', minWidth: '100px' }}>
                 <RowFixed>
                   {token0 && token1 && (
                     <DoubleTokenLogo
-                      a0={token0?.id || ""}
-                      a1={token1?.id || ""}
+                      a0={token0?.id || ''}
+                      a1={token1?.id || ''}
                       defaultText0={token0?.symbol}
                       defaultText1={token1?.symbol}
                       size={32}
                       margin={true}
                     />
-                  )}{" "}
-                  <TYPE.main
-                    fontSize={below1080 ? "1.5rem" : "2rem"}
-                    style={{ margin: "0 1rem" }}
-                  >
+                  )}{' '}
+                  <TYPE.main fontSize={below1080 ? '1.5rem' : '2rem'}>
                     {token0 && token1 ? (
                       <>
-                        <HoverSpan
-                          onClick={() => history.push(`/token/${token0?.id}`)}
-                        >
-                          {token0.symbol === nativeCurrencyWrapper.symbol
-                            ? nativeCurrency
-                            : token0.symbol}
+                        <HoverSpan onClick={() => history.push(`/token/${token0?.id}`)}>
+                          {token0.symbol === nativeCurrencyWrapper.symbol ? nativeCurrency : token0.symbol}
                         </HoverSpan>
                         <span>-</span>
-                        <HoverSpan
-                          onClick={() => history.push(`/token/${token1?.id}`)}
-                        >
-                          {token1.symbol === nativeCurrencyWrapper.symbol
-                            ? nativeCurrency
-                            : token1.symbol}
-                        </HoverSpan>{" "}
+                        <HoverSpan onClick={() => history.push(`/token/${token1?.id}`)}>
+                          {token1.symbol === nativeCurrencyWrapper.symbol ? nativeCurrency : token1.symbol}
+                        </HoverSpan>{' '}
                         Pair
                       </>
                     ) : (
-                      ""
+                      ''
                     )}
                   </TYPE.main>
                 </RowFixed>
               </RowFixed>
               <RowFixed
-                ml={below900 ? "0" : "2.5rem"}
-                mt={below1080 && "1rem"}
+                ml={below900 ? '0' : '2.5rem'}
+                mt={below1080 && '1rem'}
                 style={{
-                  flexDirection: below1080 ? "row-reverse" : "initial",
+                  flexDirection: below1080 ? 'row-reverse' : 'initial',
                 }}
               >
                 {/* {!!!savedPairs[pairAddress] && !below1080 ? (
@@ -327,33 +303,15 @@ function PairPage({ pairAddress, history }) {
                 {/* TODO: reenable button when cross-chain links are a thing */}
                 <Link
                   external
-                  href={getPoolLink(
-                    selectedNetwork,
-                    nativeCurrency,
-                    nativeCurrencyWrapper,
-                    token0?.id,
-                    token1?.id
-                  )}
+                  href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 >
-                  <ButtonLight color={backgroundColor}>
-                    + Add Liquidity
-                  </ButtonLight>
+                  <ButtonLight color={backgroundColor}>+ Add Liquidity</ButtonLight>
                 </Link>
                 <Link
                   external
-                  href={getSwapLink(
-                    selectedNetwork,
-                    nativeCurrency,
-                    nativeCurrencyWrapper,
-                    token0?.id,
-                    token1?.id
-                  )}
+                  href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 >
-                  <ButtonDark
-                    ml={!below1080 && ".5rem"}
-                    mr={below1080 && ".5rem"}
-                    color={backgroundColor}
-                  >
+                  <ButtonDark ml={!below1080 && '.5rem'} mr={below1080 && '.5rem'} color={backgroundColor}>
                     Trade
                   </ButtonDark>
                 </Link>
@@ -363,116 +321,90 @@ function PairPage({ pairAddress, history }) {
           <AutoRow
             gap="6px"
             style={{
-              width: "fit-content",
-              marginTop: below900 ? "1rem" : "0",
-              marginBottom: below900 ? "0" : "2rem",
-              flexWrap: "wrap",
+              width: 'fit-content',
+              marginTop: below900 ? '1rem' : '0',
+              marginBottom: below900 ? '0' : '2rem',
+              flexWrap: 'wrap',
             }}
           >
             <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
               <RowFixed>
-                <TokenLogo
-                  address={token0?.id}
-                  defaultText={token0?.symbol}
-                  size={"16px"}
-                />
-                <TYPE.main
-                  fontSize={"16px"}
-                  lineHeight={1}
-                  fontWeight={500}
-                  ml={"4px"}
-                >
+                <TokenLogo address={token0?.id} defaultText={token0?.symbol} size={'16px'} />
+                <TYPE.main fontSize={'16px'} lineHeight={1} fontWeight={500} ml={'4px'}>
                   {token0 && token1
                     ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
-                        parseFloat(token0?.derivedNativeCurrency)
-                          ? "(" + token0USD + ")"
-                          : ""
+                        parseFloat(token0?.derivedNativeCurrency) ? '(' + token0USD + ')' : ''
                       }`
-                    : "-"}
+                    : '-'}
                 </TYPE.main>
               </RowFixed>
             </FixedPanel>
             <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
               <RowFixed>
-                <TokenLogo
-                  address={token1?.id}
-                  defaultText={token1?.symbol}
-                  size={"16px"}
-                />
-                <TYPE.main
-                  fontSize={"16px"}
-                  lineHeight={1}
-                  fontWeight={500}
-                  ml={"4px"}
-                >
+                <TokenLogo address={token1?.id} defaultText={token1?.symbol} size={'16px'} />
+                <TYPE.main fontSize={'16px'} lineHeight={1} fontWeight={500} ml={'4px'}>
                   {token0 && token1
                     ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
-                        parseFloat(token1?.derivedNativeCurrency)
-                          ? "(" + token1USD + ")"
-                          : ""
+                        parseFloat(token1?.derivedNativeCurrency) ? '(' + token1USD + ')' : ''
                       }`
-                    : "-"}
+                    : '-'}
                 </TYPE.main>
               </RowFixed>
             </FixedPanel>
           </AutoRow>
           <>
-            {!below1080 && (
-              <TYPE.main fontSize={"1.125rem"}>Pair Stats</TYPE.main>
-            )}
-            <PanelWrapper style={{ marginTop: "1.5rem" }}>
-              <Panel style={{ height: "100%" }}>
+            {!below1080 && <TYPE.main fontSize={'1.125rem'}>Pair Stats</TYPE.main>}
+            <PanelWrapper style={{ marginTop: '1.5rem' }}>
+              <Panel style={{ height: '100%' }}>
                 <AutoColumn gap="20px">
                   <RowBetween>
-                    <TYPE.main>
-                      Total Liquidity {!usingTracked ? "(Untracked)" : ""}
-                    </TYPE.main>
+                    <TYPE.main>Total Liquidity {!usingTracked ? '(Untracked)' : ''}</TYPE.main>
                     <div />
                   </RowBetween>
                   <RowBetween align="flex-end">
-                    <TYPE.main
-                      fontSize={"1.5rem"}
-                      lineHeight={1}
-                      fontWeight={500}
-                    >
+                    <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
                       {liquidity}
                     </TYPE.main>
                     <TYPE.main>{liquidityChange}</TYPE.main>
                   </RowBetween>
                 </AutoColumn>
               </Panel>
-              <Panel style={{ height: "100%" }}>
+              <Panel style={{ height: '100%' }}>
                 <AutoColumn gap="20px">
                   <RowBetween>
-                    <TYPE.main>
-                      Volume (24hrs) {usingUtVolume && "(Untracked)"}
-                    </TYPE.main>
+                    <TYPE.main>Volume (24hrs) {usingUtVolume && '(Untracked)'}</TYPE.main>
                     <div />
                   </RowBetween>
                   <RowBetween align="flex-end">
-                    <TYPE.main
-                      fontSize={"1.5rem"}
-                      lineHeight={1}
-                      fontWeight={500}
-                    >
+                    <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
                       {volume}
                     </TYPE.main>
                     <TYPE.main>{volumeChange}</TYPE.main>
                   </RowBetween>
                 </AutoColumn>
               </Panel>
-              <Panel style={{ height: "100%" }}>
+              <Panel style={{ height: '100%' }}>
+                <AutoColumn gap="20px">
+                  <RowBetween>
+                    <TYPE.main>Average Utilization (7d)</TYPE.main>
+                    <div />
+                  </RowBetween>
+                  <RowBetween align="flex-end">
+                    <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
+                      {formattedNum(utilization) + '%'}
+                    </TYPE.main>
+                    <TYPE.main>{utilizationChange}</TYPE.main>
+                  </RowBetween>
+                </AutoColumn>
+              </Panel>
+              <Panel style={{ height: '100%' }}>
                 <AutoColumn gap="20px">
                   <RowBetween>
                     <TYPE.main>Fees (24hrs)</TYPE.main>
                     <div />
                   </RowBetween>
                   <RowBetween align="flex-end">
-                    <TYPE.main
-                      fontSize={"1.5rem"}
-                      lineHeight={1}
-                      fontWeight={500}
-                    >
+                    <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
                       {fees}
                     </TYPE.main>
                     <TYPE.main>{volumeChange}</TYPE.main>
@@ -480,50 +412,30 @@ function PairPage({ pairAddress, history }) {
                 </AutoColumn>
               </Panel>
 
-              <Panel style={{ height: "100%" }}>
+              <Panel style={{ height: '100%' }}>
                 <AutoColumn gap="20px">
                   <RowBetween>
                     <TYPE.main>Pooled Tokens</TYPE.main>
                     <div />
                   </RowBetween>
-                  <Hover
-                    onClick={() => history.push(`/token/${token0?.id}`)}
-                    fade={true}
-                  >
+                  <Hover onClick={() => history.push(`/token/${token0?.id}`)} fade={true}>
                     <AutoRow gap="4px">
-                      <TokenLogo
-                        defaultText={token0?.symbol}
-                        address={token0?.id}
-                      />
+                      <TokenLogo defaultText={token0?.symbol} address={token0?.id} />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
-                          {reserve0 ? formattedNum(reserve0) : ""}{" "}
-                          <FormattedName
-                            text={token0?.symbol ?? ""}
-                            maxCharacters={8}
-                            margin={true}
-                          />
+                          {reserve0 ? formattedNum(reserve0) : ''}{' '}
+                          <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} margin={true} />
                         </RowFixed>
                       </TYPE.main>
                     </AutoRow>
                   </Hover>
-                  <Hover
-                    onClick={() => history.push(`/token/${token1?.id}`)}
-                    fade={true}
-                  >
+                  <Hover onClick={() => history.push(`/token/${token1?.id}`)} fade={true}>
                     <AutoRow gap="4px">
-                      <TokenLogo
-                        defaultText={token1?.symbol}
-                        address={token1?.id}
-                      />
+                      <TokenLogo defaultText={token1?.symbol} address={token1?.id} />
                       <TYPE.main fontSize={20} lineHeight={1} fontWeight={500}>
                         <RowFixed>
-                          {reserve1 ? formattedNum(reserve1) : ""}{" "}
-                          <FormattedName
-                            text={token1?.symbol ?? ""}
-                            maxCharacters={8}
-                            margin={true}
-                          />
+                          {reserve1 ? formattedNum(reserve1) : ''}{' '}
+                          <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} margin={true} />
                         </RowFixed>
                       </TYPE.main>
                     </AutoRow>
@@ -532,8 +444,8 @@ function PairPage({ pairAddress, history }) {
               </Panel>
               <Panel
                 style={{
-                  gridColumn: below1080 ? undefined : "2/4",
-                  gridRow: below1080 ? undefined : "1/5",
+                  gridColumn: below1080 ? undefined : '2/4',
+                  gridRow: below1080 ? undefined : '1/5',
                 }}
               >
                 <PairChart
@@ -544,57 +456,43 @@ function PairPage({ pairAddress, history }) {
                 />
               </Panel>
             </PanelWrapper>
-            <TYPE.main fontSize={"1.125rem"} style={{ marginTop: "3rem" }}>
+            <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
               Transactions
-            </TYPE.main>{" "}
+            </TYPE.main>{' '}
             <Panel
               style={{
-                marginTop: "1.5rem",
+                marginTop: '1.5rem',
               }}
             >
-              {transactions ? (
-                <TxnList transactions={transactions} />
-              ) : (
-                <Loader />
-              )}
+              {transactions ? <TxnList transactions={transactions} /> : <Loader />}
             </Panel>
-            <RowBetween style={{ marginTop: "3rem" }}>
-              <TYPE.main fontSize={"1.125rem"}>Pair Information</TYPE.main>{" "}
+            <RowBetween style={{ marginTop: '3rem' }}>
+              <TYPE.main fontSize={'1.125rem'}>Pair Information</TYPE.main>{' '}
             </RowBetween>
             <Panel
               rounded
               style={{
-                marginTop: "1.5rem",
+                marginTop: '1.5rem',
               }}
               p={20}
             >
               <TokenDetailsLayout>
-                <Column
-                  style={{ height: "100%", justifyContent: "space-between" }}
-                >
+                <Column style={{ height: '100%', justifyContent: 'space-between' }}>
                   <TYPE.main>Pair Name</TYPE.main>
                   <AutoRow align="flex-end">
-                    <TYPE.main style={{ marginTop: ".5rem" }}>
+                    <TYPE.main style={{ marginTop: '.5rem' }}>
                       <AutoRow>
-                        <FormattedName
-                          text={token0?.symbol ?? ""}
-                          maxCharacters={8}
-                        />
+                        <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} />
                         -
-                        <FormattedName
-                          text={token1?.symbol ?? ""}
-                          maxCharacters={8}
-                        />
+                        <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} />
                       </AutoRow>
                     </TYPE.main>
                   </AutoRow>
                 </Column>
-                <Column
-                  style={{ height: "100%", justifyContent: "space-between" }}
-                >
+                <Column style={{ height: '100%', justifyContent: 'space-between' }}>
                   <TYPE.main>Swap fee</TYPE.main>
                   <AutoRow align="flex-end">
-                    <TYPE.main style={{ marginTop: ".5rem" }}>
+                    <TYPE.main style={{ marginTop: '.5rem' }}>
                       <AutoRow>{pairSwapFeeBips / 100}%</AutoRow>
                     </TYPE.main>
                   </AutoRow>
@@ -602,10 +500,8 @@ function PairPage({ pairAddress, history }) {
                 <Column>
                   <TYPE.main>Pair Address</TYPE.main>
                   <AutoRow align="flex-end">
-                    <TYPE.main style={{ marginTop: ".5rem" }}>
-                      {pairAddress.slice(0, 6) +
-                        "..." +
-                        pairAddress.slice(38, 42)}
+                    <TYPE.main style={{ marginTop: '.5rem' }}>
+                      {pairAddress.slice(0, 6) + '...' + pairAddress.slice(38, 42)}
                     </TYPE.main>
                     <CopyHelper toCopy={pairAddress} />
                   </AutoRow>
@@ -613,17 +509,13 @@ function PairPage({ pairAddress, history }) {
                 <Column>
                   <TYPE.main>
                     <RowFixed>
-                      <FormattedName
-                        text={token0?.symbol ?? ""}
-                        maxCharacters={8}
-                      />{" "}
-                      <span style={{ marginLeft: "4px" }}>Address</span>
+                      <FormattedName text={token0?.symbol ?? ''} maxCharacters={8} />{' '}
+                      <span style={{ marginLeft: '4px' }}>Address</span>
                     </RowFixed>
                   </TYPE.main>
                   <AutoRow align="flex-end">
-                    <TYPE.main style={{ marginTop: ".5rem" }}>
-                      {token0 &&
-                        token0.id.slice(0, 6) + "..." + token0.id.slice(38, 42)}
+                    <TYPE.main style={{ marginTop: '.5rem' }}>
+                      {token0 && token0.id.slice(0, 6) + '...' + token0.id.slice(38, 42)}
                     </TYPE.main>
                     <CopyHelper toCopy={token0?.id} />
                   </AutoRow>
@@ -631,31 +523,19 @@ function PairPage({ pairAddress, history }) {
                 <Column>
                   <TYPE.main>
                     <RowFixed>
-                      <FormattedName
-                        text={token1?.symbol ?? ""}
-                        maxCharacters={8}
-                      />{" "}
-                      <span style={{ marginLeft: "4px" }}>Address</span>
+                      <FormattedName text={token1?.symbol ?? ''} maxCharacters={8} />{' '}
+                      <span style={{ marginLeft: '4px' }}>Address</span>
                     </RowFixed>
                   </TYPE.main>
                   <AutoRow align="flex-end">
-                    <TYPE.main style={{ marginTop: ".5rem" }} fontSize={16}>
-                      {token1 &&
-                        token1.id.slice(0, 6) + "..." + token1.id.slice(38, 42)}
+                    <TYPE.main style={{ marginTop: '.5rem' }} fontSize={16}>
+                      {token1 && token1.id.slice(0, 6) + '...' + token1.id.slice(38, 42)}
                     </TYPE.main>
                     <CopyHelper toCopy={token1?.id} />
                   </AutoRow>
                 </Column>
                 <ButtonLight color={backgroundColor}>
-                  <Link
-                    color={backgroundColor}
-                    external
-                    href={getExplorerLink(
-                      selectedNetwork,
-                      pairAddress,
-                      "token"
-                    )}
-                  >
+                  <Link color={backgroundColor} external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
                     View on block explorer ↗
                   </Link>
                 </ButtonLight>

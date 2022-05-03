@@ -1,46 +1,35 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useEffect,
-  useState,
-} from "react";
-import { usePairData } from "./PairData";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
+
 import {
   USER_TRANSACTIONS,
   USER_POSITIONS,
   USER_HISTORY,
   PAIR_DAY_DATA_BULK,
   USER_HISTORY_STAKE,
-} from "../apollo/queries";
-import { useTimeframe, useStartTimestamp } from "./Application";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { useNativeCurrencyPrice } from "./GlobalData";
-import { getLPReturnsOnPair, getHistoricalPairReturns } from "../utils/returns";
-import { timeframeOptions } from "../constants";
-import {
-  useBlocksSubgraphClient,
-  useSelectedNetwork,
-  useSwaprSubgraphClient,
-} from "./Network";
+} from '../apollo/queries';
+import { timeframeOptions } from '../constants';
+import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns';
+import { useTimeframe, useStartTimestamp } from './Application';
+import { useNativeCurrencyPrice } from './GlobalData';
+import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
+import { usePairData } from './PairData';
 
 dayjs.extend(utc);
 
-const RESET = "RESET";
-const UPDATE_TRANSACTIONS = "UPDATE_TRANSACTIONS";
-const UPDATE_POSITIONS = "UPDATE_POSITIONS ";
-const UPDATE_MINING_POSITIONS = "UPDATE_MINING_POSITIONS";
-const UPDATE_USER_POSITION_HISTORY = "UPDATE_USER_POSITION_HISTORY";
-const UPDATE_USER_PAIR_RETURNS = "UPDATE_USER_PAIR_RETURNS";
+const RESET = 'RESET';
+const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
+const UPDATE_POSITIONS = 'UPDATE_POSITIONS ';
+const UPDATE_MINING_POSITIONS = 'UPDATE_MINING_POSITIONS';
+const UPDATE_USER_POSITION_HISTORY = 'UPDATE_USER_POSITION_HISTORY';
+const UPDATE_USER_PAIR_RETURNS = 'UPDATE_USER_PAIR_RETURNS';
 
-const TRANSACTIONS_KEY = "TRANSACTIONS_KEY";
-const POSITIONS_KEY = "POSITIONS_KEY";
-const MINING_POSITIONS_KEY = "MINING_POSITIONS_KEY";
-const USER_SNAPSHOTS = "USER_SNAPSHOTS";
-const USER_PAIR_RETURNS_KEY = "USER_PAIR_RETURNS_KEY";
+const TRANSACTIONS_KEY = 'TRANSACTIONS_KEY';
+const POSITIONS_KEY = 'POSITIONS_KEY';
+const MINING_POSITIONS_KEY = 'MINING_POSITIONS_KEY';
+const USER_SNAPSHOTS = 'USER_SNAPSHOTS';
+const USER_PAIR_RETURNS_KEY = 'USER_PAIR_RETURNS_KEY';
 
 const UserContext = createContext();
 
@@ -197,7 +186,7 @@ export default function Provider({ children }) {
           updateUserSnapshots,
           updateUserPairReturns,
           reset,
-        ]
+        ],
       )}
     >
       {children}
@@ -257,9 +246,7 @@ export function useUserSnapshots(account) {
               user: account,
             },
           });
-          allResults = allResults.concat(
-            result.data.liquidityPositionSnapshots
-          );
+          allResults = allResults.concat(result.data.liquidityPositionSnapshots);
           if (result.data.liquidityPositionSnapshots.length < 1000) {
             found = true;
           } else {
@@ -277,9 +264,7 @@ export function useUserSnapshots(account) {
               user: account,
             },
           });
-          allResultsStake = allResultsStake.concat(
-            result.data.liquidityMiningPositionSnapshots
-          );
+          allResultsStake = allResultsStake.concat(result.data.liquidityMiningPositionSnapshots);
           if (result.data.liquidityMiningPositionSnapshots.length < 1000) {
             stakeFound = true;
           } else {
@@ -332,8 +317,7 @@ export function useUserPositionChart(position, account) {
   const [currentNativeCurrencyPrice] = useNativeCurrencyPrice();
 
   // formatetd array to return for chart data
-  const formattedHistory =
-    state?.[account]?.[USER_PAIR_RETURNS_KEY]?.[pairAddress];
+  const formattedHistory = state?.[account]?.[USER_PAIR_RETURNS_KEY]?.[pairAddress];
 
   useEffect(() => {
     async function fetchData() {
@@ -343,7 +327,7 @@ export function useUserPositionChart(position, account) {
         startDateTimestamp,
         currentPairData,
         pairSnapshots,
-        currentNativeCurrencyPrice
+        currentNativeCurrencyPrice,
       );
       updateUserPairReturns(account, pairAddress, fetchedData);
     }
@@ -397,20 +381,17 @@ export function useUserLiquidityChart(account) {
     let utcStartTime;
     switch (activeWindow) {
       case timeframeOptions.WEEK:
-        utcStartTime = utcEndTime.subtract(1, "week").startOf("day");
+        utcStartTime = utcEndTime.subtract(1, 'week').startOf('day');
         break;
       case timeframeOptions.ALL_TIME:
-        utcStartTime = utcEndTime.subtract(1, "year");
+        utcStartTime = utcEndTime.subtract(1, 'year');
         break;
       default:
-        utcStartTime = utcEndTime.subtract(1, "year").startOf("year");
+        utcStartTime = utcEndTime.subtract(1, 'year').startOf('year');
         break;
     }
     let startTime = utcStartTime.unix() - 1;
-    if (
-      (activeWindow && startTime < startDateTimestamp) ||
-      !startDateTimestamp
-    ) {
+    if ((activeWindow && startTime < startDateTimestamp) || !startDateTimestamp) {
       setStartDateTimestamp(startTime);
     }
   }, [activeWindow, startDateTimestamp]);
@@ -457,10 +438,7 @@ export function useUserLiquidityChart(account) {
 
         // cycle through relevant positions and update ownership for any that we need to
         const relevantPositions = snapshots.filter((snapshot) => {
-          return (
-            snapshot.timestamp < timestampCeiling &&
-            snapshot.timestamp > dayTimestamp
-          );
+          return snapshot.timestamp < timestampCeiling && snapshot.timestamp > dayTimestamp;
         });
         for (const index in relevantPositions) {
           const position = relevantPositions[index];
@@ -472,10 +450,7 @@ export function useUserLiquidityChart(account) {
             };
           }
           // case where more recent timestamp is found for pair
-          if (
-            ownershipPerPair[position.pair.id] &&
-            ownershipPerPair[position.pair.id].timestamp < position.timestamp
-          ) {
+          if (ownershipPerPair[position.pair.id] && ownershipPerPair[position.pair.id].timestamp < position.timestamp) {
             ownershipPerPair[position.pair.id] = {
               lpTokenBalance: position.liquidityTokenBalance,
               timestamp: position.timestamp,
@@ -483,35 +458,27 @@ export function useUserLiquidityChart(account) {
           }
         }
 
-        const relavantDayDatas = Object.keys(ownershipPerPair).map(
-          (pairAddress) => {
-            // find last day data after timestamp update
-            const dayDatasForThisPair = pairDayDatas.filter((dayData) => {
-              return dayData.pairAddress === pairAddress;
-            });
-            // find the most recent reference to pair liquidity data
-            let mostRecent = dayDatasForThisPair[0];
-            for (const index in dayDatasForThisPair) {
-              const dayData = dayDatasForThisPair[index];
-              if (
-                dayData.date < dayTimestamp &&
-                dayData.date > mostRecent.date
-              ) {
-                mostRecent = dayData;
-              }
+        const relavantDayDatas = Object.keys(ownershipPerPair).map((pairAddress) => {
+          // find last day data after timestamp update
+          const dayDatasForThisPair = pairDayDatas.filter((dayData) => {
+            return dayData.pairAddress === pairAddress;
+          });
+          // find the most recent reference to pair liquidity data
+          let mostRecent = dayDatasForThisPair[0];
+          for (const index in dayDatasForThisPair) {
+            const dayData = dayDatasForThisPair[index];
+            if (dayData.date < dayTimestamp && dayData.date > mostRecent.date) {
+              mostRecent = dayData;
             }
-            return mostRecent;
           }
-        );
+          return mostRecent;
+        });
         // now cycle through pair day datas, for each one find usd value = ownership[address] * reserveUSD
         const dailyUSD = relavantDayDatas.reduce((totalUSD, dayData) => {
           return (totalUSD =
             totalUSD +
             (ownershipPerPair[dayData.pairAddress]
-              ? (parseFloat(
-                  ownershipPerPair[dayData.pairAddress].lpTokenBalance
-                ) /
-                  parseFloat(dayData.totalSupply)) *
+              ? (parseFloat(ownershipPerPair[dayData.pairAddress].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
                 parseFloat(dayData.reserveUSD)
               : 0));
         }, 0);
@@ -561,21 +528,18 @@ export function useUserPositions(account) {
                 account,
                 positionData.pair,
                 nativeCurrencyPrice,
-                snapshots
+                snapshots,
               );
 
-              let liquidityTokenBalance = parseFloat(
-                positionData.liquidityTokenBalance
-              );
+              let liquidityTokenBalance = parseFloat(positionData.liquidityTokenBalance);
 
               const stakedCampaignsOnPair = result?.data?.liquidityMiningPositions.filter(
-                (position) => position.pair.id === positionData.pair.id
+                (position) => position.pair.id === positionData.pair.id,
               );
               if (stakedCampaignsOnPair.length > 0) {
                 liquidityTokenBalance += stakedCampaignsOnPair.reduce(
-                  (stakedAmount, campaign) =>
-                    stakedAmount + parseFloat(campaign.liquidityTokenBalance),
-                  0
+                  (stakedAmount, campaign) => stakedAmount + parseFloat(campaign.liquidityTokenBalance),
+                  0,
                 );
               }
 
@@ -584,7 +548,7 @@ export function useUserPositions(account) {
                 ...returnData,
                 liquidityTokenBalance: liquidityTokenBalance.toString(),
               };
-            })
+            }),
           );
         }
 
@@ -596,15 +560,7 @@ export function useUserPositions(account) {
     if (!positions && account && nativeCurrencyPrice && snapshots) {
       fetchData(account);
     }
-  }, [
-    account,
-    positions,
-    updatePositions,
-    nativeCurrencyPrice,
-    snapshots,
-    client,
-    network,
-  ]);
+  }, [account, positions, updatePositions, nativeCurrencyPrice, snapshots, client, network]);
 
   return { positions };
 }

@@ -1,19 +1,29 @@
-import React, { useRef, useState } from "react";
-import styled from "styled-components";
+import React, { useEffect, useRef, useState } from 'react';
+import { ChevronDown as Arrow } from 'react-feather';
+import { useClickAway } from 'react-use';
+import styled from 'styled-components';
 
-import Row, { RowBetween } from "../Row";
-import { AutoColumn } from "../Column";
-import { ChevronDown as Arrow } from "react-feather";
-import { TYPE } from "../../Theme";
-import { StyledIcon } from "..";
-import { useClickAway } from "react-use";
+import { StyledIcon } from '..';
+import { TYPE } from '../../Theme';
+import ArbitrumLogo from '../../assets/svg/arbitrum-one-logo.svg';
+import EthereumLogo from '../../assets/svg/ethereum-logo.svg';
+import GnosisLogo from '../../assets/svg/gnosis-chain-logo.svg';
+import { SupportedNetwork } from '../../constants';
+import { AutoColumn } from '../Column';
+import Row, { RowBetween } from '../Row';
+
+const NetworkLogo = {
+  [SupportedNetwork.MAINNET]: EthereumLogo,
+  [SupportedNetwork.ARBITRUM_ONE]: ArbitrumLogo,
+  [SupportedNetwork.XDAI]: GnosisLogo,
+};
 
 const Wrapper = styled.div`
   z-index: 20;
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
   border: 1px solid ${({ color, theme }) => color || theme.primary4};
-  width: 100px;
+  width: ${({ width }) => (width ? width : '150px')};
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -22,7 +32,19 @@ const Wrapper = styled.div`
   justify-content: center;
 
   :hover {
-    cursor: pointer;
+    cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  }
+`;
+
+const IconWrapper = styled.span`
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 8px;
+  width: ${({ size }) => (size ? `${size}px` : '20px')};
+  height: ${({ size }) => (size ? `${size}px` : '20px')};
+  & > img {
+    height: 20px;
   }
 `;
 
@@ -30,7 +52,6 @@ const Dropdown = styled.div`
   position: absolute;
   top: 38px;
   padding-top: 40px;
-  width: calc(100% - 40px);
   background-color: ${({ theme }) => theme.bg1};
   border: 1px solid rgba(0, 0, 0, 0.15);
   padding: 10px 10px;
@@ -50,26 +71,55 @@ const ArrowStyled = styled(Arrow)`
   margin-left: 6px;
 `;
 
-const DropdownSelect = ({ options, active, setActive, color }) => {
+const Icon = ({ network }) => {
+  if (NetworkLogo[network] === undefined) {
+    return null;
+  }
+
+  return (
+    <IconWrapper size={20}>
+      <img src={NetworkLogo[network]} alt={network} />
+    </IconWrapper>
+  );
+};
+
+export default function DropdownSelect({ options, active, disabled, setActive, color, width = null }) {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
+
   useClickAway(dropdownRef, (event) => {
-    if (showDropdown && !containerRef.current.contains(event.target))
-      toggleDropdown(false);
+    if (showDropdown && !containerRef.current.contains(event.target)) toggleDropdown(false);
   });
+  // Preload network logos
+  useEffect(() => {
+    Object.values(NetworkLogo).forEach((image) => {
+      new Image().src = image;
+    });
+  }, []);
 
   return (
-    <Wrapper open={showDropdown} color={color} ref={containerRef}>
-      <RowBetween
-        onClick={() => toggleDropdown(!showDropdown)}
-        justify="center"
-      >
-        <TYPE.main>{active}</TYPE.main>
-        <StyledIcon>
-          <ArrowStyled />
-        </StyledIcon>
-      </RowBetween>
+    <Wrapper open={showDropdown} color={color} ref={containerRef} width={width} disabled={disabled}>
+      {disabled ? (
+        <RowBetween justify="center">
+          <TYPE.main display="flex" color={'disabled'}>
+            {active}
+          </TYPE.main>
+          <StyledIcon disabled={disabled}>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      ) : (
+        <RowBetween onClick={() => toggleDropdown(!showDropdown)} justify="center">
+          <TYPE.main display="flex">
+            <Icon network={active} />
+            {active}
+          </TYPE.main>
+          <StyledIcon>
+            <ArrowStyled />
+          </StyledIcon>
+        </RowBetween>
+      )}
       {showDropdown && (
         <Dropdown>
           <div ref={dropdownRef}>
@@ -85,7 +135,10 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
                       }}
                       key={index}
                     >
-                      <TYPE.body fontSize={14}>{option}</TYPE.body>
+                      <TYPE.body fontSize={14} display="flex">
+                        <Icon network={option} />
+                        {option}
+                      </TYPE.body>
                     </Row>
                   )
                 );
@@ -96,6 +149,4 @@ const DropdownSelect = ({ options, active, setActive, color }) => {
       )}
     </Wrapper>
   );
-};
-
-export default DropdownSelect;
+}

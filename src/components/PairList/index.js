@@ -1,23 +1,19 @@
-import React, { useState, useEffect } from "react";
-import { useMedia } from "react-use";
-import dayjs from "dayjs";
-import LocalLoader from "../LocalLoader";
-import utc from "dayjs/plugin/utc";
-import { Box, Flex, Text } from "rebass";
-import styled from "styled-components";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect } from 'react';
+import { useMedia } from 'react-use';
+import { Box, Flex, Text } from 'rebass';
+import styled from 'styled-components';
 
-import { CustomLink } from "../Link";
-import { Divider } from "../../components";
-import { withRouter } from "react-router-dom";
-import { formattedNum, formattedPercent } from "../../utils";
-import DoubleTokenLogo from "../DoubleLogo";
-import FormattedName from "../FormattedName";
-import QuestionHelper from "../QuestionHelper";
-import { TYPE } from "../../Theme";
-import {
-  useNativeCurrencySymbol,
-  useNativeCurrencyWrapper,
-} from "../../contexts/Network";
+import { TYPE } from '../../Theme';
+import { Divider } from '../../components';
+import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
+import { formattedNum, formattedPercent } from '../../utils';
+import DoubleTokenLogo from '../DoubleLogo';
+import FormattedName from '../FormattedName';
+import { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
+import QuestionHelper from '../QuestionHelper';
 
 dayjs.extend(utc);
 
@@ -47,7 +43,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: "name liq vol";
+  grid-template-areas: 'name liq vol';
   padding: 0 1.125rem;
 
   > * {
@@ -63,7 +59,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol ";
+    grid-template-areas: 'name symbol liq vol ';
 
     > * {
       justify-content: flex-end;
@@ -79,7 +75,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol price change";
+    grid-template-areas: 'name symbol liq vol price change';
   }
 `;
 
@@ -109,6 +105,13 @@ const DataText = styled(Flex)`
   }
 `;
 
+const FeeText = styled.div`
+  background-color: rgba(255, 255, 255, 0.15);
+  border-radius: 6px;
+  margin-left: 8px;
+  padding: 2px 4px;
+`;
+
 const SORT_FIELD = {
   LIQ: 0,
   VOL: 1,
@@ -118,17 +121,17 @@ const SORT_FIELD = {
 };
 
 const FIELD_TO_VALUE = {
-  [SORT_FIELD.LIQ]: "trackedReserveUSD", // sort with tracked volume only
-  [SORT_FIELD.VOL]: "oneDayVolumeUSD",
-  [SORT_FIELD.VOL_7DAYS]: "oneWeekVolumeUSD",
-  [SORT_FIELD.FEES]: "oneDayVolumeUSD",
+  [SORT_FIELD.LIQ]: 'trackedReserveUSD', // sort with tracked volume only
+  [SORT_FIELD.VOL]: 'oneDayVolumeUSD',
+  [SORT_FIELD.VOL_7DAYS]: 'oneWeekVolumeUSD',
+  [SORT_FIELD.FEES]: 'oneDayVolumeUSD',
 };
 
-function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
-  const below600 = useMedia("(max-width: 600px)");
-  const below680 = useMedia("(max-width: 680px)");
-  const below740 = useMedia("(max-width: 740px)");
-  const below1080 = useMedia("(max-width: 1080px)");
+export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
+  const below600 = useMedia('(max-width: 600px)');
+  const below680 = useMedia('(max-width: 680px)');
+  const below740 = useMedia('(max-width: 740px)');
+  const below1080 = useMedia('(max-width: 1080px)');
 
   // pagination
   const [page, setPage] = useState(1);
@@ -153,12 +156,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
       if (Object.keys(pairs).length % ITEMS_PER_PAGE === 0) {
         extraPages = 0;
       }
-      setMaxPage(
-        Math.max(
-          1,
-          Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages
-        )
-      );
+      setMaxPage(Math.max(1, Math.floor(Object.keys(pairs).length / ITEMS_PER_PAGE) + extraPages));
     }
   }, [ITEMS_PER_PAGE, pairs]);
 
@@ -170,19 +168,12 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
       const liquidity = formattedNum(pairData.reserveUSD, true);
       const volume = formattedNum(pairData.oneDayVolumeUSD, true);
       const apy = formattedPercent(
-        (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) /
-          pairData.reserveUSD
+        (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) / pairData.reserveUSD,
       );
       return (
-        <DashGrid
-          style={{ height: "48px" }}
-          disbaleLinks={disbaleLinks}
-          focus={true}
-        >
+        <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
           <DataText area="name" fontWeight="500">
-            {!below680 && (
-              <div style={{ marginRight: "20px", width: "10px" }}>{index}</div>
-            )}
+            {!below680 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
             <DoubleTokenLogo
               size={below600 ? 16 : 20}
               a0={pairData.token0.id}
@@ -191,48 +182,32 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               defaultText1={pairData.token1.symbol}
               margin={!below740}
             />
-            <CustomLink
-              style={{ marginLeft: "20px", whiteSpace: "nowrap" }}
-              to={"/pair/" + pairAddress}
-              color={color}
-            >
+            <CustomLink style={{ marginLeft: '10px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress} color={color}>
               <FormattedName
                 text={
-                  (nativeCurrencyWrapper.symbol === pairData.token0.symbol
-                    ? nativeCurrency
-                    : pairData.token0.symbol) +
-                  "-" +
-                  (nativeCurrencyWrapper.symbol === pairData.token1.symbol
-                    ? nativeCurrency
-                    : pairData.token1.symbol)
+                  (nativeCurrencyWrapper.symbol === pairData.token0.symbol ? nativeCurrency : pairData.token0.symbol) +
+                  '-' +
+                  (nativeCurrencyWrapper.symbol === pairData.token1.symbol ? nativeCurrency : pairData.token1.symbol)
                 }
                 maxCharacters={below600 ? 8 : 16}
                 adjustSize={true}
                 link={true}
               />
             </CustomLink>
+            <FeeText>{pairSwapFeePercentage * 100}%</FeeText>
           </DataText>
           <DataText area="liq">{liquidity}</DataText>
           <DataText area="vol">{volume}</DataText>
-          {!below680 && (
-            <DataText area="volWeek">
-              {formattedNum(pairData.oneWeekVolumeUSD, true)}
-            </DataText>
-          )}
+          {!below680 && <DataText area="volWeek">{formattedNum(pairData.oneWeekVolumeUSD, true)}</DataText>}
 
           {!below1080 && (
-            <DataText area="fees">
-              {formattedNum(
-                pairData.oneDayVolumeUSD * pairSwapFeePercentage,
-                true
-              )}
-            </DataText>
+            <DataText area="fees">{formattedNum(pairData.oneDayVolumeUSD * pairSwapFeePercentage, true)}</DataText>
           )}
           {!below1080 && <DataText area="apy">{apy}</DataText>}
         </DashGrid>
       );
     } else {
-      return "";
+      return null;
     }
   };
 
@@ -244,19 +219,12 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         const pairB = pairs[addressB];
         if (sortedColumn === SORT_FIELD.APY) {
           const apy0 =
-            parseFloat(
-              pairA.oneDayVolumeUSD * (pairA.swapFee / 10000) * 356 * 100
-            ) / parseFloat(pairA.reserveUSD);
+            parseFloat(pairA.oneDayVolumeUSD * (pairA.swapFee / 10000) * 356 * 100) / parseFloat(pairA.reserveUSD);
           const apy1 =
-            parseFloat(
-              pairB.oneDayVolumeUSD * (pairB.swapFee / 10000) * 356 * 100
-            ) / parseFloat(pairB.reserveUSD);
-          return apy0 > apy1
-            ? (sortDirection ? -1 : 1) * 1
-            : (sortDirection ? -1 : 1) * -1;
+            parseFloat(pairB.oneDayVolumeUSD * (pairB.swapFee / 10000) * 356 * 100) / parseFloat(pairB.reserveUSD);
+          return apy0 > apy1 ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1;
         }
-        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) >
-          parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
+        return parseFloat(pairA[FIELD_TO_VALUE[sortedColumn]]) > parseFloat(pairB[FIELD_TO_VALUE[sortedColumn]])
           ? (sortDirection ? -1 : 1) * 1
           : (sortDirection ? -1 : 1) * -1;
       })
@@ -265,43 +233,31 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         return (
           pairAddress && (
             <div key={index}>
-              <ListItem
-                key={index}
-                index={(page - 1) * ITEMS_PER_PAGE + index + 1}
-                pairAddress={pairAddress}
-              />
+              <ListItem key={index} index={(page - 1) * ITEMS_PER_PAGE + index + 1} pairAddress={pairAddress} />
               <Divider />
             </div>
           )
         );
       });
-
   return (
     <ListWrapper>
       <DashGrid
         center={true}
         disbaleLinks={disbaleLinks}
-        style={{ height: "fit-content", padding: "0 1.125rem 1rem 1.125rem" }}
+        style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
       >
-        <Flex alignItems="center" justifyContent="flexStart">
-          <TYPE.main area="name">Name</TYPE.main>
+        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
+          <TYPE.main area="name">Pair / Swap Fee</TYPE.main>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
           <ClickableText
             area="liq"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.LIQ);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
             }}
           >
-            Liquidity{" "}
-            {sortedColumn === SORT_FIELD.LIQ
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         <Flex alignItems="center">
@@ -309,17 +265,11 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
             area="vol"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.VOL);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
             }}
           >
             Volume (24hrs)
-            {sortedColumn === SORT_FIELD.VOL
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         {!below680 && (
@@ -328,17 +278,10 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               area="volWeek"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.VOL_7DAYS);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection);
               }}
             >
-              Volume (7d){" "}
-              {sortedColumn === SORT_FIELD.VOL_7DAYS
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              Volume (7d) {sortedColumn === SORT_FIELD.VOL_7DAYS ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -349,17 +292,10 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               area="fees"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.FEES);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection);
               }}
             >
-              Fees (24hr){" "}
-              {sortedColumn === SORT_FIELD.FEES
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              Fees (24hr) {sortedColumn === SORT_FIELD.FEES ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -369,24 +305,19 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
               area="apy"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.APY);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.APY ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.APY ? true : !sortDirection);
               }}
             >
-              1y Fees / Liquidity{" "}
-              {sortedColumn === SORT_FIELD.APY
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              1y Fees / Liquidity {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
-            <QuestionHelper text={"Based on 24hr volume annualized"} />
+            <QuestionHelper text={'Based on 24hr volume annualized'} />
           </Flex>
         )}
       </DashGrid>
       <Divider />
-      <List p={0}>{!pairList ? <LocalLoader /> : pairList}</List>
+      <List p={0}>
+        {!pairList || pairList.length === 0 || Object.keys(pairs).length <= 2 ? <LocalLoader /> : pairList}
+      </List>
       <PageButtons>
         <div
           onClick={(e) => {
@@ -395,7 +326,7 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
         >
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{"Page " + page + " of " + maxPage}</TYPE.body>
+        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
         <div
           onClick={(e) => {
             setPage(page === maxPage ? page : page + 1);
@@ -407,5 +338,3 @@ function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
     </ListWrapper>
   );
 }
-
-export default withRouter(PairList);

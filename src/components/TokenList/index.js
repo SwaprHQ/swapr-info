@@ -1,20 +1,20 @@
-import React, { useState, useEffect, useMemo } from "react";
-import styled from "styled-components";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect, useMemo, memo } from 'react';
+import isEqual from 'react-fast-compare';
+import { useMedia } from 'react-use';
+import { Box, Flex, Text } from 'rebass';
+import styled from 'styled-components';
 
-import { Box, Flex, Text } from "rebass";
-import TokenLogo from "../TokenLogo";
-import { CustomLink } from "../Link";
-import Row from "../Row";
-import { Divider } from "..";
-
-import { formattedNum, formattedPercent } from "../../utils";
-import { useMedia } from "react-use";
-import { withRouter } from "react-router-dom";
-import { OVERVIEW_TOKEN_BLACKLIST } from "../../constants";
-import FormattedName from "../FormattedName";
-import { TYPE } from "../../Theme";
+import { Divider } from '..';
+import { TYPE } from '../../Theme';
+import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
+import { formattedNum, formattedPercent } from '../../utils';
+import FormattedName from '../FormattedName';
+import { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
+import Row from '../Row';
+import TokenLogo from '../TokenLogo';
 
 dayjs.extend(utc);
 
@@ -44,7 +44,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: "name liq vol";
+  grid-template-areas: 'name liq vol';
   padding: 0 1.125rem;
 
   > * {
@@ -60,7 +60,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol ";
+    grid-template-areas: 'name symbol liq vol ';
 
     > * {
       justify-content: flex-end;
@@ -76,7 +76,7 @@ const DashGrid = styled.div`
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: "name symbol liq vol price change";
+    grid-template-areas: 'name symbol liq vol price change';
   }
 `;
 
@@ -111,12 +111,12 @@ const DataText = styled(Flex)`
 `;
 
 const SORT_FIELD = {
-  LIQ: "totalLiquidityUSD",
-  VOL: "oneDayVolumeUSD",
-  SYMBOL: "symbol",
-  NAME: "name",
-  PRICE: "priceUSD",
-  CHANGE: "priceChangeUSD",
+  LIQ: 'totalLiquidityUSD',
+  VOL: 'oneDayVolumeUSD',
+  SYMBOL: 'symbol',
+  NAME: 'name',
+  PRICE: 'priceUSD',
+  CHANGE: 'priceChangeUSD',
 };
 
 // @TODO rework into virtualized list
@@ -129,9 +129,11 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
 
-  const below1080 = useMedia("(max-width: 1080px)");
-  const below680 = useMedia("(max-width: 680px)");
-  const below600 = useMedia("(max-width: 600px)");
+  const below1080 = useMedia('(max-width: 1080px)');
+  const below680 = useMedia('(max-width: 680px)');
+  const below600 = useMedia('(max-width: 600px)');
+
+  const showLoader = !tokens || Object.keys(tokens).length === 0;
 
   useEffect(() => {
     setMaxPage(1); // edit this to do modular
@@ -155,9 +157,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       if (formattedTokens.length % itemMax === 0) {
         extraPages = 0;
       }
-      setMaxPage(
-        Math.max(1, Math.floor(formattedTokens.length / itemMax) + extraPages)
-      );
+      setMaxPage(Math.max(1, Math.floor(formattedTokens.length / itemMax) + extraPages));
     }
   }, [tokens, formattedTokens, itemMax]);
 
@@ -166,13 +166,8 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       formattedTokens &&
       formattedTokens
         .sort((a, b) => {
-          if (
-            sortedColumn === SORT_FIELD.SYMBOL ||
-            sortedColumn === SORT_FIELD.NAME
-          ) {
-            return a[sortedColumn] > b[sortedColumn]
-              ? (sortDirection ? -1 : 1) * 1
-              : (sortDirection ? -1 : 1) * -1;
+          if (sortedColumn === SORT_FIELD.SYMBOL || sortedColumn === SORT_FIELD.NAME) {
+            return a[sortedColumn] > b[sortedColumn] ? (sortDirection ? -1 : 1) * 1 : (sortDirection ? -1 : 1) * -1;
           }
           return parseFloat(a[sortedColumn]) > parseFloat(b[sortedColumn])
             ? (sortDirection ? -1 : 1) * 1
@@ -184,17 +179,12 @@ function TopTokenList({ tokens, itemMax = 10 }) {
 
   const ListItem = ({ item, index }) => {
     return (
-      <DashGrid style={{ height: "48px" }} focus={true}>
+      <DashGrid style={{ height: '48px' }} focus={true}>
         <DataText area="name" fontWeight="500">
           <Row>
-            {!below680 && (
-              <div style={{ marginRight: "1rem", width: "10px" }}>{index}</div>
-            )}
+            {!below680 && <div style={{ marginRight: '1rem', minWidth: '16px' }}>{index}</div>}
             <TokenLogo address={item.id} defaultText={item.symbol} />
-            <CustomLink
-              style={{ marginLeft: "16px", whiteSpace: "nowrap" }}
-              to={"/token/" + item.id}
-            >
+            <CustomLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
               <FormattedName
                 text={below680 ? item.symbol : item.name}
                 maxCharacters={below600 ? 8 : 16}
@@ -209,50 +199,32 @@ function TopTokenList({ tokens, itemMax = 10 }) {
             <FormattedName text={item.symbol} maxCharacters={5} />
           </DataText>
         )}
-        <DataText area="liq">
-          {formattedNum(item.totalLiquidityUSD, true)}
-        </DataText>
-        <DataText area="vol">
-          {formattedNum(item.oneDayVolumeUSD, true)}
-        </DataText>
+        <DataText area="liq">{formattedNum(item.totalLiquidityUSD, true)}</DataText>
+        <DataText area="vol">{formattedNum(item.oneDayVolumeUSD, true)}</DataText>
         {!below1080 && (
           <DataText area="price" color="text" fontWeight="500">
             {formattedNum(item.priceUSD, true)}
           </DataText>
         )}
-        {!below1080 && (
-          <DataText area="change">
-            {formattedPercent(item.priceChangeUSD)}
-          </DataText>
-        )}
+        {!below1080 && <DataText area="change">{formattedPercent(item.priceChangeUSD)}</DataText>}
       </DashGrid>
     );
   };
 
   return (
     <ListWrapper>
-      <DashGrid
-        center={true}
-        style={{ height: "fit-content", padding: "0 1.125rem 1rem 1.125rem" }}
-      >
-        <Flex alignItems="center" justifyContent="flexStart">
+      <DashGrid center={true} style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}>
+        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
           <ClickableText
             color="text"
             area="name"
             fontWeight="500"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.NAME);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.NAMe ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.NAME ? true : !sortDirection);
             }}
           >
-            {below680 ? "Symbol" : "Name"}{" "}
-            {sortedColumn === SORT_FIELD.NAME
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            {below680 ? 'Symbol' : 'Name'} {sortedColumn === SORT_FIELD.NAME ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         {!below680 && (
@@ -261,17 +233,10 @@ function TopTokenList({ tokens, itemMax = 10 }) {
               area="symbol"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.SYMBOL);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.SYMBOL ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.SYMBOL ? true : !sortDirection);
               }}
             >
-              Symbol{" "}
-              {sortedColumn === SORT_FIELD.SYMBOL
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              Symbol {sortedColumn === SORT_FIELD.SYMBOL ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -281,17 +246,10 @@ function TopTokenList({ tokens, itemMax = 10 }) {
             area="liq"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.LIQ);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
             }}
           >
-            Liquidity{" "}
-            {sortedColumn === SORT_FIELD.LIQ
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         <Flex alignItems="center">
@@ -299,17 +257,11 @@ function TopTokenList({ tokens, itemMax = 10 }) {
             area="vol"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.VOL);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
             }}
           >
             Volume (24hrs)
-            {sortedColumn === SORT_FIELD.VOL
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         {!below1080 && (
@@ -318,17 +270,10 @@ function TopTokenList({ tokens, itemMax = 10 }) {
               area="price"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.PRICE);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection);
               }}
             >
-              Price{" "}
-              {sortedColumn === SORT_FIELD.PRICE
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              Price {sortedColumn === SORT_FIELD.PRICE ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -338,17 +283,11 @@ function TopTokenList({ tokens, itemMax = 10 }) {
               area="change"
               onClick={(e) => {
                 setSortedColumn(SORT_FIELD.CHANGE);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.CHANGE ? true : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.CHANGE ? true : !sortDirection);
               }}
             >
               Price Change (24hrs)
-              {sortedColumn === SORT_FIELD.CHANGE
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              {sortedColumn === SORT_FIELD.CHANGE ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -356,25 +295,26 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       <Divider />
 
       <List p={0}>
-        {filteredList &&
+        {showLoader ? (
+          <LocalLoader />
+        ) : (
+          filteredList &&
           filteredList.map((item, index) => {
             return (
               <div key={index}>
-                <ListItem
-                  key={index}
-                  index={(page - 1) * itemMax + index + 1}
-                  item={item}
-                />
+                <ListItem key={index} index={(page - 1) * itemMax + index + 1} item={item} />
                 <Divider />
               </div>
             );
-          })}
+          })
+        )}
       </List>
+
       <PageButtons>
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{"Page " + page + " of " + maxPage}</TYPE.body>
+        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
         <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
           <Arrow faded={page === maxPage ? true : false}>→</Arrow>
         </div>
@@ -383,4 +323,4 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   );
 }
 
-export default withRouter(TopTokenList);
+export default memo(TopTokenList, isEqual);

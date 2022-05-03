@@ -1,11 +1,6 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useEffect,
-} from "react";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 
 import {
   TOKEN_DATA,
@@ -15,13 +10,8 @@ import {
   TOKENS_DYNAMIC,
   PRICES_BY_BLOCK,
   PAIR_DATA,
-} from "../apollo/queries";
-
-import { useNativeCurrencyPrice } from "./GlobalData";
-
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-
+} from '../apollo/queries';
+import { timeframeOptions } from '../constants';
 import {
   get2DayPercentChange,
   getPercentChange,
@@ -29,21 +19,21 @@ import {
   isAddress,
   getBlocksFromTimestamps,
   splitQuery,
-} from "../utils";
-import { timeframeOptions } from "../constants";
-import { useLatestBlocks } from "./Application";
-import { updateNameData } from "../utils/data";
-import { useBlocksSubgraphClient, useSwaprSubgraphClient } from "./Network";
+} from '../utils';
+import { updateNameData } from '../utils/data';
+import { useLatestBlocks } from './Application';
+import { useNativeCurrencyPrice } from './GlobalData';
+import { useBlocksSubgraphClient, useSwaprSubgraphClient } from './Network';
 
-const RESET = "RESET";
-const UPDATE = "UPDATE";
-const UPDATE_TOKEN_TXNS = "UPDATE_TOKEN_TXNS";
-const UPDATE_CHART_DATA = "UPDATE_CHART_DATA";
-const UPDATE_PRICE_DATA = "UPDATE_PRICE_DATA";
-const UPDATE_TOP_TOKENS = " UPDATE_TOP_TOKENS";
-const UPDATE_ALL_PAIRS = "UPDATE_ALL_PAIRS";
+const RESET = 'RESET';
+const UPDATE = 'UPDATE';
+const UPDATE_TOKEN_TXNS = 'UPDATE_TOKEN_TXNS';
+const UPDATE_CHART_DATA = 'UPDATE_CHART_DATA';
+const UPDATE_PRICE_DATA = 'UPDATE_PRICE_DATA';
+const UPDATE_TOP_TOKENS = ' UPDATE_TOP_TOKENS';
+const UPDATE_ALL_PAIRS = 'UPDATE_ALL_PAIRS';
 
-const TOKEN_PAIRS_KEY = "TOKEN_PAIRS_KEY";
+const TOKEN_PAIRS_KEY = 'TOKEN_PAIRS_KEY';
 
 dayjs.extend(utc);
 
@@ -204,16 +194,7 @@ export default function Provider({ children }) {
             reset,
           },
         ],
-        [
-          state,
-          update,
-          updateTokenTxns,
-          updateChartData,
-          updateTopTokens,
-          updateAllPairs,
-          updatePriceData,
-          reset,
-        ]
+        [state, update, updateTokenTxns, updateChartData, updateTopTokens, updateAllPairs, updatePriceData, reset],
       )}
     >
       {children}
@@ -221,15 +202,10 @@ export default function Provider({ children }) {
   );
 }
 
-const getTopTokens = async (
-  client,
-  blockClient,
-  nativeCurrencyPrice,
-  nativeCurrencyPriceOld
-) => {
+const getTopTokens = async (client, blockClient, nativeCurrencyPrice, nativeCurrencyPriceOld) => {
   const utcCurrentTime = dayjs();
-  const utcOneDayBack = utcCurrentTime.subtract(1, "day").unix();
-  const utcTwoDaysBack = utcCurrentTime.subtract(2, "day").unix();
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').unix();
+  const utcTwoDaysBack = utcCurrentTime.subtract(2, 'day').unix();
   let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
   let twoDayBlock = await getBlockFromTimestamp(blockClient, utcTwoDaysBack);
 
@@ -283,29 +259,22 @@ const getTopTokens = async (
           const [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
             data.tradeVolumeUSD,
             oneDayHistory?.tradeVolumeUSD ?? 0,
-            twoDayHistory?.tradeVolumeUSD ?? 0
+            twoDayHistory?.tradeVolumeUSD ?? 0,
           );
           const [oneDayTxns, txnChange] = get2DayPercentChange(
             data.txCount,
             oneDayHistory?.txCount ?? 0,
-            twoDayHistory?.txCount ?? 0
+            twoDayHistory?.txCount ?? 0,
           );
 
-          const currentLiquidityUSD =
-            data?.totalLiquidity *
-            nativeCurrencyPrice *
-            data?.derivedNativeCurrency;
+          const currentLiquidityUSD = data?.totalLiquidity * nativeCurrencyPrice * data?.derivedNativeCurrency;
           const oldLiquidityUSD =
-            oneDayHistory?.totalLiquidity *
-            nativeCurrencyPriceOld *
-            oneDayHistory?.derivedNativeCurrency;
+            oneDayHistory?.totalLiquidity * nativeCurrencyPriceOld * oneDayHistory?.derivedNativeCurrency;
 
           // percent changes
           const priceChangeUSD = getPercentChange(
             data?.derivedNativeCurrency * nativeCurrencyPrice,
-            oneDayHistory?.derivedNativeCurrency
-              ? oneDayHistory?.derivedNativeCurrency * nativeCurrencyPriceOld
-              : 0
+            oneDayHistory?.derivedNativeCurrency ? oneDayHistory?.derivedNativeCurrency * nativeCurrencyPriceOld : 0,
           );
 
           // set data
@@ -314,18 +283,14 @@ const getTopTokens = async (
           data.oneDayVolumeUSD = parseFloat(oneDayVolumeUSD);
           data.volumeChangeUSD = volumeChangeUSD;
           data.priceChangeUSD = priceChangeUSD;
-          data.liquidityChangeUSD = getPercentChange(
-            currentLiquidityUSD ?? 0,
-            oldLiquidityUSD ?? 0
-          );
+          data.liquidityChangeUSD = getPercentChange(currentLiquidityUSD ?? 0, oldLiquidityUSD ?? 0);
           data.oneDayTxns = oneDayTxns;
           data.txnChange = txnChange;
 
           // new tokens
           if (!oneDayHistory && data) {
             data.oneDayVolumeUSD = data.tradeVolumeUSD;
-            data.oneDayVolumeNativeCurrency =
-              data.tradeVolume * data.derivedNativeCurrency;
+            data.oneDayVolumeNativeCurrency = data.tradeVolume * data.derivedNativeCurrency;
             data.oneDayTxns = data.txCount;
           }
 
@@ -335,9 +300,9 @@ const getTopTokens = async (
           });
 
           // HOTFIX for Aave
-          if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
+          if (data.id === '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9') {
             const aaveData = await client.query({
-              query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
+              query: PAIR_DATA('0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f'),
             });
             const result = aaveData.data.pairs[0];
             data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -346,7 +311,7 @@ const getTopTokens = async (
           }
 
           return data;
-        })
+        }),
     );
 
     return bulkResults;
@@ -357,22 +322,10 @@ const getTopTokens = async (
   }
 };
 
-const getTokenData = async (
-  client,
-  blockClient,
-  address,
-  nativeCurrencyPrice,
-  nativeCurrencyPriceOld
-) => {
+const getTokenData = async (client, blockClient, address, nativeCurrencyPrice, nativeCurrencyPriceOld) => {
   const utcCurrentTime = dayjs();
-  const utcOneDayBack = utcCurrentTime
-    .subtract(1, "day")
-    .startOf("minute")
-    .unix();
-  const utcTwoDaysBack = utcCurrentTime
-    .subtract(2, "day")
-    .startOf("minute")
-    .unix();
+  const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+  const utcTwoDaysBack = utcCurrentTime.subtract(2, 'day').startOf('minute').unix();
   let oneDayBlock = await getBlockFromTimestamp(blockClient, utcOneDayBack);
   let twoDayBlock = await getBlockFromTimestamp(blockClient, utcTwoDaysBack);
 
@@ -421,35 +374,30 @@ const getTokenData = async (
     const [oneDayVolumeUSD, volumeChangeUSD] = get2DayPercentChange(
       data?.tradeVolumeUSD,
       oneDayData?.tradeVolumeUSD ?? 0,
-      twoDayData?.tradeVolumeUSD ?? 0
+      twoDayData?.tradeVolumeUSD ?? 0,
     );
 
     // calculate percentage changes and daily changes
     const [oneDayVolumeUT, volumeChangeUT] = get2DayPercentChange(
       data?.untrackedVolumeUSD,
       oneDayData?.untrackedVolumeUSD ?? 0,
-      twoDayData?.untrackedVolumeUSD ?? 0
+      twoDayData?.untrackedVolumeUSD ?? 0,
     );
 
     // calculate percentage changes and daily changes
     const [oneDayTxns, txnChange] = get2DayPercentChange(
       data?.txCount,
       oneDayData?.txCount ?? 0,
-      twoDayData?.txCount ?? 0
+      twoDayData?.txCount ?? 0,
     );
 
     const priceChangeUSD = getPercentChange(
       data?.derivedNativeCurrency * nativeCurrencyPrice,
-      parseFloat(oneDayData?.derivedNativeCurrency ?? 0) *
-        nativeCurrencyPriceOld
+      parseFloat(oneDayData?.derivedNativeCurrency ?? 0) * nativeCurrencyPriceOld,
     );
 
-    const currentLiquidityUSD =
-      data?.totalLiquidity * nativeCurrencyPrice * data?.derivedNativeCurrency;
-    const oldLiquidityUSD =
-      oneDayData?.totalLiquidity *
-      nativeCurrencyPriceOld *
-      oneDayData?.derivedNativeCurrency;
+    const currentLiquidityUSD = data?.totalLiquidity * nativeCurrencyPrice * data?.derivedNativeCurrency;
+    const oldLiquidityUSD = oneDayData?.totalLiquidity * nativeCurrencyPriceOld * oneDayData?.derivedNativeCurrency;
 
     // set data
     data.priceUSD = data?.derivedNativeCurrency * nativeCurrencyPrice;
@@ -459,10 +407,7 @@ const getTokenData = async (
     data.priceChangeUSD = priceChangeUSD;
     data.oneDayVolumeUT = oneDayVolumeUT;
     data.volumeChangeUT = volumeChangeUT;
-    const liquidityChangeUSD = getPercentChange(
-      currentLiquidityUSD ?? 0,
-      oldLiquidityUSD ?? 0
-    );
+    const liquidityChangeUSD = getPercentChange(currentLiquidityUSD ?? 0, oldLiquidityUSD ?? 0);
     data.liquidityChangeUSD = liquidityChangeUSD;
     data.oneDayTxns = oneDayTxns;
     data.txnChange = txnChange;
@@ -470,8 +415,7 @@ const getTokenData = async (
     // new tokens
     if (!oneDayData && data) {
       data.oneDayVolumeUSD = data.tradeVolumeUSD;
-      data.oneDayVolumeNativeCurrency =
-        data.tradeVolume * data.derivedNativeCurrency;
+      data.oneDayVolumeNativeCurrency = data.tradeVolume * data.derivedNativeCurrency;
       data.oneDayTxns = data.txCount;
     }
 
@@ -481,9 +425,9 @@ const getTokenData = async (
     });
 
     // HOTFIX for Aave
-    if (data.id === "0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9") {
+    if (data.id === '0x7fc66500c84a76ad7e9c93437bfc5ac33e2ddae9') {
       const aaveData = await client.query({
-        query: PAIR_DATA("0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f"),
+        query: PAIR_DATA('0xdfc14d2af169b0d36c4eff567ada9b2e0cae044f'),
       });
       const result = aaveData.data.pairs[0];
       data.totalLiquidityUSD = parseFloat(result.reserveUSD) / 2;
@@ -520,20 +464,13 @@ const getTokenPairs = async (client, tokenAddress) => {
     let result = await client.query({
       query: TOKEN_DATA(tokenAddress),
     });
-    return result.data?.["pairs0"].concat(result.data?.["pairs1"]);
+    return result.data?.['pairs0'].concat(result.data?.['pairs1']);
   } catch (e) {
     console.log(e);
   }
 };
 
-const getIntervalTokenData = async (
-  client,
-  blockClient,
-  tokenAddress,
-  startTime,
-  interval = 3600,
-  latestBlock
-) => {
+const getIntervalTokenData = async (client, blockClient, tokenAddress, startTime, interval = 3600, latestBlock) => {
   const utcEndTime = dayjs.utc();
   let time = startTime;
 
@@ -566,21 +503,13 @@ const getIntervalTokenData = async (
       });
     }
 
-    let result = await splitQuery(
-      PRICES_BY_BLOCK,
-      client,
-      [tokenAddress],
-      blocks,
-      50
-    );
+    let result = await splitQuery(PRICES_BY_BLOCK, client, [tokenAddress], blocks, 50);
 
     // format token native currency price results
     let values = [];
     for (var row in result) {
-      let timestamp = row.split("t")[1];
-      let derivedNativeCurrency = parseFloat(
-        result[row]?.derivedNativeCurrency
-      );
+      let timestamp = row.split('t')[1];
+      let derivedNativeCurrency = parseFloat(result[row]?.derivedNativeCurrency);
       if (timestamp) {
         values.push({
           timestamp,
@@ -592,11 +521,9 @@ const getIntervalTokenData = async (
     // go through native currency usd prices and assign to original values array
     let index = 0;
     for (var brow in result) {
-      let timestamp = brow.split("b")[1];
+      let timestamp = brow.split('b')[1];
       if (timestamp && result[brow]) {
-        values[index].priceUSD =
-          result[brow].nativeCurrencyPrice *
-          values[index].derivedNativeCurrency;
+        values[index].priceUSD = result[brow].nativeCurrencyPrice * values[index].derivedNativeCurrency;
         index += 1;
       }
     }
@@ -615,7 +542,7 @@ const getIntervalTokenData = async (
     return formattedHistory;
   } catch (e) {
     console.log(e);
-    console.log("error fetching blocks");
+    console.log('error fetching blocks');
     return [];
   }
 };
@@ -623,8 +550,8 @@ const getIntervalTokenData = async (
 const getTokenChartData = async (client, tokenAddress) => {
   let data = [];
   const utcEndTime = dayjs.utc();
-  let utcStartTime = utcEndTime.subtract(1, "year");
-  let startTime = utcStartTime.startOf("minute").unix() - 1;
+  let utcStartTime = utcEndTime.subtract(1, 'year');
+  let startTime = utcStartTime.startOf('minute').unix() - 1;
 
   try {
     let allFound = false;
@@ -659,7 +586,7 @@ const getTokenChartData = async (client, tokenAddress) => {
     let latestLiquidityUSD = data[0] && data[0].totalLiquidityUSD;
     let latestPriceUSD = data[0] && data[0].priceUSD;
     let index = 1;
-    while (timestamp < utcEndTime.startOf("minute").unix() - oneDay) {
+    while (timestamp < utcEndTime.startOf('minute').unix() - oneDay) {
       const nextDay = timestamp + oneDay;
       let currentDayIndex = (nextDay / oneDay).toFixed(0);
       if (!dayIndexSet.has(currentDayIndex)) {
@@ -688,30 +615,16 @@ export function Updater() {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
   const [, { updateTopTokens }] = useTokenDataContext();
-  const [
-    nativeCurrencyPrice,
-    nativeCurrencyPriceOld,
-  ] = useNativeCurrencyPrice();
+  const [nativeCurrencyPrice, nativeCurrencyPriceOld] = useNativeCurrencyPrice();
 
   useEffect(() => {
     async function getData() {
       // get top pairs for overview list
-      let topTokens = await getTopTokens(
-        client,
-        blockClient,
-        nativeCurrencyPrice,
-        nativeCurrencyPriceOld
-      );
+      let topTokens = await getTopTokens(client, blockClient, nativeCurrencyPrice, nativeCurrencyPriceOld);
       topTokens && updateTopTokens(topTokens);
     }
     nativeCurrencyPrice && nativeCurrencyPriceOld && getData();
-  }, [
-    nativeCurrencyPrice,
-    nativeCurrencyPriceOld,
-    updateTopTokens,
-    client,
-    blockClient,
-  ]);
+  }, [nativeCurrencyPrice, nativeCurrencyPriceOld, updateTopTokens, client, blockClient]);
 
   return null;
 }
@@ -720,38 +633,16 @@ export function useTokenData(tokenAddress) {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
   const [state, { update }] = useTokenDataContext();
-  const [
-    nativeCurrencyPrice,
-    nativeCurrencyPriceOld,
-  ] = useNativeCurrencyPrice();
+  const [nativeCurrencyPrice, nativeCurrencyPriceOld] = useNativeCurrencyPrice();
   const tokenData = state?.[tokenAddress];
 
   useEffect(() => {
-    if (
-      !tokenData &&
-      nativeCurrencyPrice &&
-      nativeCurrencyPriceOld &&
-      isAddress(tokenAddress)
-    ) {
-      getTokenData(
-        client,
-        blockClient,
-        tokenAddress,
-        nativeCurrencyPrice,
-        nativeCurrencyPriceOld
-      ).then((data) => {
+    if (!tokenData && nativeCurrencyPrice && nativeCurrencyPriceOld && isAddress(tokenAddress)) {
+      getTokenData(client, blockClient, tokenAddress, nativeCurrencyPrice, nativeCurrencyPriceOld).then((data) => {
         update(tokenAddress, data);
       });
     }
-  }, [
-    nativeCurrencyPrice,
-    nativeCurrencyPriceOld,
-    tokenAddress,
-    tokenData,
-    update,
-    client,
-    blockClient,
-  ]);
+  }, [nativeCurrencyPrice, nativeCurrencyPriceOld, tokenAddress, tokenData, update, client, blockClient]);
 
   return tokenData || {};
 }
@@ -772,22 +663,12 @@ export function useTokenTransactions(tokenAddress) {
   useEffect(() => {
     async function checkForTxns() {
       if (!tokenTxns && allPairsFormatted) {
-        let transactions = await getTokenTransactions(
-          client,
-          allPairsFormatted
-        );
+        let transactions = await getTokenTransactions(client, allPairsFormatted);
         updateTokenTxns(tokenAddress, transactions);
       }
     }
     checkForTxns();
-  }, [
-    tokenTxns,
-    tokenAddress,
-    updateTokenTxns,
-    allPairsFormatted,
-    client,
-    blockClient,
-  ]);
+  }, [tokenTxns, tokenAddress, updateTokenTxns, allPairsFormatted, client, blockClient]);
 
   return tokenTxns || [];
 }
@@ -844,36 +725,20 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 
   useEffect(() => {
     const currentTime = dayjs.utc();
-    const windowSize = timeWindow === timeframeOptions.MONTH ? "month" : "week";
+    const windowSize = timeWindow === timeframeOptions.MONTH ? 'month' : 'week';
     const startTime =
       timeWindow === timeframeOptions.ALL_TIME
         ? 1589760000
-        : currentTime.subtract(1, windowSize).startOf("hour").unix();
+        : currentTime.subtract(1, windowSize).startOf('hour').unix();
 
     async function fetch() {
-      let data = await getIntervalTokenData(
-        client,
-        blockClient,
-        tokenAddress,
-        startTime,
-        interval,
-        latestBlock
-      );
+      let data = await getIntervalTokenData(client, blockClient, tokenAddress, startTime, interval, latestBlock);
       updatePriceData(tokenAddress, data, timeWindow, interval);
     }
     if (!chartData) {
       fetch();
     }
-  }, [
-    chartData,
-    interval,
-    timeWindow,
-    tokenAddress,
-    updatePriceData,
-    latestBlock,
-    client,
-    blockClient,
-  ]);
+  }, [chartData, interval, timeWindow, tokenAddress, updatePriceData, latestBlock, client, blockClient]);
 
   return chartData;
 }

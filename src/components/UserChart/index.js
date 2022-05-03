@@ -1,17 +1,18 @@
-import React, { useState } from 'react'
-import styled from 'styled-components'
-import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart } from 'recharts'
-import { AutoRow, RowBetween } from '../Row'
-import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils'
-import { OptionButton } from '../ButtonStyled'
-import { darken } from 'polished'
-import { useMedia } from 'react-use'
-import { timeframeOptions } from '../../constants'
-import DropdownSelect from '../DropdownSelect'
-import { useUserLiquidityChart } from '../../contexts/User'
-import LocalLoader from '../LocalLoader'
-import { useDarkModeManager } from '../../contexts/LocalStorage'
-import { TYPE } from '../../Theme'
+import { darken } from 'polished';
+import React, { useState } from 'react';
+import { useMedia } from 'react-use';
+import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart } from 'recharts';
+import styled from 'styled-components';
+
+import { TYPE } from '../../Theme';
+import { timeframeOptions } from '../../constants';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useUserLiquidityChart } from '../../contexts/User';
+import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
+import { OptionButton } from '../ButtonStyled';
+import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
+import { AutoRow, RowBetween } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;
@@ -20,23 +21,23 @@ const ChartWrapper = styled.div`
   @media screen and (max-width: 600px) {
     min-height: 200px;
   }
-`
+`;
 
 const UserChart = ({ account }) => {
-  const chartData = useUserLiquidityChart(account)
+  const chartData = useUserLiquidityChart(account);
 
-  const [timeWindow, setTimeWindow] = useState(timeframeOptions.ALL_TIME)
-  let utcStartTime = getTimeframe(timeWindow)
+  const [timeWindow, setTimeWindow] = useState(timeframeOptions.ALL_TIME);
+  let utcStartTime = getTimeframe(timeWindow);
 
-  const below600 = useMedia('(max-width: 600px)')
-  const above1600 = useMedia('(min-width: 1600px)')
+  const below600 = useMedia('(max-width: 600px)');
+  const above1600 = useMedia('(min-width: 1600px)');
 
-  const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax']
+  const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax'];
 
-  const aspect = above1600 ? 60 / 12 : below600 ? 60 / 42 : 60 / 16
+  const aspect = above1600 ? 60 / 12 : below600 ? 60 / 42 : 60 / 16;
 
-  const [darkMode] = useDarkModeManager()
-  const textColor = darkMode ? 'white' : 'black'
+  const [darkMode] = useDarkModeManager();
+  const textColor = darkMode ? 'white' : 'black';
 
   return (
     <ChartWrapper>
@@ -135,7 +136,7 @@ const UserChart = ({ account }) => {
         <LocalLoader />
       )}
     </ChartWrapper>
-  )
-}
+  );
+};
 
-export default UserChart
+export default UserChart;

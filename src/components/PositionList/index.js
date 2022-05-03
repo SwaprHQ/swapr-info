@@ -1,26 +1,23 @@
-import React, { useState, useEffect } from "react";
-import { useMedia } from "react-use";
-import dayjs from "dayjs";
-import LocalLoader from "../LocalLoader";
-import utc from "dayjs/plugin/utc";
-import { Box, Flex, Text } from "rebass";
-import styled from "styled-components";
-import Link, { CustomLink } from "../Link";
-import { Divider } from "../../components";
-import DoubleTokenLogo from "../DoubleLogo";
-import { withRouter } from "react-router-dom";
-import { formattedNum, getPoolLink } from "../../utils";
-import { AutoColumn } from "../Column";
-import { useNativeCurrencyPrice } from "../../contexts/GlobalData";
-import { RowFixed } from "../Row";
-import { ButtonLight } from "../ButtonStyled";
-import { TYPE } from "../../Theme";
-import FormattedName from "../FormattedName";
-import {
-  useNativeCurrencySymbol,
-  useNativeCurrencyWrapper,
-  useSelectedNetwork,
-} from "../../contexts/Network";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { useState, useEffect } from 'react';
+import { withRouter } from 'react-router-dom';
+import { useMedia } from 'react-use';
+import { Box, Flex, Text } from 'rebass';
+import styled from 'styled-components';
+
+import { TYPE } from '../../Theme';
+import { Divider } from '../../components';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
+import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { formattedNum, getPoolLink } from '../../utils';
+import { ButtonLight } from '../ButtonStyled';
+import { AutoColumn } from '../Column';
+import DoubleTokenLogo from '../DoubleLogo';
+import FormattedName from '../FormattedName';
+import Link, { CustomLink } from '../Link';
+import LocalLoader from '../LocalLoader';
+import { RowFixed } from '../Row';
 
 dayjs.extend(utc);
 
@@ -50,7 +47,7 @@ const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
   grid-template-columns: 5px 0.5fr 1fr 1fr;
-  grid-template-areas: "number name swapr return";
+  grid-template-areas: 'number name swapr return';
   align-items: flex-start;
   padding: 20px 0;
 
@@ -67,17 +64,17 @@ const DashGrid = styled.div`
 
   @media screen and (min-width: 1200px) {
     grid-template-columns: 35px 2.5fr 1fr 1fr;
-    grid-template-areas: "number name swapr return";
+    grid-template-areas: 'number name swapr return';
   }
 
   @media screen and (max-width: 740px) {
     grid-template-columns: 2.5fr 1fr 1fr;
-    grid-template-areas: "name swapr return";
+    grid-template-areas: 'name swapr return';
   }
 
   @media screen and (max-width: 500px) {
     grid-template-columns: 2.5fr 1fr;
-    grid-template-areas: "name swapr";
+    grid-template-areas: 'name swapr';
   }
 `;
 
@@ -108,13 +105,13 @@ const DataText = styled(Flex)`
 `;
 
 const SORT_FIELD = {
-  VALUE: "VALUE",
-  SWAPR_RETURN: "SWAPR_RETURN",
+  VALUE: 'VALUE',
+  SWAPR_RETURN: 'SWAPR_RETURN',
 };
 
 function PositionList({ positions }) {
-  const below500 = useMedia("(max-width: 500px)");
-  const below740 = useMedia("(max-width: 740px)");
+  const below500 = useMedia('(max-width: 500px)');
+  const below740 = useMedia('(max-width: 740px)');
 
   // pagination
   const [page, setPage] = useState(1);
@@ -140,27 +137,20 @@ function PositionList({ positions }) {
       if (positions.length % ITEMS_PER_PAGE === 0) {
         extraPages = 0;
       }
-      setMaxPage(
-        Math.floor(positions.length / ITEMS_PER_PAGE) + extraPages || 1
-      );
+      setMaxPage(Math.floor(positions.length / ITEMS_PER_PAGE) + extraPages || 1);
     }
   }, [positions]);
 
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   const ListItem = ({ position, index }) => {
-    const poolOwnership =
-      position.liquidityTokenBalance / position.pair.totalSupply;
+    const poolOwnership = position.liquidityTokenBalance / position.pair.totalSupply;
     const valueUSD = poolOwnership * position.pair.reserveUSD;
 
     return (
       <DashGrid style={{ opacity: poolOwnership > 0 ? 1 : 0.6 }} focus={true}>
         {!below740 && <DataText area="number">{index}</DataText>}
-        <DataText
-          area="name"
-          justifyContent="flex-start"
-          alignItems="flex-start"
-        >
+        <DataText area="name" justifyContent="flex-start" alignItems="flex-start">
           <AutoColumn gap="8px" justify="flex-start" align="flex-start">
             <DoubleTokenLogo
               size={16}
@@ -171,19 +161,11 @@ function PositionList({ positions }) {
               margin={!below740}
             />
           </AutoColumn>
-          <AutoColumn
-            gap="8px"
-            justify="flex-start"
-            style={{ marginLeft: "20px" }}
-          >
-            <CustomLink to={"/pair/" + position.pair.id}>
-              <TYPE.main style={{ whiteSpace: "nowrap" }} to={"/pair/"}>
+          <AutoColumn gap="8px" justify="flex-start" style={{ marginLeft: '20px' }}>
+            <CustomLink to={'/pair/' + position.pair.id}>
+              <TYPE.main style={{ whiteSpace: 'nowrap' }} to={'/pair/'}>
                 <FormattedName
-                  text={
-                    position.pair.token0.symbol +
-                    "-" +
-                    position.pair.token1.symbol
-                  }
+                  text={position.pair.token0.symbol + '-' + position.pair.token1.symbol}
                   maxCharacters={below740 ? 10 : 18}
                 />
               </TYPE.main>
@@ -197,15 +179,11 @@ function PositionList({ positions }) {
                   nativeCurrency,
                   nativeCurrencyWrapper,
                   position.pair.token0.id,
-                  position.pair.token1.id
+                  position.pair.token1.id,
                 )}
-                style={{ marginRight: ".5rem" }}
+                style={{ marginRight: '.5rem' }}
               >
-                <ButtonLight
-                  style={{ padding: "4px 6px", borderRadius: "4px" }}
-                >
-                  Add
-                </ButtonLight>
+                <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Add</ButtonLight>
               </Link>
               {poolOwnership > 0 && (
                 <Link
@@ -216,14 +194,10 @@ function PositionList({ positions }) {
                     nativeCurrencyWrapper,
                     position.pair.token0.id,
                     position.pair.token1.id,
-                    true
+                    true,
                   )}
                 >
-                  <ButtonLight
-                    style={{ padding: "4px 6px", borderRadius: "4px" }}
-                  >
-                    Remove
-                  </ButtonLight>
+                  <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Remove</ButtonLight>
                 </Link>
               )}
             </RowFixed>
@@ -235,28 +209,24 @@ function PositionList({ positions }) {
             <AutoColumn gap="4px" justify="flex-end">
               <RowFixed>
                 <TYPE.small fontWeight={400}>
-                  {formattedNum(
-                    poolOwnership * parseFloat(position.pair.reserve0)
-                  )}{" "}
+                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve0))}{' '}
                 </TYPE.small>
                 <FormattedName
                   text={position.pair.token0.symbol}
                   maxCharacters={below740 ? 10 : 18}
                   margin={true}
-                  fontSize={"11px"}
+                  fontSize={'11px'}
                 />
               </RowFixed>
               <RowFixed>
                 <TYPE.small fontWeight={400}>
-                  {formattedNum(
-                    poolOwnership * parseFloat(position.pair.reserve1)
-                  )}{" "}
+                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve1))}{' '}
                 </TYPE.small>
                 <FormattedName
                   text={position.pair.token1.symbol}
                   maxCharacters={below740 ? 10 : 18}
                   margin={true}
-                  fontSize={"11px"}
+                  fontSize={'11px'}
                 />
               </RowFixed>
             </AutoColumn>
@@ -265,10 +235,8 @@ function PositionList({ positions }) {
         {!below500 && (
           <DataText area="return">
             <AutoColumn gap="12px" justify="flex-end">
-              <TYPE.main color={"green"}>
-                <RowFixed>
-                  {formattedNum(position?.fees.sum, true, true)}
-                </RowFixed>
+              <TYPE.main color={'green'}>
+                <RowFixed>{formattedNum(position?.fees.sum, true, true)}</RowFixed>
               </TYPE.main>
               <AutoColumn gap="4px" justify="flex-end">
                 <RowFixed>
@@ -276,21 +244,18 @@ function PositionList({ positions }) {
                     {parseFloat(position.pair.token0.derivedNativeCurrency)
                       ? formattedNum(
                           position?.fees.sum /
-                            (parseFloat(
-                              position.pair.token0.derivedNativeCurrency
-                            ) *
-                              nativeCurrencyPrice) /
+                            (parseFloat(position.pair.token0.derivedNativeCurrency) * nativeCurrencyPrice) /
                             2,
                           false,
-                          true
+                          true,
                         )
-                      : 0}{" "}
+                      : 0}{' '}
                   </TYPE.small>
                   <FormattedName
                     text={position.pair.token0.symbol}
                     maxCharacters={below740 ? 10 : 18}
                     margin={true}
-                    fontSize={"11px"}
+                    fontSize={'11px'}
                   />
                 </RowFixed>
                 <RowFixed>
@@ -298,21 +263,18 @@ function PositionList({ positions }) {
                     {parseFloat(position.pair.token1.derivedNativeCurrency)
                       ? formattedNum(
                           position?.fees.sum /
-                            (parseFloat(
-                              position.pair.token1.derivedNativeCurrency
-                            ) *
-                              nativeCurrencyPrice) /
+                            (parseFloat(position.pair.token1.derivedNativeCurrency) * nativeCurrencyPrice) /
                             2,
                           false,
-                          true
+                          true,
                         )
-                      : 0}{" "}
+                      : 0}{' '}
                   </TYPE.small>
                   <FormattedName
                     text={position.pair.token1.symbol}
                     maxCharacters={below740 ? 10 : 18}
                     margin={true}
-                    fontSize={"11px"}
+                    fontSize={'11px'}
                   />
                 </RowFixed>
               </AutoColumn>
@@ -329,46 +291,18 @@ function PositionList({ positions }) {
 
       .sort((p0, p1) => {
         if (sortedColumn === SORT_FIELD.PRINCIPAL) {
-          return p0?.principal?.usd > p1?.principal?.usd
-            ? sortDirection
-              ? -1
-              : 1
-            : sortDirection
-            ? 1
-            : -1;
+          return p0?.principal?.usd > p1?.principal?.usd ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1;
         }
         if (sortedColumn === SORT_FIELD.HODL) {
-          return p0?.hodl?.sum > p1?.hodl?.sum
-            ? sortDirection
-              ? -1
-              : 1
-            : sortDirection
-            ? 1
-            : -1;
+          return p0?.hodl?.sum > p1?.hodl?.sum ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1;
         }
         if (sortedColumn === SORT_FIELD.SWAPR_RETURN) {
-          return p0?.swapr?.return > p1?.swapr?.return
-            ? sortDirection
-              ? -1
-              : 1
-            : sortDirection
-            ? 1
-            : -1;
+          return p0?.swapr?.return > p1?.swapr?.return ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1;
         }
         if (sortedColumn === SORT_FIELD.VALUE) {
-          const bal0 =
-            (p0.liquidityTokenBalance / p0.pair.totalSupply) *
-            p0.pair.reserveUSD;
-          const bal1 =
-            (p1.liquidityTokenBalance / p1.pair.totalSupply) *
-            p1.pair.reserveUSD;
-          return bal0 > bal1
-            ? sortDirection
-              ? -1
-              : 1
-            : sortDirection
-            ? 1
-            : -1;
+          const bal0 = (p0.liquidityTokenBalance / p0.pair.totalSupply) * p0.pair.reserveUSD;
+          const bal1 = (p1.liquidityTokenBalance / p1.pair.totalSupply) * p1.pair.reserveUSD;
+          return bal0 > bal1 ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1;
         }
         return 1;
       })
@@ -376,11 +310,7 @@ function PositionList({ positions }) {
       .map((position, index) => {
         return (
           <div key={index}>
-            <ListItem
-              key={index}
-              index={(page - 1) * 10 + index + 1}
-              position={position}
-            />
+            <ListItem key={index} index={(page - 1) * 10 + index + 1} position={position} />
             <Divider />
           </div>
         );
@@ -388,13 +318,13 @@ function PositionList({ positions }) {
 
   return (
     <ListWrapper>
-      <DashGrid center={true} style={{ height: "32px", padding: 0 }}>
+      <DashGrid center={true} style={{ height: '32px', padding: 0 }}>
         {!below740 && (
           <Flex alignItems="flex-start" justifyContent="flexStart">
             <TYPE.main area="number">#</TYPE.main>
           </Flex>
         )}
-        <Flex alignItems="flex-start" justifyContent="flex-start">
+        <Flex alignItems="flex-start" sx={{ justifyContent: 'center !important' }}>
           <TYPE.main area="number">Name</TYPE.main>
         </Flex>
         <Flex alignItems="center" justifyContent="flexEnd">
@@ -402,17 +332,10 @@ function PositionList({ positions }) {
             area="swapr"
             onClick={(e) => {
               setSortedColumn(SORT_FIELD.VALUE);
-              setSortDirection(
-                sortedColumn !== SORT_FIELD.VALUE ? true : !sortDirection
-              );
+              setSortDirection(sortedColumn !== SORT_FIELD.VALUE ? true : !sortDirection);
             }}
           >
-            {below740 ? "Value" : "Liquidity"}{" "}
-            {sortedColumn === SORT_FIELD.VALUE
-              ? !sortDirection
-                ? "↑"
-                : "↓"
-              : ""}
+            {below740 ? 'Value' : 'Liquidity'} {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
           </ClickableText>
         </Flex>
         {!below500 && (
@@ -421,19 +344,11 @@ function PositionList({ positions }) {
               area="return"
               onClick={() => {
                 setSortedColumn(SORT_FIELD.SWAPR_RETURN);
-                setSortDirection(
-                  sortedColumn !== SORT_FIELD.SWAPR_RETURN
-                    ? true
-                    : !sortDirection
-                );
+                setSortDirection(sortedColumn !== SORT_FIELD.SWAPR_RETURN ? true : !sortDirection);
               }}
             >
-              {below740 ? "Fees" : "Total Fees Earned"}{" "}
-              {sortedColumn === SORT_FIELD.SWAPR_RETURN
-                ? !sortDirection
-                  ? "↑"
-                  : "↓"
-                : ""}
+              {below740 ? 'Fees' : 'Total Fees Earned'}{' '}
+              {sortedColumn === SORT_FIELD.SWAPR_RETURN ? (!sortDirection ? '↑' : '↓') : ''}
             </ClickableText>
           </Flex>
         )}
@@ -444,7 +359,7 @@ function PositionList({ positions }) {
         <div onClick={() => setPage(page === 1 ? page : page - 1)}>
           <Arrow faded={page === 1 ? true : false}>←</Arrow>
         </div>
-        <TYPE.body>{"Page " + page + " of " + maxPage}</TYPE.body>
+        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
         <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
           <Arrow faded={page === maxPage ? true : false}>→</Arrow>
         </div>

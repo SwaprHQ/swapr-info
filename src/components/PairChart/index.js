@@ -1,38 +1,19 @@
-import React, { useState, useRef, useEffect } from "react";
-import styled from "styled-components";
-import {
-  Area,
-  XAxis,
-  YAxis,
-  ResponsiveContainer,
-  Tooltip,
-  AreaChart,
-  BarChart,
-  Bar,
-} from "recharts";
-import { RowBetween, AutoRow } from "../Row";
+import { darken } from 'polished';
+import React, { useState, useRef, useEffect } from 'react';
+import { useMedia } from 'react-use';
+import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
+import styled from 'styled-components';
 
-import {
-  toK,
-  toNiceDate,
-  toNiceDateYear,
-  formattedNum,
-  getTimeframe,
-} from "../../utils";
-import { OptionButton } from "../ButtonStyled";
-import { darken } from "polished";
-import {
-  usePairChartData,
-  useHourlyRateData,
-  usePairData,
-} from "../../contexts/PairData";
-import { timeframeOptions } from "../../constants";
-import { useMedia } from "react-use";
-import { EmptyCard } from "..";
-import DropdownSelect from "../DropdownSelect";
-import CandleStickChart from "../CandleChart";
-import LocalLoader from "../LocalLoader";
-import { useDarkModeManager } from "../../contexts/LocalStorage";
+import { EmptyCard } from '..';
+import { timeframeOptions } from '../../constants';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { usePairChartData, useHourlyRateData, usePairData } from '../../contexts/PairData';
+import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
+import { OptionButton } from '../ButtonStyled';
+import CandleStickChart from '../CandleChart';
+import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
+import { RowBetween, AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;
@@ -51,10 +32,11 @@ const OptionsRow = styled.div`
 `;
 
 const CHART_VIEW = {
-  VOLUME: "Volume",
-  LIQUIDITY: "Liquidity",
-  RATE0: "Rate 0",
-  RATE1: "Rate 1",
+  VOLUME: 'Volume',
+  LIQUIDITY: 'Liquidity',
+  UTILIZATION: 'Utilization',
+  RATE0: 'Rate 0',
+  RATE1: 'Rate 1',
 };
 
 const PairChart = ({ address, color, base0, base1 }) => {
@@ -63,11 +45,11 @@ const PairChart = ({ address, color, base0, base1 }) => {
   const [timeWindow, setTimeWindow] = useState(timeframeOptions.MONTH);
 
   const [darkMode] = useDarkModeManager();
-  const textColor = darkMode ? "white" : "black";
+  const textColor = darkMode ? 'white' : 'black';
 
   // update the width on a window resize
   const ref = useRef();
-  const isClient = typeof window === "object";
+  const isClient = typeof window === 'object';
   const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
   const [height, setHeight] = useState(ref?.current?.container?.clientHeight);
   useEffect(() => {
@@ -78,8 +60,8 @@ const PairChart = ({ address, color, base0, base1 }) => {
       setWidth(ref?.current?.container?.clientWidth ?? width);
       setHeight(ref?.current?.container?.clientHeight ?? height);
     }
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
   }, [height, isClient, width]); // Empty array ensures that effect is only run on mount and unmount
 
   // get data for pair, and rates
@@ -91,17 +73,13 @@ const PairChart = ({ address, color, base0, base1 }) => {
 
   // formatted symbols for overflow
   const formattedSymbol0 =
-    pairData?.token0?.symbol.length > 6
-      ? pairData?.token0?.symbol.slice(0, 5) + "..."
-      : pairData?.token0?.symbol;
+    pairData?.token0?.symbol.length > 6 ? pairData?.token0?.symbol.slice(0, 5) + '...' : pairData?.token0?.symbol;
   const formattedSymbol1 =
-    pairData?.token1?.symbol.length > 6
-      ? pairData?.token1?.symbol.slice(0, 5) + "..."
-      : pairData?.token1?.symbol;
+    pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol;
 
-  const below1600 = useMedia("(max-width: 1600px)");
-  const below1080 = useMedia("(max-width: 1080px)");
-  const below600 = useMedia("(max-width: 600px)");
+  const below1600 = useMedia('(max-width: 1600px)');
+  const below1080 = useMedia('(max-width: 1080px)');
+  const below600 = useMedia('(max-width: 600px)');
 
   let utcStartTime = getTimeframe(timeWindow);
   chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
@@ -109,7 +87,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
   if (chartData && chartData.length === 0) {
     return (
       <ChartWrapper>
-        <EmptyCard height="300px">No historical data yet.</EmptyCard>{" "}
+        <EmptyCard height="300px">No historical data yet.</EmptyCard>{' '}
       </ChartWrapper>
     );
   }
@@ -140,20 +118,12 @@ const PairChart = ({ address, color, base0, base1 }) => {
     <ChartWrapper>
       {below600 ? (
         <RowBetween mb={40}>
-          <DropdownSelect
-            options={CHART_VIEW}
-            active={chartFilter}
-            setActive={setChartFilter}
-          />
-          <DropdownSelect
-            options={timeframeOptions}
-            active={timeWindow}
-            setActive={setTimeWindow}
-          />
+          <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
+          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
         </RowBetween>
       ) : (
         <OptionsRow>
-          <AutoRow gap="6px" style={{ flexWrap: "nowrap" }}>
+          <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>
             <OptionButton
               active={chartFilter === CHART_VIEW.LIQUIDITY}
               onClick={() => {
@@ -173,15 +143,22 @@ const PairChart = ({ address, color, base0, base1 }) => {
               Volume
             </OptionButton>
             <OptionButton
+              active={chartFilter === CHART_VIEW.UTILIZATION}
+              onClick={() => {
+                setTimeWindow(timeframeOptions.ALL_TIME);
+                setChartFilter(CHART_VIEW.UTILIZATION);
+              }}
+            >
+              Utilization
+            </OptionButton>
+            <OptionButton
               active={chartFilter === CHART_VIEW.RATE0}
               onClick={() => {
                 setTimeWindow(timeframeOptions.WEEK);
                 setChartFilter(CHART_VIEW.RATE0);
               }}
             >
-              {pairData.token0
-                ? formattedSymbol1 + "/" + formattedSymbol0
-                : "-"}
+              {pairData.token0 ? formattedSymbol1 + '/' + formattedSymbol0 : '-'}
             </OptionButton>
             <OptionButton
               active={chartFilter === CHART_VIEW.RATE1}
@@ -190,9 +167,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
                 setChartFilter(CHART_VIEW.RATE1);
               }}
             >
-              {pairData.token0
-                ? formattedSymbol0 + "/" + formattedSymbol1
-                : "-"}
+              {pairData.token0 ? formattedSymbol0 + '/' + formattedSymbol1 : '-'}
             </OptionButton>
           </AutoRow>
           <AutoRow justify="flex-end" gap="6px">
@@ -219,11 +194,7 @@ const PairChart = ({ address, color, base0, base1 }) => {
       )}
       {chartFilter === CHART_VIEW.LIQUIDITY && (
         <ResponsiveContainer aspect={aspect}>
-          <AreaChart
-            margin={{ top: 0, right: 10, bottom: 6, left: 0 }}
-            barCategoryGap={1}
-            data={chartData}
-          >
+          <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
                 <stop offset="5%" stopColor={color} stopOpacity={0.35} />
@@ -239,13 +210,13 @@ const PairChart = ({ address, color, base0, base1 }) => {
               tickFormatter={(tick) => toNiceDate(tick)}
               dataKey="date"
               tick={{ fill: textColor }}
-              type={"number"}
-              domain={["dataMin", "dataMax"]}
+              type={'number'}
+              domain={['dataMin', 'dataMax']}
             />
             <YAxis
               type="number"
               orientation="right"
-              tickFormatter={(tick) => "$" + toK(tick)}
+              tickFormatter={(tick) => '$' + toK(tick)}
               axisLine={false}
               tickLine={false}
               interval="preserveEnd"
@@ -260,10 +231,10 @@ const PairChart = ({ address, color, base0, base1 }) => {
               labelFormatter={(label) => toNiceDateYear(label)}
               labelStyle={{ paddingTop: 4 }}
               contentStyle={{
-                padding: "10px 14px",
+                padding: '10px 14px',
                 borderRadius: 10,
                 borderColor: color,
-                color: "black",
+                color: 'black',
               }}
               wrapperStyle={{ top: -70, left: -10 }}
             />
@@ -271,8 +242,68 @@ const PairChart = ({ address, color, base0, base1 }) => {
               strokeWidth={2}
               dot={false}
               type="monotone"
-              name={" (USD)"}
-              dataKey={"reserveUSD"}
+              name={' (USD)'}
+              dataKey={'reserveUSD'}
+              yAxisId={0}
+              stroke={darken(0.12, color)}
+              fill="url(#colorUv)"
+            />
+          </AreaChart>
+        </ResponsiveContainer>
+      )}
+
+      {chartFilter === CHART_VIEW.UTILIZATION && (
+        <ResponsiveContainer aspect={aspect}>
+          <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
+            <defs>
+              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
+                <stop offset="5%" stopColor={color} stopOpacity={0.35} />
+                <stop offset="95%" stopColor={color} stopOpacity={0} />
+              </linearGradient>
+            </defs>
+            <XAxis
+              tickLine={false}
+              axisLine={false}
+              interval="preserveEnd"
+              tickMargin={14}
+              minTickGap={80}
+              tickFormatter={(tick) => toNiceDate(tick)}
+              dataKey="date"
+              tick={{ fill: textColor }}
+              type={'number'}
+              domain={['dataMin', 'dataMax']}
+            />
+            <YAxis
+              type="number"
+              orientation="right"
+              tickFormatter={(tick) => toK(tick) + '%'}
+              axisLine={false}
+              tickLine={false}
+              interval="preserveEnd"
+              minTickGap={80}
+              yAxisId={0}
+              tickMargin={16}
+              tick={{ fill: textColor }}
+            />
+            <Tooltip
+              cursor={true}
+              formatter={(val) => formattedNum(val, false) + '%'}
+              labelFormatter={(label) => toNiceDateYear(label)}
+              labelStyle={{ paddingTop: 4 }}
+              contentStyle={{
+                padding: '10px 14px',
+                borderRadius: 10,
+                borderColor: color,
+                color: 'black',
+              }}
+              wrapperStyle={{ top: -70, left: -10 }}
+            />
+            <Area
+              strokeWidth={2}
+              dot={false}
+              type="monotone"
+              name={'Utilization'}
+              dataKey={'utilization'}
               yAxisId={0}
               stroke={darken(0.12, color)}
               fill="url(#colorUv)"
@@ -327,14 +358,14 @@ const PairChart = ({ address, color, base0, base1 }) => {
               tickFormatter={(tick) => toNiceDate(tick)}
               dataKey="date"
               tick={{ fill: textColor }}
-              type={"number"}
-              domain={["dataMin", "dataMax"]}
+              type={'number'}
+              domain={['dataMin', 'dataMax']}
             />
             <YAxis
               type="number"
               axisLine={false}
               tickMargin={16}
-              tickFormatter={(tick) => "$" + toK(tick)}
+              tickFormatter={(tick) => '$' + toK(tick)}
               tickLine={false}
               interval="preserveEnd"
               orientation="right"
@@ -348,19 +379,19 @@ const PairChart = ({ address, color, base0, base1 }) => {
               labelFormatter={(label) => toNiceDateYear(label)}
               labelStyle={{ paddingTop: 4 }}
               contentStyle={{
-                padding: "10px 14px",
+                padding: '10px 14px',
                 borderRadius: 10,
                 borderColor: color,
-                color: "black",
+                color: 'black',
               }}
               wrapperStyle={{ top: -70, left: -10 }}
             />
             <Bar
               type="monotone"
-              name={"Volume"}
-              dataKey={"dailyVolumeUSD"}
+              name={'Volume'}
+              dataKey={'dailyVolumeUSD'}
               fill={color}
-              opacity={"0.4"}
+              opacity={'0.4'}
               yAxisId={0}
               stroke={color}
             />

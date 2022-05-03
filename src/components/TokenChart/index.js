@@ -1,20 +1,20 @@
-import React, { useState, useRef, useEffect } from 'react'
-import styled from 'styled-components'
-import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts'
-import { AutoRow, RowBetween, RowFixed } from '../Row'
+import { darken } from 'polished';
+import React, { useState, useRef, useEffect } from 'react';
+import { Activity } from 'react-feather';
+import { useMedia, usePrevious } from 'react-use';
+import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
+import styled from 'styled-components';
 
-import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils'
-import { OptionButton } from '../ButtonStyled'
-import { darken } from 'polished'
-import { useMedia, usePrevious } from 'react-use'
-import { timeframeOptions } from '../../constants'
-import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData'
-import DropdownSelect from '../DropdownSelect'
-import CandleStickChart from '../CandleChart'
-import LocalLoader from '../LocalLoader'
-import { AutoColumn } from '../Column'
-import { Activity } from 'react-feather'
-import { useDarkModeManager } from '../../contexts/LocalStorage'
+import { timeframeOptions } from '../../constants';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
+import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
+import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
+import { OptionButton } from '../ButtonStyled';
+import CandleStickChart from '../CandleChart';
+import { AutoColumn } from '../Column';
+import DropdownSelect from '../DropdownSelect';
+import LocalLoader from '../LocalLoader';
+import { AutoRow, RowBetween, RowFixed } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;
@@ -23,53 +23,53 @@ const ChartWrapper = styled.div`
   @media screen and (max-width: 600px) {
     min-height: 200px;
   }
-`
+`;
 
 const PriceOption = styled(OptionButton)`
   border-radius: 2px;
-`
+`;
 
 const CHART_VIEW = {
   VOLUME: 'Volume',
   LIQUIDITY: 'Liquidity',
   PRICE: 'Price',
   LINE_PRICE: 'Price (Line)',
-}
+};
 
 const DATA_FREQUENCY = {
   DAY: 'DAY',
   HOUR: 'HOUR',
   LINE: 'LINE',
-}
+};
 
 const TokenChart = ({ address, color, base }) => {
   // settings for the window and candle width
-  const [chartFilter, setChartFilter] = useState(CHART_VIEW.PRICE)
-  const [frequency, setFrequency] = useState(DATA_FREQUENCY.HOUR)
+  const [chartFilter, setChartFilter] = useState(CHART_VIEW.PRICE);
+  const [frequency, setFrequency] = useState(DATA_FREQUENCY.HOUR);
 
-  const [darkMode] = useDarkModeManager()
-  const textColor = darkMode ? 'white' : 'black'
+  const [darkMode] = useDarkModeManager();
+  const textColor = darkMode ? 'white' : 'black';
 
   // reset view on new address
-  const addressPrev = usePrevious(address)
+  const addressPrev = usePrevious(address);
   useEffect(() => {
     if (address !== addressPrev && addressPrev) {
-      setChartFilter(CHART_VIEW.LIQUIDITY)
+      setChartFilter(CHART_VIEW.LIQUIDITY);
     }
-  }, [address, addressPrev])
+  }, [address, addressPrev]);
 
-  let chartData = useTokenChartData(address)
+  let chartData = useTokenChartData(address);
 
-  const [timeWindow, setTimeWindow] = useState(timeframeOptions.WEEK)
-  const prevWindow = usePrevious(timeWindow)
+  const [timeWindow, setTimeWindow] = useState(timeframeOptions.WEEK);
+  const prevWindow = usePrevious(timeWindow);
 
   // hourly and daily price data based on the current time window
-  const hourlyWeek = useTokenPriceData(address, timeframeOptions.WEEK, 3600)
-  const hourlyMonth = useTokenPriceData(address, timeframeOptions.MONTH, 3600)
-  const hourlyAll = useTokenPriceData(address, timeframeOptions.ALL_TIME, 3600)
-  const dailyWeek = useTokenPriceData(address, timeframeOptions.WEEK, 86400)
-  const dailyMonth = useTokenPriceData(address, timeframeOptions.MONTH, 86400)
-  const dailyAll = useTokenPriceData(address, timeframeOptions.ALL_TIME, 86400)
+  const hourlyWeek = useTokenPriceData(address, timeframeOptions.WEEK, 3600);
+  const hourlyMonth = useTokenPriceData(address, timeframeOptions.MONTH, 3600);
+  const hourlyAll = useTokenPriceData(address, timeframeOptions.ALL_TIME, 3600);
+  const dailyWeek = useTokenPriceData(address, timeframeOptions.WEEK, 86400);
+  const dailyMonth = useTokenPriceData(address, timeframeOptions.MONTH, 86400);
+  const dailyAll = useTokenPriceData(address, timeframeOptions.ALL_TIME, 86400);
 
   const priceData =
     timeWindow === timeframeOptions.MONTH
@@ -85,48 +85,48 @@ const TokenChart = ({ address, color, base }) => {
       : // all time selected
       frequency === DATA_FREQUENCY.DAY
       ? dailyAll
-      : hourlyAll
+      : hourlyAll;
 
   // switch to hourly data when switched to week window
   useEffect(() => {
     if (timeWindow === timeframeOptions.WEEK && prevWindow && prevWindow !== timeframeOptions.WEEK) {
-      setFrequency(DATA_FREQUENCY.HOUR)
+      setFrequency(DATA_FREQUENCY.HOUR);
     }
-  }, [prevWindow, timeWindow])
+  }, [prevWindow, timeWindow]);
 
   // switch to daily data if switche to month or all time view
   useEffect(() => {
     if (timeWindow === timeframeOptions.MONTH && prevWindow && prevWindow !== timeframeOptions.MONTH) {
-      setFrequency(DATA_FREQUENCY.DAY)
+      setFrequency(DATA_FREQUENCY.DAY);
     }
     if (timeWindow === timeframeOptions.ALL_TIME && prevWindow && prevWindow !== timeframeOptions.ALL_TIME) {
-      setFrequency(DATA_FREQUENCY.DAY)
+      setFrequency(DATA_FREQUENCY.DAY);
     }
-  }, [prevWindow, timeWindow])
+  }, [prevWindow, timeWindow]);
 
-  const below1080 = useMedia('(max-width: 1080px)')
-  const below600 = useMedia('(max-width: 600px)')
+  const below1080 = useMedia('(max-width: 1080px)');
+  const below600 = useMedia('(max-width: 600px)');
 
-  let utcStartTime = getTimeframe(timeWindow)
-  const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax']
-  const aspect = below1080 ? 60 / 32 : below600 ? 60 / 42 : 60 / 22
+  let utcStartTime = getTimeframe(timeWindow);
+  const domain = [(dataMin) => (dataMin > utcStartTime ? dataMin : utcStartTime), 'dataMax'];
+  const aspect = below1080 ? 60 / 32 : below600 ? 60 / 42 : 60 / 22;
 
-  chartData = chartData?.filter((entry) => entry.date >= utcStartTime)
+  chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
 
   // update the width on a window resize
-  const ref = useRef()
-  const isClient = typeof window === 'object'
-  const [width, setWidth] = useState(ref?.current?.container?.clientWidth)
+  const ref = useRef();
+  const isClient = typeof window === 'object';
+  const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
   useEffect(() => {
     if (!isClient) {
-      return false
+      return false;
     }
     function handleResize() {
-      setWidth(ref?.current?.container?.clientWidth ?? width)
+      setWidth(ref?.current?.container?.clientWidth ?? width);
     }
-    window.addEventListener('resize', handleResize)
-    return () => window.removeEventListener('resize', handleResize)
-  }, [isClient, width]) // Empty array ensures that effect is only run on mount and unmount
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [isClient, width]); // Empty array ensures that effect is only run on mount and unmount
 
   return (
     <ChartWrapper>
@@ -165,7 +165,7 @@ const TokenChart = ({ address, color, base }) => {
               <OptionButton
                 active={chartFilter === CHART_VIEW.PRICE}
                 onClick={() => {
-                  setChartFilter(CHART_VIEW.PRICE)
+                  setChartFilter(CHART_VIEW.PRICE);
                 }}
               >
                 Price
@@ -176,8 +176,8 @@ const TokenChart = ({ address, color, base }) => {
                 <PriceOption
                   active={frequency === DATA_FREQUENCY.DAY}
                   onClick={() => {
-                    setTimeWindow(timeframeOptions.MONTH)
-                    setFrequency(DATA_FREQUENCY.DAY)
+                    setTimeWindow(timeframeOptions.MONTH);
+                    setFrequency(DATA_FREQUENCY.DAY);
                   }}
                 >
                   D
@@ -400,7 +400,7 @@ const TokenChart = ({ address, color, base }) => {
         </ResponsiveContainer>
       )}
     </ChartWrapper>
-  )
-}
+  );
+};
 
-export default TokenChart
+export default TokenChart;

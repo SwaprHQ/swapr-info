@@ -1,19 +1,27 @@
-import React from "react";
-import { BigNumber } from "bignumber.js";
-import dayjs from "dayjs";
-import { getAddress } from "@ethersproject/address";
-import utc from "dayjs/plugin/utc";
-import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from "../apollo/queries";
-import { Text } from "rebass";
-import _Decimal from "decimal.js-light";
-import toFormat from "toformat";
+import { BigNumber } from 'bignumber.js';
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import _Decimal from 'decimal.js-light';
+import Numeral from 'numeral';
+import React from 'react';
+import { Text } from 'rebass';
+import toFormat from 'toformat';
+
+import { getAddress } from '@ethersproject/address';
+import { parseUnits } from '@ethersproject/units';
 import {
-  SupportedNetwork,
-  timeframeOptions,
-  ETHERSCAN_PREFIXES,
-  ChainId,
-} from "../constants";
-import Numeral from "numeral";
+  CurrencyAmount,
+  LiquidityMiningCampaign,
+  Price,
+  PricedToken,
+  PricedTokenAmount,
+  Token,
+  TokenAmount,
+  USD,
+} from '@swapr/sdk';
+
+import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
+import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
 const Decimal = toFormat(_Decimal);
@@ -26,16 +34,16 @@ export function getTimeframe(timeWindow) {
   let utcStartTime;
   switch (timeWindow) {
     case timeframeOptions.WEEK:
-      utcStartTime = utcEndTime.subtract(1, "week").endOf("day").unix() - 1;
+      utcStartTime = utcEndTime.subtract(1, 'week').endOf('day').unix() - 1;
       break;
     case timeframeOptions.MONTH:
-      utcStartTime = utcEndTime.subtract(1, "month").endOf("day").unix() - 1;
+      utcStartTime = utcEndTime.subtract(1, 'month').endOf('day').unix() - 1;
       break;
     case timeframeOptions.ALL_TIME:
-      utcStartTime = utcEndTime.subtract(1, "year").endOf("day").unix() - 1;
+      utcStartTime = utcEndTime.subtract(1, 'year').endOf('day').unix() - 1;
       break;
     default:
-      utcStartTime = utcEndTime.subtract(1, "year").startOf("year").unix() - 1;
+      utcStartTime = utcEndTime.subtract(1, 'year').startOf('year').unix() - 1;
       break;
   }
   return utcStartTime;
@@ -47,30 +55,22 @@ export function getPoolLink(
   nativeCurrencyWrapper,
   token0Address,
   token1Address = null,
-  remove = false
+  remove = false,
 ) {
   if (!token1Address) {
     return (
-      `https://swapr.eth.link/#/` +
+      `${SWAPR_LINK}` +
       (remove ? `remove` : `add`) +
-      `/${
-        token0Address === nativeCurrencyWrapper.symbol
-          ? nativeCurrency
-          : token0Address
-      }/${nativeCurrency}?chainId=${ChainId[selectedNetwork]}`
+      `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${nativeCurrency}?chainId=${
+        ChainId[selectedNetwork]
+      }`
     );
   } else {
     return (
-      `https://swapr.eth.link/#/` +
+      `${SWAPR_LINK}` +
       (remove ? `remove` : `add`) +
-      `/${
-        token0Address === nativeCurrencyWrapper.symbol
-          ? nativeCurrency
-          : token0Address
-      }/${
-        token1Address === nativeCurrencyWrapper.symbol
-          ? nativeCurrency
-          : token1Address
+      `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${
+        token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address
       }?chainId=${ChainId[selectedNetwork]}`
     );
   }
@@ -81,33 +81,28 @@ export function getSwapLink(
   nativeCurrency,
   nativeCurrencyWrapper,
   token0Address,
-  token1Address = null
+  token1Address = null,
 ) {
   if (!token1Address) {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
+    return `${SWAPR_LINK}/swap?inputCurrency=${token0Address}&chainId=${ChainId[selectedNetwork]}`;
   } else {
-    return `https://swapr.eth.link/#/swap?inputCurrency=${
-      token0Address === nativeCurrencyWrapper.symbol
-        ? nativeCurrency
-        : token0Address
-    }&outputCurrency=${
-      token1Address === nativeCurrencyWrapper.symbol
-        ? nativeCurrency
-        : token1Address
-    }&chainId=${ChainId[selectedNetwork]}`;
+    return `${SWAPR_LINK}/swap?inputCurrency=${
+      token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address
+    }&outputCurrency=${token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address}&chainId=${
+      ChainId[selectedNetwork]
+    }`;
   }
 }
 
 const getExplorerPrefix = (selectedNetwork) => {
   switch (selectedNetwork) {
     case SupportedNetwork.XDAI:
-      return "https://blockscout.com/poa/xdai";
+      return 'https://blockscout.com/poa/xdai';
     case SupportedNetwork.ARBITRUM_ONE:
-      return "https://arbiscan.io/";
+      return 'https://arbiscan.io/';
     default:
       return `https://${
-        ETHERSCAN_PREFIXES[selectedNetwork] ||
-        ETHERSCAN_PREFIXES[SupportedNetwork.MAINNET]
+        ETHERSCAN_PREFIXES[selectedNetwork] || ETHERSCAN_PREFIXES[SupportedNetwork.MAINNET]
       }etherscan.io`;
   }
 };
@@ -116,21 +111,21 @@ export function getExplorerLink(selectedNetwork, data, type) {
   const prefix = getExplorerPrefix(selectedNetwork);
 
   // exception. blockscout doesn't have a token-specific address
-  if (selectedNetwork === SupportedNetwork.XDAI && type === "token") {
+  if (selectedNetwork === SupportedNetwork.XDAI && type === 'token') {
     return `${prefix}/address/${data}`;
   }
 
   switch (type) {
-    case "transaction": {
+    case 'transaction': {
       return `${prefix}/tx/${data}`;
     }
-    case "token": {
+    case 'token': {
       return `${prefix}/token/${data}`;
     }
-    case "block": {
+    case 'block': {
       return `${prefix}/block/${data}`;
     }
-    case "address":
+    case 'address':
     default: {
       return `${prefix}/address/${data}`;
     }
@@ -138,20 +133,23 @@ export function getExplorerLink(selectedNetwork, data, type) {
 }
 
 export function getSwaprAppLink(nativeCurrency, linkVariable, selectedNetwork) {
-  let baseSwaprUrl = "https://swapr.eth.link/#/";
   if (!linkVariable) {
-    return baseSwaprUrl;
+    return SWAPR_LINK;
   }
 
-  return `${baseSwaprUrl}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
+  return `${SWAPR_LINK}/${nativeCurrency}/${linkVariable}?chainId=${selectedNetwork}`;
+}
+
+export function getSwaprLink(route, networkId) {
+  return `${SWAPR_LINK}${route}?chainId=${networkId}`;
 }
 
 export function localNumber(val) {
-  return Numeral(val).format("0,0");
+  return Numeral(val).format('0,0');
 }
 
 export const toNiceDate = (date) => {
-  let x = dayjs.utc(dayjs.unix(date)).format("MMM DD");
+  let x = dayjs.utc(dayjs.unix(date)).format('MMM DD');
   return x;
 };
 
@@ -162,28 +160,18 @@ export const toWeeklyDate = (date) => {
   var lessDays = day === 6 ? 0 : day + 1;
   var wkStart = new Date(new Date(date).setDate(date.getDate() - lessDays));
   var wkEnd = new Date(new Date(wkStart).setDate(wkStart.getDate() + 6));
-  return (
-    dayjs.utc(wkStart).format("MMM DD") +
-    " - " +
-    dayjs.utc(wkEnd).format("MMM DD")
-  );
+  return dayjs.utc(wkStart).format('MMM DD') + ' - ' + dayjs.utc(wkEnd).format('MMM DD');
 };
 
 export function getTimestampsForChanges() {
   const utcCurrentTime = dayjs();
-  const t1 = utcCurrentTime.subtract(1, "day").startOf("minute").unix();
-  const t2 = utcCurrentTime.subtract(2, "day").startOf("minute").unix();
-  const tWeek = utcCurrentTime.subtract(1, "week").startOf("minute").unix();
+  const t1 = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+  const t2 = utcCurrentTime.subtract(2, 'day').startOf('minute').unix();
+  const tWeek = utcCurrentTime.subtract(1, 'week').startOf('minute').unix();
   return [t1, t2, tWeek];
 }
 
-export async function splitQuery(
-  query,
-  localClient,
-  vars,
-  list,
-  skipCount = 100
-) {
+export async function splitQuery(query, localClient, vars, list, skipCount = 100) {
   let fetchedData = {};
   let allFound = false;
   let skip = 0;
@@ -201,10 +189,7 @@ export async function splitQuery(
       ...fetchedData,
       ...result.data,
     };
-    if (
-      Object.keys(result.data).length < skipCount ||
-      skip + skipCount > list.length
-    ) {
+    if (Object.keys(result.data).length < skipCount || skip + skipCount > list.length) {
       allFound = true;
     } else {
       skip += skipCount;
@@ -237,30 +222,20 @@ export async function getBlockFromTimestamp(blockClient, timestamp) {
  * @dev timestamps are returns as they were provided; not the block time.
  * @param {Array} timestamps
  */
-export async function getBlocksFromTimestamps(
-  blockClient,
-  timestamps,
-  skipCount = 500
-) {
+export async function getBlocksFromTimestamps(blockClient, timestamps, skipCount = 500) {
   if (timestamps?.length === 0) {
     return [];
   }
 
-  let fetchedData = await splitQuery(
-    GET_BLOCKS,
-    blockClient,
-    [],
-    timestamps,
-    skipCount
-  );
+  let fetchedData = await splitQuery(GET_BLOCKS, blockClient, [], timestamps, skipCount);
 
   let blocks = [];
   if (fetchedData) {
     for (var t in fetchedData) {
       if (fetchedData[t].length > 0) {
         blocks.push({
-          timestamp: t.split("t")[1],
-          number: fetchedData[t][0]["number"],
+          timestamp: t.split('t')[1],
+          number: fetchedData[t][0]['number'],
         });
       }
     }
@@ -268,12 +243,7 @@ export async function getBlocksFromTimestamps(
   return blocks;
 }
 
-export async function getLiquidityTokenBalanceOvertime(
-  client,
-  blockClient,
-  account,
-  timestamps
-) {
+export async function getLiquidityTokenBalanceOvertime(client, blockClient, account, timestamps) {
   // get blocks based on timestamps
   const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
 
@@ -284,7 +254,7 @@ export async function getLiquidityTokenBalanceOvertime(
 
   let values = [];
   for (var row in result?.data) {
-    let timestamp = row.split("t")[1];
+    let timestamp = row.split('t')[1];
     if (timestamp) {
       values.push({
         timestamp,
@@ -300,15 +270,10 @@ export async function getLiquidityTokenBalanceOvertime(
  * @param {String} pairAddress
  * @param {Array} timestamps
  */
-export async function getShareValueOverTime(
-  client,
-  blockClient,
-  pairAddress,
-  timestamps
-) {
+export async function getShareValueOverTime(client, blockClient, pairAddress, timestamps) {
   if (!timestamps) {
     const utcCurrentTime = dayjs();
-    const utcSevenDaysBack = utcCurrentTime.subtract(8, "day").unix();
+    const utcSevenDaysBack = utcCurrentTime.subtract(8, 'day').unix();
     timestamps = getTimestampRange(utcSevenDaysBack, 86400, 7);
   }
 
@@ -322,10 +287,8 @@ export async function getShareValueOverTime(
 
   let values = [];
   for (var row in result?.data) {
-    let timestamp = row.split("t")[1];
-    let sharePriceUsd =
-      parseFloat(result.data[row]?.reserveUSD) /
-      parseFloat(result.data[row]?.totalSupply);
+    let timestamp = row.split('t')[1];
+    let sharePriceUsd = parseFloat(result.data[row]?.reserveUSD) / parseFloat(result.data[row]?.totalSupply);
     if (timestamp) {
       values.push({
         timestamp,
@@ -334,12 +297,9 @@ export async function getShareValueOverTime(
         reserve0: result.data[row].reserve0,
         reserve1: result.data[row].reserve1,
         reserveUSD: result.data[row].reserveUSD,
-        token0DerivedNativeCurrency:
-          result.data[row].token0.derivedNativeCurrency,
-        token1DerivedNativeCurrency:
-          result.data[row].token1.derivedNativeCurrency,
-        roiUsd:
-          values && values[0] ? sharePriceUsd / values[0]["sharePriceUsd"] : 1,
+        token0DerivedNativeCurrency: result.data[row].token0.derivedNativeCurrency,
+        token1DerivedNativeCurrency: result.data[row].token1.derivedNativeCurrency,
+        roiUsd: values && values[0] ? sharePriceUsd / values[0]['sharePriceUsd'] : 1,
         nativeCurrencyPrice: 0,
         token0PriceUSD: 0,
         token1PriceUSD: 0,
@@ -350,15 +310,11 @@ export async function getShareValueOverTime(
   // add eth prices
   let index = 0;
   for (var brow in result?.data) {
-    let timestamp = brow.split("b")[1];
+    let timestamp = brow.split('b')[1];
     if (timestamp) {
       values[index].nativeCurrencyPrice = result.data[brow].nativeCurrencyPrice;
-      values[index].token0PriceUSD =
-        result.data[brow].nativeCurrencyPrice *
-        values[index].token0DerivedNativeCurrency;
-      values[index].token1PriceUSD =
-        result.data[brow].nativeCurrencyPrice *
-        values[index].token1DerivedNativeCurrency;
+      values[index].token0PriceUSD = result.data[brow].nativeCurrencyPrice * values[index].token0DerivedNativeCurrency;
+      values[index].token1PriceUSD = result.data[brow].nativeCurrencyPrice * values[index].token1DerivedNativeCurrency;
       index += 1;
     }
   }
@@ -381,8 +337,7 @@ export function getTimestampRange(timestamp_from, period_length, periods) {
   return timestamps;
 }
 
-export const toNiceDateYear = (date) =>
-  dayjs.utc(dayjs.unix(date)).format("MMMM DD, YYYY");
+export const toNiceDateYear = (date) => dayjs.utc(dayjs.unix(date)).format('MMMM DD, YYYY');
 
 export const isAddress = (value) => {
   try {
@@ -393,54 +348,50 @@ export const isAddress = (value) => {
 };
 
 export const toK = (num) => {
-  return Numeral(num).format("0.[00]a");
+  return Numeral(num).format('0.[00]a');
 };
 
-export const setThemeColor = (theme) =>
-  document.documentElement.style.setProperty("--c-token", theme || "#333333");
+export const setThemeColor = (theme) => document.documentElement.style.setProperty('--c-token', theme || '#333333');
 
 export const Big = (number) => new BigNumber(number);
 
 export const urls = {
-  showTransaction: (tx, selectedNetwork) =>
-    getExplorerLink(selectedNetwork, tx, "transaction"),
-  showAddress: (address, selectedNetwork) =>
-    getExplorerLink(selectedNetwork, address, "address"),
-  showToken: (address, selectedNetwork) =>
-    getExplorerLink(selectedNetwork, address, "token"),
-  showBlock: (block, selectedNetwork) =>
-    getExplorerLink(selectedNetwork, block, "block"),
+  showTransaction: (tx, selectedNetwork) => getExplorerLink(selectedNetwork, tx, 'transaction'),
+  showAddress: (address, selectedNetwork) => getExplorerLink(selectedNetwork, address, 'address'),
+  showToken: (address, selectedNetwork) => getExplorerLink(selectedNetwork, address, 'token'),
+  showBlock: (block, selectedNetwork) => getExplorerLink(selectedNetwork, block, 'block'),
 };
 
 export const formatTime = (unix) => {
   const now = dayjs();
   const timestamp = dayjs.unix(unix);
 
-  const inSeconds = now.diff(timestamp, "second");
-  const inMinutes = now.diff(timestamp, "minute");
-  const inHours = now.diff(timestamp, "hour");
-  const inDays = now.diff(timestamp, "day");
+  const inSeconds = now.diff(timestamp, 'second');
+  const inMinutes = now.diff(timestamp, 'minute');
+  const inHours = now.diff(timestamp, 'hour');
+  const inDays = now.diff(timestamp, 'day');
 
   if (inHours >= 24) {
-    return `${inDays} ${inDays === 1 ? "day" : "days"} ago`;
+    return `${inDays} ${inDays === 1 ? 'day' : 'days'} ago`;
   } else if (inMinutes >= 60) {
-    return `${inHours} ${inHours === 1 ? "hour" : "hours"} ago`;
+    return `${inHours} ${inHours === 1 ? 'hour' : 'hours'} ago`;
   } else if (inSeconds >= 60) {
-    return `${inMinutes} ${inMinutes === 1 ? "minute" : "minutes"} ago`;
+    return `${inMinutes} ${inMinutes === 1 ? 'minute' : 'minutes'} ago`;
   } else {
-    return `${inSeconds} ${inSeconds === 1 ? "second" : "seconds"} ago`;
+    return `${inSeconds} ${inSeconds === 1 ? 'second' : 'seconds'} ago`;
   }
 };
 
 export const formatNumber = (num) => {
-  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, "$1,");
+  return num.toString().replace(/(\d)(?=(\d{3})+(?!\d))/g, '$1,');
 };
 
 // using a currency library here in case we want to add more in future
 export const formatDollarAmount = (num, digits) => {
   const formatter = new Intl.NumberFormat([], {
-    style: "currency",
-    currency: "USD",
+    style: 'currency',
+    currency: 'USD',
+    currencyDisplay: 'narrowSymbol',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
@@ -450,35 +401,33 @@ export const formatDollarAmount = (num, digits) => {
 export const toSignificant = (number, significantDigits) => {
   Decimal.set({ precision: significantDigits + 1, rounding: Decimal.ROUND_UP });
   const updated = new Decimal(number).toSignificantDigits(significantDigits);
-  return updated.toFormat(updated.decimalPlaces(), { groupSeparator: "" });
+  return updated.toFormat(updated.decimalPlaces(), { groupSeparator: '' });
 };
 
 export const formattedNum = (number, usd = false, acceptNegatives = false) => {
-  if (isNaN(number) || number === "" || number === undefined) {
-    return usd ? "$0" : 0;
+  if (isNaN(number) || number === '' || number === undefined) {
+    return usd ? '$0' : 0;
   }
 
   let num = parseFloat(number);
 
   if (num > 500000000) {
-    return (usd ? "$" : "") + toK(num.toFixed(0), true);
+    return (usd ? '$' : '') + toK(num.toFixed(0), true);
   }
 
   if (num === 0) {
     if (usd) {
-      return "$0";
+      return '$0';
     }
     return 0;
   }
 
   if (num < 0.0001 && num > 0) {
-    return usd ? "< $0.0001" : "< 0.0001";
+    return usd ? '< $0.0001' : '< 0.0001';
   }
 
   if (num > 1000) {
-    return usd
-      ? formatDollarAmount(num, 0)
-      : Number(parseFloat(num).toFixed(0)).toLocaleString();
+    return usd ? formatDollarAmount(num, 0) : Number(parseFloat(num).toFixed(0)).toLocaleString();
   }
 
   if (usd) {
@@ -495,12 +444,12 @@ export const formattedNum = (number, usd = false, acceptNegatives = false) => {
 export function rawPercent(percentRaw) {
   let percent = parseFloat(percentRaw * 100);
   if (!percent || percent === 0) {
-    return "0%";
+    return '0%';
   }
   if (percent < 1 && percent > 0) {
-    return "< 1%";
+    return '< 1%';
   }
-  return percent.toFixed(0) + "%";
+  return percent.toFixed(0) + '%';
 }
 
 export function formattedPercent(percent, useBrackets = false) {
@@ -512,7 +461,7 @@ export function formattedPercent(percent, useBrackets = false) {
   if (percent < 0.0001 && percent > 0) {
     return (
       <Text fontWeight={500} color="green">
-        {"< 0.0001%"}
+        {'< 0.0001%'}
       </Text>
     );
   }
@@ -520,22 +469,18 @@ export function formattedPercent(percent, useBrackets = false) {
   if (percent < 0 && percent > -0.0001) {
     return (
       <Text fontWeight={500} color="red">
-        {"< 0.0001%"}
+        {'< 0.0001%'}
       </Text>
     );
   }
 
   let fixedPercent = percent.toFixed(2);
-  if (fixedPercent === "0.00") {
-    return "0%";
+  if (fixedPercent === '0.00') {
+    return '0%';
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return (
-        <Text fontWeight={500} color="green">{`+${percent
-          ?.toFixed(0)
-          .toLocaleString()}%`}</Text>
-      );
+      return <Text fontWeight={500} color="green">{`+${percent?.toFixed(0).toLocaleString()}%`}</Text>;
     } else {
       return <Text fontWeight={500} color="green">{`+${fixedPercent}%`}</Text>;
     }
@@ -550,19 +495,12 @@ export function formattedPercent(percent, useBrackets = false) {
  * @param {*} value24HoursAgo
  * @param {*} value48HoursAgo
  */
-export const get2DayPercentChange = (
-  valueNow,
-  value24HoursAgo,
-  value48HoursAgo
-) => {
+export const get2DayPercentChange = (valueNow, value24HoursAgo, value48HoursAgo) => {
   // get volume info for both 24 hour periods
   let currentChange = parseFloat(valueNow) - parseFloat(value24HoursAgo);
-  let previousChange =
-    parseFloat(value24HoursAgo) - parseFloat(value48HoursAgo);
+  let previousChange = parseFloat(value24HoursAgo) - parseFloat(value48HoursAgo);
 
-  const adjustedPercentChange =
-    (parseFloat(currentChange - previousChange) / parseFloat(previousChange)) *
-    100;
+  const adjustedPercentChange = (parseFloat(currentChange - previousChange) / parseFloat(previousChange)) * 100;
 
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return [currentChange, 0];
@@ -577,9 +515,7 @@ export const get2DayPercentChange = (
  */
 export const getPercentChange = (valueNow, value24HoursAgo) => {
   const adjustedPercentChange =
-    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) /
-      parseFloat(value24HoursAgo)) *
-    100;
+    ((parseFloat(valueNow) - parseFloat(value24HoursAgo)) / parseFloat(value24HoursAgo)) * 100;
   if (isNaN(adjustedPercentChange) || !isFinite(adjustedPercentChange)) {
     return 0;
   }
@@ -599,4 +535,130 @@ export function isEquivalent(a, b) {
     }
   }
   return true;
+}
+
+export function getLpTokenPrice(pair, nativeCurrency, totalSupply, reserveNativeCurrency) {
+  const decimalTotalSupply = new Decimal(totalSupply);
+  // the following check avoids division by zero when total supply is zero
+  // (case in which a pair has been created but liquidity has never been proviided)
+  const priceDenominator = decimalTotalSupply.isZero()
+    ? '1'
+    : parseUnits(
+        new Decimal(totalSupply).toFixed(pair.liquidityToken.decimals),
+        pair.liquidityToken.decimals,
+      ).toString();
+  return new Price(
+    pair.liquidityToken,
+    nativeCurrency,
+    priceDenominator,
+    parseUnits(new Decimal(reserveNativeCurrency).toFixed(nativeCurrency.decimals), nativeCurrency.decimals).toString(),
+  );
+}
+
+export function toLiquidityMiningCampaign(
+  chainId,
+  targetedPair,
+  targetedPairLpTokenTotalSupply,
+  targetedPairReserveNativeCurrency,
+  campaign,
+  nativeCurrency,
+) {
+  const rewards = campaign.rewards.map((reward) => {
+    const rewardToken = reward.token;
+    const properRewardToken = new Token(
+      chainId,
+      getAddress(rewardToken.id),
+      parseInt(rewardToken.decimals),
+      rewardToken.symbol,
+      rewardToken.name,
+    );
+
+    const rewardTokenPriceNativeCurrency = new Price(
+      properRewardToken,
+      nativeCurrency,
+      parseUnits('1', nativeCurrency.decimals).toString(),
+      parseUnits(
+        new Decimal(rewardToken.derivedNativeCurrency).toFixed(nativeCurrency.decimals),
+        nativeCurrency.decimals,
+      ).toString(),
+    );
+
+    const pricedRewardToken = new PricedToken(
+      chainId,
+      getAddress(rewardToken.id),
+      parseInt(rewardToken.decimals),
+      rewardTokenPriceNativeCurrency,
+      rewardToken.symbol,
+      rewardToken.name,
+    );
+    return new PricedTokenAmount(pricedRewardToken, parseUnits(reward.amount, rewardToken.decimals).toString());
+  });
+  const lpTokenPriceNativeCurrency = getLpTokenPrice(
+    targetedPair,
+    nativeCurrency,
+    targetedPairLpTokenTotalSupply,
+    targetedPairReserveNativeCurrency,
+  );
+  const stakedPricedToken = new PricedToken(
+    chainId,
+    getAddress(targetedPair.liquidityToken.address),
+    targetedPair.liquidityToken.decimals,
+    lpTokenPriceNativeCurrency,
+    targetedPair.liquidityToken.symbol,
+    targetedPair.liquidityToken.name,
+  );
+  const staked = new PricedTokenAmount(
+    stakedPricedToken,
+    parseUnits(campaign.stakedAmount, stakedPricedToken.decimals).toString(),
+  );
+  return new LiquidityMiningCampaign(
+    campaign.startsAt,
+    campaign.endsAt,
+    targetedPair,
+    rewards,
+    staked,
+    campaign.locked,
+    new TokenAmount(
+      targetedPair.liquidityToken,
+      parseUnits(campaign.stakingCap, targetedPair.liquidityToken.decimals).toString(),
+    ),
+    getAddress(campaign.id),
+  );
+}
+
+export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice, nativeCurrency) {
+  const nativeCurrencyPrice = new Price(
+    nativeCurrency,
+    USD,
+    parseUnits('1', USD.decimals).toString(),
+    parseUnits(new Decimal(nativeCurrencyUSDPrice).toFixed(18), USD.decimals).toString(),
+  );
+  return CurrencyAmount.usd(
+    parseUnits(
+      campaign.staked.nativeCurrencyAmount.multiply(nativeCurrencyPrice).toFixed(USD.decimals),
+      USD.decimals,
+    ).toString(),
+  );
+}
+
+/**
+ * Given a URI that may be ipfs, ipns, http, or https protocol, return the fetch-able http(s) URLs for the same content
+ * @param uri to convert to fetch-able http url
+ */
+export function uriToHttp(uri) {
+  const protocol = uri.split(':')[0].toLowerCase();
+  switch (protocol) {
+    case 'https':
+      return [uri];
+    case 'http':
+      return ['https' + uri.substr(4)];
+    case 'ipfs':
+      const hash = uri.match(/^ipfs:(\/\/)?(.*)$/i)?.[2];
+      return [`https://ipfs.io/ipfs/${hash}/`];
+    case 'ipns':
+      const name = uri.match(/^ipns:(\/\/)?(.*)$/i)?.[2];
+      return [`https://cloudflare-ipfs.com/ipns/${name}/`, `https://ipfs.io/ipns/${name}/`];
+    default:
+      return [];
+  }
 }

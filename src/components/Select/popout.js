@@ -1,8 +1,7 @@
-import React, { Component } from 'react'
-import { Button } from 'rebass'
-import styled from 'styled-components'
-
-import Select from 'react-select'
+import React, { Component } from 'react';
+import Select from 'react-select';
+import { Button } from 'rebass';
+import styled from 'styled-components';
 
 const selectStyles = {
   control: (styles) => ({
@@ -22,21 +21,21 @@ const selectStyles = {
     padding: 0,
   }),
   menu: () => null,
-}
+};
 
 export default class Popout extends Component {
-  state = { isOpen: false, value: undefined }
+  state = { isOpen: false, value: undefined };
   toggleOpen = () => {
-    this.setState((state) => ({ isOpen: !state.isOpen }))
-  }
+    this.setState((state) => ({ isOpen: !state.isOpen }));
+  };
 
   onSelectChange = (value) => {
-    this.toggleOpen()
-    this.setState({ value })
-  }
+    this.toggleOpen();
+    this.setState({ value });
+  };
 
   render() {
-    const { isOpen, value } = this.state
+    const { isOpen, value } = this.state;
     return (
       <Dropdown
         isOpen={isOpen}
@@ -73,7 +72,7 @@ export default class Popout extends Component {
           value={value}
         />
       </Dropdown>
-    )
+    );
   }
 }
 
@@ -103,9 +102,9 @@ const Wrapper = styled.div`
   border-top-left-radius: 1rem;
   border-top-right-radius: 1rem;
   transition: 0.25s ease-in-out;
-`
+`;
 
-const Menu = (props) => <Wrapper {...props} />
+const Menu = (props) => <Wrapper {...props} />;
 
 const Blanket = (props) => (
   <div
@@ -120,7 +119,7 @@ const Blanket = (props) => (
     }}
     {...props}
   />
-)
+);
 
 const Dropdown = ({ children, isOpen, target, onClose }) => (
   <>
@@ -128,10 +127,10 @@ const Dropdown = ({ children, isOpen, target, onClose }) => (
     {isOpen ? <Menu>{children}</Menu> : null}
     {isOpen ? <Blanket onClick={onClose} /> : null}
   </>
-)
+);
 
 const DropdownIndicator = () => (
   <span role="img" aria-label="Search">
     🔎
   </span>
-)
+);

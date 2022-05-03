@@ -1,48 +1,48 @@
-import React, {
-  createContext,
-  useContext,
-  useReducer,
-  useMemo,
-  useCallback,
-  useState,
-  useEffect,
-} from "react";
-import { NETWORK_SUBGRAPH_URLS, timeframeOptions } from "../constants";
-import dayjs from "dayjs";
-import utc from "dayjs/plugin/utc";
-import { healthClient } from "../apollo/client";
-import { SUBGRAPH_HEALTH } from "../apollo/queries";
-import { useSelectedNetwork } from "./Network";
+import dayjs from 'dayjs';
+import utc from 'dayjs/plugin/utc';
+import React, { createContext, useContext, useReducer, useMemo, useCallback, useState, useEffect } from 'react';
+
+import { healthClient } from '../apollo/client';
+import { SUBGRAPH_HEALTH } from '../apollo/queries';
+import {
+  BLOCK_DIFFERENCE_THRESHOLD,
+  DEFAULT_BLOCK_DIFFERENCE_THRESHOLD,
+  NETWORK_SUBGRAPH_URLS,
+  timeframeOptions,
+  TOKEN_LISTS,
+} from '../constants';
+import { useSelectedNetwork } from './Network';
 
 dayjs.extend(utc);
 
-const RESET = "RESET";
-const UPDATE = "UPDATE";
-const UPDATE_TIMEFRAME = "UPDATE_TIMEFRAME";
-const UPDATE_SESSION_START = "UPDATE_SESSION_START";
-const UPDATED_SUPPORTED_TOKENS = "UPDATED_SUPPORTED_TOKENS";
-const UPDATE_LATEST_BLOCK = "UPDATE_LATEST_BLOCK";
-const UPDATE_HEAD_BLOCK = "UPDATE_HEAD_BLOCK";
-const UPDATE_BAD_IMAGE_URLS = "UPDATE_BAD_IMAGE_URLS";
+const RESET = 'RESET';
+const UPDATE = 'UPDATE';
+const UPDATE_TIMEFRAME = 'UPDATE_TIMEFRAME';
+const UPDATE_SESSION_START = 'UPDATE_SESSION_START';
+const UPDATED_SUPPORTED_TOKENS = 'UPDATED_SUPPORTED_TOKENS';
+const UPDATED_TOKENS_LISTS = 'UPDATE_TOKENS_LISTS';
+const UPDATE_LATEST_BLOCK = 'UPDATE_LATEST_BLOCK';
+const UPDATE_HEAD_BLOCK = 'UPDATE_HEAD_BLOCK';
 
-const SUPPORTED_TOKENS = "SUPPORTED_TOKENS";
-const TIME_KEY = "TIME_KEY";
-const CURRENCY = "CURRENCY";
-const SESSION_START = "SESSION_START";
-const LATEST_BLOCK = "LATEST_BLOCK";
-const HEAD_BLOCK = "HEAD_BLOCK";
-const BAD_IMAGE_URLS = "BAD_IMAGE_URLS";
+const SUPPORTED_TOKENS = 'SUPPORTED_TOKENS';
+const TIME_KEY = 'TIME_KEY';
+const CURRENCY = 'CURRENCY';
+const SESSION_START = 'SESSION_START';
+const LATEST_BLOCK = 'LATEST_BLOCK';
+const HEAD_BLOCK = 'HEAD_BLOCK';
+const BAD_IMAGE_URLS = 'BAD_IMAGE_URLS';
 
-const ApplicationContext = createContext();
+export const ApplicationContext = createContext();
 
-function useApplicationContext() {
+export function useApplicationContext() {
   return useContext(ApplicationContext);
 }
 
 const INITIAL_STATE = {
-  CURRENCY: "USD",
+  CURRENCY: 'USD',
   TIME_KEY: timeframeOptions.ALL_TIME,
   [BAD_IMAGE_URLS]: {},
+  TOKEN_LISTS: new Map(),
 };
 
 function reducer(state, { type, payload }) {
@@ -54,6 +54,7 @@ function reducer(state, { type, payload }) {
         [CURRENCY]: currency,
       };
     }
+
     case UPDATE_TIMEFRAME: {
       const { newTimeFrame } = payload;
       return {
@@ -61,6 +62,7 @@ function reducer(state, { type, payload }) {
         [TIME_KEY]: newTimeFrame,
       };
     }
+
     case UPDATE_SESSION_START: {
       const { timestamp } = payload;
       return {
@@ -85,22 +87,19 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_BAD_IMAGE_URLS: {
-      const { url } = payload;
-      return {
-        ...state,
-        [BAD_IMAGE_URLS]: {
-          ...state[BAD_IMAGE_URLS],
-          [url]: true,
-        },
-      };
-    }
-
     case UPDATED_SUPPORTED_TOKENS: {
       const { supportedTokens } = payload;
       return {
         ...state,
         [SUPPORTED_TOKENS]: supportedTokens,
+      };
+    }
+
+    case UPDATED_TOKENS_LISTS: {
+      const { tokens } = payload;
+      return {
+        ...state,
+        TOKEN_LISTS: tokens,
       };
     }
 
@@ -172,11 +171,11 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateBadImageUrls = useCallback((url) => {
+  const updateTokenLists = useCallback((tokens) => {
     dispatch({
-      type: UPDATE_BAD_IMAGE_URLS,
+      type: UPDATED_TOKENS_LISTS,
       payload: {
-        url,
+        tokens,
       },
     });
   }, []);
@@ -195,9 +194,9 @@ export default function Provider({ children }) {
             updateSessionStart,
             updateTimeframe,
             updateSupportedTokens,
+            updateTokenLists,
             updateLatestBlock,
             updateHeadBlock,
-            updateBadImageUrls,
             reset,
           },
         ],
@@ -207,11 +206,11 @@ export default function Provider({ children }) {
           updateTimeframe,
           updateSessionStart,
           updateSupportedTokens,
+          updateTokenLists,
           updateLatestBlock,
           updateHeadBlock,
-          updateBadImageUrls,
           reset,
-        ]
+        ],
       )}
     >
       {children}
@@ -220,10 +219,7 @@ export default function Provider({ children }) {
 }
 
 export function useLatestBlocks() {
-  const [
-    state,
-    { updateLatestBlock, updateHeadBlock },
-  ] = useApplicationContext();
+  const [state, { updateLatestBlock, updateHeadBlock }] = useApplicationContext();
   const network = useSelectedNetwork();
 
   const latestBlock = state?.[LATEST_BLOCK];
@@ -239,12 +235,10 @@ export function useLatestBlocks() {
           },
         })
         .then((res) => {
-          const syncedBlock =
-            res.data.indexingStatusForCurrentVersion.chains[0].latestBlock
-              .number;
-          const headBlock =
-            res.data.indexingStatusForCurrentVersion.chains[0].chainHeadBlock
-              .number;
+          const [chainData] = res.data.indexingStatusForCurrentVersion.chains;
+          const syncedBlock = parseInt(chainData?.latestBlock?.number);
+          const headBlock = parseInt(chainData?.chainHeadBlock?.number);
+
           if (syncedBlock && headBlock) {
             updateLatestBlock(syncedBlock);
             updateHeadBlock(headBlock);
@@ -260,6 +254,18 @@ export function useLatestBlocks() {
   }, [latestBlock, updateHeadBlock, updateLatestBlock, network]);
 
   return [latestBlock, headBlock];
+}
+
+export function isSyncedBlockAboveThreshold(latestBlock, headBlock, selectedNetwork = undefined) {
+  if (isNaN(latestBlock) || isNaN(headBlock)) {
+    return false;
+  }
+
+  const threshold = selectedNetwork
+    ? BLOCK_DIFFERENCE_THRESHOLD[selectedNetwork] || DEFAULT_BLOCK_DIFFERENCE_THRESHOLD
+    : DEFAULT_BLOCK_DIFFERENCE_THRESHOLD;
+
+  return Math.abs(latestBlock - headBlock) > threshold;
 }
 
 export function useTimeframe() {
@@ -280,12 +286,12 @@ export function useStartTimestamp() {
         .subtract(
           1,
           activeWindow === timeframeOptions.week
-            ? "week"
+            ? 'week'
             : activeWindow === timeframeOptions.ALL_TIME
-            ? "year"
-            : "year"
+            ? 'year'
+            : 'year',
         )
-        .startOf("day")
+        .startOf('day')
         .unix() - 1;
     // if we find a new start time less than the current startrtime - update oldest pooint to fetch
     setStartDateTimestamp(startTime);
@@ -324,11 +330,42 @@ export function useApplicationContextResetter() {
   return reset;
 }
 
-export function useBadImageUrlsUpdater() {
-  const [, { updateBadImageUrls }] = useApplicationContext();
-  return updateBadImageUrls;
-}
-export function useBadImageUrls() {
-  const [state] = useApplicationContext();
-  return state[BAD_IMAGE_URLS];
+export function useTokensLists() {
+  const [state, { updateTokenLists }] = useApplicationContext();
+
+  useEffect(() => {
+    const tokenMap = new Map();
+    async function fetchTokensLists() {
+      const tokensLists = await Promise.all(
+        TOKEN_LISTS.map(async (url) => {
+          try {
+            const resp = await fetch(url);
+            return resp.json();
+          } catch (error) {
+            console.warn("error Couldn't load a token list");
+          }
+        }),
+      );
+
+      tokensLists
+        .filter((list) => list)
+        .forEach((list) => {
+          if (list?.tokens?.length > 0) {
+            list.tokens.forEach(({ address, logoURI }) => {
+              if (address && logoURI) {
+                tokenMap.set(address.toLowerCase(), { logoURI });
+              }
+            });
+          }
+        });
+
+      updateTokenLists(tokenMap);
+    }
+
+    if (state.TOKEN_LISTS.size === 0) {
+      fetchTokensLists();
+    }
+  }, [state.TOKEN_LISTS, updateTokenLists]);
+
+  return state.TOKEN_LISTS;
 }

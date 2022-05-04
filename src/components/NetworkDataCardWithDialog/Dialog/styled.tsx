@@ -27,6 +27,9 @@ const StyledDialogContent = styled(DialogContent)`
 
 const StyledDialogOverlay = styled(DialogOverlay)`
   z-index: 1;
+  display: flex;
+  justify-content: center;
+  align-items: center;
   background: hsla(0, 0%, 0%, 0.33);
   position: fixed;
   inset: 0;

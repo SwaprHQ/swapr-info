@@ -183,6 +183,7 @@ export const GlobalStyle = createGlobalStyle`
     background-color: ${({ theme }) => theme.bg6};
 
     scroll-behavior: smooth;
+    overflow-y: overlay;
 
     ::-webkit-scrollbar {
       width: 10px;

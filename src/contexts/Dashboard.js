@@ -4,7 +4,12 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
 import { clients } from '../apollo/client';
-import { DASHBOARD_CHART, DASHBOARD_COMULATIVE_DATA, DASHBOARD_SWAPS_HISTORY } from '../apollo/queries';
+import {
+  DASHBOARD_CHART,
+  DASHBOARD_COMULATIVE_DATA,
+  DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
+  DASHBOARD_SWAPS_HISTORY,
+} from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
@@ -250,7 +255,7 @@ export const useOneDaySwapsData = () => {
 
   useEffect(() => {
     async function fetchData() {
-      const oneDayTransactions = await getOneDayTransactions();
+      const oneDayTransactions = await getOneDaySwaps();
       updateOneDaySwaps(oneDayTransactions);
     }
 
@@ -278,7 +283,7 @@ const getPastMonthSwaps = async () => {
 
       while (fetchMore) {
         const { data } = await client.query({
-          query: DASHBOARD_SWAPS_HISTORY,
+          query: DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
           variables: {
             startTime: utcOneMonthBack,
             lastId,
@@ -317,7 +322,7 @@ const getPastMonthSwaps = async () => {
   }
 };
 
-const getOneDayTransactions = async () => {
+const getOneDaySwaps = async () => {
   try {
     let swaps = [];
 

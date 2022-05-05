@@ -42,8 +42,8 @@ const INITIAL_STATE = {
 const UPDATE_CHART = 'UPDATE_CHART';
 const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
-const UPDATE_ONE_DAY_TRANSACTIONS = 'UPDATE_ONE_DAY_TRANSACTIONS';
-const UPDATE_LOADING_TRANSACTIONS = 'UPDATE_LOADING_TRANSACTIONS';
+const UPDATE_ONE_DAY_SWAPS = 'UPDATE_ONE_DAY_SWAPS';
+const UPDATE_LOADING_SWAPS = 'UPDATE_LOADING_SWAPS';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -77,7 +77,7 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_LOADING_TRANSACTIONS: {
+    case UPDATE_LOADING_SWAPS: {
       const { loading } = payload;
       return {
         ...state,
@@ -88,7 +88,7 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_ONE_DAY_TRANSACTIONS: {
+    case UPDATE_ONE_DAY_SWAPS: {
       const { oneDay } = payload;
       return {
         ...state,
@@ -140,7 +140,7 @@ export default function Provider({ children }) {
 
   const updateLoadingSwaps = useCallback((loading) => {
     dispatch({
-      type: UPDATE_LOADING_TRANSACTIONS,
+      type: UPDATE_LOADING_SWAPS,
       payload: {
         loading,
       },
@@ -149,7 +149,7 @@ export default function Provider({ children }) {
 
   const updateOneDaySwaps = useCallback((oneDay) => {
     dispatch({
-      type: UPDATE_ONE_DAY_TRANSACTIONS,
+      type: UPDATE_ONE_DAY_SWAPS,
       payload: {
         oneDay,
       },

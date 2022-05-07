@@ -27,11 +27,11 @@ const SUPPORTED_CLIENTS = [
     network: SupportedNetwork.MAINNET,
     client: clients[SupportedNetwork.MAINNET],
   },
-  { network: SupportedNetwork.XDAI, client: clients[SupportedNetwork.XDAI] },
   {
     network: SupportedNetwork.ARBITRUM_ONE,
     client: clients[SupportedNetwork.ARBITRUM_ONE],
   },
+  { network: SupportedNetwork.XDAI, client: clients[SupportedNetwork.XDAI] },
 ];
 
 const INITIAL_STATE = {

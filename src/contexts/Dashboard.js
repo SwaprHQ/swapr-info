@@ -4,7 +4,12 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
 import { clients } from '../apollo/client';
-import { DASHBOARD_CHART, DASHBOARD_COMULATIVE_DATA, DASHBOARD_TRANSACTION_HISTORY } from '../apollo/queries';
+import {
+  DASHBOARD_CHART,
+  DASHBOARD_COMULATIVE_DATA,
+  DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
+  DASHBOARD_SWAPS_HISTORY,
+} from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
@@ -22,17 +27,23 @@ const SUPPORTED_CLIENTS = [
     network: SupportedNetwork.MAINNET,
     client: clients[SupportedNetwork.MAINNET],
   },
-  { network: SupportedNetwork.XDAI, client: clients[SupportedNetwork.XDAI] },
   {
     network: SupportedNetwork.ARBITRUM_ONE,
     client: clients[SupportedNetwork.ARBITRUM_ONE],
   },
+  { network: SupportedNetwork.XDAI, client: clients[SupportedNetwork.XDAI] },
 ];
 
-const INITIAL_STATE = { stackedChartData: {}, comulativeData: {}, transactions: [] };
+const INITIAL_STATE = {
+  stackedChartData: {},
+  comulativeData: {},
+  swaps: { loadingHistory: false },
+};
 const UPDATE_CHART = 'UPDATE_CHART';
 const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
+const UPDATE_ONE_DAY_SWAPS = 'UPDATE_ONE_DAY_SWAPS';
+const UPDATE_LOADING_SWAPS = 'UPDATE_LOADING_SWAPS';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -56,10 +67,35 @@ function reducer(state, { type, payload }) {
     }
 
     case UPDATE_TRANSACTIONS: {
-      const { transactions } = payload;
+      const { history } = payload;
       return {
         ...state,
-        transactions,
+        swaps: {
+          ...state.swaps,
+          history,
+        },
+      };
+    }
+
+    case UPDATE_LOADING_SWAPS: {
+      const { loading } = payload;
+      return {
+        ...state,
+        swaps: {
+          ...state.swaps,
+          loadingHistory: loading,
+        },
+      };
+    }
+
+    case UPDATE_ONE_DAY_SWAPS: {
+      const { oneDay } = payload;
+      return {
+        ...state,
+        swaps: {
+          ...state.swaps,
+          oneDay,
+        },
       };
     }
 
@@ -93,18 +129,36 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateTransactions = useCallback((transactions) => {
+  const updateSwaps = useCallback((history) => {
     dispatch({
       type: UPDATE_TRANSACTIONS,
       payload: {
-        transactions,
+        history,
+      },
+    });
+  }, []);
+
+  const updateLoadingSwaps = useCallback((loading) => {
+    dispatch({
+      type: UPDATE_LOADING_SWAPS,
+      payload: {
+        loading,
+      },
+    });
+  }, []);
+
+  const updateOneDaySwaps = useCallback((oneDay) => {
+    dispatch({
+      type: UPDATE_ONE_DAY_SWAPS,
+      payload: {
+        oneDay,
       },
     });
   }, []);
 
   const value = useMemo(
-    () => [state, { updateChart, updateComulativeData, updateTransactions }],
-    [state, updateChart, updateComulativeData, updateTransactions],
+    () => [state, { updateChart, updateComulativeData, updateSwaps, updateLoadingSwaps, updateOneDaySwaps }],
+    [state, updateChart, updateComulativeData, updateSwaps, updateLoadingSwaps, updateOneDaySwaps],
   );
 
   return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>;
@@ -170,31 +224,55 @@ export const useDashboardComulativeData = () => {
   return existingComulativeData;
 };
 
-export const useTransactionsData = () => {
-  const [state, { updateTransactions }] = useDashboardDataContext();
+export const useSwapsData = () => {
+  const [state, { updateSwaps, updateLoadingSwaps }] = useDashboardDataContext();
 
-  const existingTransactions = state?.transactions;
+  const existingSwaps = state?.swaps?.history;
+  const isLoadingSwaps = state?.swaps?.loadingHistory;
 
   useEffect(() => {
     async function fetchData() {
-      const transactions = await getTransactions();
-      updateTransactions(transactions);
+      updateLoadingSwaps(true);
+
+      const pastMonthSwaps = await getPastMonthSwaps();
+
+      updateSwaps(pastMonthSwaps);
+      updateLoadingSwaps(false);
     }
 
-    if (!existingTransactions || existingTransactions.length === 0) {
+    if (!isLoadingSwaps && (!existingSwaps || existingSwaps.length === 0)) {
       fetchData();
     }
-  }, [existingTransactions, updateTransactions]);
+  }, [existingSwaps, updateSwaps, updateLoadingSwaps, isLoadingSwaps]);
 
-  return existingTransactions;
+  return existingSwaps;
+};
+
+export const useOneDaySwapsData = () => {
+  const [state, { updateOneDaySwaps }] = useDashboardDataContext();
+
+  const existingSwaps = state?.swaps?.oneDay;
+
+  useEffect(() => {
+    async function fetchData() {
+      const oneDayTransactions = await getOneDaySwaps();
+      updateOneDaySwaps(oneDayTransactions);
+    }
+
+    if (!existingSwaps || existingSwaps.length === 0) {
+      fetchData();
+    }
+  }, [existingSwaps, updateOneDaySwaps]);
+
+  return existingSwaps;
 };
 
 /**
- * Get historical data for transactions for each network (last 1 month)
+ * Get historical data for swaps for each network (last 1 month)
  */
-const getTransactions = async () => {
+const getPastMonthSwaps = async () => {
   try {
-    let transactions = [];
+    let swaps = [];
 
     const utcCurrentTime = dayjs();
     const utcOneMonthBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
@@ -205,25 +283,25 @@ const getTransactions = async () => {
 
       while (fetchMore) {
         const { data } = await client.query({
-          query: DASHBOARD_TRANSACTION_HISTORY,
+          query: DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
           variables: {
             startTime: utcOneMonthBack,
             lastId,
           },
         });
 
-        if (data.transactions.length === 0) {
+        if (data.swaps.length === 0) {
           fetchMore = false;
           continue;
         }
 
-        lastId = data.transactions[data.transactions.length - 1].id;
-        transactions = transactions.concat(data.transactions.map((transaction) => ({ transaction, network })));
+        lastId = data.swaps[data.swaps.length - 1].id;
+        swaps = swaps.concat(data.swaps.map((swap) => ({ swap, network })));
       }
     }
 
-    const stackedTransactions = transactions.reduce((accumulator, current) => {
-      const dayOfTheYear = dayjs.unix(current.transaction.timestamp).dayOfYear();
+    const stackedSwaps = swaps.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.swap.timestamp).dayOfYear();
 
       return {
         ...accumulator,
@@ -238,7 +316,50 @@ const getTransactions = async () => {
       };
     }, {});
 
-    return Object.values(stackedTransactions);
+    return Object.values(stackedSwaps);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+const getOneDaySwaps = async () => {
+  try {
+    let swaps = [];
+
+    const utcCurrentTime = dayjs();
+    const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      let lastId = '';
+      let fetchMore = true;
+
+      while (fetchMore) {
+        const { data } = await client.query({
+          query: DASHBOARD_SWAPS_HISTORY,
+          variables: {
+            startTime: utcOneDayBack,
+            lastId,
+          },
+        });
+
+        if (data.swaps.length === 0) {
+          fetchMore = false;
+          continue;
+        }
+
+        lastId = data.swaps[data.swaps.length - 1].id;
+        swaps = swaps.concat(data.swaps.map((swap) => ({ swap, network })));
+      }
+    }
+
+    const oneDaySwaps = swaps.reduce((accumulator, current) => {
+      return {
+        ...accumulator,
+        [current.network]: accumulator[current.network] ? Number(accumulator[current.network]) + 1 : 1,
+      };
+    }, {});
+
+    return oneDaySwaps;
   } catch (error) {
     console.error(error);
   }

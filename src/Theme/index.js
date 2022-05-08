@@ -181,8 +181,26 @@ export const GlobalStyle = createGlobalStyle`
     height: 100%;
     font-size: 14px;    
     background-color: ${({ theme }) => theme.bg6};
+
+    scroll-behavior: smooth;
+    overflow-y: overlay;
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      border-left: 1px solid rgba(255,255,255,0.2);
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #B6B5B7;
+      border-radius: 100px;    
+    }
   }
 
+  
   a {
     text-decoration: none;
 

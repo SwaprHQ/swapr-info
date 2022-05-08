@@ -19,7 +19,7 @@ const NetworkLogo = {
 };
 
 const Wrapper = styled.div`
-  z-index: 20;
+  z-index: 1;
   position: relative;
   background-color: ${({ theme }) => theme.panelColor};
   border: 1px solid ${({ color, theme }) => color || theme.primary4};

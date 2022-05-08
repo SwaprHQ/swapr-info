@@ -444,11 +444,19 @@ export const DASHBOARD_COMULATIVE_DATA = gql`
   }
 `;
 
-export const DASHBOARD_TRANSACTION_HISTORY = gql`
-  query transactions($lastId: ID!, $startTime: Int!) {
-    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }, orderBy: id, orderDirection: asc) {
+export const DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP = gql`
+  query swaps($lastId: ID!, $startTime: Int!) {
+    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
       id
       timestamp
+    }
+  }
+`;
+
+export const DASHBOARD_SWAPS_HISTORY = gql`
+  query swaps($lastId: ID!, $startTime: Int!) {
+    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+      id
     }
   }
 `;

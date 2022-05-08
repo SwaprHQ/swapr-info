@@ -2,7 +2,6 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { TYPE } from '../../Theme';
-import { NETWORK_COLORS } from '../../constants';
 import { Header, Value, Content, Network, NetworkData, Title, Icon } from './styled';
 
 const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
@@ -17,7 +16,7 @@ const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
     <Content>
       {networksValues.map(({ network, value }, index) => (
         <NetworkData key={network} margin={index !== networksValues.length - 1}>
-          <Network color={NETWORK_COLORS[network]}>{network}</Network>
+          <Network>{network}</Network>
           <TYPE.main fontSize={15}>{value}</TYPE.main>
         </NetworkData>
       ))}

@@ -11,10 +11,11 @@ import { PageWrapper, ContentWrapper } from '../components';
 import { AutoColumn } from '../components/Column';
 import ComulativeNetworkDataCard from '../components/ComulativeNetworkDataCard';
 import LocalLoader from '../components/LocalLoader';
+import NetworkDataCardWithDialog from '../components/NetworkDataCardWithDialog';
 import Panel from '../components/Panel';
 import StackedChart from '../components/StackedChart';
 import { SupportedNetwork } from '../constants';
-import { useDashboardChartData, useDashboardComulativeData } from '../contexts/Dashboard';
+import { useDashboardChartData, useDashboardComulativeData, useOneDaySwapsData } from '../contexts/Dashboard';
 import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
@@ -41,6 +42,7 @@ const GridCard = styled.div`
 const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <LocalLoader /> : children}</Panel>;
 
 const DashboardPage = () => {
+  const oneDayTransactions = useOneDaySwapsData();
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
@@ -112,6 +114,7 @@ const DashboardPage = () => {
   const isVolumeAndTvlLoading = chartData === undefined || Object.keys(chartData).length === 0;
   const isComulativeDataLoading =
     formattedComulativeData.trades.length === 0 || formattedComulativeData.volume.length === 0;
+  const isLoadingOneDayTransactions = oneDayTransactions === undefined || Object.keys(oneDayTransactions).length === 0;
 
   return (
     <PageWrapper>
@@ -138,10 +141,18 @@ const DashboardPage = () => {
                 </PanelLoaderWrapper>
                 <PanelLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
-                    title={'Total trades'}
+                    title={'Total transactions'}
                     icon={<FileText size={22} color={'#50dfb6'} />}
                     comulativeValue={formattedNum(comulativeData.totalTrades)}
                     networksValues={formattedComulativeData.trades}
+                  />
+                </PanelLoaderWrapper>
+                <PanelLoaderWrapper isLoading={isLoadingOneDayTransactions}>
+                  <NetworkDataCardWithDialog
+                    title={'Trades (past 24h)'}
+                    icon={<FileText size={22} color={'#50dfb6'} />}
+                    dialogContent={'content'}
+                    networksValues={oneDayTransactions}
                   />
                 </PanelLoaderWrapper>
               </AutoColumn>
@@ -164,10 +175,18 @@ const DashboardPage = () => {
                   </PanelLoaderWrapper>
                   <PanelLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
-                      title={'Total trades'}
+                      title={'Total transactions'}
                       icon={<FileText size={22} color={'#50dfb6'} />}
                       comulativeValue={formattedNum(comulativeData.totalTrades)}
                       networksValues={formattedComulativeData.trades}
+                    />
+                  </PanelLoaderWrapper>
+                  <PanelLoaderWrapper isLoading={isLoadingOneDayTransactions}>
+                    <NetworkDataCardWithDialog
+                      title={'Trades (past 24h)'}
+                      icon={<FileText size={22} color={'#50dfb6'} />}
+                      dialogContent={'content'}
+                      networksValues={oneDayTransactions}
                     />
                   </PanelLoaderWrapper>
                 </AutoColumn>
@@ -194,10 +213,18 @@ const DashboardPage = () => {
                     </PanelLoaderWrapper>
                     <PanelLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
-                        title={'Total trades'}
+                        title={'Total transactions'}
                         icon={<FileText size={22} color={'#50dfb6'} />}
                         comulativeValue={formattedNum(comulativeData.totalTrades)}
                         networksValues={formattedComulativeData.trades}
+                      />
+                    </PanelLoaderWrapper>
+                    <PanelLoaderWrapper isLoading={isLoadingOneDayTransactions}>
+                      <NetworkDataCardWithDialog
+                        title={'Trades (past 24h)'}
+                        icon={<FileText size={22} color={'#50dfb6'} />}
+                        dialogContent={'content'}
+                        networksValues={oneDayTransactions}
                       />
                     </PanelLoaderWrapper>
                   </GridCard>

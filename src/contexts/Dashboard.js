@@ -9,6 +9,8 @@ import {
   DASHBOARD_COMULATIVE_DATA,
   DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
   DASHBOARD_SWAPS_HISTORY,
+  DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS,
+  DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP,
 } from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
@@ -38,12 +40,16 @@ const INITIAL_STATE = {
   stackedChartData: {},
   comulativeData: {},
   swaps: { loadingHistory: false },
+  wallets: { loadingHistory: false },
 };
 const UPDATE_CHART = 'UPDATE_CHART';
 const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
 const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
 const UPDATE_ONE_DAY_SWAPS = 'UPDATE_ONE_DAY_SWAPS';
 const UPDATE_LOADING_SWAPS = 'UPDATE_LOADING_SWAPS';
+const UPDATE_ONE_DAY_WALLETS = 'UPDATE_ONE_DAY_WALLETS';
+const UPDATE_WALLETS = 'UPDATE_WALLETS';
+const UPDATE_LOADING_WALLETS = 'UPDATE_LOADING_WALLETS';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -95,6 +101,39 @@ function reducer(state, { type, payload }) {
         swaps: {
           ...state.swaps,
           oneDay,
+        },
+      };
+    }
+
+    case UPDATE_WALLETS: {
+      const { history } = payload;
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          history,
+        },
+      };
+    }
+
+    case UPDATE_ONE_DAY_WALLETS: {
+      const { oneDay } = payload;
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          oneDay,
+        },
+      };
+    }
+
+    case UPDATE_LOADING_WALLETS: {
+      const { loading } = payload;
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          loadingHistory: loading,
         },
       };
     }
@@ -156,9 +195,58 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateWallets = useCallback((history) => {
+    dispatch({
+      type: UPDATE_WALLETS,
+      payload: {
+        history,
+      },
+    });
+  }, []);
+
+  const updateOneDayWallets = useCallback((oneDay) => {
+    dispatch({
+      type: UPDATE_ONE_DAY_WALLETS,
+      payload: {
+        oneDay,
+      },
+    });
+  }, []);
+
+  const updateLoadingWallets = useCallback((loading) => {
+    dispatch({
+      type: UPDATE_LOADING_WALLETS,
+      payload: {
+        loading,
+      },
+    });
+  }, []);
+
   const value = useMemo(
-    () => [state, { updateChart, updateComulativeData, updateSwaps, updateLoadingSwaps, updateOneDaySwaps }],
-    [state, updateChart, updateComulativeData, updateSwaps, updateLoadingSwaps, updateOneDaySwaps],
+    () => [
+      state,
+      {
+        updateChart,
+        updateComulativeData,
+        updateSwaps,
+        updateLoadingSwaps,
+        updateOneDaySwaps,
+        updateWallets,
+        updateOneDayWallets,
+        updateLoadingWallets,
+      },
+    ],
+    [
+      state,
+      updateChart,
+      updateComulativeData,
+      updateSwaps,
+      updateLoadingSwaps,
+      updateOneDaySwaps,
+      updateWallets,
+      updateOneDayWallets,
+      updateLoadingWallets,
+    ],
   );
 
   return <DashboardDataContext.Provider value={value}>{children}</DashboardDataContext.Provider>;
@@ -267,6 +355,183 @@ export const useOneDaySwapsData = () => {
   return existingSwaps;
 };
 
+export const useOneDayWalletsData = () => {
+  const [state, { updateOneDayWallets }] = useDashboardDataContext();
+
+  const existingWallets = state?.wallets?.oneDay;
+
+  useEffect(() => {
+    async function fetchData() {
+      const oneDayWallets = await getOneDayWallets();
+      updateOneDayWallets(oneDayWallets);
+    }
+
+    if (!existingWallets || existingWallets.length === 0) {
+      fetchData();
+    }
+  }, [existingWallets, updateOneDayWallets]);
+
+  return existingWallets;
+};
+
+export const usePastMonthWalletsData = () => {
+  const [state, { updateWallets, updateLoadingWallets }] = useDashboardDataContext();
+
+  const existingWallets = state?.wallets?.history;
+  const isLoadingWallets = state?.wallets?.loadingHistory;
+
+  useEffect(() => {
+    async function fetchData() {
+      updateLoadingWallets(true);
+
+      const pastMonthWallets = await getPastMonthWallets();
+
+      updateWallets(pastMonthWallets);
+      updateLoadingWallets(false);
+    }
+
+    if (!isLoadingWallets && (!existingWallets || existingWallets.length === 0)) {
+      fetchData();
+    }
+  }, [isLoadingWallets, existingWallets, updateWallets, updateLoadingWallets]);
+
+  return existingWallets;
+};
+
+/**
+ * Get data for unique wallets that provided liquidity or performed a swap,
+ * for each network for the past 24h
+ */
+const getOneDayWallets = async () => {
+  try {
+    let swapsAndMints = [];
+
+    const utcCurrentTime = dayjs();
+    const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      let lastId = '';
+      let fetchMore = true;
+
+      while (fetchMore) {
+        const { data } = await client.query({
+          query: DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS,
+          variables: {
+            startTime: utcOneDayBack,
+            lastId,
+          },
+        });
+
+        if (data.transactions.length === 0) {
+          fetchMore = false;
+          continue;
+        }
+
+        lastId = data.transactions[data.transactions.length - 1].id;
+        swapsAndMints = swapsAndMints.concat(
+          ...data.transactions.map(({ swaps, mints }) => [
+            ...swaps.map(({ to }) => ({ to, network })),
+            ...mints.map(({ to }) => ({ to, network })),
+          ]),
+        );
+      }
+    }
+
+    const uniqueWallets = swapsAndMints.reduce(
+      (accumulator, current) => ({
+        ...accumulator,
+        [current.network]: {
+          ...accumulator[current.network],
+          [current.to]: true,
+        },
+      }),
+      {},
+    );
+
+    const uniqueWalletsPerNetwork = Object.keys(uniqueWallets).reduce(
+      (accumulator, current) => ({
+        ...accumulator,
+        [current]: Object.values(uniqueWallets[current]).length,
+      }),
+      {},
+    );
+
+    return uniqueWalletsPerNetwork;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Get data for unique wallets that provided liquidity or performed a swap,
+ * for each network for the past month
+ */
+const getPastMonthWallets = async () => {
+  try {
+    let swapsAndMints = [];
+
+    const utcCurrentTime = dayjs();
+    const utcOneDayBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      let lastId = '';
+      let fetchMore = true;
+
+      while (fetchMore) {
+        const { data } = await client.query({
+          query: DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP,
+          variables: {
+            startTime: utcOneDayBack,
+            lastId,
+          },
+        });
+
+        if (data.transactions.length === 0) {
+          fetchMore = false;
+          continue;
+        }
+
+        lastId = data.transactions[data.transactions.length - 1].id;
+        swapsAndMints = swapsAndMints.concat(
+          ...data.transactions.map(({ timestamp, swaps, mints }) => [
+            ...swaps.map(({ to }) => ({ timestamp, to, network })),
+            ...mints.map(({ to }) => ({ timestamp, to, network })),
+          ]),
+        );
+      }
+    }
+
+    let uniqueWallets = {};
+    swapsAndMints.forEach(({ network, timestamp, to }) => {
+      uniqueWallets[to] = {
+        timestamp,
+        network,
+      };
+    });
+    uniqueWallets = Object.values(uniqueWallets);
+
+    const stackedWallets = uniqueWallets.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.timestamp).dayOfYear();
+
+      return {
+        ...accumulator,
+        [dayOfTheYear]: {
+          ...accumulator[dayOfTheYear],
+          time: dayjs().dayOfYear(dayOfTheYear).utc().format('YYYY-MM-DD'),
+          [current.network]:
+            accumulator[dayOfTheYear] && accumulator[dayOfTheYear][current.network]
+              ? Number(accumulator[dayOfTheYear][current.network]) + 1
+              : 1,
+        },
+      };
+    }, {});
+
+    return Object.values(stackedWallets);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 /**
  * Get historical data for swaps for each network (last 1 month)
  */
@@ -322,6 +587,9 @@ const getPastMonthSwaps = async () => {
   }
 };
 
+/**
+ * Get data for swaps for each network for the past 24h
+ */
 const getOneDaySwaps = async () => {
   try {
     let swaps = [];

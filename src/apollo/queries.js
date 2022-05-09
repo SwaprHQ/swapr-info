@@ -461,6 +461,35 @@ export const DASHBOARD_SWAPS_HISTORY = gql`
   }
 `;
 
+export const DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP = gql`
+  query transactions($lastId: ID!, $startTime: Int!) {
+    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+      id
+      timestamp
+      mints {
+        to
+      }
+      swaps {
+        to
+      }
+    }
+  }
+`;
+
+export const DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS = gql`
+  query transactions($lastId: ID!, $startTime: Int!) {
+    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+      id
+      mints {
+        to
+      }
+      swaps {
+        to
+      }
+    }
+  }
+`;
+
 export const DASHBOARD_CHART = gql`
   query swaprDayDatas($startTime: Int!, $skip: Int!) {
     swaprDayDatas(first: 365, skip: $skip, where: { date_gt: $startTime }, orderBy: date, orderDirection: asc) {

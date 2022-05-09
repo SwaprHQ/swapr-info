@@ -1,5 +1,12 @@
-import { Maximize2 } from 'react-feather';
+import { BarChart2 } from 'react-feather';
 import styled from 'styled-components';
+
+const Wrapper = styled.div`
+  height: 163px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+`;
 
 const Header = styled.div`
   display: flex;
@@ -15,10 +22,10 @@ const Title = styled.div`
 `;
 
 const Icon = styled.div`
-  margin-right: 8px;
+  margin-right: 10px;
 `;
 
-const OpenChartIcon = styled(Maximize2)`
+const OpenChartIcon = styled(BarChart2)`
   color: ${({ theme }) => theme.text2};
 
   &:hover {
@@ -42,6 +49,8 @@ const Content = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  padding-left: 10%;
+  padding-right: 10%;
 `;
 
 const NetworkData = styled.div`
@@ -49,4 +58,4 @@ const NetworkData = styled.div`
   margin-right: 36px;
 `;
 
-export { Header, Title, Icon, OpenChartIcon, Value, Network, Content, NetworkData };
+export { Wrapper, Header, Title, Icon, OpenChartIcon, Value, Network, Content, NetworkData };

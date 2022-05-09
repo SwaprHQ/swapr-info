@@ -1,5 +1,12 @@
 import styled from 'styled-components';
 
+const Wrapper = styled.div`
+  height: 163px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-around;
+`;
+
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
@@ -32,6 +39,8 @@ const Content = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+  padding-left: 10%;
+  padding-right: 10%;
 `;
 
 const NetworkData = styled.div`
@@ -39,4 +48,4 @@ const NetworkData = styled.div`
   margin-right: 36px;
 `;
 
-export { Header, Title, Icon, Value, Network, Content, NetworkData };
+export { Wrapper, Header, Title, Icon, Value, Network, Content, NetworkData };

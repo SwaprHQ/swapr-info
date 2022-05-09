@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: 180px;
+  min-height: ${({ height }) => (height ? height : '180px')};
   width: 100%;
 
   ${(props) =>
@@ -34,11 +34,11 @@ const AnimatedImg = styled.div`
   }
 `;
 
-const LocalLoader = ({ fill }) => {
+const LocalLoader = ({ fill, height }) => {
   const [darkMode] = useDarkModeManager();
 
   return (
-    <Wrapper fill={fill}>
+    <Wrapper fill={fill} height={height}>
       <AnimatedImg>
         <img
           src={require(darkMode ? '../../assets/svg/logo_white.svg' : '../../assets/svg/logo.svg')}

@@ -1,10 +1,8 @@
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
-  height: 163px;
   display: flex;
   flex-direction: column;
-  justify-content: space-around;
 `;
 
 const Header = styled.div`
@@ -39,8 +37,6 @@ const Content = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
-  padding-left: 10%;
-  padding-right: 10%;
 `;
 
 const NetworkData = styled.div`

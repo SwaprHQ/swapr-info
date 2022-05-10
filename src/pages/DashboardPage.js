@@ -10,6 +10,7 @@ import { TYPE, ThemedBackground } from '../Theme';
 import { PageWrapper, ContentWrapper } from '../components';
 import { AutoColumn } from '../components/Column';
 import ComulativeNetworkDataCard from '../components/ComulativeNetworkDataCard';
+import Icon from '../components/Icon';
 import LocalLoader from '../components/LocalLoader';
 import NetworkDataCardWithDialog from '../components/NetworkDataCardWithDialog';
 import Panel from '../components/Panel';
@@ -146,7 +147,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'All time volume'}
-                    icon={<DollarSign size={22} color={'#50dfb6'} />}
+                    icon={<Icon icon={<DollarSign />} />}
                     comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                     networksValues={formattedComulativeData.volume}
                   />
@@ -154,7 +155,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'Total transactions'}
-                    icon={<FileText size={22} color={'#50dfb6'} />}
+                    icon={<Icon icon={<FileText />} />}
                     comulativeValue={formattedNum(comulativeData.totalTrades)}
                     networksValues={formattedComulativeData.trades}
                   />
@@ -162,7 +163,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                   <NetworkDataCardWithDialog
                     title={'Trades (past 24h)'}
-                    icon={<FileText size={22} color={'#50dfb6'} />}
+                    icon={<Icon icon={<FileText />} />}
                     dialogContent={'content'}
                     networksValues={oneDayTransactions}
                   />
@@ -171,7 +172,7 @@ const DashboardPage = () => {
                   <NetworkDataCardWithDialog
                     title={'Wallets (past 24h)'}
                     chartTitle={'Wallets'}
-                    icon={<Users size={22} color={'#50dfb6'} />}
+                    icon={<Icon icon={<Users />} />}
                     networksValues={oneDayWalletsData}
                     historicalDataHook={usePastMonthWalletsData}
                   />
@@ -189,7 +190,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'All time volume'}
-                      icon={<DollarSign size={22} color={'#50dfb6'} />}
+                      icon={<Icon icon={<DollarSign />} />}
                       comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                       networksValues={formattedComulativeData.volume}
                     />
@@ -197,7 +198,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'Total transactions'}
-                      icon={<FileText size={22} color={'#50dfb6'} />}
+                      icon={<Icon icon={<FileText />} />}
                       comulativeValue={formattedNum(comulativeData.totalTrades)}
                       networksValues={formattedComulativeData.trades}
                     />
@@ -205,7 +206,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                     <NetworkDataCardWithDialog
                       title={'Trades (past 24h)'}
-                      icon={<FileText size={22} color={'#50dfb6'} />}
+                      icon={<Icon icon={<FileText />} />}
                       dialogContent={'content'}
                       networksValues={oneDayTransactions}
                     />
@@ -214,7 +215,7 @@ const DashboardPage = () => {
                     <NetworkDataCardWithDialog
                       title={'Wallets (past 24h)'}
                       chartTitle={'Wallets'}
-                      icon={<Users size={22} color={'#50dfb6'} />}
+                      icon={<Icon icon={<Users />} />}
                       networksValues={oneDayWalletsData}
                       historicalDataHook={usePastMonthWalletsData}
                     />
@@ -236,7 +237,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'All time volume'}
-                        icon={<DollarSign size={22} color={'#50dfb6'} />}
+                        icon={<Icon icon={<DollarSign />} />}
                         comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                         networksValues={formattedComulativeData.volume}
                       />
@@ -244,7 +245,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'Total transactions'}
-                        icon={<FileText size={22} color={'#50dfb6'} />}
+                        icon={<Icon icon={<FileText />} />}
                         comulativeValue={formattedNum(comulativeData.totalTrades)}
                         networksValues={formattedComulativeData.trades}
                       />
@@ -262,7 +263,7 @@ const DashboardPage = () => {
                       <NetworkDataCardWithDialog
                         title={'Wallets (past 24h)'}
                         chartTitle={'Wallets'}
-                        icon={<Users size={22} color={'#50dfb6'} />}
+                        icon={<Icon icon={<Users />} />}
                         networksValues={oneDayWalletsData}
                         historicalDataHook={usePastMonthWalletsData}
                       />

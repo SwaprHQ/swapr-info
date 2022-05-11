@@ -1,5 +1,10 @@
 import styled from 'styled-components';
 
+const Wrapper = styled.div`
+  display: flex;
+  flex-direction: column;
+`;
+
 const Header = styled.div`
   display: flex;
   justify-content: space-between;
@@ -39,4 +44,4 @@ const NetworkData = styled.div`
   margin-right: 36px;
 `;
 
-export { Header, Title, Icon, Value, Network, Content, NetworkData };
+export { Wrapper, Header, Title, Icon, Value, Network, Content, NetworkData };

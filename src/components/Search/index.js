@@ -20,7 +20,6 @@ import TokenLogo from '../TokenLogo';
 
 const Container = styled.div`
   height: 48px;
-  z-index: 30;
   position: relative;
 
   @media screen and (max-width: 600px) {
@@ -39,7 +38,6 @@ const Wrapper = styled.div`
   background: ${({ theme }) => transparentize(0.4, theme.bg6)};
   border-bottom-right-radius: ${({ open }) => (open ? '0px' : '12px')};
   border-bottom-left-radius: ${({ open }) => (open ? '0px' : '12px')};
-  z-index: 9999;
   width: 100%;
   min-width: 300px;
   box-sizing: border-box;
@@ -105,9 +103,10 @@ const CloseIcon = styled(X)`
 `;
 
 const Menu = styled.div`
+  position: absolute;
+  z-index: 3;
   display: flex;
   flex-direction: column;
-  z-index: 9999;
   width: 100%;
   top: 50px;
   max-height: 540px;

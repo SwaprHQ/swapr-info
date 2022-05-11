@@ -4,6 +4,7 @@ import styled from 'styled-components';
 import TokenLogo from '../TokenLogo';
 
 const TokenWrapper = styled.div`
+  z-index: 0;
   position: relative;
   display: flex;
   flex-direction: row;

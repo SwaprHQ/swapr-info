@@ -103,7 +103,7 @@ const GlobalChart = ({
             bottom: '70px',
             position: 'absolute',
             left: '20px',
-            zIndex: 10,
+            zIndex: 2,
           }}
         >
           <OptionButton

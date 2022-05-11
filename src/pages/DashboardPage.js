@@ -254,7 +254,7 @@ const DashboardPage = () => {
                       <NetworkDataCardWithDialog
                         title={'Trades (past 24h)'}
                         chartTitle={'Trades'}
-                        icon={<Repeat size={22} color={'#50dfb6'} />}
+                        icon={<Icon icon={<Repeat />} />}
                         networksValues={oneDayTransactions}
                         historicalDataHook={useSwapsData}
                       />

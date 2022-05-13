@@ -461,31 +461,30 @@ export const DASHBOARD_SWAPS_HISTORY = gql`
   }
 `;
 
-export const DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP = gql`
-  query transactions($lastId: ID!, $startTime: Int!) {
-    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+export const DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP = gql`
+  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
+    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
       id
+      to
       timestamp
-      mints {
-        to
-      }
-      swaps {
-        to
-      }
+    }
+    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
+      id
+      to
+      timestamp
     }
   }
 `;
 
-export const DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS = gql`
-  query transactions($lastId: ID!, $startTime: Int!) {
-    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+export const DASHBOARD_MINTS_AND_SWAPS = gql`
+  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
+    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
       id
-      mints {
-        to
-      }
-      swaps {
-        to
-      }
+      to
+    }
+    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
+      id
+      to
     }
   }
 `;

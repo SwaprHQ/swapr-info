@@ -9,8 +9,8 @@ import {
   DASHBOARD_COMULATIVE_DATA,
   DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
   DASHBOARD_SWAPS_HISTORY,
-  DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS,
-  DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP,
+  DASHBOARD_MINTS_AND_SWAPS,
+  DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP,
 } from '../apollo/queries';
 import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
@@ -410,29 +410,30 @@ const getOneDayWallets = async () => {
     const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastId = '';
+      let lastMintId = '';
+      let lastSwapId = '';
       let fetchMore = true;
 
       while (fetchMore) {
         const { data } = await client.query({
-          query: DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS,
+          query: DASHBOARD_MINTS_AND_SWAPS,
           variables: {
             startTime: utcOneDayBack,
-            lastId,
+            lastMintId,
+            lastSwapId,
           },
         });
 
-        if (data.transactions.length === 0) {
+        if (data.mints.length === 0 && data.swaps.length === 0) {
           fetchMore = false;
           continue;
         }
 
-        lastId = data.transactions[data.transactions.length - 1].id;
+        lastMintId = data.mints.length > 0 ? data.mints[data.mints.length - 1].id : lastMintId;
+        lastSwapId = data.swaps.length > 0 ? data.swaps[data.swaps.length - 1].id : lastSwapId;
         swapsAndMints = swapsAndMints.concat(
-          ...data.transactions.map(({ swaps, mints }) => [
-            ...swaps.map(({ to }) => ({ to, network })),
-            ...mints.map(({ to }) => ({ to, network })),
-          ]),
+          ...data.mints.map(({ to }) => ({ to, network })),
+          ...data.swaps.map(({ to }) => ({ to, network })),
         );
       }
     }
@@ -474,29 +475,30 @@ const getPastMonthWallets = async () => {
     const utcOneDayBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastId = '';
+      let lastMintId = '';
+      let lastSwapId = '';
       let fetchMore = true;
 
       while (fetchMore) {
         const { data } = await client.query({
-          query: DASHBOARD_MINTS_AND_SWAPS_TRANSACTIONS_WITH_TIMESTAMP,
+          query: DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP,
           variables: {
             startTime: utcOneDayBack,
-            lastId,
+            lastMintId,
+            lastSwapId,
           },
         });
 
-        if (data.transactions.length === 0) {
+        if (data.mints.length === 0 && data.swaps.length === 0) {
           fetchMore = false;
           continue;
         }
 
-        lastId = data.transactions[data.transactions.length - 1].id;
+        lastMintId = data.mints.length > 0 ? data.mints[data.mints.length - 1].id : lastMintId;
+        lastSwapId = data.swaps.length > 0 ? data.swaps[data.swaps.length - 1].id : lastSwapId;
         swapsAndMints = swapsAndMints.concat(
-          ...data.transactions.map(({ timestamp, swaps, mints }) => [
-            ...swaps.map(({ to }) => ({ timestamp, to, network })),
-            ...mints.map(({ to }) => ({ timestamp, to, network })),
-          ]),
+          ...data.mints.map(({ timestamp, to }) => ({ timestamp, to, network })),
+          ...data.swaps.map(({ timestamp, to }) => ({ timestamp, to, network })),
         );
       }
     }

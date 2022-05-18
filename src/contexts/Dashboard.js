@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import dayOfYear from 'dayjs/plugin/dayOfYear';
+import utc from 'dayjs/plugin/utc';
 import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useReducer, useState, createContext, useContext, useMemo } from 'react';
 
@@ -16,6 +17,7 @@ import { SupportedNetwork } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
 
+dayjs.extend(utc);
 dayjs.extend(dayOfYear);
 
 const DashboardDataContext = createContext();
@@ -406,8 +408,7 @@ const getOneDayWallets = async () => {
   try {
     let swapsAndMints = [];
 
-    const utcCurrentTime = dayjs();
-    const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+    const utcOneDayBack = dayjs.utc().startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
       let lastMintId = '';
@@ -471,8 +472,7 @@ const getPastMonthWallets = async () => {
   try {
     let swapsAndMints = [];
 
-    const utcCurrentTime = dayjs();
-    const utcOneDayBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
+    const utcOneDayBack = dayjs.utc().subtract(1, 'month').startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
       let lastMintId = '';
@@ -503,32 +503,28 @@ const getPastMonthWallets = async () => {
       }
     }
 
-    let uniqueWallets = {};
-    swapsAndMints.forEach(({ network, timestamp, to }) => {
-      uniqueWallets[to] = {
-        timestamp,
-        network,
-      };
-    });
-    uniqueWallets = Object.values(uniqueWallets);
-
-    const stackedWallets = uniqueWallets.reduce((accumulator, current) => {
-      const dayOfTheYear = dayjs.unix(current.timestamp).dayOfYear();
+    const stackedWallets = swapsAndMints.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.timestamp).utc().startOf('day').dayOfYear();
 
       return {
         ...accumulator,
         [dayOfTheYear]: {
           ...accumulator[dayOfTheYear],
-          time: dayjs().dayOfYear(dayOfTheYear).utc().format('YYYY-MM-DD'),
-          [current.network]:
-            accumulator[dayOfTheYear] && accumulator[dayOfTheYear][current.network]
-              ? Number(accumulator[dayOfTheYear][current.network]) + 1
-              : 1,
+          time: dayjs.utc().dayOfYear(dayOfTheYear).startOf('day').format('YYYY-MM-DD'),
+          [current.network]: {
+            ...(accumulator[dayOfTheYear] ? accumulator[dayOfTheYear][current.network] : {}),
+            [current.to]: true,
+          },
         },
       };
     }, {});
 
-    return Object.values(stackedWallets);
+    return Object.values(stackedWallets).map((stackedValue) => ({
+      time: stackedValue.time,
+      [SupportedNetwork.MAINNET]: Object.keys(stackedValue[SupportedNetwork.MAINNET]).length,
+      [SupportedNetwork.XDAI]: Object.keys(stackedValue[SupportedNetwork.XDAI]).length,
+      [SupportedNetwork.ARBITRUM_ONE]: Object.keys(stackedValue[SupportedNetwork.ARBITRUM_ONE]).length,
+    }));
   } catch (error) {
     console.error(error);
   }
@@ -541,8 +537,7 @@ const getPastMonthSwaps = async () => {
   try {
     let swaps = [];
 
-    const utcCurrentTime = dayjs();
-    const utcOneMonthBack = utcCurrentTime.subtract(1, 'month').startOf('minute').unix();
+    const utcOneMonthBack = dayjs.utc().subtract(1, 'month').startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
       let lastId = '';
@@ -568,13 +563,13 @@ const getPastMonthSwaps = async () => {
     }
 
     const stackedSwaps = swaps.reduce((accumulator, current) => {
-      const dayOfTheYear = dayjs.unix(current.swap.timestamp).dayOfYear();
+      const dayOfTheYear = dayjs.unix(current.swap.timestamp).utc().startOf('day').dayOfYear();
 
       return {
         ...accumulator,
         [dayOfTheYear]: {
           ...accumulator[dayOfTheYear],
-          time: dayjs().dayOfYear(dayOfTheYear).utc().format('YYYY-MM-DD'),
+          time: dayjs.utc().dayOfYear(dayOfTheYear).startOf('day').format('YYYY-MM-DD'),
           [current.network]:
             accumulator[dayOfTheYear] && accumulator[dayOfTheYear][current.network]
               ? Number(accumulator[dayOfTheYear][current.network]) + 1
@@ -596,8 +591,7 @@ const getOneDaySwaps = async () => {
   try {
     let swaps = [];
 
-    const utcCurrentTime = dayjs();
-    const utcOneDayBack = utcCurrentTime.subtract(1, 'day').startOf('minute').unix();
+    const utcOneDayBack = dayjs.utc().startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
       let lastId = '';

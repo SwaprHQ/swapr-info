@@ -162,7 +162,7 @@ const DashboardPage = () => {
                 </CardLoaderWrapper>
                 <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                   <NetworkDataCardWithDialog
-                    title={'Trades (past 24h)'}
+                    title={'Trades (today)'}
                     icon={<Icon icon={<FileText />} />}
                     dialogContent={'content'}
                     networksValues={oneDayTransactions}
@@ -170,7 +170,7 @@ const DashboardPage = () => {
                 </CardLoaderWrapper>
                 <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
                   <NetworkDataCardWithDialog
-                    title={'Wallets (past 24h)'}
+                    title={'Wallets (today)'}
                     chartTitle={'Wallets'}
                     icon={<Icon icon={<Users />} />}
                     networksValues={oneDayWalletsData}
@@ -205,7 +205,7 @@ const DashboardPage = () => {
                   </CardLoaderWrapper>
                   <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                     <NetworkDataCardWithDialog
-                      title={'Trades (past 24h)'}
+                      title={'Trades (today)'}
                       icon={<Icon icon={<FileText />} />}
                       dialogContent={'content'}
                       networksValues={oneDayTransactions}
@@ -213,7 +213,7 @@ const DashboardPage = () => {
                   </CardLoaderWrapper>
                   <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
                     <NetworkDataCardWithDialog
-                      title={'Wallets (past 24h)'}
+                      title={'Wallets (today)'}
                       chartTitle={'Wallets'}
                       icon={<Icon icon={<Users />} />}
                       networksValues={oneDayWalletsData}
@@ -252,7 +252,7 @@ const DashboardPage = () => {
                     </CardLoaderWrapper>
                     <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                       <NetworkDataCardWithDialog
-                        title={'Trades (past 24h)'}
+                        title={'Trades (today)'}
                         chartTitle={'Trades'}
                         icon={<Icon icon={<Repeat />} />}
                         networksValues={oneDayTransactions}
@@ -261,7 +261,7 @@ const DashboardPage = () => {
                     </CardLoaderWrapper>
                     <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
                       <NetworkDataCardWithDialog
-                        title={'Wallets (past 24h)'}
+                        title={'Wallets (today)'}
                         chartTitle={'Wallets'}
                         icon={<Icon icon={<Users />} />}
                         networksValues={oneDayWalletsData}

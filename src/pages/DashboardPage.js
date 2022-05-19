@@ -1,8 +1,7 @@
 import dayjs from 'dayjs';
 import { transparentize } from 'polished';
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useMemo, useState } from 'react';
 import { DollarSign, FileText, Repeat, Users, Zap } from 'react-feather';
-import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
@@ -58,13 +57,11 @@ const DashboardPage = () => {
   const oneDayWalletsData = useOneDayWalletsData();
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
-  const uncollectedFeesData = useUncollectedFeesData();
+  const { uncollectedFeesData, loading: isLoadingUncollectedFees } = useUncollectedFeesData();
 
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
   const [formattedVolumeData, setFormattedVolumeData] = useState([]);
   const [formattedComulativeData, setFormattedComulativeData] = useState({ trades: [], volume: [] });
-  const [formattedUncollectedFees, setFormattedUncollectedFees] = useState({ total: 0, networkValues: [] });
-
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
   const below1400 = useMedia('(max-width: 1400px)');
@@ -120,16 +117,13 @@ const DashboardPage = () => {
     }
   }, [comulativeData]);
 
-  useEffect(() => {
-    if (uncollectedFeesData && Object.keys(uncollectedFeesData).length > 0) {
-      const formattedValues = Object.keys(uncollectedFeesData)
-        // include only network specific data
+  const formattedUncollectedFees = useMemo(
+    () =>
+      Object.keys(uncollectedFeesData ?? {})
         .filter((key) => Object.values(SupportedNetwork).includes(key))
-        .map((network) => ({ network, value: `$ ${formattedNum(uncollectedFeesData[network])}` }));
-
-      setFormattedUncollectedFees({ total: uncollectedFeesData.total, networkValues: formattedValues });
-    }
-  }, [uncollectedFeesData]);
+        .map((network) => ({ network, value: `$ ${formattedNum(uncollectedFeesData[network])}` })),
+    [uncollectedFeesData],
+  );
 
   useEffect(() => {
     window.scrollTo({
@@ -143,8 +137,6 @@ const DashboardPage = () => {
     formattedComulativeData.trades.length === 0 || formattedComulativeData.volume.length === 0;
   const isLoadingOneDayTransactions = oneDayTransactions === undefined || Object.keys(oneDayTransactions).length === 0;
   const isLoadingOneDayWallets = oneDayWalletsData === undefined || Object.keys(oneDayWalletsData).length === 0;
-  const isLoadingUncollectedFees =
-    formattedUncollectedFees.total === 0 || formattedUncollectedFees.networkValues.length === 0;
 
   return (
     <PageWrapper>
@@ -164,7 +156,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'All time volume'}
-                    icon={<Icon icon={<DollarSign />} />}
+                    icon={<Icon icon={<DollarSign size={22} />} />}
                     comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                     networksValues={formattedComulativeData.volume}
                   />
@@ -172,7 +164,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'Total transactions'}
-                    icon={<Icon icon={<FileText />} />}
+                    icon={<Icon icon={<FileText size={22} />} />}
                     comulativeValue={formattedNum(comulativeData.totalTrades)}
                     networksValues={formattedComulativeData.trades}
                   />
@@ -180,15 +172,15 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                   <ComulativeNetworkDataCard
                     title={'Uncollected fees'}
-                    icon={<Icon icon={<Zap />} />}
-                    comulativeValue={`$ ${formattedNum(formattedUncollectedFees.total)}`}
-                    networksValues={formattedUncollectedFees.networkValues}
+                    icon={<Icon icon={<Zap size={22} />} />}
+                    comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
+                    networksValues={formattedUncollectedFees}
                   />
                 </CardLoaderWrapper>
                 <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                   <NetworkDataCardWithDialog
                     title={'Trades (past 24h)'}
-                    icon={<Icon icon={<FileText />} />}
+                    icon={<Icon icon={<Repeat size={22} />} />}
                     dialogContent={'content'}
                     networksValues={oneDayTransactions}
                   />
@@ -197,7 +189,7 @@ const DashboardPage = () => {
                   <NetworkDataCardWithDialog
                     title={'Wallets (past 24h)'}
                     chartTitle={'Wallets'}
-                    icon={<Icon icon={<Users />} />}
+                    icon={<Icon icon={<Users size={22} />} />}
                     networksValues={oneDayWalletsData}
                     historicalDataHook={usePastMonthWalletsData}
                   />
@@ -215,7 +207,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'All time volume'}
-                      icon={<Icon icon={<DollarSign />} />}
+                      icon={<Icon icon={<DollarSign size={22} />} />}
                       comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                       networksValues={formattedComulativeData.volume}
                     />
@@ -223,23 +215,24 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'Total transactions'}
-                      icon={<Icon icon={<FileText />} />}
+                      icon={<Icon icon={<FileText size={22} />} />}
                       comulativeValue={formattedNum(comulativeData.totalTrades)}
                       networksValues={formattedComulativeData.trades}
                     />
                   </CardLoaderWrapper>
+
                   <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                     <ComulativeNetworkDataCard
                       title={'Uncollected fees'}
-                      icon={<Icon icon={<Zap />} />}
-                      comulativeValue={`$ ${formattedNum(formattedUncollectedFees.total)}`}
-                      networksValues={formattedUncollectedFees.networkValues}
+                      icon={<Icon icon={<Zap size={22} />} />}
+                      comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
+                      networksValues={formattedUncollectedFees}
                     />
                   </CardLoaderWrapper>
                   <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                     <NetworkDataCardWithDialog
                       title={'Trades (past 24h)'}
-                      icon={<Icon icon={<FileText />} />}
+                      icon={<Icon icon={<Repeat size={22} />} />}
                       dialogContent={'content'}
                       networksValues={oneDayTransactions}
                     />
@@ -248,7 +241,7 @@ const DashboardPage = () => {
                     <NetworkDataCardWithDialog
                       title={'Wallets (past 24h)'}
                       chartTitle={'Wallets'}
-                      icon={<Icon icon={<Users />} />}
+                      icon={<Icon icon={<Users size={22} />} />}
                       networksValues={oneDayWalletsData}
                       historicalDataHook={usePastMonthWalletsData}
                     />
@@ -270,7 +263,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'All time volume'}
-                        icon={<Icon icon={<DollarSign />} />}
+                        icon={<Icon icon={<DollarSign size={22} />} />}
                         comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                         networksValues={formattedComulativeData.volume}
                       />
@@ -278,7 +271,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'Total transactions'}
-                        icon={<Icon icon={<FileText />} />}
+                        icon={<Icon icon={<FileText size={22} />} />}
                         comulativeValue={formattedNum(comulativeData.totalTrades)}
                         networksValues={formattedComulativeData.trades}
                       />
@@ -286,16 +279,16 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                       <ComulativeNetworkDataCard
                         title={'Uncollected fees'}
-                        icon={<Icon icon={<Zap />} />}
-                        comulativeValue={`$ ${formattedNum(formattedUncollectedFees.total)}`}
-                        networksValues={formattedUncollectedFees.networkValues}
+                        icon={<Icon icon={<Zap size={22} />} />}
+                        comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
+                        networksValues={formattedUncollectedFees}
                       />
                     </CardLoaderWrapper>
                     <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                       <NetworkDataCardWithDialog
                         title={'Trades (past 24h)'}
                         chartTitle={'Trades'}
-                        icon={<Icon icon={<Repeat />} />}
+                        icon={<Icon icon={<Repeat size={22} />} />}
                         networksValues={oneDayTransactions}
                         historicalDataHook={useSwapsData}
                       />
@@ -304,7 +297,7 @@ const DashboardPage = () => {
                       <NetworkDataCardWithDialog
                         title={'Wallets (past 24h)'}
                         chartTitle={'Wallets'}
-                        icon={<Icon icon={<Users />} />}
+                        icon={<Icon icon={<Users size={22} />} />}
                         networksValues={oneDayWalletsData}
                         historicalDataHook={usePastMonthWalletsData}
                       />
@@ -320,4 +313,4 @@ const DashboardPage = () => {
   );
 };
 
-export default withRouter(DashboardPage);
+export default DashboardPage;

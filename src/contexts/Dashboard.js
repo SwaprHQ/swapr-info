@@ -39,7 +39,9 @@ const SUPPORTED_CLIENTS = [
 const INITIAL_STATE = {
   stackedChartData: {},
   comulativeData: {},
-  feesData: {},
+  uncollectedFeesData: {
+    loading: false,
+  },
   swaps: { loadingHistory: false },
   wallets: { loadingHistory: false },
 };
@@ -141,12 +143,12 @@ function reducer(state, { type, payload }) {
     }
 
     case UPDATE_UNCOLLECTED_FEES_DATA: {
-      const { uncollectedFees } = payload;
+      const { uncollectedFees, loading } = payload;
       return {
         ...state,
-        feesData: {
-          ...state.feesData,
-          uncollected: uncollectedFees,
+        uncollectedFeesData: {
+          loading,
+          data: uncollectedFees,
         },
       };
     }
@@ -235,12 +237,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateUncollectedFees = useCallback((uncollectedFees) => {
+  const updateUncollectedFees = useCallback((payload) => {
     dispatch({
       type: UPDATE_UNCOLLECTED_FEES_DATA,
-      payload: {
-        uncollectedFees,
-      },
+      payload,
     });
   }, []);
 
@@ -425,20 +425,21 @@ export const usePastMonthWalletsData = () => {
 export const useUncollectedFeesData = () => {
   const [state, { updateUncollectedFees }] = useDashboardDataContext();
 
-  const existingUncollectedFees = state?.feesData?.uncollected;
+  const { data: uncollectedFeesData, loading } = state?.uncollectedFeesData;
 
   useEffect(() => {
     async function fetchData() {
+      updateUncollectedFees({ loading: true });
       const uncollectedFees = await getUncollectedFees();
-      updateUncollectedFees(uncollectedFees);
+      updateUncollectedFees({ uncollectedFees, loading: false });
     }
 
-    if (!existingUncollectedFees || Object.keys(existingUncollectedFees).length === 0) {
+    if (!loading && Object.keys(uncollectedFeesData ?? {}).length === 0) {
       fetchData();
     }
-  }, [existingUncollectedFees, updateUncollectedFees]);
+  }, [loading, uncollectedFeesData, updateUncollectedFees]);
 
-  return existingUncollectedFees;
+  return { uncollectedFeesData, loading };
 };
 
 const getUncollectedFees = async () => {
@@ -454,6 +455,12 @@ const getUncollectedFees = async () => {
     };
   } catch (error) {
     console.error(error);
+    return {
+      [SupportedNetwork.MAINNET]: 0,
+      [SupportedNetwork.ARBITRUM_ONE]: 0,
+      [SupportedNetwork.XDAI]: 0,
+      total: 0,
+    };
   }
 };
 

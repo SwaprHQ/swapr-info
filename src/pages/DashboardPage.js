@@ -183,6 +183,7 @@ const DashboardPage = () => {
                     icon={<Icon icon={<Repeat size={22} />} />}
                     dialogContent={'content'}
                     networksValues={oneDayTransactions}
+                    historicalDataHook={useSwapsData}
                   />
                 </CardLoaderWrapper>
                 <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
@@ -235,6 +236,7 @@ const DashboardPage = () => {
                       icon={<Icon icon={<Repeat size={22} />} />}
                       dialogContent={'content'}
                       networksValues={oneDayTransactions}
+                      historicalDataHook={useSwapsData}
                     />
                   </CardLoaderWrapper>
                   <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>

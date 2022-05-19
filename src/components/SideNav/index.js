@@ -24,7 +24,7 @@ const Wrapper = styled.div`
   padding: 0.5rem 0.5rem 0.5rem 0.75rem;
   position: sticky;
   top: 0px;
-  z-index: 1;
+  z-index: 2;
   box-sizing: border-box;
   /* background-color: #1b1c22; */
   background: linear-gradient(193.68deg, #1b1c22 0.68%, #000000 100.48%);

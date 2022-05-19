@@ -219,7 +219,6 @@ export const GlobalStyle = createGlobalStyle`
 	color: #20262E;
 	background-color: rgba(255, 255, 255, 0.23);
 	text-align: left;
-	z-index: 10;
   pointer-events: none;
 }
 
@@ -232,7 +231,6 @@ export const GlobalStyle = createGlobalStyle`
 	color: white;
 	background-color: rgba(255, 255, 255, 0.23);
 	text-align: left;
-	z-index: 10;
   pointer-events: none;
 }
 

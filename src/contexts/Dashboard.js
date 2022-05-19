@@ -12,7 +12,7 @@ import {
   DASHBOARD_MINTS_AND_SWAPS,
   DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP,
 } from '../apollo/queries';
-import { SupportedNetwork } from '../constants';
+import { SupportedNetwork, SWAPR_COINGECKO_ENDPOINT } from '../constants';
 import { getTimeframe } from '../utils';
 import { useTimeframe } from './Application';
 
@@ -39,6 +39,9 @@ const SUPPORTED_CLIENTS = [
 const INITIAL_STATE = {
   stackedChartData: {},
   comulativeData: {},
+  uncollectedFeesData: {
+    loading: false,
+  },
   swaps: { loadingHistory: false },
   wallets: { loadingHistory: false },
 };
@@ -50,6 +53,7 @@ const UPDATE_LOADING_SWAPS = 'UPDATE_LOADING_SWAPS';
 const UPDATE_ONE_DAY_WALLETS = 'UPDATE_ONE_DAY_WALLETS';
 const UPDATE_WALLETS = 'UPDATE_WALLETS';
 const UPDATE_LOADING_WALLETS = 'UPDATE_LOADING_WALLETS';
+const UPDATE_UNCOLLECTED_FEES_DATA = 'UPDATE_UNCOLLECTED_FEES_DATA';
 const RESET = 'RESET';
 
 function reducer(state, { type, payload }) {
@@ -138,6 +142,17 @@ function reducer(state, { type, payload }) {
       };
     }
 
+    case UPDATE_UNCOLLECTED_FEES_DATA: {
+      const { uncollectedFees, loading } = payload;
+      return {
+        ...state,
+        uncollectedFeesData: {
+          loading,
+          data: uncollectedFees,
+        },
+      };
+    }
+
     case RESET: {
       return INITIAL_STATE;
     }
@@ -222,6 +237,13 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateUncollectedFees = useCallback((payload) => {
+    dispatch({
+      type: UPDATE_UNCOLLECTED_FEES_DATA,
+      payload,
+    });
+  }, []);
+
   const value = useMemo(
     () => [
       state,
@@ -234,6 +256,7 @@ export default function Provider({ children }) {
         updateWallets,
         updateOneDayWallets,
         updateLoadingWallets,
+        updateUncollectedFees,
       },
     ],
     [
@@ -246,6 +269,7 @@ export default function Provider({ children }) {
       updateWallets,
       updateOneDayWallets,
       updateLoadingWallets,
+      updateUncollectedFees,
     ],
   );
 
@@ -396,6 +420,48 @@ export const usePastMonthWalletsData = () => {
   }, [isLoadingWallets, existingWallets, updateWallets, updateLoadingWallets]);
 
   return existingWallets;
+};
+
+export const useUncollectedFeesData = () => {
+  const [state, { updateUncollectedFees }] = useDashboardDataContext();
+
+  const { data: uncollectedFeesData, loading } = state?.uncollectedFeesData;
+
+  useEffect(() => {
+    async function fetchData() {
+      updateUncollectedFees({ loading: true });
+      const uncollectedFees = await getUncollectedFees();
+      updateUncollectedFees({ uncollectedFees, loading: false });
+    }
+
+    if (!loading && Object.keys(uncollectedFeesData ?? {}).length === 0) {
+      fetchData();
+    }
+  }, [loading, uncollectedFeesData, updateUncollectedFees]);
+
+  return { uncollectedFeesData, loading };
+};
+
+const getUncollectedFees = async () => {
+  try {
+    const response = await fetch(`${SWAPR_COINGECKO_ENDPOINT}/uncollected-protocol-fees`);
+    const uncollectedFees = await response.json();
+
+    return {
+      [SupportedNetwork.MAINNET]: uncollectedFees.mainnetUSD,
+      [SupportedNetwork.ARBITRUM_ONE]: uncollectedFees.arbitrumOneUSD,
+      [SupportedNetwork.XDAI]: uncollectedFees.xDaiUSD,
+      total: uncollectedFees.totalUSD,
+    };
+  } catch (error) {
+    console.error(error);
+    return {
+      [SupportedNetwork.MAINNET]: 0,
+      [SupportedNetwork.ARBITRUM_ONE]: 0,
+      [SupportedNetwork.XDAI]: 0,
+      total: 0,
+    };
+  }
 };
 
 /**

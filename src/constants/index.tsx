@@ -144,3 +144,5 @@ export const NETWORK_COLORS = {
 };
 
 export const SWAPR_LINK = 'https://swapr.eth.limo/#';
+
+export const SWAPR_COINGECKO_ENDPOINT = 'https://9gpgpb0ig0.execute-api.us-east-1.amazonaws.com/prod';

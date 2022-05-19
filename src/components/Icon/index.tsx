@@ -1,15 +1,12 @@
 import React from 'react';
 
-import { Wrapper } from './styled';
+import { IconWrapper } from './styled';
 
 interface IconProps {
-  icon: React.ReactElement;
+  icon: React.ReactNode;
   color: string;
-  size: number;
 }
 
-const Icon = ({ icon, color, size = 22 }: IconProps) => (
-  <Wrapper color={color}>{React.cloneElement(icon, { size })}</Wrapper>
-);
+const Icon = ({ icon, color }: IconProps) => <IconWrapper color={color}>{icon}</IconWrapper>;
 
 export default Icon;

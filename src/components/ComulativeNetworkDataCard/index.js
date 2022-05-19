@@ -2,13 +2,13 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { TYPE } from '../../Theme';
-import { Wrapper, Header, Value, Content, Network, NetworkData, Title, Icon } from './styled';
+import { Wrapper, Header, Value, Content, Network, NetworkData, Title } from './styled';
 
 const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
   <Wrapper>
     <Header>
       <Title>
-        <Icon>{icon}</Icon>
+        {icon}
         <TYPE.header fontSize={16}>{title}</TYPE.header>
       </Title>
       <Value>{comulativeValue}</Value>

@@ -1,4 +1,5 @@
 import { DialogContent, DialogOverlay } from '@reach/dialog';
+import '@reach/dialog/styles.css';
 import { Minimize2 } from 'react-feather';
 import styled from 'styled-components';
 
@@ -14,15 +15,17 @@ const CloseChartIcon = styled(Minimize2)`
 `;
 
 const StyledDialogContent = styled(DialogContent)`
-  width: 50vw;
-  max-height: 380px;
-  height: 100%;
-  margin: 10vh auto;
-  border-radius: 8px;
-  border: ${({ theme }) => `1px solid ${theme.bg3}`};
-  background-color: #1f2026;
-  padding: 1.25rem;
-  outline: none;
+  &[data-reach-dialog-content] {
+    width: 50vw;
+    max-height: 380px;
+    height: 100%;
+    margin: 10vh auto;
+    border-radius: 8px;
+    border: ${({ theme }) => `1px solid ${theme.bg3}`};
+    background: #1f2026;
+    padding: 1.25rem;
+    outline: none;
+  }
 `;
 
 const StyledDialogOverlay = styled(DialogOverlay)`

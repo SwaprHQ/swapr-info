@@ -220,6 +220,7 @@ export const USER_HISTORY = gql`
       timestamp
       reserveUSD
       liquidityTokenBalance
+      liquidityTokenTotalSupply
       reserve0
       reserve1
       token0PriceUSD
@@ -247,7 +248,7 @@ export const USER_HISTORY_STAKE = gql`
       timestamp
       reserveUSD
       liquidityTokenBalance: stakedLiquidityTokenBalance
-      totalStakedLiquidityToken
+      liquidityTokenTotalSupply: totalStakedLiquidityToken
       reserve0
       reserve1
       token0PriceUSD

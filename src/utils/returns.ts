@@ -267,7 +267,7 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
   // initialize values
   // FIXME: can't find any burns or mints events for the user (kind of strange since there is a liquidity position, and snapshots)
   const principal = await getPrincipalForUserPerPair(client, user, pair.id);
-  let hodlReturn = 0;
+  // let hodlReturn = 0;
   let netReturn = 0;
   let swaprReturn = 0;
   let fees = 0;
@@ -361,7 +361,7 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
       parseInt(index) === derivedSnapshots.length - 1 ? derivedCurrentPosition : derivedSnapshots[parseInt(index) + 1];
 
     const results = getMetricsForPositionWindow(positionT0, positionT1);
-    hodlReturn += results.hodleReturn;
+    // hodlReturn += results.hodleReturn;
     netReturn += results.netReturn;
     swaprReturn += results.swaprReturn;
     fees += results.fees;

@@ -221,7 +221,7 @@ export default function ListItem({ pairData, index }: ListItemProps) {
             style={{ whiteSpace: 'nowrap' }}
             external={true}
             href={getSwaprLink(
-              `/rewards/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
+              `/rewards/campaign/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
               ChainId[selectedNetwork],
             )}
           >

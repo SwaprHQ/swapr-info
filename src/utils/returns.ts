@@ -90,14 +90,6 @@ async function getPrincipalForUserPerPair(client, user: string, pairAddress: str
  */
 export function getMetricsForPositionWindow(positionT0, positionT1): ReturnMetrics {
   // calculate ownership at ends of window, for end of window we need original LP token balance / new total supply
-  // const t0TotalSupply = positionT0.liquidityTokenTotalSupply || positionT0.pair.totalSupply;
-  // const t0Ownership =
-  //   Number(t0TotalSupply) === 0 ? 0 : Number(positionT0.liquidityTokenBalance) / Number(t0TotalSupply);
-
-  // const t1TotalSupply = positionT1.liquidityTokenTotalSupply || positionT1.pair.totalSupply;
-  // const t1Ownership =
-  //   Number(t1TotalSupply) === 0 ? 0 : Number(positionT0.liquidityTokenBalance) / Number(t1TotalSupply);
-
   const t0Ownership =
     Number(positionT0.liquidityTokenTotalSupply) === 0
       ? 0
@@ -265,9 +257,7 @@ export async function getHistoricalPairReturns(
  */
 export async function getLPReturnsOnPair(client, user: string, pair, nativeCurrencyPrice: number, snapshots) {
   // initialize values
-  // FIXME: can't find any burns or mints events for the user (kind of strange since there is a liquidity position, and snapshots)
   const principal = await getPrincipalForUserPerPair(client, user, pair.id);
-  // let hodlReturn = 0;
   let netReturn = 0;
   let swaprReturn = 0;
   let fees = 0;
@@ -276,7 +266,14 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
     return entry.pair.id === pair.id;
   });
 
-  // aggregate snapshots by timestamp
+  // aggregate snapshots by timestamp to obtain an object like
+  // {
+  //   0: {
+  //     LiquidityMiningPositionSnapshot: { ... },
+  //     LiquidityPositionSnapshot: { ... }
+  //   },
+  //   1: { ... }
+  // }
   const snapshotsPerTimestamp = snapshots.reduce(
     (accumulator, snapshot) => ({
       ...accumulator,
@@ -307,10 +304,6 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
             ...snapshotsPerTimestamp[current].LiquidityPositionSnapshot,
             liquidityTokenBalance: snapshotsPerTimestamp[current].LiquidityMiningPositionSnapshot.liquidityTokenBalance,
           },
-          LiquidityMiningPositionSnapshot: {
-            ...accumulator[snapshotsPerTimestamp[current]]?.LiquidityMiningPositionSnapshot,
-            ...snapshotsPerTimestamp[current].LiquidityMiningPositionSnapshot,
-          },
         },
       };
     }
@@ -324,28 +317,18 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
     };
   }, {});
 
-  const derivedLiquidityPositionSnapshots = Object.values(mergedSnapshots)
+  // snaphots to be used for the fees computation
+  const derivedSnapshots = Object.values(mergedSnapshots)
     .filter((mergedSnapshot: any) => mergedSnapshot.LiquidityPositionSnapshot)
     .map((mergedSnapshot: any) => ({
       ...mergedSnapshot.LiquidityPositionSnapshot,
-    }));
-
-  const derivedLiquidityMiningPositionSnapshots = Object.values(mergedSnapshots)
-    .filter((mergedSnapshot: any) => mergedSnapshot.liquidityMiningPositionSnapshot)
-    .map((mergedSnapshot: any) => ({
-      ...mergedSnapshot.liquidityMiningPositionSnapshot,
-    }));
-
-  // snaphots to be used for the fees computation
-  const derivedSnapshots = [...derivedLiquidityPositionSnapshots, ...derivedLiquidityMiningPositionSnapshots].sort(
-    (first, second) => first.timestamp - second.timestamp,
-  );
+    }))
+    .sort((first, second) => first.timestamp - second.timestamp);
 
   // get data about the current position
   const derivedCurrentPosition: Position = {
     pair,
     liquidityTokenBalance: derivedSnapshots[derivedSnapshots.length - 1]?.liquidityTokenBalance,
-    // TODO: should use derivedSnapshots[derivedSnapshots.length - 1]?.liquidityTokenTotalSupply instead?
     liquidityTokenTotalSupply: pair.totalSupply,
     reserve0: pair.reserve0,
     reserve1: pair.reserve1,
@@ -361,38 +344,10 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
       parseInt(index) === derivedSnapshots.length - 1 ? derivedCurrentPosition : derivedSnapshots[parseInt(index) + 1];
 
     const results = getMetricsForPositionWindow(positionT0, positionT1);
-    // hodlReturn += results.hodleReturn;
     netReturn += results.netReturn;
     swaprReturn += results.swaprReturn;
     fees += results.fees;
   }
-
-  // // get data about the current position
-  // const currentPosition: Position = {
-  //   pair,
-  //   liquidityTokenBalance: liquidityPositionSnapshots[liquidityPositionSnapshots.length - 1]?.liquidityTokenBalance,
-  //   liquidityTokenTotalSupply: pair.totalSupply,
-  //   reserve0: pair.reserve0,
-  //   reserve1: pair.reserve1,
-  //   reserveUSD: pair.reserveUSD,
-  //   token0PriceUSD: pair.token0.derivedNativeCurrency * nativeCurrencyPrice,
-  //   token1PriceUSD: pair.token1.derivedNativeCurrency * nativeCurrencyPrice,
-  // };
-
-  // for (const index in liquidityPositionSnapshots) {
-  //   // get positions at both bounds of the window
-  //   const positionT0 = liquidityPositionSnapshots[index];
-  //   const positionT1 =
-  //     parseInt(index) === liquidityPositionSnapshots.length - 1
-  //       ? currentPosition
-  //       : liquidityPositionSnapshots[parseInt(index) + 1];
-
-  //   const results = getMetricsForPositionWindow(positionT0, positionT1);
-  //   hodlReturn += results.hodleReturn;
-  //   netReturn += results.netReturn;
-  //   swaprReturn += results.swaprReturn;
-  //   fees += results.fees;
-  // }
 
   return {
     principal,

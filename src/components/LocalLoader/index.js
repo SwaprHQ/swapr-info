@@ -14,7 +14,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
-  min-height: ${({ height }) => (height ? height : '180px')};
+  min-height: ${({ height }) => (height ? `${height}px` : '180px')};
   width: 100%;
 
   ${(props) =>

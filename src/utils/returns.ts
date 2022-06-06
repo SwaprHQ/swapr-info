@@ -169,9 +169,8 @@ export async function getHistoricalPairReturns(
   }
   let dayIndex: number = Math.round(startDateTimestamp / 86400); // get unique day bucket unix
   const currentDayIndex: number = Math.round(dayjs.utc().unix() / 86400);
-  const sortedPositions = pairSnapshots.sort((a, b) => {
-    return parseInt(a.timestamp) > parseInt(b.timestamp) ? 1 : -1;
-  });
+  const sortedPositions = mergeLiquiditySnapshot(pairSnapshots);
+
   if (sortedPositions[0].timestamp > startDateTimestamp) {
     dayIndex = Math.round(sortedPositions[0].timestamp / 86400);
   }
@@ -192,7 +191,7 @@ export async function getHistoricalPairReturns(
   });
 
   // set the default position and data
-  let positionT0 = pairSnapshots[0];
+  let positionT0 = sortedPositions[0];
   const formattedHistory = [];
   let netFees = 0;
 
@@ -203,9 +202,10 @@ export async function getHistoricalPairReturns(
     const timestampCeiling = dayTimestamp + 86400;
 
     // for each change in position value that day, create a window and update
-    const dailyChanges = pairSnapshots.filter((snapshot) => {
+    const dailyChanges = sortedPositions.filter((snapshot) => {
       return snapshot.timestamp < timestampCeiling && snapshot.timestamp > dayTimestamp;
     });
+
     for (let i = 0; i < dailyChanges.length; i++) {
       const positionT1 = dailyChanges[i];
       const localReturns = getMetricsForPositionWindow(positionT0, positionT1);
@@ -229,8 +229,7 @@ export async function getHistoricalPairReturns(
     }
 
     if (positionT1) {
-      positionT1.liquidityTokenTotalSupply =
-        positionT1.totalSupply || positionT1.liquidityTokenTotalSupply || positionT1.pair.totalSupply;
+      positionT1.liquidityTokenTotalSupply = positionT1.totalSupply;
       positionT1.liquidityTokenBalance = positionT0.liquidityTokenBalance;
       const currentLiquidityValue =
         (parseFloat(positionT1.liquidityTokenBalance) / parseFloat(positionT1.liquidityTokenTotalSupply)) *
@@ -266,6 +265,55 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
     return entry.pair.id === pair.id;
   });
 
+  // snaphots to be used for the fees computation
+  const derivedSnapshots = mergeLiquiditySnapshot(snapshots);
+
+  // get data about the current position
+  const derivedCurrentPosition: Position = {
+    pair,
+    liquidityTokenBalance: derivedSnapshots[derivedSnapshots.length - 1]?.liquidityTokenBalance,
+    liquidityTokenTotalSupply: pair.totalSupply,
+    reserve0: pair.reserve0,
+    reserve1: pair.reserve1,
+    reserveUSD: pair.reserveUSD,
+    token0PriceUSD: pair.token0.derivedNativeCurrency * nativeCurrencyPrice,
+    token1PriceUSD: pair.token1.derivedNativeCurrency * nativeCurrencyPrice,
+  };
+
+  for (const index in derivedSnapshots) {
+    // get positions at both bounds of the window
+    const positionT0 = derivedSnapshots[index];
+    const positionT1 =
+      parseInt(index) === derivedSnapshots.length - 1 ? derivedCurrentPosition : derivedSnapshots[parseInt(index) + 1];
+
+    const results = getMetricsForPositionWindow(positionT0, positionT1);
+    netReturn += results.netReturn;
+    swaprReturn += results.swaprReturn;
+    fees += results.fees;
+  }
+
+  return {
+    principal,
+    net: {
+      return: netReturn,
+    },
+    swapr: {
+      return: swaprReturn,
+    },
+    fees: {
+      sum: fees,
+    },
+  };
+}
+
+/**
+ * Sanitizes the liquidityPositionSnapshots by merging the liquidityMiningPositionSnapshots back
+ * into the liquidity position when the two happened in the same timestamp.
+ *
+ * @param snapshots Array of liquidity and mining snaphots
+ * @returns Array of merged snapshots, without the mining positions
+ */
+export function mergeLiquiditySnapshot(snapshots: any[]): any[] {
   // aggregate snapshots by timestamp to obtain an object like
   // {
   //   0: {
@@ -325,40 +373,5 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
     }))
     .sort((first, second) => first.timestamp - second.timestamp);
 
-  // get data about the current position
-  const derivedCurrentPosition: Position = {
-    pair,
-    liquidityTokenBalance: derivedSnapshots[derivedSnapshots.length - 1]?.liquidityTokenBalance,
-    liquidityTokenTotalSupply: pair.totalSupply,
-    reserve0: pair.reserve0,
-    reserve1: pair.reserve1,
-    reserveUSD: pair.reserveUSD,
-    token0PriceUSD: pair.token0.derivedNativeCurrency * nativeCurrencyPrice,
-    token1PriceUSD: pair.token1.derivedNativeCurrency * nativeCurrencyPrice,
-  };
-
-  for (const index in derivedSnapshots) {
-    // get positions at both bounds of the window
-    const positionT0 = derivedSnapshots[index];
-    const positionT1 =
-      parseInt(index) === derivedSnapshots.length - 1 ? derivedCurrentPosition : derivedSnapshots[parseInt(index) + 1];
-
-    const results = getMetricsForPositionWindow(positionT0, positionT1);
-    netReturn += results.netReturn;
-    swaprReturn += results.swaprReturn;
-    fees += results.fees;
-  }
-
-  return {
-    principal,
-    net: {
-      return: netReturn,
-    },
-    swapr: {
-      return: swaprReturn,
-    },
-    fees: {
-      sum: fees,
-    },
-  };
+  return derivedSnapshots;
 }

@@ -316,7 +316,7 @@ export function useUserPositionChart(position, account) {
   const currentPairData = usePairData(pairAddress);
   const [currentNativeCurrencyPrice] = useNativeCurrencyPrice();
 
-  // formatetd array to return for chart data
+  // formatted array to return for chart data
   const formattedHistory = state?.[account]?.[USER_PAIR_RETURNS_KEY]?.[pairAddress];
 
   useEffect(() => {

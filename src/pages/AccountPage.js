@@ -296,7 +296,11 @@ function AccountPage({ account }) {
                     <div />
                   </RowBetween>
                   <RowFixed align="flex-end">
-                    <TYPE.header fontSize={'24px'} lineHeight={1} color={aggregateFees ? 'green' : 'white'}>
+                    <TYPE.header
+                      fontSize={'24px'}
+                      lineHeight={1}
+                      color={aggregateFees > 0 ? 'green' : aggregateFees < 0 ? 'red' : 'white'}
+                    >
                       {aggregateFees ? formattedNum(aggregateFees, true, true) : '-'}
                     </TYPE.header>
                   </RowFixed>

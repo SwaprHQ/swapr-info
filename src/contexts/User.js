@@ -473,14 +473,28 @@ export function useUserLiquidityChart(account) {
           }
           return mostRecent;
         });
+
         // now cycle through pair day datas, for each one find usd value = ownership[address] * reserveUSD
         const dailyUSD = relavantDayDatas.reduce((totalUSD, dayData) => {
-          return (totalUSD =
+          if (!dayData) {
+            return totalUSD;
+          }
+
+          const dayOwnership = ownershipPerPair[dayData.pairAddress];
+
+          if (!dayOwnership) {
+            return totalUSD;
+          }
+
+          // avoid division by 0
+          if (parseFloat(dayData.totalSupply) === 0) {
+            return totalUSD;
+          }
+
+          return (
             totalUSD +
-            (ownershipPerPair[dayData.pairAddress]
-              ? (parseFloat(ownershipPerPair[dayData.pairAddress].lpTokenBalance) / parseFloat(dayData.totalSupply)) *
-                parseFloat(dayData.reserveUSD)
-              : 0));
+            (parseFloat(dayOwnership.lpTokenBalance) / parseFloat(dayData.totalSupply)) * parseFloat(dayData.reserveUSD)
+          );
         }, 0);
 
         formattedHistory.push({

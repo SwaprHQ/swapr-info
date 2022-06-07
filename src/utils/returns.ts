@@ -287,9 +287,9 @@ export async function getLPReturnsOnPair(client, user: string, pair, nativeCurre
       parseInt(index) === derivedSnapshots.length - 1 ? derivedCurrentPosition : derivedSnapshots[parseInt(index) + 1];
 
     const results = getMetricsForPositionWindow(positionT0, positionT1);
-    netReturn += results.netReturn;
-    swaprReturn += results.swaprReturn;
-    fees += results.fees;
+    netReturn = netReturn + results.netReturn;
+    swaprReturn = swaprReturn + results.swaprReturn;
+    fees = fees + results.fees;
   }
 
   return {

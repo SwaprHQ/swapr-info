@@ -1,6 +1,7 @@
 import { darken } from 'polished';
 import React, { useState } from 'react';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart } from 'recharts';
 import styled from 'styled-components';
 
@@ -12,7 +13,7 @@ import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../
 import { OptionButton } from '../ButtonStyled';
 import DropdownSelect from '../DropdownSelect';
 import LocalLoader from '../LocalLoader';
-import { AutoRow, RowBetween } from '../Row';
+import { AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
   max-height: 420px;
@@ -42,17 +43,16 @@ const UserChart = ({ account }) => {
     <ChartWrapper>
       {chartData &&
         (below600 ? (
-          <RowBetween mb={40}>
-            <div />
+          <Flex justifyContent={'end'} mb={40}>
             <DropdownSelect
               options={timeframeOptions}
               active={timeWindow}
               setActive={setTimeWindow}
               color={'#4526A2'}
             />
-          </RowBetween>
+          </Flex>
         ) : (
-          <RowBetween mb={40}>
+          <Flex justifyContent={'space-between'} mb={40}>
             <AutoRow gap="10px">
               <TYPE.main>Liquidity Value</TYPE.main>
             </AutoRow>
@@ -76,7 +76,7 @@ const UserChart = ({ account }) => {
                 All
               </OptionButton>
             </AutoRow>
-          </RowBetween>
+          </Flex>
         ))}
       {chartData ? (
         <ResponsiveContainer aspect={aspect}>

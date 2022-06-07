@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
 import styled from 'styled-components';
 
@@ -12,7 +13,7 @@ import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../
 import { OptionButton } from '../ButtonStyled';
 import DropdownSelect from '../DropdownSelect';
 import LocalLoader from '../LocalLoader';
-import { AutoRow, RowBetween } from '../Row';
+import { AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
   max-height: 420px;
@@ -58,10 +59,9 @@ const PairReturnsChart = ({ account, position }) => {
     <ChartWrapper>
       {data &&
         (below600 ? (
-          <RowBetween mb={40}>
-            <div />
+          <Flex justifyContent={'end'}>
             <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
-          </RowBetween>
+          </Flex>
         ) : (
           <OptionsRow>
             <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>

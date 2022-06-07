@@ -8,7 +8,7 @@ import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
 import { ButtonDropdown } from '../components/ButtonStyled';
 import { AutoColumn } from '../components/Column';
 import DoubleTokenLogo from '../components/DoubleLogo';
-import Link, { BasicLink } from '../components/Link';
+import Link, { BasicLink, CustomLink } from '../components/Link';
 import PairReturnsChart from '../components/PairReturnsChart';
 import Panel from '../components/Panel';
 import PositionList from '../components/PositionList';
@@ -127,7 +127,7 @@ function AccountPage({ account }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [activePosition, setActivePosition] = useState();
 
-  const dynamicPositions = activePosition ? [activePosition] : positions;
+  const dynamicPositions = useMemo(() => (activePosition ? [activePosition] : positions), [activePosition, positions]);
 
   const aggregateFees = dynamicPositions?.reduce(function (total, position) {
     return total + position.fees.sum;
@@ -167,10 +167,14 @@ function AccountPage({ account }) {
         <RowBetween>
           <TYPE.body>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
-            <Link lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')} target="_blank">
+            <CustomLink
+              lineHeight={'145.23%'}
+              href={getExplorerLink(selectedNetwork, account, 'address')}
+              target="_blank"
+            >
               {' '}
               {account?.slice(0, 42)}{' '}
-            </Link>
+            </CustomLink>
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>

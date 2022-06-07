@@ -61,20 +61,21 @@ const ContentWrapper = styled.div`
 `;
 
 export const ButtonLight = styled(Base)`
-  background-color: ${({ color, theme }) => (color ? transparentize(0.9, color) : transparentize(0.9, theme.primary1))};
-  color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.primary1)};
+  background-color: ${({ color, theme }) =>
+    color ? transparentize(0.9, color) : transparentize(0.9, theme.swaprLink)};
+  color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.swaprLink)};
 
   min-width: fit-content;
   border-radius: 12px;
   white-space: nowrap;
 
   a {
-    color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.primary1)};
+    color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.swaprLink)};
   }
 
   :hover {
     background-color: ${({ color, theme }) =>
-      color ? transparentize(0.8, color) : transparentize(0.8, theme.primary1)};
+      color ? transparentize(0.8, color) : transparentize(0.8, theme.swaprLink)};
   }
 `;
 

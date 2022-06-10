@@ -127,23 +127,25 @@ function AccountPage({ account }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [activePosition, setActivePosition] = useState();
 
-  const dynamicPositions = useMemo(() => (activePosition ? [activePosition] : positions), [activePosition, positions]);
+  const { positionValue, aggregateFees } = useMemo(() => {
+    const dynamicPositions = activePosition ? [activePosition] : positions;
+    const aggregateFees = dynamicPositions?.reduce(function (total, position) {
+      return total + position.fees.sum;
+    }, 0);
 
-  const aggregateFees = dynamicPositions?.reduce(function (total, position) {
-    return total + position.fees.sum;
-  }, 0);
+    const positionValue = dynamicPositions?.reduce((total, position) => {
+      return (
+        total +
+        (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
+          position?.pair?.reserveUSD
+      );
+    }, 0);
 
-  const positionValue = useMemo(() => {
-    return dynamicPositions
-      ? dynamicPositions.reduce((total, position) => {
-          return (
-            total +
-            (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
-              position?.pair?.reserveUSD
-          );
-        }, 0)
-      : 0;
-  }, [dynamicPositions]);
+    return {
+      positionValue,
+      aggregateFees,
+    };
+  }, [activePosition, positions]);
 
   useEffect(() => {
     window.scrollTo({

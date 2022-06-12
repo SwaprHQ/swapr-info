@@ -8,7 +8,7 @@ import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
 import { ButtonDropdown } from '../components/ButtonStyled';
 import { AutoColumn } from '../components/Column';
 import DoubleTokenLogo from '../components/DoubleLogo';
-import Link, { BasicLink, CustomLink } from '../components/Link';
+import Link, { BasicLink } from '../components/Link';
 import PairReturnsChart from '../components/PairReturnsChart';
 import Panel from '../components/Panel';
 import PositionList from '../components/PositionList';
@@ -20,17 +20,6 @@ import { FEE_WARNING_TOKENS } from '../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useUserTransactions, useUserPositions } from '../contexts/User';
 import { formattedNum, getExplorerLink } from '../utils';
-
-/* const AccountWrapper = styled.div`
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 6px 16px;
-  border-radius: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`; */
-
-const Header = styled.div``;
 
 const DashboardWrapper = styled.div`
   width: 100%;
@@ -156,31 +145,20 @@ function AccountPage({ account }) {
 
   const below600 = useMedia('(max-width: 600px)');
 
-  // adding/removing account from saved accounts
-  /* const [savedAccounts, addAccount, removeAccount] = useSavedAccounts();
-  const isBookmarked = savedAccounts.includes(account);
-  const handleBookmarkClick = useCallback(() => {
-    (isBookmarked ? removeAccount : addAccount)(account);
-  }, [account, isBookmarked, addAccount, removeAccount]); */
-
   return (
     <PageWrapper>
       <ContentWrapper>
         <RowBetween>
           <TYPE.body>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
-            <CustomLink
-              lineHeight={'145.23%'}
-              href={getExplorerLink(selectedNetwork, account, 'address')}
-              target="_blank"
-            >
+            <Link external lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')}>
               {' '}
               {account?.slice(0, 42)}{' '}
-            </CustomLink>
+            </Link>
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>
-        <Header>
+        <div>
           <RowBetween>
             <span>
               <TYPE.header fontSize={24}>{account?.slice(0, 6) + '...' + account?.slice(38, 42)}</TYPE.header>
@@ -188,19 +166,8 @@ function AccountPage({ account }) {
                 <TYPE.main fontSize={14}>View on block explorer</TYPE.main>
               </Link>
             </span>
-            {/* <AccountWrapper>
-              <StyledIcon>
-                <Bookmark
-                  onClick={handleBookmarkClick}
-                  style={{
-                    opacity: isBookmarked ? 0.8 : 0.4,
-                    cursor: "pointer",
-                  }}
-                />
-              </StyledIcon>
-            </AccountWrapper> */}
           </RowBetween>
-        </Header>
+        </div>
         <DashboardWrapper>
           {showWarning && <Warning>Fees cannot currently be calculated for pairs that include AMPL.</Warning>}
           {!hideLPContent && (

@@ -282,7 +282,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
     return (
       <DashGrid style={{ height: '48px' }}>
         <DataText area="txn" fontWeight="500">
-          <Link color={color} external href={urls.showTransaction(item.hash, selectedNetwork)}>
+          <Link external href={urls.showTransaction(item.hash, selectedNetwork)}>
             {getTransactionType(item.type, item.token1Symbol, item.token0Symbol)}
           </Link>
         </DataText>
@@ -301,7 +301,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
         )}
         {!below1080 && (
           <DataText area="account">
-            <Link color={color} external href={getExplorerLink(selectedNetwork, item.account, 'address')}>
+            <Link external href={getExplorerLink(selectedNetwork, item.account, 'address')}>
               {item.account && item.account.slice(0, 6) + '...' + item.account.slice(38, 42)}
             </Link>
           </DataText>

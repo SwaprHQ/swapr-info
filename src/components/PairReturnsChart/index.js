@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import { XAxis, YAxis, ResponsiveContainer, Tooltip, LineChart, Line, CartesianGrid } from 'recharts';
 import styled from 'styled-components';
 
@@ -12,7 +13,7 @@ import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../
 import { OptionButton } from '../ButtonStyled';
 import DropdownSelect from '../DropdownSelect';
 import LocalLoader from '../LocalLoader';
-import { AutoRow, RowBetween } from '../Row';
+import { AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
   max-height: 420px;
@@ -56,43 +57,43 @@ const PairReturnsChart = ({ account, position }) => {
 
   return (
     <ChartWrapper>
-      {below600 ? (
-        <RowBetween mb={40}>
-          <div />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
-        </RowBetween>
-      ) : (
-        <OptionsRow>
-          <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>
-            <OptionButton active={chartView === CHART_VIEW.VALUE} onClick={() => setChartView(CHART_VIEW.VALUE)}>
-              Liquidity
-            </OptionButton>
-            <OptionButton active={chartView === CHART_VIEW.FEES} onClick={() => setChartView(CHART_VIEW.FEES)}>
-              Fees
-            </OptionButton>
-          </AutoRow>
-          <AutoRow justify="flex-end" gap="6px">
-            <OptionButton
-              active={timeWindow === timeframeOptions.WEEK}
-              onClick={() => setTimeWindow(timeframeOptions.WEEK)}
-            >
-              1W
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.MONTH}
-              onClick={() => setTimeWindow(timeframeOptions.MONTH)}
-            >
-              1M
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.ALL_TIME}
-              onClick={() => setTimeWindow(timeframeOptions.ALL_TIME)}
-            >
-              All
-            </OptionButton>
-          </AutoRow>
-        </OptionsRow>
-      )}
+      {data &&
+        (below600 ? (
+          <Flex justifyContent={'end'}>
+            <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
+          </Flex>
+        ) : (
+          <OptionsRow>
+            <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>
+              <OptionButton active={chartView === CHART_VIEW.VALUE} onClick={() => setChartView(CHART_VIEW.VALUE)}>
+                Liquidity
+              </OptionButton>
+              <OptionButton active={chartView === CHART_VIEW.FEES} onClick={() => setChartView(CHART_VIEW.FEES)}>
+                Fees
+              </OptionButton>
+            </AutoRow>
+            <AutoRow justify="flex-end" gap="6px">
+              <OptionButton
+                active={timeWindow === timeframeOptions.WEEK}
+                onClick={() => setTimeWindow(timeframeOptions.WEEK)}
+              >
+                1W
+              </OptionButton>
+              <OptionButton
+                active={timeWindow === timeframeOptions.MONTH}
+                onClick={() => setTimeWindow(timeframeOptions.MONTH)}
+              >
+                1M
+              </OptionButton>
+              <OptionButton
+                active={timeWindow === timeframeOptions.ALL_TIME}
+                onClick={() => setTimeWindow(timeframeOptions.ALL_TIME)}
+              >
+                All
+              </OptionButton>
+            </AutoRow>
+          </OptionsRow>
+        ))}
       <ResponsiveContainer aspect={aspect}>
         {data ? (
           <LineChart margin={{ top: 0, right: 0, bottom: 0, left: 0 }} barCategoryGap={1} data={data}>

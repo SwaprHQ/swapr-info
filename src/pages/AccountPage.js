@@ -21,17 +21,6 @@ import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork }
 import { useUserTransactions, useUserPositions } from '../contexts/User';
 import { formattedNum, getExplorerLink } from '../utils';
 
-/* const AccountWrapper = styled.div`
-  background-color: rgba(255, 255, 255, 0.2);
-  padding: 6px 16px;
-  border-radius: 100px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-`; */
-
-const Header = styled.div``;
-
 const DashboardWrapper = styled.div`
   width: 100%;
 `;
@@ -127,23 +116,25 @@ function AccountPage({ account }) {
   const [showDropdown, setShowDropdown] = useState(false);
   const [activePosition, setActivePosition] = useState();
 
-  const dynamicPositions = activePosition ? [activePosition] : positions;
+  const { positionValue, aggregateFees } = useMemo(() => {
+    const dynamicPositions = activePosition ? [activePosition] : positions;
+    const aggregateFees = dynamicPositions?.reduce(function (total, position) {
+      return total + position.fees.sum;
+    }, 0);
 
-  const aggregateFees = dynamicPositions?.reduce(function (total, position) {
-    return total + position.fees.sum;
-  }, 0);
+    const positionValue = dynamicPositions?.reduce((total, position) => {
+      return (
+        total +
+        (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
+          position?.pair?.reserveUSD
+      );
+    }, 0);
 
-  const positionValue = useMemo(() => {
-    return dynamicPositions
-      ? dynamicPositions.reduce((total, position) => {
-          return (
-            total +
-            (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
-              position?.pair?.reserveUSD
-          );
-        }, 0)
-      : 0;
-  }, [dynamicPositions]);
+    return {
+      positionValue,
+      aggregateFees,
+    };
+  }, [activePosition, positions]);
 
   useEffect(() => {
     window.scrollTo({
@@ -154,27 +145,20 @@ function AccountPage({ account }) {
 
   const below600 = useMedia('(max-width: 600px)');
 
-  // adding/removing account from saved accounts
-  /* const [savedAccounts, addAccount, removeAccount] = useSavedAccounts();
-  const isBookmarked = savedAccounts.includes(account);
-  const handleBookmarkClick = useCallback(() => {
-    (isBookmarked ? removeAccount : addAccount)(account);
-  }, [account, isBookmarked, addAccount, removeAccount]); */
-
   return (
     <PageWrapper>
       <ContentWrapper>
         <RowBetween>
           <TYPE.body>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
-            <Link lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')} target="_blank">
+            <Link external lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')}>
               {' '}
               {account?.slice(0, 42)}{' '}
             </Link>
           </TYPE.body>
           {!below600 && <Search small={true} />}
         </RowBetween>
-        <Header>
+        <div>
           <RowBetween>
             <span>
               <TYPE.header fontSize={24}>{account?.slice(0, 6) + '...' + account?.slice(38, 42)}</TYPE.header>
@@ -182,19 +166,8 @@ function AccountPage({ account }) {
                 <TYPE.main fontSize={14}>View on block explorer</TYPE.main>
               </Link>
             </span>
-            {/* <AccountWrapper>
-              <StyledIcon>
-                <Bookmark
-                  onClick={handleBookmarkClick}
-                  style={{
-                    opacity: isBookmarked ? 0.8 : 0.4,
-                    cursor: "pointer",
-                  }}
-                />
-              </StyledIcon>
-            </AccountWrapper> */}
           </RowBetween>
-        </Header>
+        </div>
         <DashboardWrapper>
           {showWarning && <Warning>Fees cannot currently be calculated for pairs that include AMPL.</Warning>}
           {!hideLPContent && (

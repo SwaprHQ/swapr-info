@@ -40,6 +40,16 @@ export const GET_BLOCK = gql`
   }
 `;
 
+export const GET_BLOCK_BY_TIMESTAMPS = gql`
+  query blocks($timestamps: [Int], $lastId: ID!) {
+    blocks(first: 1000, orderBy: timestamp, orderDirection: asc, where: { id_gt: $lastId, timestamp_in: $timestamps }) {
+      id
+      number
+      timestamp
+    }
+  }
+`;
+
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
@@ -126,14 +136,6 @@ export const SHARE_VALUE = (pairAddress, blocks) => {
         token1{
           derivedNativeCurrency
         }
-      }
-    `,
-  );
-  queryString += ',';
-  queryString += blocks.map(
-    (block) => `
-      b${block.timestamp}: bundle(id:"1", block: { number: ${block.number} }) { 
-        nativeCurrencyPrice
       }
     `,
   );

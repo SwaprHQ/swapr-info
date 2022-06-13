@@ -20,7 +20,7 @@ import {
   USD,
 } from '@swapr/sdk';
 
-import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
+import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, SHARE_VALUE } from '../apollo/queries';
 import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
@@ -215,6 +215,36 @@ export async function getBlockFromTimestamp(blockClient, timestamp) {
   return result?.data?.blocks?.[0]?.number;
 }
 
+export const getBlocksByTimestamps = async (blockClient, timestamps) => {
+  try {
+    let blocks = [];
+    let lastId = '';
+    let fetchMore = true;
+
+    while (fetchMore) {
+      const { data } = await blockClient.query({
+        query: GET_BLOCK_BY_TIMESTAMPS,
+        variables: {
+          timestamps,
+          lastId,
+        },
+      });
+
+      if (data.blocks.length === 0) {
+        fetchMore = false;
+        continue;
+      }
+
+      lastId = data.blocks[data.blocks.length - 1].id;
+      blocks = blocks.concat(data.blocks);
+    }
+
+    return blocks;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 /**
  * @notice Fetches block objects for an array of timestamps.
  * @dev blocks are returned in chronological order (ASC) regardless of input.
@@ -240,28 +270,8 @@ export async function getBlocksFromTimestamps(blockClient, timestamps, skipCount
       }
     }
   }
+
   return blocks;
-}
-
-export async function getLiquidityTokenBalanceOvertime(client, blockClient, account, timestamps) {
-  // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
-
-  // get historical share values with time travel queries
-  let result = await client.query({
-    query: SHARE_VALUE(account, blocks),
-  });
-
-  let values = [];
-  for (var row in result?.data) {
-    let timestamp = row.split('t')[1];
-    if (timestamp) {
-      values.push({
-        timestamp,
-        balance: 0,
-      });
-    }
-  }
 }
 
 /**
@@ -278,12 +288,24 @@ export async function getShareValueOverTime(client, blockClient, pairAddress, ti
   }
 
   // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
+  const blocks = await getBlocksByTimestamps(blockClient, timestamps);
 
-  // get historical share values with time travel queries
-  let result = await client.query({
-    query: SHARE_VALUE(pairAddress, blocks),
-  });
+  // perform multiple queries with subsets of blocks
+  // to avoid payloads too large
+  let result = { data: {} };
+  for (let blocksChunk of chunk(blocks, 100)) {
+    const { data } = await client.query({
+      query: SHARE_VALUE(pairAddress, blocksChunk),
+    });
+
+    result = {
+      ...result,
+      data: {
+        ...result.data,
+        ...data,
+      },
+    };
+  }
 
   let values = [];
   for (var row in result?.data) {
@@ -661,4 +683,14 @@ export function uriToHttp(uri) {
     default:
       return [];
   }
+}
+
+export function chunk(arr, chunkSize) {
+  const chunked = [];
+
+  for (let i = 0, len = arr.length; i < len; i += chunkSize) {
+    chunked.push(arr.slice(i, i + chunkSize));
+  }
+
+  return chunked;
 }

@@ -2,6 +2,7 @@ import { darken } from 'polished';
 import React, { useState, useRef, useEffect } from 'react';
 import { Activity } from 'react-feather';
 import { useMedia, usePrevious } from 'react-use';
+import { Flex } from 'rebass';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
 import styled from 'styled-components';
 
@@ -131,10 +132,10 @@ const TokenChart = ({ address, color, base }) => {
   return (
     <ChartWrapper>
       {below600 ? (
-        <RowBetween mb={40}>
+        <Flex justifyContent={'space-between'} mb={40}>
           <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
           <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={color} />
-        </RowBetween>
+        </Flex>
       ) : (
         <RowBetween
           mb={

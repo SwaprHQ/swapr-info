@@ -30,6 +30,10 @@ const theme = (darkMode, color) => ({
   text3: darkMode ? '#6C7284' : '#888D9B',
   text4: darkMode ? '#565A69' : '#C3C5CB',
   text5: darkMode ? '#2C2F36' : '#EDEEF2',
+  text6: darkMode ? '#C0BAF7' : '',
+  text7: darkMode ? '#8780BF' : '',
+  text8: darkMode ? '#BCB3F0' : '',
+  text9: darkMode ? '#EBE9F8' : '',
 
   swaprLink: '#8c6fff',
   loaderBase: '#2A2F42',
@@ -39,14 +43,18 @@ const theme = (darkMode, color) => ({
   white: '#FFFFFF',
 
   // backgrounds / greys
-  bg1: darkMode ? '#212429' : '#FAFAFA',
+  bg1: darkMode ? '#0C0B11' : '#FAFAFA',
   bg2: darkMode ? '#2C2F36' : '#F7F8FA',
   bg3: darkMode ? '#40444F' : '#EDEEF2',
   bg4: darkMode ? '#565A69' : '#CED0D9',
   bg5: darkMode ? '#565A69' : '#888D9B',
   bg6: darkMode ? '#000' : '#FFFFFF',
 
+  // borders
+  bd1: darkMode ? '#464366' : '',
+
   //specialty colors
+  dropdownBg: darkMode ? 'rgba(104, 110, 148, 0.2)' : '',
   modalBG: darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
   advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)',
   onlyLight: darkMode ? '#22242a' : 'transparent',
@@ -72,7 +80,8 @@ const theme = (darkMode, color) => ({
 
   // other
   red1: '#FF5252',
-  green1: '#00E676',
+  orange1: '#f2994a',
+  green1: '#75CAB5',
   yellow1: '#FFE270',
   yellow2: '#F3841E',
   link: '#0D47A1',
@@ -84,6 +93,22 @@ const theme = (darkMode, color) => ({
 const TextWrapper = styled(Text)`
   color: ${({ color, theme }) => theme[color]};
 `;
+
+export const Typography = {
+  text: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={14} lineHeight={'17px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+
+  smallHeader: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={16} lineHeight={'19px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+  largeHeader: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={24} lineHeight={'29px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+  largeBoldHeader: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={700} fontSize={24} lineHeight={'29px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+};
 
 export const TYPE = {
   main(props) {
@@ -180,7 +205,7 @@ export const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100%;
     font-size: 14px;    
-    background-color: ${({ theme }) => theme.bg6};
+    background-color: ${({ theme }) => theme.bg1};
 
     scroll-behavior: smooth;
     overflow-y: overlay;

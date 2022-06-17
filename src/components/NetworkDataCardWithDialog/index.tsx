@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
 
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import { Networks } from '../../constants';
 import { formattedNum } from '../../utils';
 import DialogWithChart from './Dialog';
-import { Wrapper, Content, Header, Icon, OpenChartIcon, Network, NetworkData, Title } from './styled';
+import { Wrapper, Content, Header, OpenChartIcon, Network, Data, NetworkData, Title } from './styled';
 
 interface NetworksValue {
   [Networks.ARBITRUM_ONE]: string | number;
@@ -37,16 +37,19 @@ const NetworkDataCardWithDialog = ({
     <Wrapper>
       <Header>
         <Title>
-          <Icon>{icon}</Icon>
-          <TYPE.header fontSize={16}>{title}</TYPE.header>
+          {icon}
+          {/* FIXME: fix when we convert the whole project to ts */}
+          <Typography.smallHeader sx={''} color={''}>
+            {title}
+          </Typography.smallHeader>
         </Title>
         <OpenChartIcon size={24} onClick={toggleDialog} />
       </Header>
       <Content>
         {Object.keys(networksValues).map((network, index) => (
-          <NetworkData key={network} margin={index !== networksValues.length - 1}>
+          <NetworkData key={network} align={index === networksValues.length - 1 ? 'right' : 'left'}>
             <Network>{network}</Network>
-            <TYPE.main fontSize={15}>{formattedNum(networksValues[network])}</TYPE.main>
+            <Data>{formattedNum(networksValues[network])}</Data>
           </NetworkData>
         ))}
       </Content>

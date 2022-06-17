@@ -1,11 +1,12 @@
 import dayjs from 'dayjs';
-import { transparentize } from 'polished';
 import React, { useEffect, useMemo, useState } from 'react';
-import { DollarSign, FileText, Repeat, Users, Zap } from 'react-feather';
+import { Repeat, Users, Zap } from 'react-feather';
 import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
-import { TYPE, ThemedBackground } from '../Theme';
+import { Typography } from '../Theme';
+import { ReactComponent as BarChartSvg } from '../assets/svg/bar-chart.svg';
+import { ReactComponent as DollarSvg } from '../assets/svg/dollar.svg';
 import { PageWrapper, ContentWrapper } from '../components';
 import { AutoColumn } from '../components/Column';
 import ComulativeNetworkDataCard from '../components/ComulativeNetworkDataCard';
@@ -28,28 +29,27 @@ import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
   display: grid;
-  grid-template-columns: 3fr 1.5fr;
-  column-gap: 16px;
-  row-gap: 16px;
+  grid-template-columns: minmax(auto, 920px) auto;
+  grid-template-rows: minmax(auto, 380px) minmax(auto, 380px);
+  column-gap: 21px;
+  row-gap: 21px;
 `;
 
 const GridChart = styled.div`
   display: grid;
-  grid-template-columns: 1fr;
-  grid-template-rows: 416px 416px;
-  row-gap: 16px;
+  row-gap: 21px;
 `;
 
 const GridCard = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
-  row-gap: 16px;
+  row-gap: 21px;
 `;
 
 const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <LocalLoader /> : children}</Panel>;
 const CardLoaderWrapper = ({ isLoading, children }) => (
-  <Panel>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
+  <Panel padding={'32px 36px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
 );
 
 const DashboardPage = () => {
@@ -140,9 +140,10 @@ const DashboardPage = () => {
 
   return (
     <PageWrapper>
-      <ThemedBackground backgroundColor={transparentize(0.8, '#4526A2')} />
-      <ContentWrapper style={{ maxWidth: '1250px' }}>
-        <TYPE.largeHeader>{below800 ? 'Analytics Dashboard' : 'Swapr Protocol Analytics Dashboard'}</TYPE.largeHeader>
+      <ContentWrapper style={{ maxWidth: '1400px' }}>
+        <Typography.largeHeader>
+          {below800 ? 'Analytics Dashboard' : 'Swapr Protocol Analytics Dashboard'}
+        </Typography.largeHeader>
         {formattedLiquidityData && (
           <>
             {below800 ? (
@@ -156,7 +157,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'All time volume'}
-                    icon={<Icon icon={<DollarSign size={22} />} />}
+                    icon={<Icon icon={<DollarSvg height={16} width={16} />} />}
                     comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                     networksValues={formattedComulativeData.volume}
                   />
@@ -164,7 +165,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                   <ComulativeNetworkDataCard
                     title={'Total transactions'}
-                    icon={<Icon icon={<FileText size={22} />} />}
+                    icon={<Icon icon={<BarChartSvg height={16} width={16} />} />}
                     comulativeValue={formattedNum(comulativeData.totalTrades)}
                     networksValues={formattedComulativeData.trades}
                   />
@@ -172,7 +173,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                   <ComulativeNetworkDataCard
                     title={'Uncollected fees'}
-                    icon={<Icon icon={<Zap size={22} />} />}
+                    icon={<Icon icon={<Zap size={16} />} />}
                     comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                     networksValues={formattedUncollectedFees}
                   />
@@ -180,7 +181,7 @@ const DashboardPage = () => {
                 <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                   <NetworkDataCardWithDialog
                     title={'Trades (today)'}
-                    icon={<Icon icon={<Repeat size={22} />} />}
+                    icon={<Icon icon={<Repeat size={16} />} />}
                     dialogContent={'content'}
                     networksValues={oneDayTransactions}
                     historicalDataHook={useSwapsData}
@@ -190,7 +191,7 @@ const DashboardPage = () => {
                   <NetworkDataCardWithDialog
                     title={'Wallets (today)'}
                     chartTitle={'Wallets'}
-                    icon={<Icon icon={<Users size={22} />} />}
+                    icon={<Icon icon={<Users size={16} />} />}
                     networksValues={oneDayWalletsData}
                     historicalDataHook={usePastMonthWalletsData}
                   />
@@ -208,7 +209,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'All time volume'}
-                      icon={<Icon icon={<DollarSign size={22} />} />}
+                      icon={<Icon icon={<DollarSvg height={16} width={16} />} />}
                       comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                       networksValues={formattedComulativeData.volume}
                     />
@@ -216,7 +217,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'Total transactions'}
-                      icon={<Icon icon={<FileText size={22} />} />}
+                      icon={<Icon icon={<BarChartSvg height={16} width={16} />} />}
                       comulativeValue={formattedNum(comulativeData.totalTrades)}
                       networksValues={formattedComulativeData.trades}
                     />
@@ -225,7 +226,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                     <ComulativeNetworkDataCard
                       title={'Uncollected fees'}
-                      icon={<Icon icon={<Zap size={22} />} />}
+                      icon={<Icon icon={<Zap size={16} />} />}
                       comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                       networksValues={formattedUncollectedFees}
                     />
@@ -233,7 +234,7 @@ const DashboardPage = () => {
                   <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
                     <NetworkDataCardWithDialog
                       title={'Trades (today)'}
-                      icon={<Icon icon={<Repeat size={22} />} />}
+                      icon={<Icon icon={<Repeat size={16} />} />}
                       dialogContent={'content'}
                       networksValues={oneDayTransactions}
                       historicalDataHook={useSwapsData}
@@ -243,7 +244,7 @@ const DashboardPage = () => {
                     <NetworkDataCardWithDialog
                       title={'Wallets (today)'}
                       chartTitle={'Wallets'}
-                      icon={<Icon icon={<Users size={22} />} />}
+                      icon={<Icon icon={<Users size={16} />} />}
                       networksValues={oneDayWalletsData}
                       historicalDataHook={usePastMonthWalletsData}
                     />
@@ -254,10 +255,10 @@ const DashboardPage = () => {
               <GridRow>
                 <GridChart>
                   <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
-                    <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
+                    <StackedChart title={'TVL'} type={'AREA'} minHeight={250} data={formattedLiquidityData} />
                   </PanelLoaderWrapper>
                   <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
-                    <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
+                    <StackedChart title={'Volume'} type={'BAR'} minHeight={250} data={formattedVolumeData} />
                   </PanelLoaderWrapper>
                 </GridChart>
                 <div>
@@ -265,7 +266,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'All time volume'}
-                        icon={<Icon icon={<DollarSign size={22} />} />}
+                        icon={<Icon icon={<DollarSvg height={16} width={16} />} />}
                         comulativeValue={`$ ${formattedNum(comulativeData.totalVolume)}`}
                         networksValues={formattedComulativeData.volume}
                       />
@@ -273,7 +274,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                       <ComulativeNetworkDataCard
                         title={'Total transactions'}
-                        icon={<Icon icon={<FileText size={22} />} />}
+                        icon={<Icon icon={<BarChartSvg height={16} width={16} />} />}
                         comulativeValue={formattedNum(comulativeData.totalTrades)}
                         networksValues={formattedComulativeData.trades}
                       />
@@ -281,7 +282,7 @@ const DashboardPage = () => {
                     <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                       <ComulativeNetworkDataCard
                         title={'Uncollected fees'}
-                        icon={<Icon icon={<Zap size={22} />} />}
+                        icon={<Icon icon={<Zap size={16} />} />}
                         comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                         networksValues={formattedUncollectedFees}
                       />
@@ -290,7 +291,7 @@ const DashboardPage = () => {
                       <NetworkDataCardWithDialog
                         title={'Trades (today)'}
                         chartTitle={'Trades'}
-                        icon={<Icon icon={<Repeat size={22} />} />}
+                        icon={<Icon icon={<Repeat size={16} />} />}
                         networksValues={oneDayTransactions}
                         historicalDataHook={useSwapsData}
                       />
@@ -299,7 +300,7 @@ const DashboardPage = () => {
                       <NetworkDataCardWithDialog
                         title={'Wallets (today)'}
                         chartTitle={'Wallets'}
-                        icon={<Icon icon={<Users size={22} />} />}
+                        icon={<Icon icon={<Users size={16} />} />}
                         networksValues={oneDayWalletsData}
                         historicalDataHook={usePastMonthWalletsData}
                       />

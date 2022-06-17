@@ -26,8 +26,7 @@ const Wrapper = styled.div`
   top: 0px;
   z-index: 2;
   box-sizing: border-box;
-  /* background-color: #1b1c22; */
-  background: linear-gradient(193.68deg, #1b1c22 0.68%, #000000 100.48%);
+  background-color: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.bg2};
 
   @media screen and (max-width: 800px) {
@@ -113,7 +112,7 @@ const AnimatedMobileMenu = styled(MobileMenu)`
   right: 0;
   left: 0;
   top: ${(props) => (props.open ? '0' : '-100%')};
-  background-color: ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg1};
   color: #fff;
   transition: top ease 0.3s;
   z-index: 100;

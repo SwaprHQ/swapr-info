@@ -3,6 +3,7 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 26px;
 `;
 
 const Header = styled.div`
@@ -23,14 +24,31 @@ const Icon = styled.div`
 `;
 
 const Value = styled.div`
-  font-size: 22px;
-  color: ${({ theme }) => theme.text1};
-  font-weight: bold;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 20px;
+  line-height: 24px;
+  letter-spacing: 0.02em;
+  color: ${({ theme }) => theme.text8};
 `;
 
 const Network = styled.div`
+  margin-bottom: 8px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.15em;
+  color: ${({ theme }) => theme.text7};
+`;
+
+const Data = styled.div`
+  font-style: normal;
+  font-weight: 500;
   font-size: 14px;
-  color: ${({ theme }) => theme.text2};
+  line-height: 17px;
+  letter-spacing: 0.02em;
+  color: ${({ theme }) => theme.text6};
 `;
 
 const Content = styled.div`
@@ -40,8 +58,8 @@ const Content = styled.div`
 `;
 
 const NetworkData = styled.div`
-  margin-bottom: ${({ margin }) => (margin ? '12px' : '0')};
-  margin-right: 36px;
+  text-align: ${({ align }) => align};
+  text-transform: uppercase;
 `;
 
-export { Wrapper, Header, Title, Icon, Value, Network, Content, NetworkData };
+export { Wrapper, Header, Title, Icon, Value, Network, Data, Content, NetworkData };

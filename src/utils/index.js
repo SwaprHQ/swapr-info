@@ -4,7 +4,6 @@ import utc from 'dayjs/plugin/utc';
 import _Decimal from 'decimal.js-light';
 import Numeral from 'numeral';
 import React from 'react';
-import { Text } from 'rebass';
 import toFormat from 'toformat';
 
 import { getAddress } from '@ethersproject/address';
@@ -20,6 +19,7 @@ import {
   USD,
 } from '@swapr/sdk';
 
+import { Typography } from '../Theme';
 import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, SHARE_VALUE } from '../apollo/queries';
 import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
@@ -474,26 +474,18 @@ export function rawPercent(percentRaw) {
   return percent.toFixed(0) + '%';
 }
 
-export function formattedPercent(percent, useBrackets = false) {
+export function formattedPercent(percent = false) {
   percent = parseFloat(percent);
   if (!percent || percent === 0) {
-    return <Text fontWeight={500}>0%</Text>;
+    return <Typography.smallHeader color={'text1'}>0%</Typography.smallHeader>;
   }
 
   if (percent < 0.0001 && percent > 0) {
-    return (
-      <Text fontWeight={500} color="green">
-        {'< 0.0001%'}
-      </Text>
-    );
+    return <Typography.smallHeader color={'green1'}>{'< 0.0001%'}</Typography.smallHeader>;
   }
 
   if (percent < 0 && percent > -0.0001) {
-    return (
-      <Text fontWeight={500} color="red">
-        {'< 0.0001%'}
-      </Text>
-    );
+    return <Typography.smallHeader color={'red1'}>{'< 0.0001%'}</Typography.smallHeader>;
   }
 
   let fixedPercent = percent.toFixed(2);
@@ -502,12 +494,14 @@ export function formattedPercent(percent, useBrackets = false) {
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return <Text fontWeight={500} color="green">{`+${percent?.toFixed(0).toLocaleString()}%`}</Text>;
+      return (
+        <Typography.smallHeader color={'green1'}>{`+${percent?.toFixed(0).toLocaleString()}%`}</Typography.smallHeader>
+      );
     } else {
-      return <Text fontWeight={500} color="green">{`+${fixedPercent}%`}</Text>;
+      return <Typography.smallHeader color={'green1'}>{`+${fixedPercent}%`}</Typography.smallHeader>;
     }
   } else {
-    return <Text fontWeight={500} color="red">{`${fixedPercent}%`}</Text>;
+    return <Typography.smallHeader color={'red1'}>{`${fixedPercent}%`}</Typography.smallHeader>;
   }
 }
 

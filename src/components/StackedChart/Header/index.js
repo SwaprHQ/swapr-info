@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
+import { Typography } from '../../../Theme';
 import DropdownSelect from '../../DropdownSelect';
-import { Container, Title, DailyChange, Date, FlexContainer, Value } from './styled';
+import { Container, DailyChange, Date, FlexContainer } from './styled';
 
 const Header = ({
   title,
@@ -17,11 +18,13 @@ const Header = ({
 }) => (
   <Container>
     <div>
-      <Title>{title}</Title>
+      <Typography.smallHeader marginBottom={12} sx={{ textTransform: 'uppercase' }}>
+        {title}
+      </Typography.smallHeader>
       <FlexContainer>
-        <Value>
+        <Typography.largeBoldHeader marginRight={10}>
           {isValueCurrency && '$'} {value}
-        </Value>
+        </Typography.largeBoldHeader>
         <DailyChange>{dailyChange}</DailyChange>
       </FlexContainer>
       <Date>{date}</Date>

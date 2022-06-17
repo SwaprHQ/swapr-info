@@ -4,7 +4,7 @@ import { useClickAway } from 'react-use';
 import styled from 'styled-components';
 
 import { StyledIcon } from '..';
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import ArbitrumLogo from '../../assets/svg/arbitrum-one-logo.svg';
 import EthereumLogo from '../../assets/svg/ethereum-logo.svg';
 import GnosisLogo from '../../assets/svg/gnosis-chain-logo.svg';
@@ -20,9 +20,9 @@ const NetworkLogo = {
 
 const Wrapper = styled.div`
   position: relative;
-  background-color: ${({ theme }) => theme.panelColor};
-  border: 1px solid ${({ color, theme }) => color || theme.primary4};
-  width: ${({ width }) => (width ? width : '150px')};
+  background-color: ${({ theme }) => theme.dropdownBg};
+  border: 1px solid ${({ color, theme }) => color || theme.bd1};
+  width: ${({ width }) => (width ? width : '160px')};
   padding: 4px 10px;
   padding-right: 6px;
   border-radius: 8px;
@@ -51,9 +51,11 @@ const Dropdown = styled.div`
   z-index: 2;
   position: absolute;
   top: 38px;
+  left: -1px;
   padding-top: 40px;
-  background-color: ${({ theme }) => theme.bg1};
-  border: 1px solid rgba(0, 0, 0, 0.15);
+  background-color: ${({ theme }) => theme.dropdownBg};
+  backdrop-filter: blur(25px);
+  border: 1px solid ${({ color, theme }) => color || theme.bd1};
   padding: 10px 10px;
   border-radius: 8px;
   width: calc(100% - 20px);
@@ -91,6 +93,7 @@ export default function DropdownSelect({ options, active, disabled, setActive, c
   useClickAway(dropdownRef, (event) => {
     if (showDropdown && !containerRef.current.contains(event.target)) toggleDropdown(false);
   });
+
   // Preload network logos
   useEffect(() => {
     Object.values(NetworkLogo).forEach((image) => {
@@ -101,20 +104,20 @@ export default function DropdownSelect({ options, active, disabled, setActive, c
   return (
     <Wrapper open={showDropdown} color={color} ref={containerRef} width={width} disabled={disabled}>
       {disabled ? (
-        <RowBetween justify="center">
-          <TYPE.main display="flex" color={'disabled'}>
+        <RowBetween justify={'center'}>
+          <Typography.smallHeader display={'flex'} color={'disabled'}>
             {active}
-          </TYPE.main>
+          </Typography.smallHeader>
           <StyledIcon disabled={disabled}>
             <ArrowStyled />
           </StyledIcon>
         </RowBetween>
       ) : (
-        <RowBetween onClick={() => toggleDropdown(!showDropdown)} justify="center">
-          <TYPE.main display="flex">
+        <RowBetween onClick={() => toggleDropdown(!showDropdown)} justify={'center'}>
+          <Typography.smallHeader color={'text8'} display={'flex'}>
             <Icon network={active} />
             {active}
-          </TYPE.main>
+          </Typography.smallHeader>
           <StyledIcon>
             <ArrowStyled />
           </StyledIcon>
@@ -123,7 +126,7 @@ export default function DropdownSelect({ options, active, disabled, setActive, c
       {showDropdown && (
         <Dropdown>
           <div ref={dropdownRef}>
-            <AutoColumn gap="20px">
+            <AutoColumn gap={'20px'}>
               {Object.keys(options).map((key, index) => {
                 let option = options[key];
                 return (
@@ -135,10 +138,10 @@ export default function DropdownSelect({ options, active, disabled, setActive, c
                       }}
                       key={index}
                     >
-                      <TYPE.body fontSize={14} display="flex">
+                      <Typography.smallHeader color={'text8'} sx={{ ':hover': { color: '#EBE9F8' } }} display={'flex'}>
                         <Icon network={option} />
                         {option}
-                      </TYPE.body>
+                      </Typography.smallHeader>
                     </Row>
                   )
                 );

@@ -4,6 +4,7 @@ import styled from 'styled-components';
 const Wrapper = styled.div`
   display: flex;
   flex-direction: column;
+  gap: 26px;
 `;
 
 const Header = styled.div`
@@ -17,10 +18,6 @@ const Title = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
-`;
-
-const Icon = styled.div`
-  margin-right: 10px;
 `;
 
 const OpenChartIcon = styled(BarChart2)`
@@ -39,8 +36,22 @@ const Value = styled.div`
 `;
 
 const Network = styled.div`
+  margin-bottom: 8px;
+  font-style: normal;
+  font-weight: 600;
+  font-size: 10px;
+  line-height: 12px;
+  letter-spacing: 0.15em;
+  color: ${({ theme }) => theme.text7};
+`;
+
+const Data = styled.div`
+  font-style: normal;
+  font-weight: 500;
   font-size: 14px;
-  color: ${({ theme }) => theme.text2};
+  line-height: 17px;
+  letter-spacing: 0.02em;
+  color: ${({ theme }) => theme.text6};
 `;
 
 const Content = styled.div`
@@ -50,8 +61,7 @@ const Content = styled.div`
 `;
 
 const NetworkData = styled.div`
-  margin-bottom: ${(props: { margin: boolean }) => (props.margin ? '12px' : '0')};
-  margin-right: 36px;
+  text-align: ${(props: { align: string }) => props.align};
+  text-transform: uppercase;
 `;
-
-export { Wrapper, Header, Title, Icon, OpenChartIcon, Value, Network, Content, NetworkData };
+export { Wrapper, Header, Title, OpenChartIcon, Value, Network, Data, Content, NetworkData };

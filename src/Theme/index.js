@@ -34,6 +34,7 @@ const theme = (darkMode, color) => ({
   text7: darkMode ? '#8780BF' : '',
   text8: darkMode ? '#BCB3F0' : '',
   text9: darkMode ? '#EBE9F8' : '',
+  text10: darkMode ? '#C9C7DB' : '',
 
   swaprLink: '#8c6fff',
   loaderBase: '#2A2F42',

@@ -5,13 +5,14 @@ import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
-import farming from '../../assets/farming.svg';
+import { TYPE, Typography } from '../../Theme';
+import Farms from '../../assets/icons/Farm';
 import { SupportedNetwork } from '../../constants';
 import { useSessionStart } from '../../contexts/Application';
 import { useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
 import { AutoColumn } from '../Column';
-import DropdownSelect from '../DropdownSelect';
+import DropdownNetworkSelect from '../DropdownNetworkSelect';
+import Icon from '../Icon';
 import Link, { BasicLink } from '../Link';
 import { AutoRow } from '../Row';
 import Title from '../Title';
@@ -19,13 +20,11 @@ import { MobileMenu } from './MobileMenu';
 
 const Wrapper = styled.div`
   height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
+  padding-top: 36px;
+  padding-left: 36px;
   background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
   color: ${({ theme }) => theme.text1};
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
   position: sticky;
-  top: 0px;
-  z-index: 2;
-  box-sizing: border-box;
   background-color: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.bg2};
 
@@ -39,14 +38,17 @@ const Wrapper = styled.div`
   }
 `;
 
-export const Option = styled.div`
-  font-weight: 500;
-  font-size: 14px;
-  opacity: ${({ activeText }) => (activeText ? 1 : 0.6)};
-  color: ${({ theme }) => theme.white};
+export const Option = styled(Typography.text)`
+  color: ${({ activeText, theme }) => (activeText ? theme.text1 : theme.text10)};
   display: flex;
+  align-items: center;
+
+  && {
+    font-weight: ${({ activeText }) => (activeText ? '700' : '400')};
+  }
+
   :hover {
-    opacity: 1;
+    color: ${({ theme }) => theme.text1};
   }
 `;
 
@@ -162,19 +164,19 @@ function SideNav({ history }) {
     <Wrapper isMobile={below1080}>
       {!below1080 ? (
         <DesktopWrapper>
-          <AutoColumn gap="1rem" style={{ marginLeft: '.75rem', marginTop: '1.5rem' }}>
+          <AutoColumn gap={'24px'}>
             <Title />
             {history.location.pathname !== '/dashboard' ? (
-              <DropdownSelect
+              <DropdownNetworkSelect
                 active={selectedNetwork}
                 setActive={handleSelectedNetworkChange}
                 options={Object.values(SupportedNetwork)}
               />
             ) : (
-              <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+              <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
             )}
             {!below1080 && (
-              <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
+              <AutoColumn gap={'lg'} style={{ marginTop: '1rem' }}>
                 <BasicLink to="/dashboard">
                   <Option activeText={history.location.pathname === '/dashboard' ?? undefined}>
                     <Layers size={20} style={{ marginRight: '.75rem' }} />
@@ -219,8 +221,21 @@ function SideNav({ history }) {
                       undefined
                     }
                   >
-                    <img style={{ marginRight: '.75rem' }} width={'20px'} src={farming} alt="farming" />
-                    Farming
+                    <Icon
+                      icon={
+                        <Farms
+                          height={20}
+                          width={20}
+                          color={
+                            history.location.pathname.split('/')[1] === 'farming' ||
+                            history.location.pathname.split('/')[1] === 'farming'
+                              ? '#FAFAFA'
+                              : '#C9C7DB'
+                          }
+                        />
+                      }
+                    />
+                    Farms
                   </Option>
                 </BasicLink>
 
@@ -270,13 +285,13 @@ function SideNav({ history }) {
             <Title />
             <AutoRow justify="flex-end" gap="8px">
               {history.location.pathname !== '/dashboard' ? (
-                <DropdownSelect
+                <DropdownNetworkSelect
                   active={selectedNetwork}
                   setActive={handleSelectedNetworkChange}
                   options={Object.values(SupportedNetwork)}
                 />
               ) : (
-                <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+                <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
               )}
               <MenuIcon onClick={handleMobileMenuOpen} />
             </AutoRow>

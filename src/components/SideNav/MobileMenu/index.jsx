@@ -4,8 +4,9 @@ import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';
 
 import { Option } from '../';
-import farming from '../../../assets/farming.svg';
+import Farms from '../../../assets/icons/Farm';
 import { AutoColumn } from '../../Column';
+import Icon from '../../Icon';
 import { BasicLink } from '../../Link';
 import Row from '../../Row';
 
@@ -62,7 +63,20 @@ export const MobileMenu = ({ onClose, ...rest }) => {
             undefined
           }
         >
-          <img style={{ marginRight: '.75rem' }} width={'20px'} src={farming} alt="farming" />
+          <Icon
+            icon={
+              <Farms
+                height={20}
+                width={20}
+                color={
+                  history.location.pathname.split('/')[1] === 'farming' ||
+                  history.location.pathname.split('/')[1] === 'farming'
+                    ? '#FAFAFA'
+                    : '#C9C7DB'
+                }
+              />
+            }
+          />
           Farming
         </Option>
       </BasicLink>

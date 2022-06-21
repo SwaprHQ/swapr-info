@@ -47,7 +47,6 @@ const ContentWrapper = styled.div`
 `;
 
 const Center = styled.div`
-  z-index: 1;
   height: 100%;
   transition: width 0.25s ease;
   background-color: ${({ theme }) => theme.bg1};

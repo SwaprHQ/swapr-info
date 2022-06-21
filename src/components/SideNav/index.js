@@ -47,8 +47,13 @@ export const Option = styled(Typography.text)`
     font-weight: ${({ activeText }) => (activeText ? '700' : '400')};
   }
 
-  :hover {
+  &:hover {
     color: ${({ theme }) => theme.text1};
+  }
+
+  // Apply hover directly to the svg path element (needed for the Farms icon)
+  &:hover div path {
+    fill: ${({ theme }) => theme.text1};
   }
 `;
 
@@ -229,8 +234,8 @@ function SideNav({ history }) {
                           color={
                             history.location.pathname.split('/')[1] === 'farming' ||
                             history.location.pathname.split('/')[1] === 'farming'
-                              ? '#FAFAFA'
-                              : '#C9C7DB'
+                              ? 'text1'
+                              : 'text10'
                           }
                         />
                       }

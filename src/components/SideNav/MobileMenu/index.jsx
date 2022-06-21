@@ -71,8 +71,8 @@ export const MobileMenu = ({ onClose, ...rest }) => {
                 color={
                   history.location.pathname.split('/')[1] === 'farming' ||
                   history.location.pathname.split('/')[1] === 'farming'
-                    ? '#FAFAFA'
-                    : '#C9C7DB'
+                    ? 'text1'
+                    : 'text10'
                 }
               />
             }

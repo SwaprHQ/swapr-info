@@ -13,7 +13,7 @@ import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../
 import { OptionButton } from '../ButtonStyled';
 import CandleStickChart from '../CandleChart';
 import { AutoColumn } from '../Column';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow, RowBetween, RowFixed } from '../Row';
 
@@ -133,8 +133,8 @@ const TokenChart = ({ address, color, base }) => {
     <ChartWrapper>
       {below600 ? (
         <Flex justifyContent={'space-between'} mb={40}>
-          <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={color} />
+          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
+          <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={color} />
         </Flex>
       ) : (
         <RowBetween

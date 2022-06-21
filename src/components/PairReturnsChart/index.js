@@ -11,7 +11,7 @@ import { useUserPositionChart } from '../../contexts/User';
 import { useColor } from '../../hooks';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow } from '../Row';
 
@@ -60,7 +60,7 @@ const PairReturnsChart = ({ account, position }) => {
       {data &&
         (below600 ? (
           <Flex justifyContent={'end'}>
-            <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
+            <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
           </Flex>
         ) : (
           <OptionsRow>

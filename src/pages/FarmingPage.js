@@ -4,7 +4,7 @@ import { useMedia } from 'react-use';
 
 import { TYPE } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
-import DropdownSelect from '../components/DropdownSelect';
+import DropdownBasicSelect from '../components/DropdownBasicSelect';
 import FarmingList from '../components/FarmingList';
 import Panel from '../components/Panel';
 import { RowBetween } from '../components/Row';
@@ -38,7 +38,7 @@ function FarmingPage() {
           <TYPE.largeHeader>Farming</TYPE.largeHeader>
           {!below800 && <Search small={true} />}
         </RowBetween>
-        <DropdownSelect
+        <DropdownBasicSelect
           options={['Active Campaigns', 'Expired Campaigns']}
           active={campaignStatus === STATUS.ACTIVE ? 'Active Campaigns' : 'Expired Campaigns'}
           setActive={handleUpdateCampaignStatus}

@@ -9,6 +9,7 @@ import EthereumLogo from '../../assets/svg/ethereum-logo.svg';
 import GnosisLogo from '../../assets/svg/gnosis-chain-logo.svg';
 import { SupportedNetwork } from '../../constants';
 import { AutoColumn } from '../Column';
+import Icon from '../Icon';
 import Row from '../Row';
 import { ArrowStyled, Dropdown, IconWrapper, Wrapper } from './styled';
 
@@ -18,7 +19,7 @@ const NetworkLogo = {
   [SupportedNetwork.XDAI]: GnosisLogo,
 };
 
-const Icon = ({ network }) => {
+const NetworkIcon = ({ network }) => {
   if (NetworkLogo[network] === undefined) {
     return null;
   }
@@ -67,11 +68,11 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
           width={'100%'}
         >
           <Typography.text color={'text1'} display={'flex'} alignItems={'center'} marginRight={'6px'} height={'20px'}>
-            <Icon network={active} />
+            <NetworkIcon network={active} />
             {active}
           </Typography.text>
           <StyledIcon>
-            <ArrowStyled />
+            <Icon icon={<ArrowStyled />} color={'text1'} />
           </StyledIcon>
         </Flex>
       )}
@@ -91,7 +92,7 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
                       key={index}
                     >
                       <Typography.text color={'text1'} display={'flex'} alignItems={'center'}>
-                        <Icon network={option} />
+                        <NetworkIcon network={option} />
                         {option}
                       </Typography.text>
                     </Row>

@@ -10,7 +10,7 @@ import { TYPE } from '../../Theme';
 import { useSelectedNetwork } from '../../contexts/Network';
 import { formatTime, formattedNum, urls, getExplorerLink } from '../../utils';
 import { updateNameData } from '../../utils/data';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import FormattedName from '../FormattedName';
 import Link from '../Link';
 import LocalLoader from '../LocalLoader';
@@ -316,7 +316,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override, color }) {
       <DashGrid center={true} style={{ height: 'fit-content', padding: '0 0 1rem 0' }}>
         {below780 ? (
           <RowBetween area="txn">
-            <DropdownSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
+            <DropdownBasicSelect options={TXN_TYPE} active={txFilter} setActive={setTxFilter} color={color} />
           </RowBetween>
         ) : (
           <RowFixed area="txn" gap="10px" pl={4}>

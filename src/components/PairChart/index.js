@@ -12,7 +12,7 @@ import { usePairChartData, useHourlyRateData, usePairData } from '../../contexts
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
 import CandleStickChart from '../CandleChart';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow } from '../Row';
 
@@ -119,8 +119,8 @@ const PairChart = ({ address, color, base0, base1 }) => {
     <ChartWrapper>
       {below600 ? (
         <Flex justifyContent={'space-between'} mb={40}>
-          <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
+          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
+          <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
         </Flex>
       ) : (
         <OptionsRow>

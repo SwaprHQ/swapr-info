@@ -2,7 +2,7 @@ import PropTypes from 'prop-types';
 import React from 'react';
 
 import { Typography } from '../../../Theme';
-import DropdownSelect from '../../DropdownSelect';
+import DropdownBasicSelect from '../../DropdownBasicSelect';
 import { Container, DailyChange, Date, FlexContainer } from './styled';
 
 const Header = ({
@@ -31,7 +31,7 @@ const Header = ({
     </div>
     {showTimeFilter && (
       <div>
-        <DropdownSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
+        <DropdownBasicSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
       </div>
     )}
   </Container>

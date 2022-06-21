@@ -30,7 +30,6 @@ import { formattedNum } from '../utils';
 const GridRow = styled.div`
   display: grid;
   grid-template-columns: minmax(auto, 920px) auto;
-  grid-template-rows: minmax(auto, 380px) minmax(auto, 380px);
   column-gap: 21px;
   row-gap: 21px;
 `;

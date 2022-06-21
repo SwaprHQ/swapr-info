@@ -19,12 +19,12 @@ import Title from '../Title';
 import { MobileMenu } from './MobileMenu';
 
 const Wrapper = styled.div`
-  height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
-  padding-top: 36px;
+  height: ${({ isMobile }) => (isMobile ? 'initial' : 'calc(100vh - 36px)')};
   padding-left: 36px;
   background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
   color: ${({ theme }) => theme.text1};
   position: sticky;
+  top: 0px;
   background-color: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.bg2};
 
@@ -168,7 +168,7 @@ function SideNav({ history }) {
   return (
     <Wrapper isMobile={below1080}>
       {!below1080 ? (
-        <DesktopWrapper>
+        <DesktopWrapper style={{ marginTop: '36px' }}>
           <AutoColumn gap={'24px'}>
             <Title />
             {history.location.pathname !== '/dashboard' ? (

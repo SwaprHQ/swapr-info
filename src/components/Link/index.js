@@ -16,7 +16,7 @@ WrappedLink.propTypes = {
 };
 
 const Link = styled(WrappedLink)`
-  color: ${({ color, theme }) => (color ? color : theme.swaprLink)};
+  color: ${({ color, theme }) => (color ? theme[color] : theme.swaprLink)};
 `;
 
 export default Link;

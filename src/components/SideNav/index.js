@@ -1,19 +1,25 @@
 import { transparentize } from 'polished';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TrendingUp, List, PieChart, Disc, Menu, Layers } from 'react-feather';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE, Typography } from '../../Theme';
+import { Typography } from '../../Theme';
 import Farms from '../../assets/icons/Farm';
+import { ReactComponent as GasInfoSvg } from '../../assets/svg/gas-info.svg';
 import { SupportedNetwork } from '../../constants';
-import { useSessionStart } from '../../contexts/Application';
-import { useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
+import { useNativeCurrencySymbol, useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
+import { useGasInfo } from '../../hooks/useGasInfo';
+import { useSwprPrice } from '../../hooks/useSwprPrice';
+import { formattedNum } from '../../utils';
 import { AutoColumn } from '../Column';
 import DropdownNetworkSelect from '../DropdownNetworkSelect';
 import Icon from '../Icon';
 import Link, { BasicLink } from '../Link';
+import Polling from '../Polling';
 import { AutoRow } from '../Row';
 import Title from '../Title';
 import { MobileMenu } from './MobileMenu';
@@ -38,7 +44,7 @@ const Wrapper = styled.div`
   }
 `;
 
-export const Option = styled(Typography.text)`
+export const Option = styled(Typography.largeText)`
   color: ${({ activeText, theme }) => (activeText ? theme.text1 : theme.text10)};
   display: flex;
   align-items: center;
@@ -74,44 +80,19 @@ const MenuIcon = styled(Menu)`
   color: #fff;
 `;
 
-const HeaderText = styled.div`
-  margin-right: 0.75rem;
-  font-size: 0.825rem;
-  font-weight: 500;
-  display: inline-box;
-  display: -webkit-inline-box;
-  opacity: 0.8;
-  :hover {
-    opacity: 1;
-  }
-  a {
-    color: ${({ theme }) => theme.white};
-  }
-`;
-
-const Polling = styled.div`
-  position: fixed;
+const GasInfo = styled.div`
   display: flex;
-  left: 0;
-  bottom: 0;
-  padding: 1rem;
-  color: white;
-  opacity: 0.4;
-  transition: opacity 0.25s ease;
-  :hover {
-    opacity: 1;
-  }
-`;
+  margin-left: 12px;
+  padding: 3px 4px;
+  border: 2px solid rgba(242, 153, 74, 0.65);
+  background: rgba(242, 153, 74, 0.08);
+  border-radius: 6px;
 
-const PollingDot = styled.div`
-  width: 8px;
-  height: 8px;
-  min-height: 8px;
-  min-width: 8px;
-  margin-right: 0.5rem;
-  margin-top: 3px;
-  border-radius: 50%;
-  background-color: ${({ theme }) => theme.green1};
+  div {
+    color: ${({ theme }) => theme.orange1};
+  }
+
+  align-items: center;
 `;
 
 const AnimatedMobileMenu = styled(MobileMenu)`
@@ -139,15 +120,27 @@ const Overlay = styled.div`
 
 function SideNav({ history }) {
   const below1080 = useMedia('(max-width: 1080px)');
-
   const below1180 = useMedia('(max-width: 1180px)');
-
-  const seconds = useSessionStart();
 
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
 
+  const { gas } = useGasInfo();
+  const swprNativePrice = useSwprPrice();
+  const nativeCurrencySymbol = useNativeCurrencySymbol();
+  const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [swprPrice, setSwprPrice] = useState(0);
+
+  const formattedNativeCurrencyPrice = nativeCurrencyPrice ? formattedNum(nativeCurrencyPrice, true) : '-';
+  const formattedSwprPrice = swprPrice ? formattedNum(swprPrice, true) : '-';
+
+  useEffect(() => {
+    if (!swprNativePrice.loading && nativeCurrencyPrice) {
+      setSwprPrice(swprNativePrice.price * nativeCurrencyPrice);
+    }
+  }, [swprNativePrice.loading, swprNativePrice.price, nativeCurrencyPrice, swprPrice]);
 
   const handleMobileMenuOpen = () => {
     setMobileMenuOpen(true);
@@ -259,28 +252,63 @@ function SideNav({ history }) {
               </AutoColumn>
             )}
           </AutoColumn>
-          <AutoColumn gap="0.5rem" style={{ marginLeft: '.75rem', marginBottom: '4rem' }}>
-            <HeaderText>
-              <Link href="https://dxdao.eth.link" target="_blank">
+          <AutoColumn gap={'12px'} style={{ marginBottom: '4rem' }}>
+            <Typography.text>
+              <Link color={'text10'} href="https://swapr.eth.limo">
+                Swapr
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link color={'text10'} href="https://dxdao.eth.limo">
                 DXdao
               </Link>
-            </HeaderText>
-            <HeaderText>
-              <Link href="https://twitter.com/SwaprEth" target="_blank">
+            </Typography.text>
+            <Typography.text>
+              <Link color={'text10'} href="https://twitter.com/SwaprEth">
                 Twitter
               </Link>
-            </HeaderText>
+            </Typography.text>
+            <Typography.text>
+              <Link color={'text10'} href="https://discord.com/invite/4QXEJQkvHH">
+                Discord
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link color={'text10'} href="https://github.com/SwaprDAO/swapr-info">
+                Github
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link color={'text10'} href="https://dxdocs.eth.limo">
+                DXdocs
+              </Link>
+            </Typography.text>
+            <Flex marginTop={'6px'}>
+              <Typography.smallText marginRight={'16px'}>
+                {nativeCurrencySymbol}:{' '}
+                <Typography.custom display={'inline'} fontWeight={700} fontSize={10}>
+                  {formattedNativeCurrencyPrice}
+                </Typography.custom>
+              </Typography.smallText>
+              <Typography.smallText>
+                SWPR:{' '}
+                <Typography.custom display={'inline'} fontWeight={700} fontSize={10}>
+                  {formattedSwprPrice}
+                </Typography.custom>
+              </Typography.smallText>
+            </Flex>
+            {!below1180 && (
+              <Flex>
+                <Polling />
+                {gas.normal > 0 && (
+                  <GasInfo>
+                    <GasInfoSvg />
+                    <Typography.tinyText marginLeft={'2px'}>{gas.normal}</Typography.tinyText>
+                  </GasInfo>
+                )}
+              </Flex>
+            )}
           </AutoColumn>
-          {!below1180 && (
-            <Polling style={{ marginLeft: '.5rem' }}>
-              <PollingDot />
-              <a href="/" style={{ color: 'white' }}>
-                <TYPE.small color={'white'}>
-                  Updated {seconds ? seconds + 's' : '-'} ago <br />
-                </TYPE.small>
-              </a>
-            </Polling>
-          )}
         </DesktopWrapper>
       ) : (
         <>

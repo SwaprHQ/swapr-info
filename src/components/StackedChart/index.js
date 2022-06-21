@@ -15,7 +15,7 @@ const TIME_FILTER_OPTIONS = {
   YEAR: '1Y',
 };
 
-const LegendItem = (value) => <Typography.text as={'span'}>{value}</Typography.text>;
+const LegendItem = (value) => <Typography.largeText as={'span'}>{value}</Typography.largeText>;
 
 const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight, maxWith, minHeight }) => {
   const [filteredData, setFilteredData] = useState(data);

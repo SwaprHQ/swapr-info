@@ -139,7 +139,7 @@ const DashboardPage = () => {
 
   return (
     <PageWrapper>
-      <ContentWrapper style={{ maxWidth: '1400px' }}>
+      <ContentWrapper>
         <Typography.largeHeader>
           {below800 ? 'Analytics Dashboard' : 'Swapr Protocol Analytics Dashboard'}
         </Typography.largeHeader>

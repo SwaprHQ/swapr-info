@@ -96,7 +96,18 @@ const TextWrapper = styled(Text)`
 `;
 
 export const Typography = {
+  custom: ({ color, ...rest }) => <TextWrapper color={color || 'text1'} {...rest} />,
+
+  tinyText: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={'8px'} lineHeight={'10px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+  smallText: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={10} lineHeight={'10px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
   text: ({ sx, color, ...rest }) => (
+    <TextWrapper fontWeight={400} fontSize={13} lineHeight={'16px'} color={color || 'text1'} sx={sx} {...rest} />
+  ),
+  largeText: ({ sx, color, ...rest }) => (
     <TextWrapper fontWeight={400} fontSize={14} lineHeight={'17px'} color={color || 'text1'} sx={sx} {...rest} />
   ),
 

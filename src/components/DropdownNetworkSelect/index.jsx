@@ -53,9 +53,9 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
     <Wrapper open={showDropdown} ref={containerRef} disabled={disabled}>
       {disabled ? (
         <Flex justifyContent={'space-between'} alignItems={'center'} width={'100%'} height={'20px'}>
-          <Typography.text display={'flex'} color={'disabled'}>
+          <Typography.largeText display={'flex'} color={'disabled'}>
             {active}
-          </Typography.text>
+          </Typography.largeText>
           <StyledIcon disabled={disabled}>
             <ArrowStyled />
           </StyledIcon>
@@ -67,10 +67,16 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
           alignItems={'center'}
           width={'100%'}
         >
-          <Typography.text color={'text1'} display={'flex'} alignItems={'center'} marginRight={'6px'} height={'20px'}>
+          <Typography.largeText
+            color={'text1'}
+            display={'flex'}
+            alignItems={'center'}
+            marginRight={'6px'}
+            height={'20px'}
+          >
             <NetworkIcon network={active} />
             {active}
-          </Typography.text>
+          </Typography.largeText>
           <StyledIcon>
             <Icon icon={<ArrowStyled />} color={'text1'} />
           </StyledIcon>
@@ -91,10 +97,10 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
                       }}
                       key={index}
                     >
-                      <Typography.text color={'text1'} display={'flex'} alignItems={'center'}>
+                      <Typography.largeText color={'text1'} display={'flex'} alignItems={'center'}>
                         <NetworkIcon network={option} />
                         {option}
-                      </Typography.text>
+                      </Typography.largeText>
                     </Row>
                   )
                 );

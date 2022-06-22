@@ -35,8 +35,9 @@ const GridRow = styled.div`
 `;
 
 const GridChart = styled.div`
-  display: grid;
-  row-gap: 21px;
+  display: flex;
+  flex-direction: column;
+  gap: 21px;
 `;
 
 const GridCard = styled.div`
@@ -46,7 +47,9 @@ const GridCard = styled.div`
   row-gap: 21px;
 `;
 
-const PanelLoaderWrapper = ({ isLoading, children }) => <Panel>{isLoading ? <LocalLoader /> : children}</Panel>;
+const PanelLoaderWrapper = ({ isLoading, children }) => (
+  <Panel maxHeight={'380px'}>{isLoading ? <LocalLoader /> : children}</Panel>
+);
 const CardLoaderWrapper = ({ isLoading, children }) => (
   <Panel padding={'32px 36px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
 );

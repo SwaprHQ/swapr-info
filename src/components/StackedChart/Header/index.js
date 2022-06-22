@@ -3,7 +3,7 @@ import React from 'react';
 
 import { Typography } from '../../../Theme';
 import DropdownBasicSelect from '../../DropdownBasicSelect';
-import { Container, DailyChange, Date, FlexContainer } from './styled';
+import { Container, DailyChange, FlexContainer } from './styled';
 
 const Header = ({
   title,
@@ -27,7 +27,7 @@ const Header = ({
         </Typography.largeBoldHeader>
         <DailyChange>{dailyChange}</DailyChange>
       </FlexContainer>
-      <Date>{date}</Date>
+      <Typography.text>{date}</Typography.text>
     </div>
     {showTimeFilter && (
       <div>

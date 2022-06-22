@@ -3,12 +3,15 @@ import { useClickAway } from 'react-use';
 
 import { StyledIcon } from '..';
 import { Typography } from '../../Theme';
+import { useDarkModeManager } from '../../contexts/LocalStorage';
 import { AutoColumn } from '../Column';
 import Icon from '../Icon';
 import Row, { RowBetween } from '../Row';
 import { ArrowStyled, Dropdown, Wrapper } from './styled';
 
 export default function DropdownBasicSelect({ options, active, disabled, setActive, color, width = null }) {
+  const darkMode = useDarkModeManager();
+
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -53,7 +56,11 @@ export default function DropdownBasicSelect({ options, active, disabled, setActi
                       }}
                       key={index}
                     >
-                      <Typography.smallHeader color={'text8'} sx={{ ':hover': { color: '#EBE9F8' } }} display={'flex'}>
+                      <Typography.smallHeader
+                        color={'text8'}
+                        sx={{ ':hover': { color: darkMode ? '#EBE9F8' : '#464366' } }}
+                        display={'flex'}
+                      >
                         {option}
                       </Typography.smallHeader>
                     </Row>

@@ -25,9 +25,4 @@ const DailyChange = styled.div`
   font-weight: 500;
 `;
 
-const Date = styled.p`
-  font-size: 12px;
-  margin-top: 0;
-`;
-
-export { Container, Title, FlexContainer, DailyChange, Date };
+export { Container, Title, FlexContainer, DailyChange };

@@ -13,8 +13,10 @@ interface ChainGasInfo {
 
 const gasInfoChainUrls: ChainGasInfo = {
   [Networks.MAINNET]: {
-    url: 'http://ethgas.watch/api/gas',
-    keys: ['normal', 'fast', 'slow'],
+    url: `https://api.etherscan.io/api?module=gastracker&action=gasoracle&apikey=${
+      process.env.REACT_APP_ETHERSCAN_API_KEY ?? ''
+    }`,
+    keys: ['ProposeGasPrice', 'FastGasPrice', 'SafeGasPrice'],
   },
   [Networks.XDAI]: {
     url: 'https://blockscout.com/xdai/mainnet/api/v1/gas-price-oracle',
@@ -75,22 +77,18 @@ export function useGasInfo(): { loading: boolean; gas: Gas } {
         let { normal, slow, fast } = defaultGasState;
 
         // Mainnet and xDAI uses external API
-        if (selectedNetwork === Networks.MAINNET || selectedNetwork === Networks.XDAI) {
+        if (selectedNetwork === Networks.MAINNET) {
           const keys = chainGasInfo.keys ?? [];
-          // Pick the keys
-          const gasNormalData = data[keys[0]];
-          const gasFastData = data[keys[1]];
-          const gasSlowData = data[keys[2]];
-          // ethgas.watch returns both USD and Gwei units
-          if (selectedNetwork === Networks.MAINNET) {
-            normal = gasNormalData.gwei;
-            fast = gasFastData.gwei;
-            slow = gasSlowData.gwei;
-          } else {
-            normal = gasNormalData;
-            fast = gasFastData;
-            slow = gasSlowData;
-          }
+
+          normal = data.result[keys[0]];
+          fast = data.result[keys[1]];
+          slow = data.result[keys[2]];
+        } else if (selectedNetwork === Networks.XDAI) {
+          const keys = chainGasInfo.keys ?? [];
+
+          normal = data[keys[0]];
+          fast = data[keys[1]];
+          slow = data[keys[2]];
         } else {
           // On Arbitrum (and other L2's), parse Gwei to decimal and round the number
           // There is no fast nor slow gas prices

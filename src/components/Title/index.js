@@ -26,7 +26,7 @@ export default function Title() {
       <Flex alignItems="center">
         <RowFixed>
           <Link id="link" onClick={() => history.push('/')}>
-            <img width={'20px'} src={Logo} alt="logo" />
+            <img width={'27px'} src={Logo} alt="logo" />
           </Link>
           <img width={'72px'} style={{ marginLeft: '8px', marginTop: '0px' }} src={Wordmark} alt="logo" />
         </RowFixed>

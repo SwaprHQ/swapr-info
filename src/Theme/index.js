@@ -30,7 +30,7 @@ const theme = (darkMode, color) => ({
   text3: darkMode ? '#6C7284' : '#888D9B',
   text4: darkMode ? '#565A69' : '#C3C5CB',
   text5: darkMode ? '#2C2F36' : '#EDEEF2',
-  text6: darkMode ? '#8C83C0' : '#C0BAF7',
+  text6: darkMode ? '#C0BAF7' : '',
   text7: darkMode ? '#8780BF' : '',
   text8: darkMode ? '#BCB3F0' : '#A7A0E4',
   text9: darkMode ? '#EBE9F8' : '#464366',

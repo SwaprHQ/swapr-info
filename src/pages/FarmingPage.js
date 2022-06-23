@@ -1,13 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import 'feather-icons';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 
-import { TYPE } from '../Theme';
+import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import DropdownBasicSelect from '../components/DropdownBasicSelect';
 import FarmingList from '../components/FarmingList';
 import Panel from '../components/Panel';
-import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import { STATUS, useLiquidityMiningCampaignData } from '../contexts/PairData';
 
@@ -34,10 +34,10 @@ function FarmingPage() {
   return (
     <PageWrapper>
       <FullWrapper>
-        <RowBetween>
-          <TYPE.largeHeader>Farming</TYPE.largeHeader>
+        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+          <Typography.largeHeader>Farming</Typography.largeHeader>
           {!below800 && <Search small={true} />}
-        </RowBetween>
+        </Flex>
         <DropdownBasicSelect
           options={['Active Campaigns', 'Expired Campaigns']}
           active={campaignStatus === STATUS.ACTIVE ? 'Active Campaigns' : 'Expired Campaigns'}

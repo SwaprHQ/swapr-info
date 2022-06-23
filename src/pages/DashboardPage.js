@@ -47,8 +47,8 @@ const GridCard = styled.div`
   row-gap: 21px;
 `;
 
-const PanelLoaderWrapper = ({ isLoading, children }) => (
-  <Panel maxHeight={'380px'}>{isLoading ? <LocalLoader /> : children}</Panel>
+const PanelLoaderWrapper = ({ maxHeight, isLoading, children }) => (
+  <Panel maxHeight={maxHeight || '380px'}>{isLoading ? <LocalLoader /> : children}</Panel>
 );
 const CardLoaderWrapper = ({ isLoading, children }) => (
   <Panel padding={'32px 36px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
@@ -64,6 +64,7 @@ const DashboardPage = () => {
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
   const [formattedVolumeData, setFormattedVolumeData] = useState([]);
   const [formattedComulativeData, setFormattedComulativeData] = useState({ trades: [], volume: [] });
+
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
   const below1400 = useMedia('(max-width: 1400px)');
@@ -150,10 +151,10 @@ const DashboardPage = () => {
           <>
             {below800 ? (
               <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
-                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
                 </PanelLoaderWrapper>
-                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
                 </PanelLoaderWrapper>
                 <CardLoaderWrapper isLoading={isComulativeDataLoading}>
@@ -201,10 +202,10 @@ const DashboardPage = () => {
               </AutoColumn>
             ) : below1400 ? (
               <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
-                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
                 </PanelLoaderWrapper>
-                <PanelLoaderWrapper isLoading={isVolumeAndTvlLoading}>
+                <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
                 </PanelLoaderWrapper>
                 <AutoColumn gap={'16px'}>

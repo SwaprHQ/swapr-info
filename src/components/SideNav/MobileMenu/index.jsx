@@ -56,24 +56,13 @@ export const MobileMenu = ({ onClose, ...rest }) => {
         </Option>
       </BasicLink>
       <BasicLink to="/farming" onClick={onClose}>
-        <Option
-          activeText={
-            (history.location.pathname.split('/')[1] === 'farming' ||
-              history.location.pathname.split('/')[1] === 'farming') ??
-            undefined
-          }
-        >
+        <Option activeText={history.location.pathname.split('/')[1] === 'farming' ?? undefined}>
           <Icon
             icon={
               <Farms
                 height={20}
                 width={20}
-                color={
-                  history.location.pathname.split('/')[1] === 'farming' ||
-                  history.location.pathname.split('/')[1] === 'farming'
-                    ? 'text1'
-                    : 'text10'
-                }
+                color={history.location.pathname.split('/')[1] === 'farming' ? 'text1' : 'text10'}
               />
             }
           />

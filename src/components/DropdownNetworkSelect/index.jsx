@@ -53,7 +53,7 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
     <Wrapper open={showDropdown} ref={containerRef} disabled={disabled}>
       {disabled ? (
         <Flex justifyContent={'space-between'} alignItems={'center'} width={'100%'} height={'20px'}>
-          <Typography.largeText display={'flex'} color={'disabled'}>
+          <Typography.largeText color={'disabled'} sx={{ display: 'flex' }}>
             {active}
           </Typography.largeText>
           <StyledIcon disabled={disabled}>
@@ -69,10 +69,12 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
         >
           <Typography.largeText
             color={'text1'}
-            display={'flex'}
-            alignItems={'center'}
-            marginRight={'6px'}
-            height={'20px'}
+            sx={{
+              display: 'flex',
+              alignItems: 'center',
+              marginRight: '6px',
+              height: '20px',
+            }}
           >
             <NetworkIcon network={active} />
             {active}
@@ -97,7 +99,7 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
                       }}
                       key={index}
                     >
-                      <Typography.largeText color={'text1'} display={'flex'} alignItems={'center'}>
+                      <Typography.largeText color={'text1'} sx={{ display: 'flex', alignItems: 'center' }}>
                         <NetworkIcon network={option} />
                         {option}
                       </Typography.largeText>

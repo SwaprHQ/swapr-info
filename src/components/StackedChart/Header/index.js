@@ -18,11 +18,9 @@ const Header = ({
 }) => (
   <Container>
     <div>
-      <Typography.smallHeader marginBottom={12} sx={{ textTransform: 'uppercase' }}>
-        {title}
-      </Typography.smallHeader>
+      <Typography.smallHeader sx={{ textTransform: 'uppercase', marginBottom: 12 }}>{title}</Typography.smallHeader>
       <FlexContainer>
-        <Typography.largeBoldHeader marginRight={10}>
+        <Typography.largeBoldHeader sx={{ marginRight: 10 }}>
           {isValueCurrency && '$'} {value}
         </Typography.largeBoldHeader>
         <DailyChange>{dailyChange}</DailyChange>

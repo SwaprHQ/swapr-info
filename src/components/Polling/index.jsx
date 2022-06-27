@@ -10,10 +10,10 @@ const Polling = () => {
   return (
     <Wrapper>
       <InlineLink href="/">
-        <Typography.tinyText marginRight={'6px'} color={'text10'}>
+        <Typography.tinyText sx={{ marginRight: '6px' }} color={'text10'}>
           Updated
         </Typography.tinyText>
-        <Typography.tinyText marginRight={'6px'} color={'green1'}>
+        <Typography.tinyText sx={{ marginRight: '6px' }} color={'green1'}>
           {seconds ? seconds : '-'}s ago
         </Typography.tinyText>
         <PollingDot />

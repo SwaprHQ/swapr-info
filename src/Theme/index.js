@@ -96,29 +96,96 @@ const TextWrapper = styled(Text)`
 `;
 
 export const Typography = {
-  custom: ({ color, ...rest }) => <TextWrapper color={color || 'text1'} {...rest} />,
-
-  tinyText: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={'8px'} lineHeight={'10px'} color={color || 'text1'} sx={sx} {...rest} />
-  ),
-  smallText: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={10} lineHeight={'10px'} color={color || 'text1'} sx={sx} {...rest} />
-  ),
-  text: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={13} lineHeight={'16px'} color={color || 'text1'} sx={sx} {...rest} />
-  ),
-  largeText: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={14} lineHeight={'17px'} color={color || 'text1'} sx={sx} {...rest} />
+  custom: ({ color, children, sx }) => (
+    <TextWrapper color={color || 'text1'} sx={sx}>
+      {children}
+    </TextWrapper>
   ),
 
-  smallHeader: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={16} lineHeight={'19px'} color={color || 'text1'} sx={sx} {...rest} />
+  tinyText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={'8px'}
+      lineHeight={'10px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
   ),
-  largeHeader: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={400} fontSize={24} lineHeight={'29px'} color={color || 'text1'} sx={sx} {...rest} />
+  smallText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={10}
+      lineHeight={'10px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
   ),
-  largeBoldHeader: ({ sx, color, ...rest }) => (
-    <TextWrapper fontWeight={700} fontSize={24} lineHeight={'29px'} color={color || 'text1'} sx={sx} {...rest} />
+  text: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={13}
+      lineHeight={'16px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={14}
+      lineHeight={'17px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+
+  smallHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={16}
+      lineHeight={'19px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={24}
+      lineHeight={'29px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeBoldHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={700}
+      fontSize={24}
+      lineHeight={'29px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
   ),
 };
 

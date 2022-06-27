@@ -39,7 +39,7 @@ const NetworkDataCardWithDialog = ({
         <Title>
           {icon}
           {/* FIXME: fix when we convert the whole project to ts */}
-          <Typography.smallHeader sx={''} color={''}>
+          <Typography.smallHeader sx={''} color={''} className={''}>
             {title}
           </Typography.smallHeader>
         </Title>

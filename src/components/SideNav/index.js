@@ -126,7 +126,7 @@ function SideNav({ history }) {
   const updateSelectedNetwork = useSelectedNetworkUpdater();
 
   const { gas } = useGasInfo();
-  const swprNativePrice = useSwprPrice();
+  const { loading, price } = useSwprPrice();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
@@ -137,10 +137,10 @@ function SideNav({ history }) {
   const formattedSwprPrice = swprPrice ? formattedNum(swprPrice, true) : '-';
 
   useEffect(() => {
-    if (!swprNativePrice.loading && nativeCurrencyPrice) {
-      setSwprPrice(swprNativePrice.price * nativeCurrencyPrice);
+    if (!loading && nativeCurrencyPrice) {
+      setSwprPrice(price * nativeCurrencyPrice);
     }
-  }, [swprNativePrice.loading, swprNativePrice.price, nativeCurrencyPrice, swprPrice]);
+  }, [loading, price, nativeCurrencyPrice, swprPrice]);
 
   const handleMobileMenuOpen = () => {
     setMobileMenuOpen(true);
@@ -212,24 +212,13 @@ function SideNav({ history }) {
                   </Option>
                 </BasicLink>
                 <BasicLink to="/farming">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'farming' ||
-                        history.location.pathname.split('/')[1] === 'farming') ??
-                      undefined
-                    }
-                  >
+                  <Option activeText={history.location.pathname.split('/')[1] === 'farming' ?? undefined}>
                     <Icon
                       icon={
                         <Farms
                           height={20}
                           width={20}
-                          color={
-                            history.location.pathname.split('/')[1] === 'farming' ||
-                            history.location.pathname.split('/')[1] === 'farming'
-                              ? 'text1'
-                              : 'text10'
-                          }
+                          color={history.location.pathname.split('/')[1] === 'farming' ? 'text1' : 'text10'}
                         />
                       }
                     />
@@ -254,45 +243,45 @@ function SideNav({ history }) {
           </AutoColumn>
           <AutoColumn gap={'12px'} style={{ marginBottom: '4rem' }}>
             <Typography.text>
-              <Link color={'text10'} href="https://swapr.eth.limo">
+              <Link external={true} color={'text10'} href="https://swapr.eth.limo">
                 Swapr
               </Link>
             </Typography.text>
             <Typography.text>
-              <Link color={'text10'} href="https://dxdao.eth.limo">
+              <Link external={true} color={'text10'} href="https://dxdao.eth.limo">
                 DXdao
               </Link>
             </Typography.text>
             <Typography.text>
-              <Link color={'text10'} href="https://twitter.com/SwaprEth">
+              <Link external={true} color={'text10'} href="https://twitter.com/SwaprEth">
                 Twitter
               </Link>
             </Typography.text>
             <Typography.text>
-              <Link color={'text10'} href="https://discord.com/invite/4QXEJQkvHH">
+              <Link external={true} color={'text10'} href="https://discord.com/invite/4QXEJQkvHH">
                 Discord
               </Link>
             </Typography.text>
             <Typography.text>
-              <Link color={'text10'} href="https://github.com/SwaprDAO/swapr-info">
+              <Link external={true} color={'text10'} href="https://github.com/SwaprDAO/swapr-info">
                 Github
               </Link>
             </Typography.text>
             <Typography.text>
-              <Link color={'text10'} href="https://dxdocs.eth.limo">
+              <Link external={true} color={'text10'} href="https://dxdocs.eth.limo">
                 DXdocs
               </Link>
             </Typography.text>
             <Flex marginTop={'6px'}>
-              <Typography.smallText marginRight={'16px'}>
+              <Typography.smallText sx={{ marginRight: '16px' }}>
                 {nativeCurrencySymbol}:{' '}
-                <Typography.custom display={'inline'} fontWeight={700} fontSize={10}>
+                <Typography.custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
                   {formattedNativeCurrencyPrice}
                 </Typography.custom>
               </Typography.smallText>
               <Typography.smallText>
                 SWPR:{' '}
-                <Typography.custom display={'inline'} fontWeight={700} fontSize={10}>
+                <Typography.custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
                   {formattedSwprPrice}
                 </Typography.custom>
               </Typography.smallText>
@@ -303,7 +292,7 @@ function SideNav({ history }) {
                 {gas.normal > 0 && (
                   <GasInfo>
                     <GasInfoSvg />
-                    <Typography.tinyText marginLeft={'2px'}>{gas.normal}</Typography.tinyText>
+                    <Typography.tinyText sx={{ marginLeft: '2px' }}>{gas.normal}</Typography.tinyText>
                   </GasInfo>
                 )}
               </Flex>

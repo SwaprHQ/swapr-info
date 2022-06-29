@@ -1,11 +1,11 @@
 import React, { useEffect } from 'react';
 import 'feather-icons';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 
-import { TYPE } from '../Theme';
+import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import Panel from '../components/Panel';
-import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
@@ -22,11 +22,11 @@ function AllTokensPage() {
   return (
     <PageWrapper>
       <FullWrapper>
-        <RowBetween>
-          <TYPE.largeHeader>Top Tokens</TYPE.largeHeader>
+        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+          <Typography.largeHeader>Top Tokens</Typography.largeHeader>
           {!below600 && <Search small={true} />}
-        </RowBetween>
-        <Panel style={{ marginTop: '6px', padding: below600 && '1rem 0 0 0 ' }}>
+        </Flex>
+        <Panel style={{ padding: below600 && '1rem 0 0 0 ' }}>
           <TopTokenList tokens={allTokens} itemMax={20} />
         </Panel>
       </FullWrapper>

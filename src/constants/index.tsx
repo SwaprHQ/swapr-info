@@ -138,9 +138,9 @@ export const BLOCK_DIFFERENCE_THRESHOLD = {
 };
 
 export const NETWORK_COLORS = {
-  [SupportedNetwork.MAINNET]: '#2974e0',
-  [SupportedNetwork.XDAI]: '#4526A2',
-  [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
+  [SupportedNetwork.MAINNET]: '#2E17F2',
+  [SupportedNetwork.XDAI]: '#F2994A',
+  [SupportedNetwork.ARBITRUM_ONE]: '#685EC6',
 };
 
 export const SWAPR_LINK = 'https://swapr.eth.limo/#';

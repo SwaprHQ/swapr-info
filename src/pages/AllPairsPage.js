@@ -1,12 +1,12 @@
 import React, { useEffect } from 'react';
 import 'feather-icons';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 
-import { TYPE } from '../Theme';
+import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import PairList from '../components/PairList';
 import Panel from '../components/Panel';
-import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import { useAllPairData } from '../contexts/PairData';
 
@@ -22,11 +22,11 @@ function AllPairsPage() {
   return (
     <PageWrapper>
       <FullWrapper>
-        <RowBetween>
-          <TYPE.largeHeader>Top Pairs</TYPE.largeHeader>
+        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+          <Typography.largeHeader>Top Pairs</Typography.largeHeader>
           {!below800 && <Search small={true} />}
-        </RowBetween>
-        <Panel style={{ marginTop: '6px', padding: below800 && '1rem 0 0 0 ' }}>
+        </Flex>
+        <Panel style={{ padding: below800 && '1rem 0 0 0 ' }}>
           <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
         </Panel>
       </FullWrapper>

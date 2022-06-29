@@ -7,7 +7,7 @@ import { TYPE } from '../../Theme';
 import { timeframeOptions } from '../../constants';
 import { getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { RowFixed } from '../Row';
 import TradingViewChart, { CHART_TYPES } from '../TradingviewChart';
@@ -65,7 +65,7 @@ const GlobalChart = ({
   return chartDataFiltered ? (
     <>
       {below800 && (
-        <DropdownSelect options={CHART_VIEW} active={chartView} setActive={setChartView} color={'#4526A2'} />
+        <DropdownBasicSelect options={CHART_VIEW} active={chartView} setActive={setChartView} color={'#4526A2'} />
       )}
 
       {chartDataFiltered && chartView === CHART_VIEW.LIQUIDITY && (

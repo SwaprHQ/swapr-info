@@ -11,7 +11,7 @@ import { useDarkModeManager } from '../../contexts/LocalStorage';
 import { useUserLiquidityChart } from '../../contexts/User';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow } from '../Row';
 
@@ -44,7 +44,7 @@ const UserChart = ({ account }) => {
       {chartData &&
         (below600 ? (
           <Flex justifyContent={'end'} mb={40}>
-            <DropdownSelect
+            <DropdownBasicSelect
               options={timeframeOptions}
               active={timeWindow}
               setActive={setTimeWindow}

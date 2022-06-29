@@ -1,33 +1,37 @@
 import { transparentize } from 'polished';
-import React, { useCallback, useState } from 'react';
+import React, { useCallback, useEffect, useState } from 'react';
 import { TrendingUp, List, PieChart, Disc, Menu, Layers } from 'react-feather';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
-import farming from '../../assets/farming.svg';
+import { Typography } from '../../Theme';
+import Farms from '../../assets/icons/Farm';
+import { ReactComponent as GasInfoSvg } from '../../assets/svg/gas-info.svg';
 import { SupportedNetwork } from '../../constants';
-import { useSessionStart } from '../../contexts/Application';
-import { useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
+import { useNativeCurrencySymbol, useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
+import { useGasInfo } from '../../hooks/useGasInfo';
+import { useSwprPrice } from '../../hooks/useSwprPrice';
+import { formattedNum } from '../../utils';
 import { AutoColumn } from '../Column';
-import DropdownSelect from '../DropdownSelect';
+import DropdownNetworkSelect from '../DropdownNetworkSelect';
+import Icon from '../Icon';
 import Link, { BasicLink } from '../Link';
+import Polling from '../Polling';
 import { AutoRow } from '../Row';
 import Title from '../Title';
 import { MobileMenu } from './MobileMenu';
 
 const Wrapper = styled.div`
-  height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
+  height: ${({ isMobile }) => (isMobile ? 'initial' : 'calc(100vh - 36px)')};
+  padding-left: 36px;
   background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
   color: ${({ theme }) => theme.text1};
-  padding: 0.5rem 0.5rem 0.5rem 0.75rem;
   position: sticky;
   top: 0px;
-  z-index: 2;
-  box-sizing: border-box;
-  /* background-color: #1b1c22; */
-  background: linear-gradient(193.68deg, #1b1c22 0.68%, #000000 100.48%);
+  background-color: ${({ theme }) => theme.bg1};
   color: ${({ theme }) => theme.bg2};
 
   @media screen and (max-width: 800px) {
@@ -40,14 +44,22 @@ const Wrapper = styled.div`
   }
 `;
 
-export const Option = styled.div`
-  font-weight: 500;
-  font-size: 14px;
-  opacity: ${({ activeText }) => (activeText ? 1 : 0.6)};
-  color: ${({ theme }) => theme.white};
+export const Option = styled(Typography.largeText)`
+  color: ${({ activeText, theme }) => (activeText ? theme.text1 : theme.text10)};
   display: flex;
-  :hover {
-    opacity: 1;
+  align-items: center;
+
+  && {
+    font-weight: ${({ activeText }) => (activeText ? '700' : '400')};
+  }
+
+  &:hover {
+    color: ${({ theme }) => theme.text1};
+  }
+
+  // Apply hover directly to the svg path element (needed for the Farms icon)
+  &:hover div path {
+    fill: ${({ theme }) => theme.text1};
   }
 `;
 
@@ -68,44 +80,19 @@ const MenuIcon = styled(Menu)`
   color: #fff;
 `;
 
-const HeaderText = styled.div`
-  margin-right: 0.75rem;
-  font-size: 0.825rem;
-  font-weight: 500;
-  display: inline-box;
-  display: -webkit-inline-box;
-  opacity: 0.8;
-  :hover {
-    opacity: 1;
-  }
-  a {
-    color: ${({ theme }) => theme.white};
-  }
-`;
-
-const Polling = styled.div`
-  position: fixed;
+const GasInfo = styled.div`
   display: flex;
-  left: 0;
-  bottom: 0;
-  padding: 1rem;
-  color: white;
-  opacity: 0.4;
-  transition: opacity 0.25s ease;
-  :hover {
-    opacity: 1;
-  }
-`;
+  margin-left: 12px;
+  padding: 3px 4px;
+  border: 2px solid rgba(242, 153, 74, 0.65);
+  background: rgba(242, 153, 74, 0.08);
+  border-radius: 6px;
 
-const PollingDot = styled.div`
-  width: 8px;
-  height: 8px;
-  min-height: 8px;
-  min-width: 8px;
-  margin-right: 0.5rem;
-  margin-top: 3px;
-  border-radius: 50%;
-  background-color: ${({ theme }) => theme.green1};
+  div {
+    color: ${({ theme }) => theme.orange1};
+  }
+
+  align-items: center;
 `;
 
 const AnimatedMobileMenu = styled(MobileMenu)`
@@ -113,7 +100,7 @@ const AnimatedMobileMenu = styled(MobileMenu)`
   right: 0;
   left: 0;
   top: ${(props) => (props.open ? '0' : '-100%')};
-  background-color: ${({ theme }) => theme.bg2};
+  background-color: ${({ theme }) => theme.bg1};
   color: #fff;
   transition: top ease 0.3s;
   z-index: 100;
@@ -133,15 +120,27 @@ const Overlay = styled.div`
 
 function SideNav({ history }) {
   const below1080 = useMedia('(max-width: 1080px)');
-
   const below1180 = useMedia('(max-width: 1180px)');
-
-  const seconds = useSessionStart();
 
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
 
+  const { gas } = useGasInfo();
+  const { loading, price } = useSwprPrice();
+  const nativeCurrencySymbol = useNativeCurrencySymbol();
+  const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [swprPrice, setSwprPrice] = useState(0);
+
+  const formattedNativeCurrencyPrice = nativeCurrencyPrice ? formattedNum(nativeCurrencyPrice, true) : '-';
+  const formattedSwprPrice = swprPrice ? formattedNum(swprPrice, true) : '-';
+
+  useEffect(() => {
+    if (!loading && nativeCurrencyPrice) {
+      setSwprPrice(price * nativeCurrencyPrice);
+    }
+  }, [loading, price, nativeCurrencyPrice, swprPrice]);
 
   const handleMobileMenuOpen = () => {
     setMobileMenuOpen(true);
@@ -162,20 +161,20 @@ function SideNav({ history }) {
   return (
     <Wrapper isMobile={below1080}>
       {!below1080 ? (
-        <DesktopWrapper>
-          <AutoColumn gap="1rem" style={{ marginLeft: '.75rem', marginTop: '1.5rem' }}>
+        <DesktopWrapper style={{ marginTop: '36px' }}>
+          <AutoColumn gap={'24px'}>
             <Title />
             {history.location.pathname !== '/dashboard' ? (
-              <DropdownSelect
+              <DropdownNetworkSelect
                 active={selectedNetwork}
                 setActive={handleSelectedNetworkChange}
                 options={Object.values(SupportedNetwork)}
               />
             ) : (
-              <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+              <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
             )}
             {!below1080 && (
-              <AutoColumn gap="1.25rem" style={{ marginTop: '1rem' }}>
+              <AutoColumn gap={'lg'} style={{ marginTop: '1rem' }}>
                 <BasicLink to="/dashboard">
                   <Option activeText={history.location.pathname === '/dashboard' ?? undefined}>
                     <Layers size={20} style={{ marginRight: '.75rem' }} />
@@ -213,15 +212,17 @@ function SideNav({ history }) {
                   </Option>
                 </BasicLink>
                 <BasicLink to="/farming">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'farming' ||
-                        history.location.pathname.split('/')[1] === 'farming') ??
-                      undefined
-                    }
-                  >
-                    <img style={{ marginRight: '.75rem' }} width={'20px'} src={farming} alt="farming" />
-                    Farming
+                  <Option activeText={history.location.pathname.split('/')[1] === 'farming' ?? undefined}>
+                    <Icon
+                      icon={
+                        <Farms
+                          height={20}
+                          width={20}
+                          color={history.location.pathname.split('/')[1] === 'farming' ? 'text1' : 'text10'}
+                        />
+                      }
+                    />
+                    Farms
                   </Option>
                 </BasicLink>
 
@@ -240,28 +241,63 @@ function SideNav({ history }) {
               </AutoColumn>
             )}
           </AutoColumn>
-          <AutoColumn gap="0.5rem" style={{ marginLeft: '.75rem', marginBottom: '4rem' }}>
-            <HeaderText>
-              <Link href="https://dxdao.eth.link" target="_blank">
+          <AutoColumn gap={'12px'} style={{ marginBottom: '4rem' }}>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://swapr.eth.limo">
+                Swapr
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://dxdao.eth.limo">
                 DXdao
               </Link>
-            </HeaderText>
-            <HeaderText>
-              <Link href="https://twitter.com/SwaprEth" target="_blank">
+            </Typography.text>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://twitter.com/SwaprEth">
                 Twitter
               </Link>
-            </HeaderText>
+            </Typography.text>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://discord.com/invite/4QXEJQkvHH">
+                Discord
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://github.com/SwaprDAO/swapr-info">
+                Github
+              </Link>
+            </Typography.text>
+            <Typography.text>
+              <Link external={true} color={'text10'} href="https://dxdocs.eth.limo">
+                DXdocs
+              </Link>
+            </Typography.text>
+            <Flex marginTop={'6px'}>
+              <Typography.smallText sx={{ marginRight: '16px' }}>
+                {nativeCurrencySymbol}:{' '}
+                <Typography.custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
+                  {formattedNativeCurrencyPrice}
+                </Typography.custom>
+              </Typography.smallText>
+              <Typography.smallText>
+                SWPR:{' '}
+                <Typography.custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
+                  {formattedSwprPrice}
+                </Typography.custom>
+              </Typography.smallText>
+            </Flex>
+            {!below1180 && (
+              <Flex>
+                <Polling />
+                {gas.normal > 0 && (
+                  <GasInfo>
+                    <GasInfoSvg />
+                    <Typography.tinyText sx={{ marginLeft: '2px' }}>{gas.normal}</Typography.tinyText>
+                  </GasInfo>
+                )}
+              </Flex>
+            )}
           </AutoColumn>
-          {!below1180 && (
-            <Polling style={{ marginLeft: '.5rem' }}>
-              <PollingDot />
-              <a href="/" style={{ color: 'white' }}>
-                <TYPE.small color={'white'}>
-                  Updated {seconds ? seconds + 's' : '-'} ago <br />
-                </TYPE.small>
-              </a>
-            </Polling>
-          )}
         </DesktopWrapper>
       ) : (
         <>
@@ -271,13 +307,13 @@ function SideNav({ history }) {
             <Title />
             <AutoRow justify="flex-end" gap="8px">
               {history.location.pathname !== '/dashboard' ? (
-                <DropdownSelect
+                <DropdownNetworkSelect
                   active={selectedNetwork}
                   setActive={handleSelectedNetworkChange}
                   options={Object.values(SupportedNetwork)}
                 />
               ) : (
-                <DropdownSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+                <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
               )}
               <MenuIcon onClick={handleMobileMenuOpen} />
             </AutoRow>

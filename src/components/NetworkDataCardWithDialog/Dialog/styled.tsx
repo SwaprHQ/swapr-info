@@ -22,7 +22,10 @@ const StyledDialogContent = styled(DialogContent)`
     margin: 10vh auto;
     border-radius: 8px;
     border: ${({ theme }) => `1px solid ${theme.bg3}`};
-    background: #1f2026;
+    background: linear-gradient(143.3deg, rgba(46, 23, 242, 0.5) -120%, rgba(46, 23, 242, 0) 60%),
+      linear-gradient(113.18deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0) 100%), rgba(23, 22, 23);
+    background-blend-mode: normal, overlay, normal;
+    backdrop-filter: blur(25px);
     padding: 1.25rem;
     outline: none;
   }

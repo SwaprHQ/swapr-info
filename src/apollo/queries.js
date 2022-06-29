@@ -317,6 +317,14 @@ export const USER_POSITIONS = gql`
   }
 `;
 
+export const GET_SWPR_DERIVED_NATIVE_PRICE = gql`
+  query tokens {
+    tokens(first: 1, where: { symbol: "SWPR" }) {
+      derivedNativeCurrency
+    }
+  }
+`;
+
 export const USER_TRANSACTIONS = gql`
   query transactions($user: Bytes!) {
     mints(orderBy: timestamp, orderDirection: desc, where: { to: $user }) {

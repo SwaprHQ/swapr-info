@@ -19,7 +19,10 @@ const panelPseudo = css`
 
 const Panel = styled(RebassBox)`
   position: relative;
-  background-color: ${({ theme }) => theme.advancedBG};
+  background: linear-gradient(143.3deg, rgba(46, 23, 242, 0.5) -120%, rgba(46, 23, 242, 0) 60%),
+    linear-gradient(113.18deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0) 100%), rgba(23, 22, 23);
+  background-blend-mode: normal, overlay, normal;
+  backdrop-filter: blur(25px);
   padding: 1.25rem;
   width: 100%;
   height: 100%;
@@ -27,16 +30,17 @@ const Panel = styled(RebassBox)`
   flex-direction: column;
   justify-content: flex-start;
   border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.bg3};
-  box-shadow: 0px 6px 10px rgba(0, 0, 0, 0.05); /* box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.01), 0px 4px 8px rgba(0, 0, 0, 0.01), 0px 16px 24px rgba(0, 0, 0, 0.01), 0px 24px 32px rgba(0, 0, 0, 0.01); */
+  border: 1px solid ${({ theme }) => theme.bd1};
+
   :hover {
     cursor: ${({ hover }) => hover && 'pointer'};
     border: ${({ hover, theme }) => hover && '1px solid' + theme.bg5};
   }
 
-  ${(props) => props.background && `background-color: ${props.theme.advancedBG};`}
-
   ${(props) => (props.area ? `grid-area: ${props.area};` : null)}
+
+  ${(props) => (props.padding ? `padding: ${props.padding};` : null)}
+  
 
   ${(props) =>
     props.grouped &&
@@ -64,18 +68,3 @@ const Panel = styled(RebassBox)`
 `;
 
 export default Panel;
-
-// const Panel = styled.div`
-//   width: 100%;
-//   height: 100%;
-//   display: flex;
-//   flex-direction: column;
-//   justify-content: flex-start;
-//   border-radius: 12px;
-//   background-color: ${({ theme }) => theme.advancedBG};
-//   padding: 1.25rem;
-//   box-sizing: border-box;
-//   box-shadow: 0 1.1px 2.8px -9px rgba(0, 0, 0, 0.008), 0 2.7px 6.7px -9px rgba(0, 0, 0, 0.012),
-//     0 5px 12.6px -9px rgba(0, 0, 0, 0.015), 0 8.9px 22.6px -9px rgba(0, 0, 0, 0.018),
-//     0 16.7px 42.2px -9px rgba(0, 0, 0, 0.022), 0 40px 101px -9px rgba(0, 0, 0, 0.03);
-// `

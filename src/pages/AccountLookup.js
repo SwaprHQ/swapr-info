@@ -2,15 +2,15 @@ import React, { useEffect } from 'react';
 import 'feather-icons';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../Theme';
+import { TYPE, Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import AccountSearch from '../components/AccountSearch';
 import LPList from '../components/LPList';
 import LocalLoader from '../components/LocalLoader';
 import Panel from '../components/Panel';
-import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import { useTopLps } from '../contexts/GlobalData';
 import { useSwaprSubgraphClient } from '../contexts/Network';
@@ -35,10 +35,10 @@ function AccountLookup() {
   return (
     <PageWrapper>
       <FullWrapper>
-        <RowBetween>
-          <TYPE.largeHeader>Wallet analytics</TYPE.largeHeader>
+        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
+          <Typography.largeHeader>Wallet analytics</Typography.largeHeader>
           {!below600 && <Search small={true} />}
-        </RowBetween>
+        </Flex>
         <AccountWrapper>
           <AccountSearch />
         </AccountWrapper>

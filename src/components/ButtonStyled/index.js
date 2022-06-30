@@ -99,14 +99,14 @@ export function ButtonDropdown({ disabled = false, children, open, ...rest }) {
 }
 
 export const ButtonDark = styled(Base)`
-  background-color: ${({ color, theme }) => (color ? color : theme.primary1)};
+  background-color: ${({ color, theme }) => (color ? color : theme.swaprLink)};
   color: white;
   width: fit-content;
   border-radius: 12px;
   white-space: nowrap;
 
   :hover {
-    background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.primary1))};
+    background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.swaprLink))};
   }
 `;
 

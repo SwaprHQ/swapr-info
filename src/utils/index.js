@@ -59,7 +59,7 @@ export function getPoolLink(
 ) {
   if (!token1Address) {
     return (
-      `${SWAPR_LINK}` +
+      `${SWAPR_LINK}/pools/` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${nativeCurrency}?chainId=${
         ChainId[selectedNetwork]
@@ -67,7 +67,7 @@ export function getPoolLink(
     );
   } else {
     return (
-      `${SWAPR_LINK}` +
+      `${SWAPR_LINK}/pools/` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${
         token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address

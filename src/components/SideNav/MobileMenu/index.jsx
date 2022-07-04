@@ -1,4 +1,3 @@
-import React from 'react';
 import { Disc, Layers, List, PieChart, TrendingUp, X } from 'react-feather';
 import { useHistory } from 'react-router-dom';
 import styled from 'styled-components';

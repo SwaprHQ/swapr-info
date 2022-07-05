@@ -305,13 +305,13 @@ function PairPage({ pairAddress, history }) {
                   external
                   href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 >
-                  <ButtonLight color={backgroundColor}>+ Add Liquidity</ButtonLight>
+                  <ButtonLight>+ Add Liquidity</ButtonLight>
                 </Link>
                 <Link
                   external
                   href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 >
-                  <ButtonDark ml={!below1080 && '.5rem'} mr={below1080 && '.5rem'} color={backgroundColor}>
+                  <ButtonDark ml={!below1080 && '.5rem'} mr={below1080 && '.5rem'}>
                     Trade
                   </ButtonDark>
                 </Link>
@@ -534,8 +534,8 @@ function PairPage({ pairAddress, history }) {
                     <CopyHelper toCopy={token1?.id} />
                   </AutoRow>
                 </Column>
-                <ButtonLight color={backgroundColor}>
-                  <Link color={backgroundColor} external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
+                <ButtonLight>
+                  <Link external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
                     View on block explorer ↗
                   </Link>
                 </ButtonLight>

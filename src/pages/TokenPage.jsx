@@ -207,10 +207,10 @@ function TokenPage({ address }) {
             <span>
               <RowFixed ml={below500 ? '0' : '2.5rem'} mt={below500 ? '1rem' : '0'}>
                 <Link href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
-                  <ButtonLight color={backgroundColor}>+ Add Liquidity</ButtonLight>
+                  <ButtonLight>+ Add Liquidity</ButtonLight>
                 </Link>
                 <Link href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
-                  <ButtonDark ml={'.5rem'} mr={below1080 && '.5rem'} color={backgroundColor}>
+                  <ButtonDark ml={'.5rem'} mr={below1080 && '.5rem'}>
                     Trade
                   </ButtonDark>
                 </Link>

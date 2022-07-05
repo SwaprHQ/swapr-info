@@ -288,6 +288,7 @@ export const GlobalStyle = createGlobalStyle`
 
     scroll-behavior: smooth;
     overflow-y: overlay;
+    overflow-x: hidden;
 
     ::-webkit-scrollbar {
       width: 10px;

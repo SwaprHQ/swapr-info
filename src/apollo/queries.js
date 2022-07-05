@@ -848,7 +848,7 @@ export const MINING_POSITIONS = (account) => {
 export const PAIRS_BULK = gql`
   ${PairFields}
   query pairs($allPairs: [Bytes]!) {
-    pairs(where: { id_in: $allPairs }, orderBy: trackedReserveNativeCurrency, orderDirection: desc) {
+    pairs(first: 200, where: { id_in: $allPairs }, orderBy: trackedReserveNativeCurrency, orderDirection: desc) {
       ...PairFields
     }
   }

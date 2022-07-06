@@ -105,9 +105,7 @@ function reducer(state, { type, payload }) {
         ...state,
         topPairs: {
           ...state.topPairs,
-          [network]: {
-            ...newTopPairs,
-          },
+          [network]: newTopPairs,
         },
       };
     }

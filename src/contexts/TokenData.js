@@ -69,9 +69,7 @@ function reducer(state, { type, payload }) {
         ...state,
         topTokens: {
           ...state.topTokens,
-          [network]: {
-            ...newTopTokens,
-          },
+          [network]: newTopTokens,
         },
       };
     }

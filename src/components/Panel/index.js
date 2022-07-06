@@ -19,7 +19,7 @@ const panelPseudo = css`
 
 const Panel = styled(RebassBox)`
   position: relative;
-  background: linear-gradient(143.3deg, rgba(46, 23, 242, 0.5) -120%, rgba(46, 23, 242, 0) 60%),
+  background: linear-gradient(143.3deg, rgba(46, 23, 242, 0.35) -120%, rgba(46, 23, 242, 0) 60%),
     linear-gradient(113.18deg, rgba(255, 255, 255, 0.1) 0%, rgba(0, 0, 0, 0) 100%), rgba(23, 22, 23);
   background-blend-mode: normal, overlay, normal;
   backdrop-filter: blur(25px);

@@ -70,7 +70,7 @@ function usePairDataContext() {
   return useContext(PairDataContext);
 }
 
-const INITIAL_STATE = {};
+const INITIAL_STATE = { topPairs: {} };
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -94,7 +94,7 @@ function reducer(state, { type, payload }) {
     }
 
     case UPDATE_TOP_PAIRS: {
-      const { topPairs } = payload;
+      const { topPairs, network } = payload;
       const newTopPairs = topPairs
         ? topPairs.reduce((reducedPairs, pair) => {
             reducedPairs[pair.id] = pair;
@@ -103,7 +103,12 @@ function reducer(state, { type, payload }) {
         : {};
       return {
         ...state,
-        ...newTopPairs,
+        topPairs: {
+          ...state.topPairs,
+          [network]: {
+            ...newTopPairs,
+          },
+        },
       };
     }
 
@@ -143,7 +148,9 @@ function reducer(state, { type, payload }) {
     }
 
     case RESET: {
-      return INITIAL_STATE;
+      return {
+        topPairs: state.topPairs,
+      };
     }
 
     default: {
@@ -166,11 +173,12 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateTopPairs = useCallback((topPairs) => {
+  const updateTopPairs = useCallback((topPairs, network) => {
     dispatch({
       type: UPDATE_TOP_PAIRS,
       payload: {
         topPairs,
+        network,
       },
     });
   }, []);
@@ -534,6 +542,7 @@ const getHourlyRateData = async (client, blockClient, pairAddress, startTime, la
 
 export function Updater() {
   const client = useSwaprSubgraphClient();
+  const network = useSelectedNetwork();
   const selectedNetwork = useSelectedNetwork();
   const blockClient = useBlocksSubgraphClient();
   const [, { updateTopPairs }] = usePairDataContext();
@@ -567,10 +576,19 @@ export function Updater() {
         selectedNetwork,
         overrideBlocks,
       );
-      topPairs && updateTopPairs(topPairs);
+      topPairs && updateTopPairs(topPairs, network);
     }
     nativeCurrencyPrice && getData();
-  }, [nativeCurrencyPrice, updateTopPairs, client, blockClient, selectedNetwork, latestSyncedBlock, headBlock]);
+  }, [
+    nativeCurrencyPrice,
+    updateTopPairs,
+    client,
+    blockClient,
+    selectedNetwork,
+    latestSyncedBlock,
+    headBlock,
+    network,
+  ]);
   return null;
 }
 
@@ -806,8 +824,10 @@ export function usePairChartData(pairAddress) {
  * Get list of all pairs in Swapr
  */
 export function useAllPairData() {
+  const network = useSelectedNetwork();
   const [state] = usePairDataContext();
-  return state || {};
+
+  return state.topPairs[network] || [];
 }
 
 export function usePairContextResetter() {

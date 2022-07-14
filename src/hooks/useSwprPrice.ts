@@ -9,6 +9,10 @@ export function useSwprPrice(): { loading: boolean; price: number } {
   const [loading, setLoading] = useState<boolean>(true);
   const [price, setPrice] = useState<number>(0);
 
+  if (!client) {
+    return { loading: true, price: 0 };
+  }
+
   client
     .query({
       query: GET_SWPR_DERIVED_NATIVE_PRICE,

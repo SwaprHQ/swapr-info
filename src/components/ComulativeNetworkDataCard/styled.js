@@ -33,6 +33,7 @@ const Value = styled.div`
 `;
 
 const Network = styled.div`
+  display: flex;
   margin-bottom: 8px;
   font-style: normal;
   font-weight: 600;

@@ -4,7 +4,7 @@ import React from 'react';
 import { Typography } from '../../Theme';
 import { Wrapper, Header, Value, Content, Network, Data, NetworkData, Title } from './styled';
 
-const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
+const DataCard = ({ title, icon, comulativeValue, networksValues, customNetworkAction }) => (
   <Wrapper>
     <Header>
       <Title>
@@ -16,7 +16,11 @@ const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
     <Content>
       {networksValues.map(({ network, value }, index) => (
         <NetworkData key={network} align={index === networksValues.length - 1 ? 'right' : 'left'}>
-          <Network>{network}</Network>
+          <Network>
+            {customNetworkAction &&
+              React.cloneElement(customNetworkAction, { onClick: () => customNetworkAction.props.onClick(network) })}
+            {network}
+          </Network>
           <Data>{value}</Data>
         </NetworkData>
       ))}
@@ -29,6 +33,7 @@ DataCard.propTypes = {
   icon: PropTypes.node,
   comulativeValue: PropTypes.any,
   networksValues: PropTypes.array,
+  customNetworkAction: PropTypes.node,
 };
 
 export default DataCard;

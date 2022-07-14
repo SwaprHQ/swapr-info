@@ -1,6 +1,7 @@
 import dayjs from 'dayjs';
 import React, { useEffect, useMemo, useState } from 'react';
-import { Repeat, Users, Zap } from 'react-feather';
+import { Repeat, Users, Zap, Link } from 'react-feather';
+import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
@@ -15,7 +16,7 @@ import LocalLoader from '../components/LocalLoader';
 import NetworkDataCardWithDialog from '../components/NetworkDataCardWithDialog';
 import Panel from '../components/Panel';
 import StackedChart from '../components/StackedChart';
-import { SupportedNetwork } from '../constants';
+import { SupportedNetwork, NETOWRK_FEE_RECEIVER_ADDRESSES } from '../constants';
 import {
   useDashboardChartData,
   useDashboardComulativeData,
@@ -25,6 +26,7 @@ import {
   useSwapsData,
   useUncollectedFeesData,
 } from '../contexts/Dashboard';
+import { useSelectedNetworkUpdater } from '../contexts/Network';
 import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
@@ -47,6 +49,13 @@ const GridCard = styled.div`
   row-gap: 21px;
 `;
 
+const RedirectIconWrapper = styled.div`
+  & > :hover {
+    color: ${({ theme }) => theme.text1};
+    cursor: pointer;
+  }
+`;
+
 const PanelLoaderWrapper = ({ maxHeight, isLoading, children }) => (
   <Panel maxHeight={maxHeight || '380px'}>{isLoading ? <LocalLoader /> : children}</Panel>
 );
@@ -54,11 +63,12 @@ const CardLoaderWrapper = ({ isLoading, children }) => (
   <Panel padding={'32px 36px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
 );
 
-const DashboardPage = () => {
+const DashboardPage = ({ history }) => {
   const oneDayTransactions = useOneDaySwapsData();
   const oneDayWalletsData = useOneDayWalletsData();
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
+  const switchNetwork = useSelectedNetworkUpdater();
   const { uncollectedFeesData, loading: isLoadingUncollectedFees } = useUncollectedFeesData();
 
   const [formattedLiquidityData, setFormattedLiquidityData] = useState([]);
@@ -68,6 +78,11 @@ const DashboardPage = () => {
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
   const below1400 = useMedia('(max-width: 1400px)');
+
+  const handleReceiverLookup = (network) => {
+    switchNetwork(network);
+    history.push(`/account/${NETOWRK_FEE_RECEIVER_ADDRESSES[network]}`);
+  };
 
   useEffect(() => {
     if (chartData && chartData.daily) {
@@ -179,6 +194,11 @@ const DashboardPage = () => {
                     icon={<Icon icon={<Zap size={16} />} />}
                     comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                     networksValues={formattedUncollectedFees}
+                    customNetworkAction={
+                      <RedirectIconWrapper onClick={handleReceiverLookup}>
+                        <Icon icon={<Link size={14} />} color={'text6'} />
+                      </RedirectIconWrapper>
+                    }
                   />
                 </CardLoaderWrapper>
                 <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
@@ -225,13 +245,17 @@ const DashboardPage = () => {
                       networksValues={formattedComulativeData.trades}
                     />
                   </CardLoaderWrapper>
-
                   <CardLoaderWrapper isLoading={isLoadingUncollectedFees}>
                     <ComulativeNetworkDataCard
                       title={'Uncollected fees'}
                       icon={<Icon icon={<Zap size={16} />} />}
                       comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                       networksValues={formattedUncollectedFees}
+                      customNetworkAction={
+                        <RedirectIconWrapper onClick={handleReceiverLookup}>
+                          <Icon icon={<Link size={14} />} color={'text6'} />
+                        </RedirectIconWrapper>
+                      }
                     />
                   </CardLoaderWrapper>
                   <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
@@ -288,6 +312,11 @@ const DashboardPage = () => {
                         icon={<Icon icon={<Zap size={16} />} />}
                         comulativeValue={`$ ${formattedNum(uncollectedFeesData?.total ?? 0)}`}
                         networksValues={formattedUncollectedFees}
+                        customNetworkAction={
+                          <RedirectIconWrapper onClick={handleReceiverLookup}>
+                            <Icon icon={<Link size={14} />} color={'text6'} />
+                          </RedirectIconWrapper>
+                        }
                       />
                     </CardLoaderWrapper>
                     <CardLoaderWrapper isLoading={isLoadingOneDayTransactions}>
@@ -319,4 +348,4 @@ const DashboardPage = () => {
   );
 };
 
-export default DashboardPage;
+export default withRouter(DashboardPage);

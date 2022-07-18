@@ -11,12 +11,20 @@ const Header = styled.div`
   justify-content: space-between;
   flex-wrap: wrap;
   margin-bottom: 16px;
+
+  @media screen and (max-width: 370px) {
+    flex-direction: column;
+    margin-bottom: 0;
+  }
 `;
 
 const Title = styled.div`
   display: flex;
-  justify-content: space-between;
   align-items: center;
+
+  @media screen and (max-width: 370px) {
+    margin-bottom: 16px;
+  }
 `;
 
 const Icon = styled.div`
@@ -56,11 +64,20 @@ const Content = styled.div`
   display: flex;
   justify-content: space-between;
   flex-wrap: wrap;
+
+  @media screen and (max-width: 370px) {
+    display: block;
+  }
 `;
 
 const NetworkData = styled.div`
   text-align: ${({ align }) => align};
   text-transform: uppercase;
+
+  @media screen and (max-width: 370px) {
+    text-align: left;
+    margin-bottom: ${({ marginBottom }) => marginBottom};
+  }
 `;
 
 export { Wrapper, Header, Title, Icon, Value, Network, Data, Content, NetworkData };

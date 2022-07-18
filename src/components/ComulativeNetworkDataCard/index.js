@@ -15,7 +15,11 @@ const DataCard = ({ title, icon, comulativeValue, networksValues, customNetworkA
     </Header>
     <Content>
       {networksValues.map(({ network, value }, index) => (
-        <NetworkData key={network} align={index === networksValues.length - 1 ? 'right' : 'left'}>
+        <NetworkData
+          key={network}
+          align={index === networksValues.length - 1 ? 'right' : 'left'}
+          marginBottom={index === networksValues.length - 1 ? '0' : '16px'}
+        >
           <Network>
             {customNetworkAction &&
               React.cloneElement(customNetworkAction, { onClick: () => customNetworkAction.props.onClick(network) })}

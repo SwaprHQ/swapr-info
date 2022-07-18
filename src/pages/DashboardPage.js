@@ -31,7 +31,7 @@ import { formattedNum } from '../utils';
 
 const GridRow = styled.div`
   display: grid;
-  grid-template-columns: minmax(auto, 920px) auto;
+  grid-template-columns: minmax(auto, 900px) auto;
   column-gap: 21px;
   row-gap: 21px;
 `;
@@ -60,7 +60,7 @@ const PanelLoaderWrapper = ({ maxHeight, isLoading, children }) => (
   <Panel maxHeight={maxHeight || '380px'}>{isLoading ? <LocalLoader /> : children}</Panel>
 );
 const CardLoaderWrapper = ({ isLoading, children }) => (
-  <Panel padding={'32px 36px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
+  <Panel padding={'24px'}>{isLoading ? <LocalLoader height={'163px'} /> : children}</Panel>
 );
 
 const DashboardPage = ({ history }) => {
@@ -77,7 +77,7 @@ const DashboardPage = ({ history }) => {
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
-  const below1400 = useMedia('(max-width: 1400px)');
+  const below1540 = useMedia('(max-width: 1510px)');
 
   const handleReceiverLookup = (network) => {
     switchNetwork(network);
@@ -220,7 +220,7 @@ const DashboardPage = ({ history }) => {
                   />
                 </CardLoaderWrapper>
               </AutoColumn>
-            ) : below1400 ? (
+            ) : below1540 ? (
               <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
                 <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />

@@ -16,14 +16,17 @@ jobs:
     steps:
       - name: Inject slug variables
         uses: rlespinasse/github-slug-action@3.5.1
+
       - name: Checkout
         uses: actions/checkout@v3
+
       - name: Setup Node.js
         uses: actions/setup-node@v3
         with:
           node-version: '16'
           check-latest: true
           cache: 'yarn'
+
       - name: Start Deployment
         uses: bobheadxi/deployments@v0.6.0
         id: deployment
@@ -37,13 +40,17 @@ jobs:
         run: yarn install --frozen-lockfile --cache-folder $(yarn cache dir)
 
       - name: Build
+        env:
+          REACT_APP_ETHERSCAN_API_KEY: ${{ secrets.REACT_APP_ETHERSCAN_API_KEY }}
         run: yarn ipfs-build
+
       - name: Deploy to IPFS
         uses: web3-storage/add-to-web3@v1
         id: web3
         with:
           web3_token: ${{secrets.WEB3_STORAGE_TOKEN}}
           path_to_add: 'build'
+
       - name: Update Deployment Status
         uses: bobheadxi/deployments@v0.6.0
         if: always()

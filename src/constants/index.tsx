@@ -1,5 +1,11 @@
 import { JsonRpcProvider } from '@ethersproject/providers';
 
+export enum Networks {
+  MAINNET = 'Mainnet',
+  XDAI = 'Gnosis Chain',
+  ARBITRUM_ONE = 'Arbitrum',
+}
+
 export const SupportedNetwork = Object.freeze({
   MAINNET: 'Mainnet',
   XDAI: 'Gnosis Chain',
@@ -123,6 +129,12 @@ export const MULTICALL_ADDRESS = {
   [SupportedNetwork.ARBITRUM_ONE]: '0xF718F2bd590E5621e53f7b89398e52f7Acced8ca',
 };
 
+export const NETOWRK_FEE_RECEIVER_ADDRESSES = {
+  [Networks.XDAI]: '0x65f29020d07a6cfa3b0bf63d749934d5a6e6ea18',
+  [Networks.MAINNET]: '0xc6130400c1e3cd7b352db75055db9dd554e00ef0',
+  [Networks.ARBITRUM_ONE]: '0x1d7c7cb66fb2d75123351fd0d6779e8d7724a1ae',
+};
+
 export const DEFAULT_BLOCK_DIFFERENCE_THRESHOLD = 30;
 
 export const BLOCK_DIFFERENCE_THRESHOLD = {
@@ -132,9 +144,11 @@ export const BLOCK_DIFFERENCE_THRESHOLD = {
 };
 
 export const NETWORK_COLORS = {
-  [SupportedNetwork.MAINNET]: '#2974e0',
-  [SupportedNetwork.XDAI]: '#4526A2',
-  [SupportedNetwork.ARBITRUM_ONE]: '#feb125',
+  [SupportedNetwork.MAINNET]: '#2E17F2',
+  [SupportedNetwork.XDAI]: '#F2994A',
+  [SupportedNetwork.ARBITRUM_ONE]: '#685EC6',
 };
 
 export const SWAPR_LINK = 'https://swapr.eth.limo/#';
+
+export const SWAPR_COINGECKO_ENDPOINT = 'https://9gpgpb0ig0.execute-api.us-east-1.amazonaws.com/prod';

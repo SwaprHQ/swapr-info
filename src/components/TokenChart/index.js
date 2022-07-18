@@ -2,6 +2,7 @@ import { darken } from 'polished';
 import React, { useState, useRef, useEffect } from 'react';
 import { Activity } from 'react-feather';
 import { useMedia, usePrevious } from 'react-use';
+import { Flex } from 'rebass';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
 import styled from 'styled-components';
 
@@ -12,7 +13,7 @@ import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../
 import { OptionButton } from '../ButtonStyled';
 import CandleStickChart from '../CandleChart';
 import { AutoColumn } from '../Column';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow, RowBetween, RowFixed } from '../Row';
 
@@ -131,10 +132,10 @@ const TokenChart = ({ address, color, base }) => {
   return (
     <ChartWrapper>
       {below600 ? (
-        <RowBetween mb={40}>
-          <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={color} />
-        </RowBetween>
+        <Flex justifyContent={'space-between'} mb={40}>
+          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
+          <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={color} />
+        </Flex>
       ) : (
         <RowBetween
           mb={

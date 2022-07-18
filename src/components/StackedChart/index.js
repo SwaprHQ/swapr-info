@@ -3,7 +3,7 @@ import PropTypes from 'prop-types';
 import React, { useCallback, useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import { NETWORK_COLORS, SupportedNetwork } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
@@ -15,11 +15,7 @@ const TIME_FILTER_OPTIONS = {
   YEAR: '1Y',
 };
 
-const LegendItem = (value) => (
-  <TYPE.light color="text1" as="span">
-    {value}
-  </TYPE.light>
-);
+const LegendItem = (value) => <Typography.largeText sx={{ display: 'inline' }}>{value}</Typography.largeText>;
 
 const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight, maxWith, minHeight }) => {
   const [filteredData, setFilteredData] = useState(data);
@@ -142,32 +138,32 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
       <ResponsiveContainer maxHeight={maxHeight} maxWith={maxWith} minHeight={minHeight}>
         {type === 'AREA' ? (
           <AreaChart
-            className="basic-chart"
+            className={'basic-chart'}
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
             data={filteredData}
             margin={{ top: 5 }}
           >
             <defs>
-              <linearGradient id="xdai" x1="1" y1="0" x2="1" y2="1">
-                <stop offset="10%" stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={1} />
-                <stop offset="90%" stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={0.4} />
+              <linearGradient id={'xdai'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
+                <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={1} />
+                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={0.4} />
               </linearGradient>
-              <linearGradient id="mainnet" x1="1" y1="0" x2="1" y2="1">
-                <stop offset="10%" stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={1} />
-                <stop offset="90%" stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={0.4} />
+              <linearGradient id={'mainnet'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
+                <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={1} />
+                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={0.4} />
               </linearGradient>
-              <linearGradient id="arbitrum" x1="1" y1="0" x2="1" y2="1">
-                <stop offset="10%" stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={1} />
-                <stop offset="90%" stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={0.4} />
+              <linearGradient id={'arbitrum'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
+                <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={1} />
+                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={0.4} />
               </linearGradient>
             </defs>
-            <XAxis dataKey="time" hide />
+            <XAxis dataKey={'time'} hide />
             <YAxis hide />
             <Legend
-              verticalAlign="top"
-              align="left"
-              iconType="circle"
+              verticalAlign={'top'}
+              align={'left'}
+              iconType={'circle'}
               iconSize={10}
               fontSize={14}
               wrapperStyle={{
@@ -178,35 +174,35 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip isValueCurrency={isCurrency} />} />
             <Area
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.MAINNET}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
-              fill="url(#mainnet)"
+              fill={'url(#mainnet)'}
               strokeWidth={3}
             />
             <Area
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.ARBITRUM_ONE}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
-              fill="url(#arbitrum)"
+              fill={'url(#arbitrum)'}
               strokeWidth={3}
             />
             <Area
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.XDAI}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
-              fill="url(#xdai)"
+              fill={'url(#xdai)'}
               strokeWidth={3}
             />
           </AreaChart>
         ) : type === 'BAR' ? (
           <ComposedChart
-            className="basic-chart"
+            className={'basic-chart'}
             onMouseMove={setCurrentStackedValue}
             onMouseLeave={setDefaultHeaderValues}
             data={filteredData}
@@ -214,9 +210,9 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
             margin={{ top: 5 }}
           >
             <Legend
-              verticalAlign="top"
-              align="left"
-              iconType="circle"
+              verticalAlign={'top'}
+              align={'left'}
+              iconType={'circle'}
               iconSize={10}
               fontSize={14}
               wrapperStyle={{
@@ -224,32 +220,32 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
               }}
               formatter={LegendItem}
             />
-            <XAxis dataKey="time" hide />
+            <XAxis dataKey={'time'} hide />
             <YAxis hide />
             <Tooltip isAnimationActive={false} content={<CrosshairTooltip />} />
             <Bar
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.MAINNET}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.MAINNET]}
               fill={NETWORK_COLORS[SupportedNetwork.MAINNET]}
               strokeWidth={3}
             />
             <Bar
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.ARBITRUM_ONE}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
               fill={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]}
               strokeWidth={3}
             />
             <Bar
               animationDuration={500}
-              type="monotone"
+              type={'monotone'}
               dataKey={SupportedNetwork.XDAI}
-              stackId="1"
+              stackId={'1'}
               stroke={NETWORK_COLORS[SupportedNetwork.XDAI]}
               fill={NETWORK_COLORS[SupportedNetwork.XDAI]}
               strokeWidth={3}

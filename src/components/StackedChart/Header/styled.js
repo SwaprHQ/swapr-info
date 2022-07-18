@@ -16,13 +16,7 @@ const Title = styled.p`
 const FlexContainer = styled.div`
   display: flex;
   align-items: center;
-`;
-
-const Value = styled.p`
-  font-size: 22px;
-  font-weight: bold;
-  margin: 0;
-  margin-right: 16px;
+  margin-bottom: 10px;
 `;
 
 const DailyChange = styled.div`
@@ -31,9 +25,4 @@ const DailyChange = styled.div`
   font-weight: 500;
 `;
 
-const Date = styled.p`
-  font-size: 12px;
-  margin-top: 0;
-`;
-
-export { Container, Title, FlexContainer, Value, DailyChange, Date };
+export { Container, Title, FlexContainer, DailyChange };

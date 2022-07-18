@@ -4,7 +4,6 @@ import utc from 'dayjs/plugin/utc';
 import _Decimal from 'decimal.js-light';
 import Numeral from 'numeral';
 import React from 'react';
-import { Text } from 'rebass';
 import toFormat from 'toformat';
 
 import { getAddress } from '@ethersproject/address';
@@ -20,7 +19,8 @@ import {
   USD,
 } from '@swapr/sdk';
 
-import { GET_BLOCK, GET_BLOCKS, SHARE_VALUE } from '../apollo/queries';
+import { Typography } from '../Theme';
+import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, SHARE_VALUE } from '../apollo/queries';
 import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
@@ -59,7 +59,7 @@ export function getPoolLink(
 ) {
   if (!token1Address) {
     return (
-      `${SWAPR_LINK}` +
+      `${SWAPR_LINK}/pools/` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${nativeCurrency}?chainId=${
         ChainId[selectedNetwork]
@@ -67,7 +67,7 @@ export function getPoolLink(
     );
   } else {
     return (
-      `${SWAPR_LINK}` +
+      `${SWAPR_LINK}/pools/` +
       (remove ? `remove` : `add`) +
       `/${token0Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token0Address}/${
         token1Address === nativeCurrencyWrapper.symbol ? nativeCurrency : token1Address
@@ -215,6 +215,36 @@ export async function getBlockFromTimestamp(blockClient, timestamp) {
   return result?.data?.blocks?.[0]?.number;
 }
 
+export const getBlocksByTimestamps = async (blockClient, timestamps) => {
+  try {
+    let blocks = [];
+    let lastId = '';
+    let fetchMore = true;
+
+    while (fetchMore) {
+      const { data } = await blockClient.query({
+        query: GET_BLOCK_BY_TIMESTAMPS,
+        variables: {
+          timestamps,
+          lastId,
+        },
+      });
+
+      if (data.blocks.length === 0) {
+        fetchMore = false;
+        continue;
+      }
+
+      lastId = data.blocks[data.blocks.length - 1].id;
+      blocks = blocks.concat(data.blocks);
+    }
+
+    return blocks;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 /**
  * @notice Fetches block objects for an array of timestamps.
  * @dev blocks are returned in chronological order (ASC) regardless of input.
@@ -240,28 +270,8 @@ export async function getBlocksFromTimestamps(blockClient, timestamps, skipCount
       }
     }
   }
+
   return blocks;
-}
-
-export async function getLiquidityTokenBalanceOvertime(client, blockClient, account, timestamps) {
-  // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
-
-  // get historical share values with time travel queries
-  let result = await client.query({
-    query: SHARE_VALUE(account, blocks),
-  });
-
-  let values = [];
-  for (var row in result?.data) {
-    let timestamp = row.split('t')[1];
-    if (timestamp) {
-      values.push({
-        timestamp,
-        balance: 0,
-      });
-    }
-  }
 }
 
 /**
@@ -278,12 +288,24 @@ export async function getShareValueOverTime(client, blockClient, pairAddress, ti
   }
 
   // get blocks based on timestamps
-  const blocks = await getBlocksFromTimestamps(blockClient, timestamps);
+  const blocks = await getBlocksByTimestamps(blockClient, timestamps);
 
-  // get historical share values with time travel queries
-  let result = await client.query({
-    query: SHARE_VALUE(pairAddress, blocks),
-  });
+  // perform multiple queries with subsets of blocks
+  // to avoid payloads too large
+  let result = { data: {} };
+  for (let blocksChunk of chunk(blocks, 100)) {
+    const { data } = await client.query({
+      query: SHARE_VALUE(pairAddress, blocksChunk),
+    });
+
+    result = {
+      ...result,
+      data: {
+        ...result.data,
+        ...data,
+      },
+    };
+  }
 
   let values = [];
   for (var row in result?.data) {
@@ -452,26 +474,18 @@ export function rawPercent(percentRaw) {
   return percent.toFixed(0) + '%';
 }
 
-export function formattedPercent(percent, useBrackets = false) {
+export function formattedPercent(percent = false) {
   percent = parseFloat(percent);
   if (!percent || percent === 0) {
-    return <Text fontWeight={500}>0%</Text>;
+    return <Typography.smallHeader color={'text1'}>0%</Typography.smallHeader>;
   }
 
   if (percent < 0.0001 && percent > 0) {
-    return (
-      <Text fontWeight={500} color="green">
-        {'< 0.0001%'}
-      </Text>
-    );
+    return <Typography.smallHeader color={'green1'}>{'< 0.0001%'}</Typography.smallHeader>;
   }
 
   if (percent < 0 && percent > -0.0001) {
-    return (
-      <Text fontWeight={500} color="red">
-        {'< 0.0001%'}
-      </Text>
-    );
+    return <Typography.smallHeader color={'red1'}>{'< 0.0001%'}</Typography.smallHeader>;
   }
 
   let fixedPercent = percent.toFixed(2);
@@ -480,12 +494,14 @@ export function formattedPercent(percent, useBrackets = false) {
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {
-      return <Text fontWeight={500} color="green">{`+${percent?.toFixed(0).toLocaleString()}%`}</Text>;
+      return (
+        <Typography.smallHeader color={'green1'}>{`+${percent?.toFixed(0).toLocaleString()}%`}</Typography.smallHeader>
+      );
     } else {
-      return <Text fontWeight={500} color="green">{`+${fixedPercent}%`}</Text>;
+      return <Typography.smallHeader color={'green1'}>{`+${fixedPercent}%`}</Typography.smallHeader>;
     }
   } else {
-    return <Text fontWeight={500} color="red">{`${fixedPercent}%`}</Text>;
+    return <Typography.smallHeader color={'red1'}>{`${fixedPercent}%`}</Typography.smallHeader>;
   }
 }
 
@@ -661,4 +677,14 @@ export function uriToHttp(uri) {
     default:
       return [];
   }
+}
+
+export function chunk(arr, chunkSize) {
+  const chunked = [];
+
+  for (let i = 0, len = arr.length; i < len; i += chunkSize) {
+    chunked.push(arr.slice(i, i + chunkSize));
+  }
+
+  return chunked;
 }

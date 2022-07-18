@@ -30,6 +30,11 @@ const theme = (darkMode, color) => ({
   text3: darkMode ? '#6C7284' : '#888D9B',
   text4: darkMode ? '#565A69' : '#C3C5CB',
   text5: darkMode ? '#2C2F36' : '#EDEEF2',
+  text6: darkMode ? '#C0BAF7' : '',
+  text7: darkMode ? '#8780BF' : '',
+  text8: darkMode ? '#BCB3F0' : '#A7A0E4',
+  text9: darkMode ? '#EBE9F8' : '#464366',
+  text10: darkMode ? '#C9C7DB' : '',
 
   swaprLink: '#8c6fff',
   loaderBase: '#2A2F42',
@@ -39,14 +44,18 @@ const theme = (darkMode, color) => ({
   white: '#FFFFFF',
 
   // backgrounds / greys
-  bg1: darkMode ? '#212429' : '#FAFAFA',
+  bg1: darkMode ? '#0C0B11' : '#FAFAFA',
   bg2: darkMode ? '#2C2F36' : '#F7F8FA',
   bg3: darkMode ? '#40444F' : '#EDEEF2',
   bg4: darkMode ? '#565A69' : '#CED0D9',
   bg5: darkMode ? '#565A69' : '#888D9B',
   bg6: darkMode ? '#000' : '#FFFFFF',
 
+  // borders
+  bd1: darkMode ? '#464366' : '#464366',
+
   //specialty colors
+  dropdownBg: darkMode ? 'rgba(104, 110, 148, 0.2)' : '',
   modalBG: darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
   advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)',
   onlyLight: darkMode ? '#22242a' : 'transparent',
@@ -72,7 +81,8 @@ const theme = (darkMode, color) => ({
 
   // other
   red1: '#FF5252',
-  green1: '#00E676',
+  orange1: '#f2994a',
+  green1: '#75CAB5',
   yellow1: '#FFE270',
   yellow2: '#F3841E',
   link: '#0D47A1',
@@ -84,6 +94,100 @@ const theme = (darkMode, color) => ({
 const TextWrapper = styled(Text)`
   color: ${({ color, theme }) => theme[color]};
 `;
+
+export const Typography = {
+  custom: ({ color, children, sx }) => (
+    <TextWrapper color={color || 'text1'} sx={sx}>
+      {children}
+    </TextWrapper>
+  ),
+
+  tinyText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={'8px'}
+      lineHeight={'10px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  smallText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={10}
+      lineHeight={'10px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  text: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={13}
+      lineHeight={'16px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={14}
+      lineHeight={'17px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+
+  smallHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={16}
+      lineHeight={'19px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={24}
+      lineHeight={'29px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  largeBoldHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={700}
+      fontSize={24}
+      lineHeight={'29px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+};
 
 export const TYPE = {
   main(props) {
@@ -180,9 +284,28 @@ export const GlobalStyle = createGlobalStyle`
     width: 100%;
     height: 100%;
     font-size: 14px;    
-    background-color: ${({ theme }) => theme.bg6};
+    background-color: ${({ theme }) => theme.bg1};
+
+    scroll-behavior: smooth;
+    overflow-y: overlay;
+    overflow-x: hidden;
+
+    ::-webkit-scrollbar {
+      width: 10px;
+      border-left: 1px solid rgba(255,255,255,0.2);
+    }
+
+    ::-webkit-scrollbar-track {
+      background: transparent;
+    }
+
+    ::-webkit-scrollbar-thumb {
+      background-color: #B6B5B7;
+      border-radius: 100px;    
+    }
   }
 
+  
   a {
     text-decoration: none;
 
@@ -201,7 +324,6 @@ export const GlobalStyle = createGlobalStyle`
 	color: #20262E;
 	background-color: rgba(255, 255, 255, 0.23);
 	text-align: left;
-	z-index: 10;
   pointer-events: none;
 }
 
@@ -214,7 +336,6 @@ export const GlobalStyle = createGlobalStyle`
 	color: white;
 	background-color: rgba(255, 255, 255, 0.23);
 	text-align: left;
-	z-index: 10;
   pointer-events: none;
 }
 

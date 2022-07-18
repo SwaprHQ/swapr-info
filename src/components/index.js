@@ -124,7 +124,7 @@ export const ContentWrapper = styled.div`
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
   box-sizing: border-box;
   @media screen and (max-width: 1180px) {
     grid-template-columns: 1fr;
@@ -159,7 +159,7 @@ export const FullWrapper = styled.div`
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;
-  padding: 0 2rem;
+  padding: 0 1rem;
   box-sizing: border-box;
 
   @media screen and (max-width: 1180px) {

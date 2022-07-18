@@ -6,12 +6,7 @@ import { Link as RebassLink } from 'rebass';
 import styled from 'styled-components';
 
 const WrappedLink = ({ external, children, ...rest }) => (
-  <RebassLink
-    target={external ? '_blank' : null}
-    rel={external ? 'noopener noreferrer' : null}
-    color="#2f80ed"
-    {...rest}
-  >
+  <RebassLink target={external ? '_blank' : null} rel={external ? 'noopener noreferrer' : null} {...rest}>
     {children}
   </RebassLink>
 );
@@ -21,7 +16,7 @@ WrappedLink.propTypes = {
 };
 
 const Link = styled(WrappedLink)`
-  color: ${({ color, theme }) => (color ? color : theme.swaprLink)};
+  color: ${({ color, theme }) => (color ? theme[color] : theme.swaprLink)};
 `;
 
 export default Link;

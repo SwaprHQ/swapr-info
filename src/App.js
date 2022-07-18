@@ -29,6 +29,7 @@ const AppWrapper = styled.div`
   position: relative;
   width: 100%;
 `;
+
 const ContentWrapper = styled.div`
   display: grid;
   grid-template-columns: ${({ open }) => (open ? '220px 1fr' : '220px 1fr')};
@@ -48,7 +49,7 @@ const ContentWrapper = styled.div`
 const Center = styled.div`
   height: 100%;
   transition: width 0.25s ease;
-  background-color: ${({ theme }) => theme.onlyLight};
+  background-color: ${({ theme }) => theme.bg1};
 `;
 
 const WarningWrapper = styled.div`

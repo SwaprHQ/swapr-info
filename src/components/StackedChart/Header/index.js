@@ -1,8 +1,9 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import DropdownSelect from '../../DropdownSelect';
-import { Container, Title, DailyChange, Date, FlexContainer, Value } from './styled';
+import { Typography } from '../../../Theme';
+import DropdownBasicSelect from '../../DropdownBasicSelect';
+import { Container, DailyChange, FlexContainer } from './styled';
 
 const Header = ({
   title,
@@ -17,18 +18,18 @@ const Header = ({
 }) => (
   <Container>
     <div>
-      <Title>{title}</Title>
+      <Typography.smallHeader sx={{ textTransform: 'uppercase', marginBottom: 12 }}>{title}</Typography.smallHeader>
       <FlexContainer>
-        <Value>
+        <Typography.largeBoldHeader sx={{ marginRight: 10 }}>
           {isValueCurrency && '$'} {value}
-        </Value>
+        </Typography.largeBoldHeader>
         <DailyChange>{dailyChange}</DailyChange>
       </FlexContainer>
-      <Date>{date}</Date>
+      <Typography.text>{date}</Typography.text>
     </div>
     {showTimeFilter && (
       <div>
-        <DropdownSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
+        <DropdownBasicSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
       </div>
     )}
   </Container>

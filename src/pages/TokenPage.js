@@ -139,15 +139,12 @@ function TokenPage({ address }) {
   const txnChangeFormatted = formattedPercent(txnChange);
 
   const below1080 = useMedia('(max-width: 1080px)');
-  // const below800 = useMedia("(max-width: 800px)");
   const below600 = useMedia('(max-width: 600px)');
   const below500 = useMedia('(max-width: 500px)');
 
   // format for long symbol
   const LENGTH = below1080 ? 10 : 16;
   const formattedSymbol = symbol?.length > LENGTH ? symbol.slice(0, LENGTH) + '...' : symbol;
-
-  // const [savedTokens, addToken] = useSavedTokens();
 
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
@@ -171,12 +168,7 @@ function TokenPage({ address }) {
               <BasicLink to="/tokens">{'Tokens '}</BasicLink>→ {symbol}
               {'  '}
             </TYPE.body>
-            <Link
-              style={{ width: 'fit-content' }}
-              color={backgroundColor}
-              external
-              href={getExplorerLink(selectedNetwork, address, 'address')}
-            >
+            <Link style={{ width: 'fit-content' }} external href={getExplorerLink(selectedNetwork, address, 'address')}>
               <Text style={{ marginLeft: '.15rem' }} fontSize={'14px'} fontWeight={400}>
                 ({address.slice(0, 8) + '...' + address.slice(36, 42)})
               </Text>
@@ -214,30 +206,11 @@ function TokenPage({ address }) {
             </RowFixed>
             <span>
               <RowFixed ml={below500 ? '0' : '2.5rem'} mt={below500 ? '1rem' : '0'}>
-                {/* {!!!savedTokens[address] && !below800 ? (
-                  <Hover onClick={() => addToken(address, symbol)}>
-                    <StyledIcon>
-                      <PlusCircle style={{ marginRight: "0.5rem" }} />
-                    </StyledIcon>
-                  </Hover>
-                ) : !below1080 ? (
-                  <StyledIcon>
-                    <Bookmark style={{ marginRight: "0.5rem", opacity: 0.4 }} />
-                  </StyledIcon>
-                ) : (
-                  <></>
-                )} */}
-                <Link
-                  href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)}
-                  target="_blank"
-                >
-                  <ButtonLight color={backgroundColor}>+ Add Liquidity</ButtonLight>
+                <Link href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
+                  <ButtonLight>+ Add Liquidity</ButtonLight>
                 </Link>
-                <Link
-                  href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)}
-                  target="_blank"
-                >
-                  <ButtonDark ml={'.5rem'} mr={below1080 && '.5rem'} color={backgroundColor}>
+                <Link href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
+                  <ButtonDark ml={'.5rem'} mr={below1080 && '.5rem'}>
                     Trade
                   </ButtonDark>
                 </Link>
@@ -375,8 +348,8 @@ function TokenPage({ address }) {
                     <CopyHelper toCopy={address} />
                   </AutoRow>
                 </Column>
-                <ButtonLight color={backgroundColor}>
-                  <Link color={backgroundColor} external href={getExplorerLink(selectedNetwork, address, 'token')}>
+                <ButtonLight>
+                  <Link external href={getExplorerLink(selectedNetwork, address, 'token')}>
                     View on block explorer ↗
                   </Link>
                 </ButtonLight>

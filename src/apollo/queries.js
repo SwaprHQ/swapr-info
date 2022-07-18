@@ -40,10 +40,20 @@ export const GET_BLOCK = gql`
   }
 `;
 
+export const GET_BLOCK_BY_TIMESTAMPS = gql`
+  query blocks($timestamps: [Int], $lastId: ID!) {
+    blocks(first: 1000, orderBy: timestamp, orderDirection: asc, where: { id_gt: $lastId, timestamp_in: $timestamps }) {
+      id
+      number
+      timestamp
+    }
+  }
+`;
+
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
+    return `t${timestamp}:blocks(first: 1000, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
       number
     }`;
   });
@@ -129,14 +139,6 @@ export const SHARE_VALUE = (pairAddress, blocks) => {
       }
     `,
   );
-  queryString += ',';
-  queryString += blocks.map(
-    (block) => `
-      b${block.timestamp}: bundle(id:"1", block: { number: ${block.number} }) { 
-        nativeCurrencyPrice
-      }
-    `,
-  );
 
   queryString += '}';
   return gql(queryString);
@@ -215,11 +217,13 @@ export const FIRST_SNAPSHOT = gql`
 `;
 
 export const USER_HISTORY = gql`
-  query snapshots($user: Bytes!, $skip: Int!) {
-    liquidityPositionSnapshots(first: 1000, skip: $skip, where: { user: $user }) {
+  query snapshots($lastId: ID!, $user: Bytes!) {
+    liquidityPositionSnapshots(first: 1000, where: { id_gt: $lastId, user: $user }) {
+      id
       timestamp
       reserveUSD
       liquidityTokenBalance
+      liquidityTokenTotalSupply
       reserve0
       reserve1
       token0PriceUSD
@@ -242,12 +246,13 @@ export const USER_HISTORY = gql`
 `;
 
 export const USER_HISTORY_STAKE = gql`
-  query snapshots($user: Bytes!, $skip: Int!) {
-    liquidityMiningPositionSnapshots(first: 1000, skip: $skip, where: { user: $user }) {
+  query snapshots($lastId: ID!, $user: Bytes!) {
+    liquidityMiningPositionSnapshots(first: 1000, where: { id_gt: $lastId, user: $user }) {
+      id
       timestamp
       reserveUSD
       liquidityTokenBalance: stakedLiquidityTokenBalance
-      totalStakedLiquidityToken
+      liquidityTokenTotalSupply: totalStakedLiquidityToken
       reserve0
       reserve1
       token0PriceUSD
@@ -314,6 +319,14 @@ export const USER_POSITIONS = gql`
   }
 `;
 
+export const GET_SWPR_DERIVED_NATIVE_PRICE = gql`
+  query tokens {
+    tokens(first: 1, where: { symbol: "SWPR" }) {
+      derivedNativeCurrency
+    }
+  }
+`;
+
 export const USER_TRANSACTIONS = gql`
   query transactions($user: Bytes!) {
     mints(orderBy: timestamp, orderDirection: desc, where: { to: $user }) {
@@ -348,9 +361,11 @@ export const USER_TRANSACTIONS = gql`
       pair {
         id
         token0 {
+          id
           symbol
         }
         token1 {
+          id
           symbol
         }
       }
@@ -368,10 +383,13 @@ export const USER_TRANSACTIONS = gql`
         timestamp
       }
       pair {
+        id
         token0 {
+          id
           symbol
         }
         token1 {
+          id
           symbol
         }
       }
@@ -444,11 +462,47 @@ export const DASHBOARD_COMULATIVE_DATA = gql`
   }
 `;
 
-export const DASHBOARD_TRANSACTION_HISTORY = gql`
-  query transactions($lastId: ID!, $startTime: Int!) {
-    transactions(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }, orderBy: id, orderDirection: asc) {
+export const DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP = gql`
+  query swaps($lastId: ID!, $startTime: Int!) {
+    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
       id
       timestamp
+    }
+  }
+`;
+
+export const DASHBOARD_SWAPS_HISTORY = gql`
+  query swaps($lastId: ID!, $startTime: Int!) {
+    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+      id
+    }
+  }
+`;
+
+export const DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP = gql`
+  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
+    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
+      id
+      to
+      timestamp
+    }
+    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
+      id
+      to
+      timestamp
+    }
+  }
+`;
+
+export const DASHBOARD_MINTS_AND_SWAPS = gql`
+  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
+    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
+      id
+      to
+    }
+    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
+      id
+      to
     }
   }
 `;
@@ -801,7 +855,7 @@ export const MINING_POSITIONS = (account) => {
 export const PAIRS_BULK = gql`
   ${PairFields}
   query pairs($allPairs: [Bytes]!) {
-    pairs(where: { id_in: $allPairs }, orderBy: trackedReserveNativeCurrency, orderDirection: desc) {
+    pairs(first: 200, where: { id_in: $allPairs }, orderBy: trackedReserveNativeCurrency, orderDirection: desc) {
       ...PairFields
     }
   }

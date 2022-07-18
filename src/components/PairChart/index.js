@@ -1,6 +1,7 @@
 import { darken } from 'polished';
 import React, { useState, useRef, useEffect } from 'react';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
 import styled from 'styled-components';
 
@@ -11,9 +12,9 @@ import { usePairChartData, useHourlyRateData, usePairData } from '../../contexts
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
 import CandleStickChart from '../CandleChart';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
-import { RowBetween, AutoRow } from '../Row';
+import { AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
   height: 100%;
@@ -28,7 +29,7 @@ const OptionsRow = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  margin-bottom: 40px;
+  margin-bottom: 10px;
 `;
 
 const CHART_VIEW = {
@@ -117,10 +118,10 @@ const PairChart = ({ address, color, base0, base1 }) => {
   return (
     <ChartWrapper>
       {below600 ? (
-        <RowBetween mb={40}>
-          <DropdownSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
-        </RowBetween>
+        <Flex justifyContent={'space-between'} mb={40}>
+          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
+          <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
+        </Flex>
       ) : (
         <OptionsRow>
           <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>

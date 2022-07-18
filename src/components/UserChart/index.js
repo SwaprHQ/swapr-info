@@ -1,6 +1,7 @@
 import { darken } from 'polished';
 import React, { useState } from 'react';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart } from 'recharts';
 import styled from 'styled-components';
 
@@ -10,13 +11,12 @@ import { useDarkModeManager } from '../../contexts/LocalStorage';
 import { useUserLiquidityChart } from '../../contexts/User';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import DropdownSelect from '../DropdownSelect';
+import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
-import { AutoRow, RowBetween } from '../Row';
+import { AutoRow } from '../Row';
 
 const ChartWrapper = styled.div`
-  height: 100%;
-  max-height: 390px;
+  max-height: 420px;
 
   @media screen and (max-width: 600px) {
     min-height: 200px;
@@ -41,40 +41,45 @@ const UserChart = ({ account }) => {
 
   return (
     <ChartWrapper>
-      {below600 ? (
-        <RowBetween mb={40}>
-          <div />
-          <DropdownSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} color={'#4526A2'} />
-        </RowBetween>
-      ) : (
-        <RowBetween mb={40}>
-          <AutoRow gap="10px">
-            <TYPE.main>Liquidity Value</TYPE.main>
-          </AutoRow>
-          <AutoRow justify="flex-end" gap="4px">
-            <OptionButton
-              active={timeWindow === timeframeOptions.MONTH}
-              onClick={() => setTimeWindow(timeframeOptions.MONTH)}
-            >
-              1M
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.WEEK}
-              onClick={() => setTimeWindow(timeframeOptions.WEEK)}
-            >
-              1W
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.ALL_TIME}
-              onClick={() => setTimeWindow(timeframeOptions.ALL_TIME)}
-            >
-              All
-            </OptionButton>
-          </AutoRow>
-        </RowBetween>
-      )}
+      {chartData &&
+        (below600 ? (
+          <Flex justifyContent={'end'} mb={40}>
+            <DropdownBasicSelect
+              options={timeframeOptions}
+              active={timeWindow}
+              setActive={setTimeWindow}
+              color={'#4526A2'}
+            />
+          </Flex>
+        ) : (
+          <Flex justifyContent={'space-between'} mb={40}>
+            <AutoRow gap="10px">
+              <TYPE.main>Liquidity Value</TYPE.main>
+            </AutoRow>
+            <AutoRow justify="flex-end" gap="4px">
+              <OptionButton
+                active={timeWindow === timeframeOptions.MONTH}
+                onClick={() => setTimeWindow(timeframeOptions.MONTH)}
+              >
+                1M
+              </OptionButton>
+              <OptionButton
+                active={timeWindow === timeframeOptions.WEEK}
+                onClick={() => setTimeWindow(timeframeOptions.WEEK)}
+              >
+                1W
+              </OptionButton>
+              <OptionButton
+                active={timeWindow === timeframeOptions.ALL_TIME}
+                onClick={() => setTimeWindow(timeframeOptions.ALL_TIME)}
+              >
+                All
+              </OptionButton>
+            </AutoRow>
+          </Flex>
+        ))}
       {chartData ? (
-        <ResponsiveContainer aspect={aspect} style={{ height: 'inherit' }}>
+        <ResponsiveContainer aspect={aspect}>
           <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
             <defs>
               <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">

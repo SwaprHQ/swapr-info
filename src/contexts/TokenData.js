@@ -23,14 +23,14 @@ import {
 import { updateNameData } from '../utils/data';
 import { useLatestBlocks } from './Application';
 import { useNativeCurrencyPrice } from './GlobalData';
-import { useBlocksSubgraphClient, useSwaprSubgraphClient } from './Network';
+import { useBlocksSubgraphClient, useSwaprSubgraphClient, useSelectedNetwork } from './Network';
 
 const RESET = 'RESET';
 const UPDATE = 'UPDATE';
 const UPDATE_TOKEN_TXNS = 'UPDATE_TOKEN_TXNS';
 const UPDATE_CHART_DATA = 'UPDATE_CHART_DATA';
 const UPDATE_PRICE_DATA = 'UPDATE_PRICE_DATA';
-const UPDATE_TOP_TOKENS = ' UPDATE_TOP_TOKENS';
+const UPDATE_TOP_TOKENS = 'UPDATE_TOP_TOKENS';
 const UPDATE_ALL_PAIRS = 'UPDATE_ALL_PAIRS';
 
 const TOKEN_PAIRS_KEY = 'TOKEN_PAIRS_KEY';
@@ -43,7 +43,7 @@ function useTokenDataContext() {
   return useContext(TokenDataContext);
 }
 
-const INITIAL_STATE = {};
+const INITIAL_STATE = { topTokens: {} };
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -58,7 +58,7 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_TOP_TOKENS: {
-      const { topTokens } = payload;
+      const { topTokens, network } = payload;
       const newTopTokens = topTokens
         ? topTokens.reduce((reducedTokens, token) => {
             reducedTokens[token.id] = token;
@@ -66,7 +66,11 @@ function reducer(state, { type, payload }) {
           }, {})
         : {};
       return {
-        ...newTopTokens,
+        ...state,
+        topTokens: {
+          ...state.topTokens,
+          [network]: newTopTokens,
+        },
       };
     }
 
@@ -117,7 +121,9 @@ function reducer(state, { type, payload }) {
     }
 
     case RESET: {
-      return INITIAL_STATE;
+      return {
+        topTokens: state.topTokens,
+      };
     }
 
     default: {
@@ -138,11 +144,12 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateTopTokens = useCallback((topTokens) => {
+  const updateTopTokens = useCallback((topTokens, network) => {
     dispatch({
       type: UPDATE_TOP_TOKENS,
       payload: {
         topTokens,
+        network,
       },
     });
   }, []);
@@ -613,6 +620,7 @@ const getTokenChartData = async (client, tokenAddress) => {
 
 export function Updater() {
   const client = useSwaprSubgraphClient();
+  const network = useSelectedNetwork();
   const blockClient = useBlocksSubgraphClient();
   const [, { updateTopTokens }] = useTokenDataContext();
   const [nativeCurrencyPrice, nativeCurrencyPriceOld] = useNativeCurrencyPrice();
@@ -621,10 +629,10 @@ export function Updater() {
     async function getData() {
       // get top pairs for overview list
       let topTokens = await getTopTokens(client, blockClient, nativeCurrencyPrice, nativeCurrencyPriceOld);
-      topTokens && updateTopTokens(topTokens);
+      topTokens && updateTopTokens(topTokens, network);
     }
     nativeCurrencyPrice && nativeCurrencyPriceOld && getData();
-  }, [nativeCurrencyPrice, nativeCurrencyPriceOld, updateTopTokens, client, blockClient]);
+  }, [nativeCurrencyPrice, nativeCurrencyPriceOld, updateTopTokens, client, blockClient, network]);
 
   return null;
 }
@@ -744,8 +752,10 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 }
 
 export function useAllTokenData() {
+  const network = useSelectedNetwork();
   const [state] = useTokenDataContext();
-  return state;
+
+  return state.topTokens[network] || [];
 }
 
 export function useTokenContextResetter() {

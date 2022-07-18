@@ -6,7 +6,7 @@ import { useMedia } from 'react-use';
 import { Box } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE, ThemedBackground } from '../Theme';
+import { TYPE, ThemedBackground, Typography } from '../Theme';
 import { PageWrapper, ContentWrapper } from '../components';
 import { AutoColumn } from '../components/Column';
 import GlobalChart from '../components/GlobalChart';
@@ -71,7 +71,9 @@ function GlobalPage() {
       <ContentWrapper>
         <div>
           <AutoColumn gap="24px" style={{ paddingBottom: below800 ? '0' : '24px' }}>
-            <TYPE.largeHeader>{below800 ? 'Protocol Analytics' : 'Swapr Protocol Analytics'}</TYPE.largeHeader>
+            <Typography.largeHeader>
+              {below800 ? 'Protocol Analytics' : 'Swapr Protocol Analytics'}
+            </Typography.largeHeader>
             <Search />
             <GlobalStats />
           </AutoColumn>
@@ -147,7 +149,7 @@ function GlobalPage() {
           </Panel>
           <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
             <RowBetween>
-              <TYPE.main fontSize={'1rem'}>Top Pairs</TYPE.main>
+              <TYPE.main ffontSize={'1.125rem'}>Top Pairs</TYPE.main>
               <CustomLink to={'/pairs'}>See All</CustomLink>
             </RowBetween>
           </ListOptions>

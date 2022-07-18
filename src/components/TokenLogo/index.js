@@ -5,7 +5,7 @@ import EthereumLogo from '../../assets/images/eth.png';
 import SWPRLogo from '../../assets/images/swpr-logo.png';
 import xDAILogo from '../../assets/images/xdai-logo.png';
 import DXDLogo from '../../assets/svg/dxd-logo.svg';
-import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants/index.js';
+import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants';
 import { useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network.js';
 import { useTokenIcon } from '../../hooks/useTokenIcon.js';
 

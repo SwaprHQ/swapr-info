@@ -14,7 +14,7 @@ import Link, { CustomLink } from '../Link';
 import { AutoRow } from '../Row';
 import TokenLogo from '../TokenLogo';
 
-const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/gm);
+const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/);
 
 export const DashGrid = styled.div`
   display: grid;
@@ -179,6 +179,7 @@ export default function ListItem({ pairData, index }: ListItemProps) {
         <DataText alignItems="center" flexDirection="column" justifyContent="flex-end" area="rewardTokens">
           {pairData.miningCampaignObject.rewards.map((reward, index) => {
             const isCarrotToken = carrotTokenRegex.test(reward.token.symbol);
+
             return (
               <AutoRow
                 width="100%"
@@ -197,7 +198,6 @@ export default function ListItem({ pairData, index }: ListItemProps) {
                   flexBasis="auto"
                   justifyContent="flex-end"
                 />
-
                 <FormattedName
                   text={
                     isCarrotToken
@@ -221,7 +221,7 @@ export default function ListItem({ pairData, index }: ListItemProps) {
             style={{ whiteSpace: 'nowrap' }}
             external={true}
             href={getSwaprLink(
-              `/rewards/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
+              `/rewards/campaign/${pairData.stakablePair.token0.id}/${pairData.stakablePair.token1.id}/${pairData.id}`,
               ChainId[selectedNetwork],
             )}
           >

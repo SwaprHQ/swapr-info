@@ -1,28 +1,35 @@
 import PropTypes from 'prop-types';
 import React from 'react';
 
-import { TYPE } from '../../Theme';
-import { NETWORK_COLORS } from '../../constants';
-import { Header, Value, Content, Network, NetworkData, Title, Icon } from './styled';
+import { Typography } from '../../Theme';
+import { Wrapper, Header, Value, Content, Network, Data, NetworkData, Title } from './styled';
 
-const DataCard = ({ title, icon, comulativeValue, networksValues }) => (
-  <>
+const DataCard = ({ title, icon, comulativeValue, networksValues, customNetworkAction }) => (
+  <Wrapper>
     <Header>
       <Title>
-        <Icon>{icon}</Icon>
-        <TYPE.header fontSize={16}>{title}</TYPE.header>
+        {icon}
+        <Typography.smallHeader>{title}</Typography.smallHeader>
       </Title>
       <Value>{comulativeValue}</Value>
     </Header>
     <Content>
       {networksValues.map(({ network, value }, index) => (
-        <NetworkData key={network} margin={index !== networksValues.length - 1}>
-          <Network color={NETWORK_COLORS[network]}>{network}</Network>
-          <TYPE.main fontSize={15}>{value}</TYPE.main>
+        <NetworkData
+          key={network}
+          align={index === networksValues.length - 1 ? 'right' : 'left'}
+          marginBottom={index === networksValues.length - 1 ? '0' : '16px'}
+        >
+          <Network>
+            {customNetworkAction &&
+              React.cloneElement(customNetworkAction, { onClick: () => customNetworkAction.props.onClick(network) })}
+            {network}
+          </Network>
+          <Data>{value}</Data>
         </NetworkData>
       ))}
     </Content>
-  </>
+  </Wrapper>
 );
 
 DataCard.propTypes = {
@@ -30,6 +37,7 @@ DataCard.propTypes = {
   icon: PropTypes.node,
   comulativeValue: PropTypes.any,
   networksValues: PropTypes.array,
+  customNetworkAction: PropTypes.node,
 };
 
 export default DataCard;

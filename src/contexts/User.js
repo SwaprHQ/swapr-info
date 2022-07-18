@@ -10,6 +10,7 @@ import {
   USER_HISTORY_STAKE,
 } from '../apollo/queries';
 import { timeframeOptions } from '../constants';
+import { chunk } from '../utils';
 import { getLPReturnsOnPair, getHistoricalPairReturns } from '../utils/returns';
 import { useTimeframe, useStartTimestamp } from './Application';
 import { useNativeCurrencyPrice } from './GlobalData';
@@ -235,14 +236,14 @@ export function useUserSnapshots(account) {
   useEffect(() => {
     async function fetchData() {
       try {
-        let skip = 0;
+        let lastLiquidityPositionId = '';
         let allResults = [];
         let found = false;
         while (!found) {
           let result = await client.query({
             query: USER_HISTORY,
             variables: {
-              skip: skip,
+              lastId: lastLiquidityPositionId,
               user: account,
             },
           });
@@ -250,17 +251,19 @@ export function useUserSnapshots(account) {
           if (result.data.liquidityPositionSnapshots.length < 1000) {
             found = true;
           } else {
-            skip += 1000;
+            lastLiquidityPositionId =
+              result.data.liquidityPositionSnapshots[result.data.liquidityPositionSnapshots.length - 1].id;
           }
         }
-        let stakeSkip = 0;
+
+        let lastLiquidityMiningPositionId = '';
         let allResultsStake = [];
         let stakeFound = false;
         while (!stakeFound) {
           let result = await client.query({
             query: USER_HISTORY_STAKE,
             variables: {
-              skip: stakeSkip,
+              lastId: lastLiquidityMiningPositionId,
               user: account,
             },
           });
@@ -268,7 +271,8 @@ export function useUserSnapshots(account) {
           if (result.data.liquidityMiningPositionSnapshots.length < 1000) {
             stakeFound = true;
           } else {
-            stakeSkip += 1000;
+            lastLiquidityMiningPositionId =
+              result.data.liquidityMiningPositionSnapshots[result.data.liquidityMiningPositionSnapshots.length - 1].id;
           }
         }
 
@@ -422,11 +426,22 @@ export function useUserLiquidityChart(account) {
       }, []);
 
       // get all day datas where date is in this list, and pair is in pair list
-      let {
-        data: { pairDayDatas },
-      } = await client.query({
-        query: PAIR_DAY_DATA_BULK(pairs, startDateTimestamp),
-      });
+      // perform multiple queries with subsets of pairs
+      // to avoid payloads too large
+      let result = { data: {} };
+      for (let pairsChunk of chunk(pairs, 1000)) {
+        const { data } = await client.query({
+          query: PAIR_DAY_DATA_BULK(pairsChunk, startDateTimestamp),
+        });
+
+        result = {
+          ...result,
+          data: {
+            ...result.data,
+            ...data,
+          },
+        };
+      }
 
       const formattedHistory = [];
 
@@ -460,7 +475,7 @@ export function useUserLiquidityChart(account) {
 
         const relavantDayDatas = Object.keys(ownershipPerPair).map((pairAddress) => {
           // find last day data after timestamp update
-          const dayDatasForThisPair = pairDayDatas.filter((dayData) => {
+          const dayDatasForThisPair = result.data.pairDayDatas.filter((dayData) => {
             return dayData.pairAddress === pairAddress;
           });
           // find the most recent reference to pair liquidity data

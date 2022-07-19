@@ -217,8 +217,9 @@ export const FIRST_SNAPSHOT = graphql`
 `;
 
 export const USER_HISTORY = graphql`
-  query snapshots($user: Bytes!, $skip: Int!) {
-    liquidityPositionSnapshots(first: 1000, skip: $skip, where: { user: $user }) {
+  query snapshots($lastId: ID!, $user: Bytes!) {
+    liquidityPositionSnapshots(first: 1000, where: { id_gt: $lastId, user: $user }) {
+      id
       timestamp
       reserveUSD
       liquidityTokenBalance
@@ -245,8 +246,9 @@ export const USER_HISTORY = graphql`
 `;
 
 export const USER_HISTORY_STAKE = graphql`
-  query snapshots($user: Bytes!, $skip: Int!) {
-    liquidityMiningPositionSnapshots(first: 1000, skip: $skip, where: { user: $user }) {
+  query snapshots($lastId: ID!, $user: Bytes!) {
+    liquidityMiningPositionSnapshots(first: 1000, where: { id_gt: $lastId, user: $user }) {
+      id
       timestamp
       reserveUSD
       liquidityTokenBalance: stakedLiquidityTokenBalance
@@ -359,9 +361,11 @@ export const USER_TRANSACTIONS = graphql`
       pair {
         id
         token0 {
+          id
           symbol
         }
         token1 {
+          id
           symbol
         }
       }
@@ -379,10 +383,13 @@ export const USER_TRANSACTIONS = graphql`
         timestamp
       }
       pair {
+        id
         token0 {
+          id
           symbol
         }
         token1 {
+          id
           symbol
         }
       }

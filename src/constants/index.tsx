@@ -129,6 +129,12 @@ export const MULTICALL_ADDRESS = {
   [SupportedNetwork.ARBITRUM_ONE]: '0xF718F2bd590E5621e53f7b89398e52f7Acced8ca',
 };
 
+export const NETOWRK_FEE_RECEIVER_ADDRESSES = {
+  [Networks.XDAI]: '0x65f29020d07a6cfa3b0bf63d749934d5a6e6ea18',
+  [Networks.MAINNET]: '0xc6130400c1e3cd7b352db75055db9dd554e00ef0',
+  [Networks.ARBITRUM_ONE]: '0x1d7c7cb66fb2d75123351fd0d6779e8d7724a1ae',
+};
+
 export const DEFAULT_BLOCK_DIFFERENCE_THRESHOLD = 30;
 
 export const BLOCK_DIFFERENCE_THRESHOLD = {

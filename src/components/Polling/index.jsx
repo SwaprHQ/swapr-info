@@ -1,5 +1,3 @@
-import React from 'react';
-
 import { Typography } from '../../Theme';
 import { useSessionStart } from '../../contexts/Application';
 import { InlineLink, PollingDot, Wrapper } from './styled';

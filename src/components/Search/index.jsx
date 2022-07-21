@@ -236,19 +236,7 @@ export default function Search({ small = false }) {
   );
 
   const uniqueTokens = useMemo(() => {
-    let tokens = [];
-    let found = {};
-
-    allTokens &&
-      allTokens.map((token) => {
-        if (!found[token.id]) {
-          found[token.id] = true;
-          tokens.push(token);
-        }
-        return true;
-      });
-
-    return tokens;
+    return [...new Map(allTokens?.map((token) => [token.id, token])).values()];
   }, [allTokens]);
 
   allPairs = allPairs.concat(
@@ -265,19 +253,7 @@ export default function Search({ small = false }) {
   );
 
   const uniquePairs = useMemo(() => {
-    let pairs = [];
-    let found = {};
-
-    allPairs &&
-      allPairs.map((pair) => {
-        if (!found[pair.id]) {
-          found[pair.id] = true;
-          pairs.push(pair);
-        }
-        return true;
-      });
-
-    return pairs;
+    return [...new Map(allPairs?.map((pair) => [pair.id, pair])).values()];
   }, [allPairs]);
 
   const filteredTokenList = useMemo(() => {

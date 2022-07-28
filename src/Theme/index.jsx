@@ -95,13 +95,13 @@ const TextWrapper = styled(Text)`
 `;
 
 export const Typography = {
-  custom: ({ color, children, sx }) => (
+  Custom: ({ color, children, sx }) => (
     <TextWrapper color={color || 'text1'} sx={sx}>
       {children}
     </TextWrapper>
   ),
 
-  tinyText: ({ color, children, sx, className }) => (
+  TinyText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={'8px'}
@@ -113,7 +113,7 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-  smallText: ({ color, children, sx, className }) => (
+  SmallText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={10}
@@ -125,7 +125,7 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-  text: ({ color, children, sx, className }) => (
+  Text: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={13}
@@ -137,7 +137,7 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-  largeText: ({ color, children, sx, className }) => (
+  LargeText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={14}
@@ -150,7 +150,7 @@ export const Typography = {
     </TextWrapper>
   ),
 
-  smallHeader: ({ color, children, sx, className }) => (
+  SmallHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={16}
@@ -162,7 +162,7 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-  largeHeader: ({ color, children, sx, className }) => (
+  LargeHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
       fontSize={24}
@@ -174,7 +174,7 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-  largeBoldHeader: ({ color, children, sx, className }) => (
+  LargeBoldHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={700}
       fontSize={24}

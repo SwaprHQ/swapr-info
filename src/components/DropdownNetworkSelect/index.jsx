@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import { Flex } from 'rebass';
 

@@ -1,248 +1,211 @@
-import { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
-import { Area, XAxis, YAxis, ResponsiveContainer, Bar, BarChart, CartesianGrid, Tooltip, AreaChart } from 'recharts';
-import styled from 'styled-components';
+import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
+import { useCallback, useEffect, useState } from 'react';
+import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
+import { useTheme } from 'styled-components';
 
-import { useNativeCurrencySymbol } from '../../contexts/Network';
-import { toK, toNiceDate, toNiceDateYear } from '../../utils';
+import { formattedNum, formattedPercent } from '../../utils';
+import CrosshairTooltip from './CrosshairTooltip';
+import Header from './Header';
 
-const ChartWrapper = styled.div`
-  padding-top: 1em;
-  margin-left: -1.5em;
-  @media (max-width: 40em) {
-    margin-left: -1em;
-  }
-`;
+const TIME_FILTER_OPTIONS = {
+  WEEk: '1W',
+  MONTH_1: '1M',
+  YEAR: '1Y',
+};
 
-const Chart = ({ data, chartOption, currencyUnit, symbol }) => {
-  const [chartData, setChartData] = useState([]);
+const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) => {
+  const theme = useTheme();
+  const [filteredData, setFilteredData] = useState(data);
+  const [headerValue, setHeaderValue] = useState(null);
+  const [activeDate, setActiveDate] = useState(null);
+  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
+  const [dailyChange, setDailyChange] = useState();
+
+  // set header values to the latest point of the chart
+  const setDefaultHeaderValues = useCallback(() => {
+    if (data && Object.keys(data).length > 0) {
+      let pastHeaderValue = 0;
+      let currentHeaderValue = 0;
+
+      Object.keys(data[data.length - 1])
+        .filter((key) => key !== 'time')
+        .forEach((key) => {
+          currentHeaderValue += data[data.length - 1][key];
+          pastHeaderValue += data[data.length - 2][key];
+        });
+
+      const dailyChange = ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100;
+
+      setDailyChange(dailyChange);
+      setActiveDate(data[data.length - 1].time);
+      setHeaderValue(currentHeaderValue);
+    }
+  }, [data]);
+
+  // set header values to the current point of the chart
+  const setCurrentHeaderValues = (params) => {
+    const { activePayload, activeLabel } = params;
+    if (activePayload && activePayload.length) {
+      const { time, value } = activePayload[0].payload;
+
+      let pastValue = 0;
+
+      // get the previous day data by subtracting
+      // one day from the active label
+      const oneDayOldDate = new Date(activeLabel);
+      oneDayOldDate.setDate(oneDayOldDate.getDate() - 1);
+      const oneDayOldData = filteredData.find(
+        (data) => dayjs(data.time).format('YYYY-MM-DD') === dayjs(oneDayOldDate).format('YYYY-MM-DD'),
+      );
+
+      if (oneDayOldData) {
+        Object.keys(oneDayOldData)
+          .filter((key) => key !== 'time')
+          .forEach((key) => {
+            pastValue += oneDayOldData[key];
+          });
+      }
+
+      // avoid getting infinity by dividing by 0
+      if (pastValue > 0) {
+        const dailyChange = ((value - pastValue) / pastValue) * 100;
+
+        setDailyChange(dailyChange);
+      } else {
+        setDailyChange(0);
+      }
+
+      setActiveDate(time);
+      setHeaderValue(value);
+    }
+  };
+
+  // set default filtered data
   useEffect(() => {
-    setChartData([]);
-    setChartData(data);
-  }, [data, chartOption, currencyUnit]);
-  const nativeCurrencySymbol = useNativeCurrencySymbol();
+    if (filteredData && filteredData.length > 0) {
+      setDefaultHeaderValues();
+    }
+  }, [filteredData, setDefaultHeaderValues]);
 
-  const isMobile = useMedia('(max-width: 40em)');
-  if (chartOption === 'price' && chartData && data) {
-    return (
-      <ChartWrapper>
-        <ResponsiveContainer aspect={isMobile ? 60 / 22 : 60 / 12}>
-          <AreaChart margin={{ top: 0, right: 0, bottom: 6, left: 10 }} barCategoryGap={1} data={chartData}>
-            <CartesianGrid stroke="#f5f5f5" />
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              tickMargin={14}
-              minTickGap={80}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="dayString"
-            />
-            <YAxis
-              hide={isMobile}
-              type="number"
-              tickMargin={16}
-              orientation="left"
-              tickFormatter={(tick) => toK(tick)}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={2}
-            />
-            <YAxis
-              hide={true}
-              type="number"
-              tickMargin={16}
-              orientation="left"
-              tickFormatter={(tick) => toK(tick)}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={3}
-            />
-            <Area
-              strokeWidth={2}
-              dot={false}
-              type="monotone"
-              name={
-                currencyUnit === nativeCurrencySymbol
-                  ? `Price (${nativeCurrencySymbol}/${symbol})`
-                  : 'Price (USD/' + symbol + ')'
-              }
-              dataKey={currencyUnit === nativeCurrencySymbol ? 'nativeCurrencyPerToken' : 'tokenPriceUSD'}
-              yAxisId={2}
-              fill="var(--c-token)"
-              opacity={'0.4'}
-              stroke="var(--c-token)"
-            />
-            <Area
-              strokeWidth={2}
-              dot={false}
-              type="monotone"
-              name={
-                currencyUnit === 'USD' ? 'Inverse (' + symbol + '/USD)' : `Inverse (${symbol}/${nativeCurrencySymbol})`
-              }
-              dataKey={currencyUnit === 'USD' ? 'tokensPerUSD' : 'tokensPerNativeCurrency'}
-              yAxisId={3}
-              fill="var(--c-token)"
-              opacity={'0'}
-              stroke="var(--c-token)"
-            />
+  // update filtered data on time filter change
+  useEffect(() => {
+    if (data && data.length > 0) {
+      let limitDate = new Date();
+
+      switch (activeFilter) {
+        case TIME_FILTER_OPTIONS.WEEk: {
+          limitDate.setDate(limitDate.getDate() - 7);
+          break;
+        }
+        case TIME_FILTER_OPTIONS.MONTH_1: {
+          limitDate.setMonth(limitDate.getMonth() - 1);
+          break;
+        }
+        case TIME_FILTER_OPTIONS.YEAR: {
+          limitDate.setFullYear(limitDate.getFullYear() - 1);
+          break;
+        }
+        default: {
+          limitDate.setFullYear(limitDate.getDate() - 7);
+          break;
+        }
+      }
+
+      setFilteredData(data.filter((data) => new Date(data.time).getTime() > limitDate.getTime()));
+    }
+  }, [data, activeFilter]);
+
+  return (
+    <>
+      <Header
+        title={title}
+        value={formattedNum(headerValue)}
+        isValueCurrency={isCurrency}
+        showTimeFilter={showTimeFilter}
+        dailyChange={formattedPercent(dailyChange)}
+        date={dayjs(activeDate).format('MMMM D, YYYY')}
+        activeFilter={activeFilter}
+        filterOptions={TIME_FILTER_OPTIONS}
+        onFilterChange={setActiveFilter}
+      />
+      <ResponsiveContainer>
+        {type === 'AREA' ? (
+          <AreaChart
+            className={'basic-chart'}
+            onMouseMove={setCurrentHeaderValues}
+            onMouseLeave={setDefaultHeaderValues}
+            data={filteredData}
+            margin={{ top: 5 }}
+          >
+            <defs>
+              <linearGradient id={'base'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
+                <stop offset={'10%'} stopColor={theme.text7} stopOpacity={1} />
+                <stop offset={'90%'} stopColor={theme.text7} stopOpacity={0.4} />
+              </linearGradient>
+            </defs>
+            <XAxis hide dataKey={'time'} />
+            <YAxis hide />
             <Tooltip
-              cursor={true}
-              formatter={(val) => toK(val, true)}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: 'var(--c-zircon)',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
+              isAnimationActive={false}
+              content={<CrosshairTooltip title={tooltipTitle || title} isValueCurrency={isCurrency} />}
+            />
+            <Area
+              animationDuration={500}
+              type={'monotone'}
+              strokeWidth={3}
+              dataKey={'value'}
+              stroke={theme.text7}
+              fill={'url(#base)'}
             />
           </AreaChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
-    );
-  }
-  if (chartOption !== 'volume' && chartData && data) {
-    return (
-      <ChartWrapper>
-        <ResponsiveContainer aspect={isMobile ? 60 / 22 : 60 / 12}>
-          <AreaChart margin={{ top: 0, right: 0, bottom: 6, left: 10 }} barCategoryGap={1} data={chartData}>
-            <CartesianGrid stroke="#f5f5f5" />
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              tickMargin={14}
-              minTickGap={80}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="dayString"
-            />
-            <YAxis
-              hide={isMobile}
-              type="number"
-              tickMargin={16}
-              orientation="left"
-              tickFormatter={(tick) => toK(tick)}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={0}
-            />
-            <YAxis
-              hide={true}
-              type="number"
-              tickMargin={16}
-              orientation="right"
-              tickFormatter={(tick) => toK(tick)}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={1}
-            />
+        ) : type === 'BAR' ? (
+          <ComposedChart
+            className={'basic-chart'}
+            onMouseMove={setCurrentHeaderValues}
+            onMouseLeave={setDefaultHeaderValues}
+            data={filteredData}
+            throttleDelay={15}
+            margin={{ top: 5 }}
+          >
+            <XAxis dataKey={'time'} hide />
+            <YAxis hide />
             <Tooltip
-              cursor={true}
-              formatter={(val) => toK(val, true)}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: 'var(--c-zircon)',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
-            />
-            <Area
-              strokeWidth={2}
-              dot={false}
-              type="monotone"
-              name={'Total Liquidity' + (currencyUnit === 'USD' ? ' (USD)' : ` (${nativeCurrencySymbol})`)}
-              dataKey={currencyUnit === 'USD' ? 'usdLiquidity' : 'nativeCurrencyLiquidity'}
-              yAxisId={0}
-              fill="var(--c-token)"
-              opacity={'0.4'}
-              stroke="var(--c-token)"
-            />
-            <Area
-              type="monotone"
-              name={`${nativeCurrencySymbol} Balance`}
-              dataKey={'nativeCurrencyBalance'}
-              fill="var(--c-token)"
-              opacity={'0'}
-              stroke="var(--c-token)"
-            />
-            <Area
-              type="monotone"
-              name={'Token Balance'}
-              dataKey={'tokenBalance'}
-              fill="var(--c-token)"
-              yAxisId={1}
-              opacity={'0'}
-              stroke="var(--c-token)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
-    );
-  } else {
-    // volume
-    return (
-      <ChartWrapper>
-        <ResponsiveContainer aspect={isMobile ? 60 / 22 : 60 / 12}>
-          <BarChart margin={{ top: 0, right: 0, bottom: 6, left: 10 }} barCategoryGap={1} data={chartData}>
-            <CartesianGrid stroke="#f5f5f5" />
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              tickMargin={14}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="dayString"
-            />
-            <YAxis
-              hide={isMobile}
-              type="number"
-              axisLine={false}
-              tickMargin={16}
-              tickFormatter={(tick) => toK(tick)}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={0}
-            />
-            <Tooltip
-              cursor={true}
-              formatter={(val) => toK(val, true)}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: 'var(--c-zircon)',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
+              isAnimationActive={false}
+              content={<CrosshairTooltip title={tooltipTitle || title} isValueCurrency={isCurrency} />}
             />
             <Bar
-              type="monotone"
-              name={'Volume' + (currencyUnit === 'USD' ? ' (USD)' : ` (${nativeCurrencySymbol})`)}
-              dataKey={currencyUnit === 'USD' ? 'usdVolume' : 'nativeCurrencyVolume'}
-              fill="var(--c-token)"
-              opacity={'0.4'}
-              yAxisId={0}
-              stroke="var(--c-token)"
+              animationDuration={500}
+              type={'monotone'}
+              strokeWidth={3}
+              dataKey={'value'}
+              stroke={theme.text7}
+              fill={theme.text7}
+              barGap={10}
             />
-          </BarChart>
-        </ResponsiveContainer>
-      </ChartWrapper>
-    );
-  }
+          </ComposedChart>
+        ) : null}
+      </ResponsiveContainer>
+    </>
+  );
+};
+
+Chart.propTypes = {
+  title: PropTypes.string.isRequired,
+  tooltipTitle: PropTypes.string,
+  data: PropTypes.any.isRequired,
+  type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
+  isCurrency: PropTypes.bool,
+  showTimeFilter: PropTypes.bool,
+  maxWith: PropTypes.number,
+  minHeight: PropTypes.number,
+};
+
+Chart.defaultProps = {
+  type: 'AREA',
+  data: [],
+  isCurrency: true,
+  showTimeFilter: true,
 };
 
 export default Chart;

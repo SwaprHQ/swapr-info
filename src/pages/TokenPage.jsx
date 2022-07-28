@@ -296,19 +296,14 @@ function TokenPage({ address }) {
               Top Pairs
             </TYPE.main>
           </span>
-          <Panel
-            rounded
-            style={{
-              marginTop: '1.5rem',
-              padding: '1.125rem 0 ',
-            }}
-          >
-            {address && fetchedPairsList ? (
-              <PairList color={backgroundColor} address={address} pairs={fetchedPairsList} />
-            ) : (
+
+          {address && fetchedPairsList ? (
+            <PairList color={backgroundColor} address={address} pairs={fetchedPairsList} />
+          ) : (
+            <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
               <Loader />
-            )}
-          </Panel>
+            </Panel>
+          )}
           <RowBetween mt={40} mb={'1rem'}>
             <TYPE.main fontSize={'1.125rem'}>Transactions</TYPE.main> <div />
           </RowBetween>

@@ -5,35 +5,19 @@ import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
 import { formattedNum, formattedPercent } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
-import { CustomLink } from '../Link';
+import { InternalLink } from '../Link';
 import LocalLoader from '../LocalLoader';
+import PageButtons from '../PageButtons';
+import Panel from '../Panel';
 import QuestionHelper from '../QuestionHelper';
 
 dayjs.extend(utc);
-
-const PageButtons = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-`;
-
-const Arrow = styled.div`
-  color: ${({ theme }) => theme.primary1};
-  opacity: ${(props) => (props.faded ? 0.3 : 1)};
-  padding: 0 20px;
-  user-select: none;
-  :hover {
-    cursor: pointer;
-  }
-`;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -42,9 +26,9 @@ const List = styled(Box)`
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: 'name liq vol';
-  padding: 0 1.125rem;
+  grid-template-columns: 100px 1fr;
+  grid-template-areas: 'name liq';
+  padding: 0 36px;
 
   > * {
     justify-content: flex-end;
@@ -74,12 +58,10 @@ const DashGrid = styled.div`
   @media screen and (min-width: 1080px) {
     display: grid;
     grid-gap: 0.5em;
-    grid-template-columns: 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: 'name symbol liq vol price change';
+    grid-template-columns: 0.1fr 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
+    grid-template-areas: 'index name symbol liq vol price change';
   }
 `;
-
-const ListWrapper = styled.div``;
 
 const ClickableText = styled(Text)`
   color: ${({ theme }) => theme.text1};
@@ -91,26 +73,20 @@ const ClickableText = styled(Text)`
   user-select: none;
 `;
 
-const DataText = styled(Flex)`
-  align-items: center;
-  text-align: center;
-  color: ${({ theme }) => theme.text1};
-
-  & > * {
-    font-size: 14px;
-  }
-
-  @media screen and (max-width: 600px) {
-    font-size: 12px;
-  }
-`;
-
 const FeeText = styled.div`
   background-color: rgba(255, 255, 255, 0.15);
   border-radius: 6px;
   margin-left: 8px;
   padding: 2px 4px;
 `;
+
+const FlexText = ({ area, justifyContent, color, children }) => (
+  <Flex area={area} justifyContent={justifyContent}>
+    <Typography.LargeText color={color || 'text1'} sx={{ display: 'flex', alignItems: 'center' }}>
+      {children}
+    </Typography.LargeText>
+  </Flex>
+);
 
 const SORT_FIELD = {
   LIQ: 0,
@@ -130,7 +106,6 @@ const FIELD_TO_VALUE = {
 export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
-  const below740 = useMedia('(max-width: 740px)');
   const below1080 = useMedia('(max-width: 1080px)');
 
   // pagination
@@ -172,17 +147,24 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
       );
       return (
         <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
-          <DataText area="name" fontWeight="500">
-            {!below680 && <div style={{ marginRight: '20px', width: '10px' }}>{index}</div>}
+          {!below1080 && (
+            <FlexText area={'index'} sx={{ marginRight: '1rem', minWidth: '16px' }}>
+              {index}
+            </FlexText>
+          )}
+          <FlexText area={'name'} justifyContent={'flex-start'}>
             <DoubleTokenLogo
               size={below600 ? 16 : 20}
               a0={pairData.token0.id}
               a1={pairData.token1.id}
               defaultText0={pairData.token0.symbol}
               defaultText1={pairData.token1.symbol}
-              margin={!below740}
             />
-            <CustomLink style={{ marginLeft: '10px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress} color={color}>
+            <InternalLink
+              style={{ marginLeft: '16px', whiteSpace: 'nowrap' }}
+              to={'/pair/' + pairAddress}
+              color={color}
+            >
               <FormattedName
                 text={
                   (nativeCurrencyWrapper.symbol === pairData.token0.symbol ? nativeCurrency : pairData.token0.symbol) +
@@ -193,17 +175,16 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
                 adjustSize={true}
                 link={true}
               />
-            </CustomLink>
+            </InternalLink>
             <FeeText>{pairSwapFeePercentage * 100}%</FeeText>
-          </DataText>
-          <DataText area="liq">{liquidity}</DataText>
-          <DataText area="vol">{volume}</DataText>
-          {!below680 && <DataText area="volWeek">{formattedNum(pairData.oneWeekVolumeUSD, true)}</DataText>}
-
+          </FlexText>
+          <FlexText area={'liq'}>{liquidity}</FlexText>
+          {!below680 && <FlexText area={'vol'}>{volume}</FlexText>}
+          {!below680 && <FlexText area={'volWeek'}>{formattedNum(pairData.oneWeekVolumeUSD, true)}</FlexText>}
           {!below1080 && (
-            <DataText area="fees">{formattedNum(pairData.oneDayVolumeUSD * pairSwapFeePercentage, true)}</DataText>
+            <FlexText area={'fees'}>{formattedNum(pairData.oneDayVolumeUSD * pairSwapFeePercentage, true)}</FlexText>
           )}
-          {!below1080 && <DataText area="apy">{apy}</DataText>}
+          {!below1080 && <FlexText area={'apy'}>{apy}</FlexText>}
         </DashGrid>
       );
     } else {
@@ -239,102 +220,112 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
           )
         );
       });
-  return (
-    <ListWrapper>
-      <DashGrid
-        center={true}
-        disbaleLinks={disbaleLinks}
-        style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
-      >
-        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
-          <TYPE.main area="name">Pair / Swap Fee</TYPE.main>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText
-            area="liq"
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.LIQ);
-              setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
-            }}
-          >
-            Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center">
-          <ClickableText
-            area="vol"
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.VOL);
-              setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
-            }}
-          >
-            Volume (24hrs)
-            {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
-          </ClickableText>
-        </Flex>
-        {!below680 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText
-              area="volWeek"
-              onClick={() => {
-                setSortedColumn(SORT_FIELD.VOL_7DAYS);
-                setSortDirection(sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection);
-              }}
-            >
-              Volume (7d) {sortedColumn === SORT_FIELD.VOL_7DAYS ? (!sortDirection ? '↑' : '↓') : ''}
-            </ClickableText>
-          </Flex>
-        )}
 
-        {!below1080 && (
+  return (
+    <>
+      <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
+        <DashGrid
+          center={true}
+          disbaleLinks={disbaleLinks}
+          style={{ height: 'fit-content', padding: '0 36px 24px 36px' }}
+        >
+          {!below1080 && (
+            <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+              #
+            </Typography.SmallBoldText>
+          )}
+          <Flex alignItems="center" sx={{ justifyContent: 'flex-start' }}>
+            <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+              Pair / Swap Fee
+            </Typography.SmallBoldText>
+          </Flex>
           <Flex alignItems="center" justifyContent="flexEnd">
             <ClickableText
-              area="fees"
+              area="liq"
               onClick={() => {
-                setSortedColumn(SORT_FIELD.FEES);
-                setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection);
+                setSortedColumn(SORT_FIELD.LIQ);
+                setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
               }}
             >
-              Fees (24hr) {sortedColumn === SORT_FIELD.FEES ? (!sortDirection ? '↑' : '↓') : ''}
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
+              </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-        )}
-        {!below1080 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText
-              area="apy"
-              onClick={() => {
-                setSortedColumn(SORT_FIELD.APY);
-                setSortDirection(sortedColumn !== SORT_FIELD.APY ? true : !sortDirection);
-              }}
-            >
-              1y Fees / Liquidity {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
-            </ClickableText>
-            <QuestionHelper text={'Based on 24hr volume annualized'} />
-          </Flex>
-        )}
-      </DashGrid>
-      <Divider />
-      <List p={0}>
-        {!pairList || pairList.length === 0 || Object.keys(pairs).length <= 2 ? <LocalLoader /> : pairList}
-      </List>
-      <PageButtons>
-        <div
-          onClick={() => {
-            setPage(page === 1 ? page : page - 1);
-          }}
-        >
-          <Arrow faded={page === 1 ? true : false}>←</Arrow>
-        </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-        <div
-          onClick={() => {
-            setPage(page === maxPage ? page : page + 1);
-          }}
-        >
-          <Arrow faded={page === maxPage ? true : false}>→</Arrow>
-        </div>
-      </PageButtons>
-    </ListWrapper>
+          {!below680 && (
+            <Flex alignItems="center">
+              <ClickableText
+                area="vol"
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.VOL);
+                  setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  Volume (24hrs)
+                  {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+          {!below680 && (
+            <Flex alignItems="center" justifyContent="flexEnd">
+              <ClickableText
+                area="volWeek"
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.VOL_7DAYS);
+                  setSortDirection(sortedColumn !== SORT_FIELD.VOL_7DAYS ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  Volume (7d) {sortedColumn === SORT_FIELD.VOL_7DAYS ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+          {!below1080 && (
+            <Flex alignItems="center" justifyContent="flexEnd">
+              <ClickableText
+                area="fees"
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.FEES);
+                  setSortDirection(sortedColumn !== SORT_FIELD.FEES ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  Fees (24hr) {sortedColumn === SORT_FIELD.FEES ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+          {!below1080 && (
+            <Flex alignItems="center" justifyContent="flexEnd">
+              <ClickableText
+                area="apy"
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.APY);
+                  setSortDirection(sortedColumn !== SORT_FIELD.APY ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  1y Fees / Liquidity {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+              <QuestionHelper text={'Based on 24hr volume annualized'} />
+            </Flex>
+          )}
+        </DashGrid>
+        <Divider />
+        <List p={0}>
+          {!pairList || pairList.length === 0 || Object.keys(pairs).length <= 2 ? <LocalLoader /> : pairList}
+        </List>
+      </Panel>
+      <PageButtons
+        activePage={page}
+        maxPages={maxPage}
+        onPreviousClick={() => setPage(page === 1 ? page : page - 1)}
+        onNextClick={() => setPage(page === maxPage ? page : page + 1)}
+      />
+    </>
   );
 }

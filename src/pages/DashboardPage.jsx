@@ -32,21 +32,21 @@ import { formattedNum } from '../utils';
 const GridRow = styled.div`
   display: grid;
   grid-template-columns: minmax(auto, 900px) auto;
-  column-gap: 21px;
-  row-gap: 21px;
+  column-gap: 20px;
+  row-gap: 20px;
 `;
 
 const GridChart = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 21px;
+  gap: 20px;
 `;
 
 const GridCard = styled.div`
   display: grid;
   grid-template-columns: 1fr;
   grid-template-rows: auto;
-  row-gap: 21px;
+  row-gap: 20px;
 `;
 
 const RedirectIconWrapper = styled.div`
@@ -165,7 +165,7 @@ const DashboardPage = ({ history }) => {
         {formattedLiquidityData && (
           <>
             {below800 ? (
-              <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
+              <AutoColumn style={{ marginTop: '6px' }} gap={'20px'}>
                 <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
                 </PanelLoaderWrapper>
@@ -221,14 +221,14 @@ const DashboardPage = ({ history }) => {
                 </CardLoaderWrapper>
               </AutoColumn>
             ) : below1540 ? (
-              <AutoColumn style={{ marginTop: '6px' }} gap={'16px'}>
+              <AutoColumn style={{ marginTop: '6px' }} gap={'20px'}>
                 <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'TVL'} type={'AREA'} data={formattedLiquidityData} />
                 </PanelLoaderWrapper>
                 <PanelLoaderWrapper maxHeight={'auto'} isLoading={isVolumeAndTvlLoading}>
                   <StackedChart title={'Volume'} type={'BAR'} data={formattedVolumeData} />
                 </PanelLoaderWrapper>
-                <AutoColumn gap={'16px'}>
+                <AutoColumn gap={'20px'}>
                   <CardLoaderWrapper isLoading={isComulativeDataLoading}>
                     <ComulativeNetworkDataCard
                       title={'All time volume'}

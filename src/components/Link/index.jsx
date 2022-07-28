@@ -15,7 +15,14 @@ WrappedLink.propTypes = {
 };
 
 const Link = styled(WrappedLink)`
-  color: ${({ color, theme }) => (color ? theme[color] : theme.swaprLink)};
+  color: ${({ color, theme }) => (color ? theme[color] : theme.text10)};
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: none;
+    underline: none;
+    color: ${({ color, theme }) => (color ? theme[color] : theme.text8)};
+  }
 `;
 
 export default Link;
@@ -45,5 +52,26 @@ export const BasicLink = styled(RouterLink)`
     cursor: pointer;
     text-decoration: none;
     underline: none;
+  }
+`;
+
+export const InternalLink = styled(RouterLink)`
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ color, theme }) => (color ? color : theme.text10)};
+
+  & > div,
+  & > * > div {
+    color: ${({ color, theme }) => (color ? color : theme.text10)};
+  }
+
+  &:hover > div,
+  &:hover > * > div {
+    cursor: pointer;
+    text-decoration: none;
+    underline: none;
+    color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.text8)};
+    opacity: 0.7;
   }
 `;

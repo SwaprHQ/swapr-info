@@ -1,7 +1,5 @@
-import { transparentize } from 'polished';
 import { useState, useEffect, useMemo, useRef } from 'react';
 import { Search as SearchIcon, X } from 'react-feather';
-import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
 import { TYPE } from '../../Theme';
@@ -35,7 +33,7 @@ const Wrapper = styled.div`
   justify-content: flex-end;
   padding: 12px 16px;
   border-radius: 12px;
-  background: ${({ theme }) => transparentize(0.4, theme.bg6)};
+  background: ${({ theme }) => theme.bg7};
   border-bottom-right-radius: ${({ open }) => (open ? '0px' : '12px')};
   border-bottom-left-radius: ${({ open }) => (open ? '0px' : '12px')};
   width: 100%;
@@ -46,7 +44,7 @@ const Wrapper = styled.div`
       ? '0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04) '
       : 'none'};
   @media screen and (max-width: 500px) {
-    background: ${({ theme }) => transparentize(0.4, theme.bg1)};
+    background: ${({ theme }) => theme.bg7};
     box-shadow: ${({ open }) =>
       !open
         ? '0px 24px 32px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 0px 1px rgba(0, 0, 0, 0.04) '
@@ -62,7 +60,7 @@ const Input = styled.input`
   border: none;
   outline: none;
   width: 100%;
-  color: ${({ theme }) => theme.text1};
+  color: ${({ theme }) => theme.text10};
   font-size: ${({ large }) => (large ? '20px' : '14px')};
 
   ::placeholder {
@@ -108,12 +106,12 @@ const Menu = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
-  top: 50px;
+  top: 40px;
   max-height: 540px;
   overflow: auto;
   left: 0;
-  padding-bottom: 20px;
-  background: ${({ theme }) => theme.bg6};
+  margin-bottom: 20px;
+  background: ${({ theme }) => theme.bg7};
   border-bottom-right-radius: 12px;
   border-bottom-left-radius: 12px;
   box-shadow: 0px 0px 1px rgba(0, 0, 0, 0.04), 0px 4px 8px rgba(0, 0, 0, 0.04), 0px 16px 24px rgba(0, 0, 0, 0.04),
@@ -165,10 +163,6 @@ export default function Search({ small = false }) {
   // fetch new data on tokens and pairs if needed
   useTokenData(value);
   usePairData(value);
-
-  const below700 = useMedia('(max-width: 700px)');
-  const below470 = useMedia('(max-width: 470px)');
-  const below410 = useMedia('(max-width: 410px)');
 
   useEffect(() => {
     if (value !== '') {
@@ -419,17 +413,7 @@ export default function Search({ small = false }) {
           large={!small}
           type={'text'}
           ref={wrapperRef}
-          placeholder={
-            small
-              ? ''
-              : below410
-              ? 'Search...'
-              : below470
-              ? 'Search Swapr...'
-              : below700
-              ? 'Search pairs and tokens...'
-              : 'Search Swapr pairs and tokens...'
-          }
+          placeholder={'Search'}
           value={value}
           onChange={(e) => {
             setValue(e.target.value);

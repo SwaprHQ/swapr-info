@@ -52,6 +52,7 @@ const theme = (darkMode, color) => ({
   bg5: darkMode ? '#565A69' : '#888D9B',
   bg6: darkMode ? '#000' : '#FFFFFF',
   bg7: darkMode ? '#171621' : '',
+  bg8: darkMode ? '#312C47' : '',
 
   // borders
   bd1: darkMode ? '#464366' : '#464366',

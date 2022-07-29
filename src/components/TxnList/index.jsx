@@ -11,7 +11,7 @@ import { useSelectedNetwork } from '../../contexts/Network';
 import { formatTime, formattedNum, urls, getExplorerLink } from '../../utils';
 import { updateNameData } from '../../utils/data';
 import FormattedName from '../FormattedName';
-import Link from '../Link';
+import { ExternalListLink } from '../Link';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
@@ -107,7 +107,7 @@ const SortText = styled.button`
 `;
 
 const FlexText = ({ area, color, children }) => (
-  <Typography.LargeText color={color || 'text10'} sx={{ gridArea: area, display: 'flex', alignItems: 'center' }}>
+  <Typography.LargeText color={color || 'text1'} sx={{ gridArea: area, display: 'flex', alignItems: 'center' }}>
     {children}
   </Typography.LargeText>
 );
@@ -270,9 +270,9 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
     return (
       <DashGrid style={{ height: '48px' }}>
         <FlexText area={'txn'}>
-          <Link external href={urls.showTransaction(item.hash, selectedNetwork)}>
+          <ExternalListLink external href={urls.showTransaction(item.hash, selectedNetwork)}>
             {getTransactionType(item.type, item.token1Symbol, item.token0Symbol)}
-          </Link>
+          </ExternalListLink>
         </FlexText>
         <FlexText area={'value'}>{formattedNum(item.amountUSD, true)}</FlexText>
         {!below780 && (
@@ -289,9 +289,9 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
         )}
         {!below1080 && (
           <FlexText area={'account'}>
-            <Link external href={getExplorerLink(selectedNetwork, item.account, 'address')}>
+            <ExternalListLink external href={getExplorerLink(selectedNetwork, item.account, 'address')}>
               {item.account && item.account.slice(0, 6) + '...' + item.account.slice(38, 42)}
-            </Link>
+            </ExternalListLink>
           </FlexText>
         )}
         <FlexText area={'time'}>{formatTime(item.timestamp)}</FlexText>
@@ -311,7 +311,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
                 }}
                 isActive={txFilter === TXN_TYPE.ALL}
               >
-                <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>All</Typography.LargeText>
+                <Typography.SmallText sx={{ letterSpacing: '0.08em' }}>All</Typography.SmallText>
               </SortText>
             ) : (
               <>
@@ -321,7 +321,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
                   }}
                   isActive={txFilter === TXN_TYPE.ALL}
                 >
-                  <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>All</Typography.LargeText>
+                  <Typography.SmallText sx={{ letterSpacing: '0.08em' }}>All</Typography.SmallText>
                 </SortText>
                 <SortText
                   onClick={() => {
@@ -329,7 +329,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
                   }}
                   isActive={txFilter === TXN_TYPE.SWAP}
                 >
-                  <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>Swaps</Typography.LargeText>
+                  <Typography.SmallText sx={{ letterSpacing: '0.08em' }}>Swaps</Typography.SmallText>
                 </SortText>
                 <SortText
                   onClick={() => {
@@ -337,7 +337,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
                   }}
                   isActive={txFilter === TXN_TYPE.ADD}
                 >
-                  <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>Adds</Typography.LargeText>
+                  <Typography.SmallText sx={{ letterSpacing: '0.08em' }}>Adds</Typography.SmallText>
                 </SortText>
                 <SortText
                   onClick={() => {
@@ -345,7 +345,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
                   }}
                   isActive={txFilter === TXN_TYPE.REMOVE}
                 >
-                  <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>Removes</Typography.LargeText>
+                  <Typography.SmallText sx={{ letterSpacing: '0.08em' }}>Removes</Typography.SmallText>
                 </SortText>
               </>
             )}

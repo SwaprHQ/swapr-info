@@ -15,17 +15,8 @@ WrappedLink.propTypes = {
 };
 
 const Link = styled(WrappedLink)`
-  color: ${({ color, theme }) => (color ? theme[color] : theme.text10)};
-
-  &:hover {
-    cursor: pointer;
-    text-decoration: none;
-    underline: none;
-    color: ${({ color, theme }) => (color ? theme[color] : theme.text8)};
-  }
+  color: ${({ color, theme }) => (color ? theme[color] : theme.swaprLink)};
 `;
-
-export default Link;
 
 export const CustomLink = styled(RouterLink)`
   text-decoration: none;
@@ -55,15 +46,15 @@ export const BasicLink = styled(RouterLink)`
   }
 `;
 
-export const InternalLink = styled(RouterLink)`
+export const InternalListLink = styled(RouterLink)`
   text-decoration: none;
   font-size: 14px;
   font-weight: 500;
-  color: ${({ color, theme }) => (color ? color : theme.text10)};
+  color: ${({ color, theme }) => (color ? color : theme.text6)};
 
   & > div,
   & > * > div {
-    color: ${({ color, theme }) => (color ? color : theme.text10)};
+    color: ${({ color, theme }) => (color ? color : theme.text6)};
   }
 
   &:hover > div,
@@ -71,7 +62,21 @@ export const InternalLink = styled(RouterLink)`
     cursor: pointer;
     text-decoration: none;
     underline: none;
-    color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.text8)};
+    color: ${({ color, theme }) => (color ? color : theme.text8)};
     opacity: 0.7;
   }
 `;
+
+export const ExternalListLink = styled(WrappedLink)`
+  color: ${({ color, theme }) => (color ? theme[color] : theme.text6)};
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: none;
+    underline: none;
+    color: ${({ color, theme }) => (color ? theme[color] : theme.text8)};
+    opacity: 0.7;
+  }
+`;
+
+export default Link;

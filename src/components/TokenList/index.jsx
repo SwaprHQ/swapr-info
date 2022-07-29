@@ -11,7 +11,7 @@ import { Typography } from '../../Theme';
 import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import FormattedName from '../FormattedName';
-import { InternalLink } from '../Link';
+import { InternalListLink } from '../Link';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
@@ -79,7 +79,7 @@ const ClickableText = styled(Text)`
 `;
 
 const FlexText = ({ area, color, children }) => (
-  <Typography.LargeText color={color || 'text10'} sx={{ gridArea: area, display: 'flex', alignItems: 'center' }}>
+  <Typography.LargeText color={color || 'text1'} sx={{ gridArea: area, display: 'flex', alignItems: 'center' }}>
     {children}
   </Typography.LargeText>
 );
@@ -161,9 +161,9 @@ function TopTokenList({ tokens, itemMax = 10 }) {
         <FlexText area={'name'}>
           <Row>
             <TokenLogo address={item.id} defaultText={item.symbol} />
-            <InternalLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
+            <InternalListLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/token/' + item.id}>
               <FormattedName text={item.name} maxCharacters={below680 ? 16 : 20} adjustSize={true} link={true} />
-            </InternalLink>
+            </InternalListLink>
           </Row>
         </FlexText>
         {!below680 && (

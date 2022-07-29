@@ -6,7 +6,7 @@ const Polling = () => {
   const seconds = useSessionStart();
 
   return (
-    <Wrapper width="120">
+    <Wrapper width="130">
       <InlineLink href="/">
         <Typography.SmallText sx={{ marginRight: '6px' }} color={'text10'}>
           Updated

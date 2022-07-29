@@ -11,7 +11,7 @@ import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../context
 import { formattedNum, formattedPercent } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
-import { InternalLink } from '../Link';
+import { InternalListLink } from '../Link';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
@@ -74,10 +74,10 @@ const ClickableText = styled(Text)`
 `;
 
 const FeeText = styled.div`
-  background-color: rgba(255, 255, 255, 0.15);
+  background-color: ${({ theme }) => theme.bg8};
   border-radius: 6px;
-  margin-left: 8px;
-  padding: 2px 4px;
+  margin-left: 6px;
+  padding: 4px 6px;
 `;
 
 const FlexText = ({ area, justifyContent, color, children }) => (
@@ -103,7 +103,7 @@ const FIELD_TO_VALUE = {
   [SORT_FIELD.FEES]: 'oneDayVolumeUSD',
 };
 
-export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) {
+export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
   const below1080 = useMedia('(max-width: 1080px)');
@@ -160,11 +160,7 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
               defaultText0={pairData.token0.symbol}
               defaultText1={pairData.token1.symbol}
             />
-            <InternalLink
-              style={{ marginLeft: '16px', whiteSpace: 'nowrap' }}
-              to={'/pair/' + pairAddress}
-              color={color}
-            >
+            <InternalListLink style={{ marginLeft: '16px', whiteSpace: 'nowrap' }} to={'/pair/' + pairAddress}>
               <FormattedName
                 text={
                   (nativeCurrencyWrapper.symbol === pairData.token0.symbol ? nativeCurrency : pairData.token0.symbol) +
@@ -175,8 +171,10 @@ export default function PairList({ pairs, color, disbaleLinks, maxItems = 10 }) 
                 adjustSize={true}
                 link={true}
               />
-            </InternalLink>
-            <FeeText>{pairSwapFeePercentage * 100}%</FeeText>
+            </InternalListLink>
+            <FeeText>
+              <Typography.SmallText color={'text6'}>{pairSwapFeePercentage * 100}%</Typography.SmallText>
+            </FeeText>
           </FlexText>
           <FlexText area={'liq'}>{liquidity}</FlexText>
           {!below680 && <FlexText area={'vol'}>{volume}</FlexText>}

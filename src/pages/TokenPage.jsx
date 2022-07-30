@@ -307,9 +307,13 @@ function TokenPage({ address }) {
           <RowBetween mt={40} mb={'1rem'}>
             <TYPE.main fontSize={'1.125rem'}>Transactions</TYPE.main> <div />
           </RowBetween>
-          <Panel rounded>
-            {transactions ? <TxnList color={backgroundColor} transactions={transactions} /> : <Loader />}
-          </Panel>
+          {transactions ? (
+            <TxnList color={backgroundColor} transactions={transactions} />
+          ) : (
+            <Panel rounded>
+              <Loader />
+            </Panel>
+          )}
           <>
             <RowBetween style={{ marginTop: '3rem' }}>
               <TYPE.main fontSize={'1.125rem'}>Token Information</TYPE.main>{' '}

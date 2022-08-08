@@ -26,8 +26,8 @@ const List = styled(Box)`
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 100px 1fr;
-  grid-template-areas: 'name liq';
+  grid-template-columns: 100px 1fr 1fr;
+  grid-template-areas: 'name vol liq';
   padding: 0 36px;
 
   > * {
@@ -172,12 +172,14 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
                 link={true}
               />
             </InternalListLink>
-            <FeeText>
-              <Typography.SmallText color={'text6'}>{pairSwapFeePercentage * 100}%</Typography.SmallText>
-            </FeeText>
+            {!below680 && (
+              <FeeText>
+                <Typography.SmallText color={'text6'}>{pairSwapFeePercentage * 100}%</Typography.SmallText>
+              </FeeText>
+            )}
           </FlexText>
           <FlexText area={'liq'}>{liquidity}</FlexText>
-          {!below680 && <FlexText area={'vol'}>{volume}</FlexText>}
+          <FlexText area={'vol'}>{volume}</FlexText>
           {!below680 && <FlexText area={'volWeek'}>{formattedNum(pairData.oneWeekVolumeUSD, true)}</FlexText>}
           {!below1080 && (
             <FlexText area={'fees'}>{formattedNum(pairData.oneDayVolumeUSD * pairSwapFeePercentage, true)}</FlexText>
@@ -250,22 +252,20 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
               </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-          {!below680 && (
-            <Flex alignItems="center">
-              <ClickableText
-                area="vol"
-                onClick={() => {
-                  setSortedColumn(SORT_FIELD.VOL);
-                  setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
-                }}
-              >
-                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                  Volume (24hrs)
-                  {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
-                </Typography.SmallBoldText>
-              </ClickableText>
-            </Flex>
-          )}
+          <Flex alignItems="center">
+            <ClickableText
+              area="vol"
+              onClick={() => {
+                setSortedColumn(SORT_FIELD.VOL);
+                setSortDirection(sortedColumn !== SORT_FIELD.VOL ? true : !sortDirection);
+              }}
+            >
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                {!below680 ? 'Volume (24hrs)' : 'Volume'}
+                {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
+              </Typography.SmallBoldText>
+            </ClickableText>
+          </Flex>
           {!below680 && (
             <Flex alignItems="center" justifyContent="flexEnd">
               <ClickableText

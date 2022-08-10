@@ -5,7 +5,6 @@ import { Flex } from 'rebass';
 
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
-import Panel from '../components/Panel';
 import Search from '../components/Search';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
@@ -26,9 +25,7 @@ function AllTokensPage() {
           <Typography.LargeHeader>Top Tokens</Typography.LargeHeader>
           {!below600 && <Search small={true} />}
         </Flex>
-        <Panel style={{ padding: below600 && '1rem 0 0 0 ' }}>
-          <TopTokenList tokens={allTokens} itemMax={20} />
-        </Panel>
+        <TopTokenList tokens={allTokens} itemMax={20} />
       </FullWrapper>
     </PageWrapper>
   );

@@ -6,7 +6,6 @@ import { Flex } from 'rebass';
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import PairList from '../components/PairList';
-import Panel from '../components/Panel';
 import Search from '../components/Search';
 import { useAllPairData } from '../contexts/PairData';
 
@@ -26,9 +25,7 @@ function AllPairsPage() {
           <Typography.LargeHeader>Top Pairs</Typography.LargeHeader>
           {!below800 && <Search small={true} />}
         </Flex>
-        <Panel style={{ padding: below800 && '1rem 0 0 0 ' }}>
-          <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
-        </Panel>
+        <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
       </FullWrapper>
     </PageWrapper>
   );

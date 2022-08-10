@@ -34,6 +34,8 @@ const theme = (darkMode, color) => ({
   text8: darkMode ? '#BCB3F0' : '#A7A0E4',
   text9: darkMode ? '#EBE9F8' : '#464366',
   text10: darkMode ? '#C9C7DB' : '',
+  text11: darkMode ? '#716A96' : '',
+  text12: darkMode ? '#C0BBE9' : '',
 
   swaprLink: '#8c6fff',
   loaderBase: '#2A2F42',
@@ -49,6 +51,8 @@ const theme = (darkMode, color) => ({
   bg4: darkMode ? '#565A69' : '#CED0D9',
   bg5: darkMode ? '#565A69' : '#888D9B',
   bg6: darkMode ? '#000' : '#FFFFFF',
+  bg7: darkMode ? '#171621' : '',
+  bg8: darkMode ? '#312C47' : '',
 
   // borders
   bd1: darkMode ? '#464366' : '#464366',
@@ -113,6 +117,18 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
+  SmallBoldText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={600}
+      fontSize={10}
+      lineHeight={'12px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
   SmallText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
@@ -149,7 +165,18 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
-
+  LargeBoldText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={600}
+      fontSize={14}
+      lineHeight={'17px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
   SmallHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}

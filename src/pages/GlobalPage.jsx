@@ -1,27 +1,26 @@
+import dayjs from 'dayjs';
 import { transparentize } from 'polished';
-import { useEffect } from 'react';
-import Skeleton from 'react-loading-skeleton';
+import { useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
-import { Box } from 'rebass';
+import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE, ThemedBackground, Typography } from '../Theme';
+import { ThemedBackground, Typography } from '../Theme';
 import { PageWrapper, ContentWrapper } from '../components';
+import Chart from '../components/Chart';
 import { AutoColumn } from '../components/Column';
-import GlobalChart from '../components/GlobalChart';
 import GlobalStats from '../components/GlobalStats';
-import { CustomLink } from '../components/Link';
+import LocalLoader from '../components/LocalLoader';
 import PairList from '../components/PairList';
 import Panel from '../components/Panel';
-import { AutoRow, RowBetween } from '../components/Row';
+import { AutoRow } from '../components/Row';
 import Search from '../components/Search';
 import TopTokenList from '../components/TokenList';
 import TxnList from '../components/TxnList';
-import { useGlobalChartData, useGlobalData, useGlobalTransactions } from '../contexts/GlobalData';
+import { useGlobalChartData, useGlobalTransactions } from '../contexts/GlobalData';
 import { useAllPairData } from '../contexts/PairData';
 import { useAllTokenData } from '../contexts/TokenData';
-import { formattedNum, formattedPercent } from '../utils';
 
 const ListOptions = styled(AutoRow)`
   height: 40px;
@@ -38,26 +37,29 @@ const GridRow = styled.div`
   display: grid;
   width: 100%;
   grid-template-columns: 1fr 1fr;
-  column-gap: 6px;
+  column-gap: 20px;
   align-items: start;
   justify-content: space-between;
 `;
 
-function GlobalPage() {
+const PanelLoaderWrapper = ({ minHeight, maxHeight, isLoading, children }) => (
+  <Panel minHeight={minHeight || '360px'} maxHeight={maxHeight || '380px'}>
+    {isLoading ? <LocalLoader /> : children}
+  </Panel>
+);
+
+const GlobalPage = () => {
   // get data for lists and totals
   const allPairs = useAllPairData();
   const allTokens = useAllTokenData();
   const transactions = useGlobalTransactions();
-  const globalData = useGlobalData();
   // global historical data
-  const [dailyData, weeklyData] = useGlobalChartData();
-  const { totalLiquidityUSD, oneDayVolumeUSD, volumeChangeUSD, liquidityChangeUSD } = globalData;
+  const [dailyData] = useGlobalChartData();
 
   // breakpoints
   const below800 = useMedia('(max-width: 800px)');
 
   // scrolling refs
-
   useEffect(() => {
     document.querySelector('body').scrollTo({
       behavior: 'smooth',
@@ -65,110 +67,82 @@ function GlobalPage() {
     });
   }, []);
 
+  const { formattedLiquidityData, formattedVolumeData } = useMemo(() => {
+    return {
+      formattedLiquidityData: dailyData?.map((data) => ({
+        time: dayjs(data.date * 1000).format('YYYY-MM-DD'),
+        value: parseFloat(data.totalLiquidityUSD),
+      })),
+      formattedVolumeData: dailyData?.map((data) => ({
+        time: dayjs(data.date * 1000).format('YYYY-MM-DD'),
+        value: parseFloat(data.dailyVolumeUSD),
+      })),
+    };
+  }, [dailyData]);
+
+  const isLoadingLiquidity = !formattedLiquidityData || formattedLiquidityData.length === 0;
+  const isLoadingVolume = !formattedVolumeData || formattedVolumeData.length === 0;
+
   return (
     <PageWrapper>
       <ThemedBackground backgroundColor={transparentize(0.8, '#4526A2')} />
       <ContentWrapper>
         <div>
-          <AutoColumn gap="24px" style={{ paddingBottom: below800 ? '0' : '24px' }}>
-            <Typography.LargeHeader>
-              {below800 ? 'Protocol Analytics' : 'Swapr Protocol Analytics'}
-            </Typography.LargeHeader>
-            <Search />
-            <GlobalStats />
+          <AutoColumn gap={'24px'} style={{ marginBottom: '16px' }}>
+            <Flex flexDirection={below800 ? 'column' : 'row'} alignItems={'center'} style={{ gap: '20px' }}>
+              <Box flex={'1'}>
+                <Typography.LargeHeader color={'text10'} sx={{ textAlign: below800 ? 'center' : 'left' }}>
+                  {below800 ? 'Swapr Protocol Overview' : 'Swapr Protocol Overview'}
+                </Typography.LargeHeader>
+              </Box>
+              <Box>
+                <Search small={true} />
+              </Box>
+            </Flex>
           </AutoColumn>
-          {below800 && ( // mobile card
-            <Box mb={20}>
-              <Panel>
-                <Box>
-                  <AutoColumn gap="36px">
-                    <AutoColumn gap="20px">
-                      <RowBetween>
-                        <TYPE.main>Volume (24hrs)</TYPE.main>
-                        <div />
-                      </RowBetween>
-                      <RowBetween align="flex-end">
-                        {oneDayVolumeUSD ? (
-                          <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                            {formattedNum(oneDayVolumeUSD, true)}
-                          </TYPE.main>
-                        ) : (
-                          <Skeleton style={{ width: '80px' }} />
-                        )}
-                        {oneDayVolumeUSD && <TYPE.main fontSize={12}>{formattedPercent(volumeChangeUSD)}</TYPE.main>}
-                      </RowBetween>
-                    </AutoColumn>
-                    <AutoColumn gap="20px">
-                      <RowBetween>
-                        <TYPE.main>Total Liquidity</TYPE.main>
-                        <div />
-                      </RowBetween>
-                      <RowBetween align="flex-end">
-                        {totalLiquidityUSD ? (
-                          <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={600}>
-                            {formattedNum(totalLiquidityUSD, true)}
-                          </TYPE.main>
-                        ) : (
-                          <Skeleton style={{ width: '80px' }} />
-                        )}
-                        {totalLiquidityUSD && (
-                          <TYPE.main fontSize={12}>{formattedPercent(liquidityChangeUSD)}</TYPE.main>
-                        )}
-                      </RowBetween>
-                    </AutoColumn>
-                  </AutoColumn>
-                </Box>
-              </Panel>
-            </Box>
-          )}
           {!below800 && (
             <GridRow>
-              <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
-              </Panel>
-              <Panel style={{ height: '100%' }}>
-                <GlobalChart display="volume" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
-              </Panel>
+              <PanelLoaderWrapper maxHeight={'360px'} isLoading={isLoadingLiquidity}>
+                <Chart title={'TVL'} data={formattedLiquidityData} type={'AREA'} />
+              </PanelLoaderWrapper>
+              <PanelLoaderWrapper maxHeight={'360px'} isLoading={isLoadingVolume}>
+                <Chart title={'Volume 24h'} tooltipTitle={'Volume'} data={formattedVolumeData} type={'BAR'} />
+              </PanelLoaderWrapper>
             </GridRow>
           )}
           {below800 && (
             <AutoColumn style={{ marginTop: '6px' }} gap="24px">
-              <Panel style={{ height: '100%', minHeight: '300px' }}>
-                <GlobalChart display="liquidity" dailyData={dailyData} weeklyData={weeklyData} {...globalData} />
-              </Panel>
+              <PanelLoaderWrapper minHeight={'360px'} isLoading={isLoadingLiquidity}>
+                <Chart title={'TVL'} data={formattedLiquidityData} type={'AREA'} />
+              </PanelLoaderWrapper>
+              <PanelLoaderWrapper minHeight={'360px'} isLoading={isLoadingVolume}>
+                <Chart title={'Volume 24h'} tooltipTitle={'Volume'} data={formattedVolumeData} type={'BAR'} />
+              </PanelLoaderWrapper>
             </AutoColumn>
           )}
-          <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
-            <RowBetween>
-              <TYPE.main fontSize={'1.125rem'}>Top Tokens</TYPE.main>
-              <CustomLink to={'/tokens'}>See All</CustomLink>
-            </RowBetween>
+          <GlobalStats />
+          <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
+            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
+              Top Tokens
+            </Typography.Custom>
           </ListOptions>
-          <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
-            <TopTokenList tokens={allTokens} />
-          </Panel>
-          <ListOptions gap="10px" style={{ marginTop: '2rem', marginBottom: '.5rem' }}>
-            <RowBetween>
-              <TYPE.main ffontSize={'1.125rem'}>Top Pairs</TYPE.main>
-              <CustomLink to={'/pairs'}>See All</CustomLink>
-            </RowBetween>
+          <TopTokenList tokens={allTokens} />
+          <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
+            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
+              Top Pairs
+            </Typography.Custom>
           </ListOptions>
-          <Panel style={{ marginTop: '6px', padding: '1.125rem 0 ' }}>
-            <PairList pairs={allPairs} />
-          </Panel>
-
-          <span>
-            <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '2rem' }}>
+          <PairList pairs={allPairs} />
+          <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
+            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
               Transactions
-            </TYPE.main>
-          </span>
-          <Panel style={{ margin: '1rem 0' }}>
-            <TxnList transactions={transactions} />
-          </Panel>
+            </Typography.Custom>
+          </ListOptions>
+          <TxnList transactions={transactions} />
         </div>
       </ContentWrapper>
     </PageWrapper>
   );
-}
+};
 
 export default withRouter(GlobalPage);

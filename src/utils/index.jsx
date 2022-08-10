@@ -476,7 +476,7 @@ export function rawPercent(percentRaw) {
 export function formattedPercent(percent = false) {
   percent = parseFloat(percent);
   if (!percent || percent === 0) {
-    return <Typography.SmallHeader color={'text1'}>0%</Typography.SmallHeader>;
+    return <Typography.SmallHeader color={'text10'}>0%</Typography.SmallHeader>;
   }
 
   if (percent < 0.0001 && percent > 0) {

@@ -459,13 +459,17 @@ function PairPage({ pairAddress, history }) {
             <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
               Transactions
             </TYPE.main>{' '}
-            <Panel
-              style={{
-                marginTop: '1.5rem',
-              }}
-            >
-              {transactions ? <TxnList transactions={transactions} /> : <Loader />}
-            </Panel>
+            {transactions ? (
+              <TxnList transactions={transactions} />
+            ) : (
+              <Panel
+                style={{
+                  marginTop: '1.5rem',
+                }}
+              >
+                <Loader />
+              </Panel>
+            )}
             <RowBetween style={{ marginTop: '3rem' }}>
               <TYPE.main fontSize={'1.125rem'}>Pair Information</TYPE.main>{' '}
             </RowBetween>

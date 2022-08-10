@@ -7,7 +7,7 @@ const Wrapper = styled(Flex)`
   justify-content: center;
   border: 1px solid;
   border-color: ${({ theme }) => theme.text10};
-  border-radius: 6px
+  border-radius: 6px;
   padding: 3px;
 `;
 

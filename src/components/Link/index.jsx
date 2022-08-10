@@ -18,8 +18,6 @@ const Link = styled(WrappedLink)`
   color: ${({ color, theme }) => (color ? theme[color] : theme.swaprLink)};
 `;
 
-export default Link;
-
 export const CustomLink = styled(RouterLink)`
   text-decoration: none;
   font-size: 14px;
@@ -47,3 +45,38 @@ export const BasicLink = styled(RouterLink)`
     underline: none;
   }
 `;
+
+export const InternalListLink = styled(RouterLink)`
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 500;
+  color: ${({ color, theme }) => (color ? color : theme.text6)};
+
+  & > div,
+  & > * > div {
+    color: ${({ color, theme }) => (color ? color : theme.text6)};
+  }
+
+  &:hover > div,
+  &:hover > * > div {
+    cursor: pointer;
+    text-decoration: none;
+    underline: none;
+    color: ${({ color, theme }) => (color ? color : theme.text8)};
+    opacity: 0.7;
+  }
+`;
+
+export const ExternalListLink = styled(WrappedLink)`
+  color: ${({ color, theme }) => (color ? theme[color] : theme.text6)};
+
+  &:hover {
+    cursor: pointer;
+    text-decoration: none;
+    underline: none;
+    color: ${({ color, theme }) => (color ? theme[color] : theme.text8)};
+    opacity: 0.7;
+  }
+`;
+
+export default Link;

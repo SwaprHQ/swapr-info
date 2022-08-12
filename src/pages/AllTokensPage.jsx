@@ -43,7 +43,7 @@ function AllTokensPage() {
   useEffect(() => {
     let interval;
 
-    if (increaseRef && increaseRef.current) {
+    if (Object.values(allTokens).length > 0 && increaseRef && increaseRef.current) {
       setTimeout(() => {
         interval = setInterval(() => {
           if (
@@ -57,7 +57,7 @@ function AllTokensPage() {
     }
 
     return () => clearInterval(interval);
-  }, [increaseRef]);
+  }, [increaseRef, allTokens]);
 
   const topMovers = useMemo(
     () =>

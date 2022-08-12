@@ -29,7 +29,9 @@ const Wrapper = styled.div`
 `;
 
 const AnimatedImg = styled.div`
+  height: 64px;
   animation: ${pulse} 800ms linear infinite;
+
   & > * {
     width: 64px;
   }

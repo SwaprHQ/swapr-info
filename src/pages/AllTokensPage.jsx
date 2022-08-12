@@ -1,7 +1,7 @@
 import { useEffect, useRef, useMemo } from 'react';
 import 'feather-icons';
 import { useMedia } from 'react-use';
-import { Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
 import { Typography } from '../Theme';
@@ -14,12 +14,14 @@ import { useAllTokenData } from '../contexts/TokenData';
 
 export const ScrollableRow = styled.div`
   display: flex;
+  justify-content: space-evenly;
   flex-direction: row;
   overflow-x: auto;
   white-space: nowrap;
   gap: 14px;
   padding: 20px;
   border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bd1};
   background-color: ${({ theme }) => theme.bg7};
 
   ::-webkit-scrollbar {
@@ -69,13 +71,11 @@ function AllTokensPage() {
 
   return (
     <PageWrapper>
-      <FullWrapper>
-        {!below800 && (
-          <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-            <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader>
-            <Search small={true} />
-          </Flex>
-        )}
+      <FullWrapper gap={'0'}>
+        <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
+          <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader>
+          {!below800 && <Search small={true} />}
+        </Flex>
         <ScrollableRow ref={increaseRef}>
           {topMovers.length > 0 ? (
             topMovers.map((token) => (
@@ -91,7 +91,17 @@ function AllTokensPage() {
             <LocalLoader height={'26px'} />
           )}
         </ScrollableRow>
-        <Typography.MediumHeader color={'text10'}>Top Tokens</Typography.MediumHeader>
+        {below800 && (
+          <Box marginTop={'20px'}>
+            <Search small={true} />
+          </Box>
+        )}
+        <Typography.MediumHeader
+          color={'text10'}
+          sx={{ textAlign: below800 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+        >
+          Top Tokens
+        </Typography.MediumHeader>
         <TopTokenList tokens={allTokens} itemMax={20} />
       </FullWrapper>
     </PageWrapper>

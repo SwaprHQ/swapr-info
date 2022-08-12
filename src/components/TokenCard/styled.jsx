@@ -6,6 +6,7 @@ const Wrapper = styled.div`
   gap: 10px;
   padding: 20px;
   height: 26px;
+  min-width: 150px;
   border-radius: 12px;
   box-shadow: ${({ theme }) => `0px 0.5px 0px 0.1px ${theme.bd1}`};
 

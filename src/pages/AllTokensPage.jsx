@@ -14,7 +14,6 @@ import { useAllTokenData } from '../contexts/TokenData';
 
 export const ScrollableRow = styled.div`
   display: flex;
-  justify-content: space-evenly;
   flex-direction: row;
   overflow-x: auto;
   white-space: nowrap;

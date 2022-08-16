@@ -23,10 +23,6 @@ export const ScrollableRow = styled.div`
   border: 1px solid ${({ theme }) => theme.bd1};
   background-color: ${({ theme }) => theme.bg7};
 
-  ::-webkit-scrollbar {
-    display: none;
-  }
-
   -ms-overflow-style: none;
   scrollbar-width: none;
 `;

@@ -4,16 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
 import { Typography } from '../../Theme';
-import { NETWORK_COLORS, SupportedNetwork } from '../../constants';
+import { NETWORK_COLORS, SupportedNetwork, TIME_FILTER_OPTIONS } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
-
-const TIME_FILTER_OPTIONS = {
-  MONTH_1: '1M',
-  MONTH_3: '3M',
-  YEAR: '1Y',
-};
 
 const LegendItem = (value) => <Typography.LargeText sx={{ display: 'inline' }}>{value}</Typography.LargeText>;
 

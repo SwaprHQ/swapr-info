@@ -50,6 +50,19 @@ export const GET_BLOCK_BY_TIMESTAMPS = graphql`
   }
 `;
 
+export const GET_BLOCKS_FOR_TIMESTAMPS = (timestamps) => {
+  let queryString = 'query blocks {';
+  queryString += timestamps.map((timestamp) => {
+    return `t${timestamp}:blocks(first: 1000, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
+      number
+      timestamp
+    }`;
+  });
+  queryString += '}';
+
+  return graphql(queryString);
+};
+
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
@@ -65,7 +78,7 @@ export const PRICES_BY_BLOCK = (tokenAddress, blocks) => {
   let queryString = 'query blocks {';
   queryString += blocks.map(
     (block) => `
-      t${block.timestamp}:token(id:"${tokenAddress}", block: { number: ${block.number} }) { 
+      t${block.timestamp}: token(id:"${tokenAddress}", block: { number: ${block.number} }) { 
         derivedNativeCurrency
       }
     `,
@@ -80,6 +93,7 @@ export const PRICES_BY_BLOCK = (tokenAddress, blocks) => {
   );
 
   queryString += '}';
+
   return graphql(queryString);
 };
 

@@ -8,7 +8,6 @@ import {
   TOKEN_CHART,
   TOKENS_CURRENT,
   TOKENS_DYNAMIC,
-  PRICES_BY_BLOCK,
   PAIR_DATA,
 } from '../apollo/queries';
 import { timeframeOptions } from '../constants';
@@ -18,7 +17,7 @@ import {
   getBlockFromTimestamp,
   isAddress,
   getBlocksFromTimestamps,
-  splitQuery,
+  getPricesForBlocks,
 } from '../utils';
 import { updateNameData } from '../utils/data';
 import { useLatestBlocks } from './Application';
@@ -497,7 +496,7 @@ const getIntervalTokenData = async (client, blockClient, tokenAddress, startTime
   // once you have all the timestamps, get the blocks for each timestamp in a bulk query
   let blocks;
   try {
-    blocks = await getBlocksFromTimestamps(blockClient, timestamps, 100);
+    blocks = await getBlocksFromTimestamps(blockClient, timestamps, 50);
 
     // catch failing case
     if (!blocks || blocks.length === 0) {
@@ -510,7 +509,7 @@ const getIntervalTokenData = async (client, blockClient, tokenAddress, startTime
       });
     }
 
-    let result = await splitQuery(PRICES_BY_BLOCK, client, [tokenAddress], blocks, 50);
+    let result = await getPricesForBlocks(client, tokenAddress, blocks);
 
     // format token native currency price results
     let values = [];
@@ -733,16 +732,15 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 
   useEffect(() => {
     const currentTime = dayjs.utc();
-    const windowSize = timeWindow === timeframeOptions.MONTH ? 'month' : 'week';
-    const startTime =
-      timeWindow === timeframeOptions.ALL_TIME
-        ? 1589760000
-        : currentTime.subtract(1, windowSize).startOf('hour').unix();
+    const windowSize = timeWindow === timeframeOptions.WEEK ? 'week' : 'month';
+
+    const startTime = currentTime.subtract(1, windowSize).subtract(1, 'day').startOf('hour').unix();
 
     async function fetch() {
       let data = await getIntervalTokenData(client, blockClient, tokenAddress, startTime, interval, latestBlock);
       updatePriceData(tokenAddress, data, timeWindow, interval);
     }
+
     if (!chartData) {
       fetch();
     }

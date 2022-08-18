@@ -1,206 +1,190 @@
 import dayjs from 'dayjs';
-import { createChart, CrosshairMode } from 'lightweight-charts';
-import { useState, useEffect, useRef } from 'react';
-import { Play } from 'react-feather';
-import { usePrevious } from 'react-use';
-import styled from 'styled-components';
+import { PropTypes } from 'prop-types';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { CartesianGrid, XAxis, YAxis, Bar, ComposedChart, Cell, ResponsiveContainer, Tooltip } from 'recharts';
+import { useTheme } from 'styled-components';
 
-import { useDarkModeManager } from '../../contexts/LocalStorage';
-import { formattedNum } from '../../utils';
+import { TIME_FILTER_OPTIONS } from '../../constants';
+import { formattedNum, formattedPercent } from '../../utils';
+import CrosshairTooltip from './CrosshairTooltip';
+import Header from './Header';
 
-const IconWrapper = styled.div`
-  position: absolute;
-  right: 10px;
-  color: ${({ theme }) => theme.text1}
-  border-radius: 3px;
-  height: 16px;
-  width: 16px;
-  padding: 0px;
-  bottom: 10px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-
-  :hover {
-    cursor: pointer;
-    opacity: 0.7;
-  }
-`;
+const PARTIAL_TIME_FILTER_OPTIONS = {
+  WEEK: TIME_FILTER_OPTIONS.WEEK,
+  MONTH_1: TIME_FILTER_OPTIONS.MONTH_1,
+};
 
 const CandleStickChart = ({
   data,
-  width,
-  height = 300,
-  base,
-  margin = true,
-  valueFormatter = (val) => formattedNum(val, true),
+  title,
+  tooltipTitle,
+  showTimeFilter,
+  isCurrency,
+  isHourlyData,
+  overridingActiveFilter,
 }) => {
-  // reference for DOM element to create with chart
-  const ref = useRef();
+  const theme = useTheme();
+  const [filteredData, setFilteredData] = useState([]);
+  const [headerValue, setHeaderValue] = useState(null);
+  const [activeDate, setActiveDate] = useState(null);
+  const [dailyChange, setDailyChange] = useState();
+  const [activeFilter, setActiveFilter] = useState(PARTIAL_TIME_FILTER_OPTIONS.MONTH_1);
 
-  const formattedData = data?.map((entry) => {
-    return {
-      time: parseFloat(entry.timestamp),
-      open: parseFloat(entry.open),
-      low: parseFloat(entry.open),
-      close: parseFloat(entry.close),
-      high: parseFloat(entry.close),
-    };
-  });
+  const formattedCandlesData = useMemo(
+    () =>
+      data
+        .filter((data) => data.close && data.open)
+        .map((candle) => ({
+          time: candle.time,
+          low: Math.min(candle.open, candle.close),
+          high: Math.max(candle.open, candle.close),
+          height: Math.abs(candle.close - candle.open),
+          up: candle.close > candle.open,
+          constant: candle.close === candle.open,
+        })),
+    [data],
+  );
 
-  if (formattedData && formattedData.length > 0) {
-    formattedData.push({
-      time: dayjs().unix(),
-      open: parseFloat(formattedData[formattedData.length - 1].close),
-      close: parseFloat(base),
-      low: Math.min(parseFloat(base), parseFloat(formattedData[formattedData.length - 1].close)),
-      high: Math.max(parseFloat(base), parseFloat(formattedData[formattedData.length - 1].close)),
-    });
-  }
+  // set header values to the latest candle of the chart
+  const setDefaultHeaderValues = useCallback(() => {
+    if (formattedCandlesData && formattedCandlesData.length > 0) {
+      let currentHeaderValue = formattedCandlesData[formattedCandlesData.length - 1].high;
+      let pastHeaderValue = formattedCandlesData[formattedCandlesData.length - 2].high;
 
-  // pointer to the chart object
-  const [chartCreated, setChartCreated] = useState(false);
-  const dataPrev = usePrevious(data);
+      const dailyChange = ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100;
 
-  const [darkMode] = useDarkModeManager();
-  const textColor = darkMode ? 'white' : 'black';
-  const previousTheme = usePrevious(darkMode);
-
-  // reset the chart if theme switches
-  useEffect(() => {
-    if (chartCreated && previousTheme !== darkMode) {
-      // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id');
-      let node = document.getElementById('test-id');
-      node.removeChild(tooltip);
-      chartCreated.resize(0, 0);
-      setChartCreated();
+      setDailyChange(dailyChange);
+      setActiveDate(formattedCandlesData[formattedCandlesData.length - 1].time);
+      setHeaderValue(currentHeaderValue);
     }
-  }, [chartCreated, darkMode, previousTheme]);
+  }, [formattedCandlesData]);
 
-  useEffect(() => {
-    if (data !== dataPrev && chartCreated) {
-      // remove the tooltip element
-      let tooltip = document.getElementById('tooltip-id');
-      let node = document.getElementById('test-id');
-      node.removeChild(tooltip);
-      chartCreated.resize(0, 0);
-      setChartCreated();
-    }
-  }, [chartCreated, data, dataPrev]);
+  // set header values to the current candle of the chart
+  const setCurrentHeaderValues = (params) => {
+    const { activePayload } = params;
+    if (activePayload && activePayload.length) {
+      const { time, high, low, up, index } = activePayload[0].payload;
 
-  // if no chart created yet, create one with options and add to DOM manually
-  useEffect(() => {
-    if (!chartCreated) {
-      const chart = createChart(ref.current, {
-        width: width,
-        height: height,
-        layout: {
-          backgroundColor: 'transparent',
-          textColor: textColor,
-        },
-        grid: {
-          vertLines: {
-            color: 'rgba(197, 203, 206, 0.5)',
-          },
-          horzLines: {
-            color: 'rgba(197, 203, 206, 0.5)',
-          },
-        },
-        crosshair: {
-          mode: CrosshairMode.Normal,
-        },
-        rightPriceScale: {
-          borderColor: 'rgba(197, 203, 206, 0.8)',
-          visible: true,
-        },
-        timeScale: {
-          borderColor: 'rgba(197, 203, 206, 0.8)',
-        },
-        localization: {
-          priceFormatter: (val) => formattedNum(val),
-        },
-      });
+      // get the previous data
+      const oldData = filteredData[index !== 0 ? index - 1 : index];
 
-      var candleSeries = chart.addCandlestickSeries({
-        upColor: 'green',
-        downColor: 'red',
-        borderDownColor: 'red',
-        borderUpColor: 'green',
-        wickDownColor: 'red',
-        wickUpColor: 'green',
-      });
+      // if the change is positive it means it closed on a higher
+      // value, so the high it's the current value, otherwise it's the lowest
+      const currentValue = up ? high : low;
+      const pastValue = oldData.up ? oldData.high : oldData.low;
 
-      candleSeries.setData(formattedData);
+      // avoid getting infinity by dividing by 0
+      if (pastValue > 0) {
+        const dailyChange = ((currentValue - pastValue) / pastValue) * 100;
 
-      var toolTip = document.createElement('div');
-      toolTip.setAttribute('id', 'tooltip-id');
-      toolTip.className = 'three-line-legend';
-      ref.current.appendChild(toolTip);
-      toolTip.style.display = 'block';
-      toolTip.style.left = (margin ? 116 : 10) + 'px';
-      toolTip.style.top = 50 + 'px';
-      toolTip.style.backgroundColor = 'transparent';
-
-      // get the title of the chart
-      function setLastBarText() {
-        toolTip.innerHTML = base
-          ? `<div style="font-size: 22px; margin: 4px 0px; color: ${textColor}">` + valueFormatter(base) + '</div>'
-          : '';
+        setDailyChange(dailyChange);
+      } else {
+        setDailyChange(0);
       }
-      setLastBarText();
 
-      // update the title when hovering on the chart
-      chart.subscribeCrosshairMove(function (param) {
-        if (
-          param === undefined ||
-          param.time === undefined ||
-          param.point.x < 0 ||
-          param.point.x > width ||
-          param.point.y < 0 ||
-          param.point.y > height
-        ) {
-          setLastBarText();
-        } else {
-          var price = param.seriesPrices.get(candleSeries).close;
-          const time = dayjs.unix(param.time).format('MM/DD h:mm A');
-          toolTip.innerHTML =
-            `<div style="font-size: 22px; margin: 4px 0px; color: ${textColor}">` +
-            valueFormatter(price) +
-            `<span style="font-size: 12px; margin: 4px 6px; color: ${textColor}">` +
-            time +
-            ' UTC' +
-            '</span>' +
-            '</div>';
-        }
-      });
-
-      chart.timeScale().fitContent();
-
-      setChartCreated(chart);
+      setActiveDate(time);
+      setHeaderValue(up ? high : low);
     }
-  }, [chartCreated, formattedData, width, height, valueFormatter, base, margin, textColor]);
+  };
 
-  // responsiveness
+  // set default filtered data
   useEffect(() => {
-    if (width) {
-      chartCreated && chartCreated.resize(width, height);
-      chartCreated && chartCreated.timeScale().scrollToPosition(0);
+    if (filteredData && filteredData.length > 0) {
+      setDefaultHeaderValues();
     }
-  }, [chartCreated, height, width]);
+  }, [filteredData, setDefaultHeaderValues]);
+
+  // update filtered data on time filter change
+  useEffect(() => {
+    if (formattedCandlesData && formattedCandlesData.length > 0) {
+      let limitDate = new Date();
+
+      switch (overridingActiveFilter ?? activeFilter) {
+        case TIME_FILTER_OPTIONS.WEEK: {
+          limitDate.setDate(limitDate.getDate() - 7);
+          break;
+        }
+        case TIME_FILTER_OPTIONS.MONTH_1: {
+          limitDate.setMonth(limitDate.getMonth() - 1);
+          break;
+        }
+        case TIME_FILTER_OPTIONS.YEAR: {
+          limitDate.setFullYear(limitDate.getFullYear() - 1);
+          break;
+        }
+        default: {
+          limitDate.setFullYear(limitDate.getDate() - 7);
+          break;
+        }
+      }
+
+      // sort and add index to the chart data in order to properly obtain
+      // % changes between values
+      setFilteredData(
+        formattedCandlesData
+          .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+          .map((data, index) => ({ ...data, index })),
+      );
+    }
+  }, [formattedCandlesData, overridingActiveFilter, activeFilter]);
+
+  const { low } = filteredData.length > 0 && filteredData.map((candle) => candle).sort((a, b) => a.low - b.low)[0];
 
   return (
-    <div>
-      <div ref={ref} id="test-id" />
-      <IconWrapper>
-        <Play
-          onClick={() => {
-            chartCreated && chartCreated.timeScale().fitContent();
-          }}
-        />
-      </IconWrapper>
-    </div>
+    <>
+      <Header
+        title={title}
+        value={formattedNum(headerValue)}
+        isValueCurrency={isCurrency}
+        isHourlyData={isHourlyData}
+        showTimeFilter={showTimeFilter}
+        dailyChange={formattedPercent(dailyChange)}
+        date={dayjs(activeDate).format(isHourlyData ? 'MMMM D, YYYY HH:mm' : 'MMMM D, YYYY')}
+        activeFilter={activeFilter}
+        filterOptions={PARTIAL_TIME_FILTER_OPTIONS}
+        onFilterChange={setActiveFilter}
+      />
+      <ResponsiveContainer>
+        <ComposedChart
+          data={filteredData}
+          onMouseMove={setCurrentHeaderValues}
+          onMouseLeave={setDefaultHeaderValues}
+          margin={{ top: 15 }}
+        >
+          <CartesianGrid horizontal={false} vertical={false} />
+          <XAxis hide dataKey={'time'} />
+          <YAxis hide domain={[low, 'auto']} allowDataOverflow={true} />
+          <Tooltip
+            isAnimationActive={false}
+            isHourlyData={isHourlyData}
+            content={<CrosshairTooltip title={tooltipTitle ?? 'Price'} isValueCurrency={true} />}
+          />
+          <Bar dataKey={'low'} stackId={'stack'} fillOpacity={0} />
+          <Bar dataKey={'height'} stackId={'stack'} minPointSize={1}>
+            {filteredData.map((candle) => (
+              <Cell key={candle.time} fill={candle.up || candle.constant ? theme.green1 : theme.red1} />
+            ))}
+          </Bar>
+        </ComposedChart>
+      </ResponsiveContainer>
+    </>
   );
+};
+
+CandleStickChart.propTypes = {
+  title: PropTypes.string,
+  data: PropTypes.any.isRequired,
+  tooltipTitle: PropTypes.string,
+  showTimeFilter: PropTypes.bool,
+  isCurrency: PropTypes.bool,
+  isHourlyData: PropTypes.bool,
+};
+
+CandleStickChart.defaultProps = {
+  data: [],
+  isCurrency: true,
+  showTimeFilter: true,
+  isHourlyData: false,
 };
 
 export default CandleStickChart;

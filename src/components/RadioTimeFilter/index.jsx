@@ -17,16 +17,8 @@ const RadioTimeFilter = ({ onChange, options, activeValue }) => {
 
 RadioTimeFilter.propTypes = {
   onChange: PropTypes.func.isRequired,
-  filterOptions: PropTypes.object.isRequired,
+  options: PropTypes.object.isRequired,
   activeValue: PropTypes.string,
-};
-
-RadioTimeFilter.defaultProps = {
-  filterOptions: {
-    MONTH_1: '1M',
-    MONTH_3: '3M',
-    YEAR: '1Y',
-  },
 };
 
 export default RadioTimeFilter;

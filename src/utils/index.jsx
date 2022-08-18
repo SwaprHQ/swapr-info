@@ -19,7 +19,7 @@ import {
 } from '@swapr/sdk';
 
 import { Typography } from '../Theme';
-import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, SHARE_VALUE } from '../apollo/queries';
+import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, PRICES_BY_BLOCK, SHARE_VALUE } from '../apollo/queries';
 import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
@@ -271,6 +271,24 @@ export async function getBlocksFromTimestamps(blockClient, timestamps, skipCount
   }
 
   return blocks;
+}
+
+export async function getPricesForBlocks(blockClient, tokenAddress, blocks) {
+  if (blocks?.length === 0) {
+    return [];
+  }
+
+  let prices = {};
+
+  for (let blocksChunk of chunk(blocks, 50)) {
+    const { data } = await blockClient.query({
+      query: PRICES_BY_BLOCK(tokenAddress, blocksChunk),
+    });
+
+    prices = { ...prices, ...data };
+  }
+
+  return prices;
 }
 
 /**

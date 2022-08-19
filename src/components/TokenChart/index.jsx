@@ -37,7 +37,7 @@ const PanelLoaderWrapper = ({ isLoading, children }) => (
 
 const TokenChart = ({ address, base }) => {
   const [chartFilter, setChartFilter] = useState(CHART_VIEW.PRICE);
-  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
+  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.WEEK);
   const [isHourlyPriceData, setIsHourlyPriceData] = useState(false);
 
   const addressPrev = usePrevious(address);
@@ -143,7 +143,7 @@ const TokenChart = ({ address, base }) => {
         </PanelLoaderWrapper>
       )}
       {chartFilter === CHART_VIEW.PRICE && (
-        <PanelLoaderWrapper isLoading={!formattedPriceData}>
+        <PanelLoaderWrapper isLoading={!formattedPriceData || !base}>
           <CandleStickChart
             data={formattedPriceData}
             currentPrice={base}

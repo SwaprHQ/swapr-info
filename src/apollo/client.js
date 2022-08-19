@@ -61,7 +61,7 @@ export const blockClients = {
   }),
   [SupportedNetwork.XDAI]: new ApolloClient({
     link: new HttpLink({
-      uri: BASE_SUBGRAPH + '1hive/xdai-blocks',
+      uri: BASE_SUBGRAPH + 'x0swapsubgraph/xdai-blocks',
     }),
     cache: new InMemoryCache(),
     defaultOptions: defaultApolloConfig,

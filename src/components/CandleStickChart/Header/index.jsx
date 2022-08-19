@@ -4,25 +4,13 @@ import { Typography } from '../../../Theme';
 import RadioTimeFilter from '../../RadioTimeFilter';
 import { Container, DailyChange, FlexContainer } from './styled';
 
-const Header = ({
-  title,
-  value,
-  dailyChange,
-  date,
-  filterOptions,
-  activeFilter,
-  onFilterChange,
-  isValueCurrency,
-  showTimeFilter,
-}) => (
+const Header = ({ title, value, dailyChange, date, filterOptions, activeFilter, onFilterChange, showTimeFilter }) => (
   <Container>
     <div>
       <Typography.LargeBoldText color={'text7'} sx={{ textTransform: 'uppercase', marginBottom: '4px' }}>
         {title}
       </Typography.LargeBoldText>
-      <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>
-        {isValueCurrency && '$'} {value}
-      </Typography.LargeBoldHeader>
+      <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>{value}</Typography.LargeBoldHeader>
       <FlexContainer>
         <Typography.Text color={'text7'}>{date}</Typography.Text>
         <DailyChange>{dailyChange}</DailyChange>
@@ -44,7 +32,6 @@ Header.propTypes = {
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,
   onFilterChange: PropTypes.func.isRequired,
-  isValueCurrency: PropTypes.bool,
   showTimeFilter: PropTypes.bool,
 };
 

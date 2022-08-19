@@ -16,6 +16,7 @@ const PARTIAL_TIME_FILTER_OPTIONS = {
 
 const CandleStickChart = ({
   data,
+  currentPrice,
   title,
   tooltipTitle,
   showTimeFilter,
@@ -48,16 +49,18 @@ const CandleStickChart = ({
   // set header values to the latest candle of the chart
   const setDefaultHeaderValues = useCallback(() => {
     if (formattedCandlesData && formattedCandlesData.length > 0) {
-      let currentHeaderValue = formattedCandlesData[formattedCandlesData.length - 1].high;
-      let pastHeaderValue = formattedCandlesData[formattedCandlesData.length - 2].high;
+      const lastValue = formattedCandlesData[formattedCandlesData.length - 1];
 
-      const dailyChange = ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100;
+      const currentHeaderValue = lastValue.up ? lastValue.high : lastValue.low;
+      const pastHeaderValue = formattedCandlesData[formattedCandlesData.length - 2].high;
+
+      const dailyChange = pastHeaderValue > 0 ? ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100 : 0;
 
       setDailyChange(dailyChange);
       setActiveDate(formattedCandlesData[formattedCandlesData.length - 1].time);
-      setHeaderValue(currentHeaderValue);
+      setHeaderValue(currentPrice);
     }
-  }, [formattedCandlesData]);
+  }, [formattedCandlesData, currentPrice]);
 
   // set header values to the current candle of the chart
   const setCurrentHeaderValues = (params) => {
@@ -134,8 +137,7 @@ const CandleStickChart = ({
     <>
       <Header
         title={title}
-        value={formattedNum(headerValue)}
-        isValueCurrency={isCurrency}
+        value={formattedNum(headerValue, isCurrency)}
         isHourlyData={isHourlyData}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
@@ -157,7 +159,7 @@ const CandleStickChart = ({
           <Tooltip
             isAnimationActive={false}
             isHourlyData={isHourlyData}
-            content={<CrosshairTooltip title={tooltipTitle ?? 'Price'} isValueCurrency={true} />}
+            content={<CrosshairTooltip title={tooltipTitle ?? 'Price'} isCurrency={isCurrency} />}
           />
           <Bar dataKey={'low'} stackId={'stack'} fillOpacity={0} />
           <Bar dataKey={'height'} stackId={'stack'} minPointSize={1}>
@@ -174,6 +176,7 @@ const CandleStickChart = ({
 CandleStickChart.propTypes = {
   title: PropTypes.string,
   data: PropTypes.any.isRequired,
+  currentPrice: PropTypes.number,
   tooltipTitle: PropTypes.string,
   showTimeFilter: PropTypes.bool,
   isCurrency: PropTypes.bool,

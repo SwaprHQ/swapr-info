@@ -30,7 +30,7 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
           pastHeaderValue += data[data.length - 2][key];
         });
 
-      const dailyChange = ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100;
+      const dailyChange = pastHeaderValue > 0 ? ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100 : 0;
 
       setDailyChange(dailyChange);
       setActiveDate(data[data.length - 1].time);

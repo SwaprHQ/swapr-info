@@ -286,7 +286,7 @@ function TokenPage({ address }) {
                   gridRow: below1080 ? '' : '1/4',
                 }}
               >
-                <TokenChart address={address} color={backgroundColor} base={priceUSD} />
+                <TokenChart address={address} base={priceUSD} />
               </Panel>
             </PanelWrapper>
           </>

@@ -7,7 +7,7 @@ import styled from 'styled-components';
 import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
 import { OptionButton } from '../ButtonStyled';
-import CandleStick from '../CandleChart';
+import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
 import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
@@ -40,7 +40,7 @@ const PanelLoaderWrapper = ({ isLoading, children }) => (
   </Panel>
 );
 
-const TokenChart = ({ address, color }) => {
+const TokenChart = ({ address, base }) => {
   const [chartFilter, setChartFilter] = useState(CHART_VIEW.PRICE);
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
   const [isHourlyPriceData, setIsHourlyPriceData] = useState(false);
@@ -102,13 +102,8 @@ const TokenChart = ({ address, color }) => {
     <ChartWrapper>
       {below600 ? (
         <Flex justifyContent={'space-between'} mb={40}>
-          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} color={color} />
-          <DropdownBasicSelect
-            options={TIME_FILTER_OPTIONS}
-            active={activeFilter}
-            setActive={setActiveFilter}
-            color={color}
-          />
+          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
+          <DropdownBasicSelect options={TIME_FILTER_OPTIONS} active={activeFilter} setActive={setActiveFilter} />
         </Flex>
       ) : (
         <Flex mb={20} justifyContent={'space-between'}>
@@ -158,8 +153,9 @@ const TokenChart = ({ address, color }) => {
       )}
       {chartFilter === CHART_VIEW.PRICE && (
         <PanelLoaderWrapper isLoading={!formattedPriceData}>
-          <CandleStick
+          <CandleStickChart
             data={formattedPriceData}
+            currentPrice={base}
             showTimeFilter={false}
             overridingActiveFilter={activeFilter}
             isHourlyData={isHourlyPriceData}

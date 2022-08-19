@@ -29,11 +29,6 @@ const CHART_VIEW = {
   PRICE: 'Price',
 };
 
-const PARTIAL_TIME_FILTER_OPTIONS = {
-  WEEK: TIME_FILTER_OPTIONS.WEEK,
-  MONTH_1: TIME_FILTER_OPTIONS.MONTH_1,
-};
-
 const PanelLoaderWrapper = ({ isLoading, children }) => (
   <Panel minHeight={'320px'} maxHeight={'320px'} style={{ border: 'none', padding: '0' }}>
     {isLoading ? <LocalLoader /> : children}
@@ -47,7 +42,7 @@ const TokenChart = ({ address, base }) => {
 
   const addressPrev = usePrevious(address);
   const volumeAndLiquidityData = useTokenChartData(address);
-  const priceData = useTokenPriceData(address, timeframeOptions.MONTH, 86400);
+  const priceData = useTokenPriceData(address, timeframeOptions.YEAR, 86400);
   const weeklyHorlyPriceData = useTokenPriceData(address, timeframeOptions.WEEK, 14400);
 
   useEffect(() => {
@@ -132,11 +127,7 @@ const TokenChart = ({ address, base }) => {
             </OptionButton>
           </Flex>
           <div>
-            <RadioTimeFilter
-              options={chartFilter === CHART_VIEW.PRICE ? PARTIAL_TIME_FILTER_OPTIONS : TIME_FILTER_OPTIONS}
-              activeValue={activeFilter}
-              onChange={setActiveFilter}
-            />
+            <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
           </div>
         </Flex>
       )}

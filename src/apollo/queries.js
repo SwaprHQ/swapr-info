@@ -53,7 +53,7 @@ export const GET_BLOCK_BY_TIMESTAMPS = graphql`
 export const GET_BLOCKS_FOR_TIMESTAMPS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1000, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
+    return `t${timestamp}:blocks(first: 100, orderBy: timestamp, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
       number
       timestamp
     }`;

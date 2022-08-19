@@ -9,11 +9,6 @@ import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
 
-const PARTIAL_TIME_FILTER_OPTIONS = {
-  WEEK: TIME_FILTER_OPTIONS.WEEK,
-  MONTH_1: TIME_FILTER_OPTIONS.MONTH_1,
-};
-
 const CandleStickChart = ({
   data,
   currentPrice,
@@ -29,7 +24,7 @@ const CandleStickChart = ({
   const [headerValue, setHeaderValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
   const [dailyChange, setDailyChange] = useState();
-  const [activeFilter, setActiveFilter] = useState(PARTIAL_TIME_FILTER_OPTIONS.MONTH_1);
+  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
 
   const formattedCandlesData = useMemo(
     () =>
@@ -143,7 +138,7 @@ const CandleStickChart = ({
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format(isHourlyData ? 'MMMM D, YYYY HH:mm' : 'MMMM D, YYYY')}
         activeFilter={activeFilter}
-        filterOptions={PARTIAL_TIME_FILTER_OPTIONS}
+        filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
       <ResponsiveContainer>

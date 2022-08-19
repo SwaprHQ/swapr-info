@@ -16,8 +16,8 @@ import {
   getPercentChange,
   getBlockFromTimestamp,
   isAddress,
-  getBlocksFromTimestamps,
   getPricesForBlocks,
+  getBlocksForTimestamps,
 } from '../utils';
 import { updateNameData } from '../utils/data';
 import { useLatestBlocks } from './Application';
@@ -496,7 +496,7 @@ const getIntervalTokenData = async (client, blockClient, tokenAddress, startTime
   // once you have all the timestamps, get the blocks for each timestamp in a bulk query
   let blocks;
   try {
-    blocks = await getBlocksFromTimestamps(blockClient, timestamps, 50);
+    blocks = await getBlocksForTimestamps(blockClient, timestamps);
 
     // catch failing case
     if (!blocks || blocks.length === 0) {
@@ -732,7 +732,7 @@ export function useTokenPriceData(tokenAddress, timeWindow, interval = 3600) {
 
   useEffect(() => {
     const currentTime = dayjs.utc();
-    const windowSize = timeWindow === timeframeOptions.WEEK ? 'week' : 'month';
+    const windowSize = timeWindow === timeframeOptions.WEEK ? 'week' : 'year';
 
     const startTime = currentTime.subtract(1, windowSize).subtract(1, 'day').startOf('hour').unix();
 

@@ -19,7 +19,14 @@ import {
 } from '@swapr/sdk';
 
 import { Typography } from '../Theme';
-import { GET_BLOCK, GET_BLOCKS, GET_BLOCK_BY_TIMESTAMPS, PRICES_BY_BLOCK, SHARE_VALUE } from '../apollo/queries';
+import {
+  GET_BLOCK,
+  GET_BLOCKS,
+  GET_BLOCKS_FOR_TIMESTAMPS,
+  GET_BLOCK_BY_TIMESTAMPS,
+  PRICES_BY_BLOCK,
+  SHARE_VALUE,
+} from '../apollo/queries';
 import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
 
 // format libraries
@@ -273,6 +280,24 @@ export async function getBlocksFromTimestamps(blockClient, timestamps, skipCount
   return blocks;
 }
 
+export async function getBlocksForTimestamps(blockClient, timestamps) {
+  if (timestamps?.length === 0) {
+    return [];
+  }
+
+  let blocks = [];
+
+  for (const timestampsChunk of chunk(timestamps, 100)) {
+    const { data } = await blockClient.query({
+      query: GET_BLOCKS_FOR_TIMESTAMPS(timestampsChunk),
+    });
+
+    blocks = [...blocks, ...Object.values(data).map((data) => data.sort((a, b) => a.number - b.number)[0])];
+  }
+
+  return Object.values(blocks);
+}
+
 export async function getPricesForBlocks(blockClient, tokenAddress, blocks) {
   if (blocks?.length === 0) {
     return [];
@@ -434,7 +459,7 @@ export const formatDollarAmount = (num, digits) => {
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
-  return formatter.format(num);
+  return formatter.format(num).replace(/^(\D+)/, '$1 ');
 };
 
 export const toSignificant = (number, significantDigits) => {
@@ -445,24 +470,24 @@ export const toSignificant = (number, significantDigits) => {
 
 export const formattedNum = (number, usd = false) => {
   if (isNaN(number) || number === '' || number === undefined) {
-    return usd ? '$0' : 0;
+    return usd ? '$ 0' : 0;
   }
 
   let num = parseFloat(number);
 
   if (num > 500000000) {
-    return (usd ? '$' : '') + toK(num.toFixed(0), true);
+    return (usd ? '$ ' : '') + toK(num.toFixed(0), true);
   }
 
   if (num === 0) {
     if (usd) {
-      return '$0';
+      return '$ 0';
     }
     return 0;
   }
 
   if (num < 0.0001 && num > 0) {
-    return usd ? '< $0.0001' : '< 0.0001';
+    return usd ? '< $ 0.0001' : '< 0.0001';
   }
 
   if (num > 1000) {

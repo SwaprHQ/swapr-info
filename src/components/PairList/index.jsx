@@ -261,7 +261,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
               }}
             >
               <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                {!below680 ? 'Volume (24hrs)' : 'Volume'}
+                {!below680 ? '24hr Volume' : 'Volume'}
                 {sortedColumn === SORT_FIELD.VOL ? (!sortDirection ? '↑' : '↓') : ''}
               </Typography.SmallBoldText>
             </ClickableText>
@@ -276,7 +276,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
                 }}
               >
                 <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                  Volume (7d) {sortedColumn === SORT_FIELD.VOL_7DAYS ? (!sortDirection ? '↑' : '↓') : ''}
+                  7D Volume {sortedColumn === SORT_FIELD.VOL_7DAYS ? (!sortDirection ? '↑' : '↓') : ''}
                 </Typography.SmallBoldText>
               </ClickableText>
             </Flex>
@@ -291,7 +291,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
                 }}
               >
                 <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                  Fees (24hr) {sortedColumn === SORT_FIELD.FEES ? (!sortDirection ? '↑' : '↓') : ''}
+                  24hr Fees {sortedColumn === SORT_FIELD.FEES ? (!sortDirection ? '↑' : '↓') : ''}
                 </Typography.SmallBoldText>
               </ClickableText>
             </Flex>
@@ -306,7 +306,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
                 }}
               >
                 <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                  1y Fees / Liquidity {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
+                  1y Fees {sortedColumn === SORT_FIELD.APY ? (!sortDirection ? '↑' : '↓') : ''}
                 </Typography.SmallBoldText>
               </ClickableText>
               <QuestionHelper text={'Based on 24hr volume annualized'} />

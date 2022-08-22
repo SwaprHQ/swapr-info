@@ -2,26 +2,17 @@ import dayjs from 'dayjs';
 import { useState, useEffect, useMemo } from 'react';
 import { useMedia, usePrevious } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
+import { Typography } from '../../Theme';
 import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
-import { OptionButton } from '../ButtonStyled';
 import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
 import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
-
-const ChartWrapper = styled.div`
-  height: 100%;
-  min-height: 300px;
-
-  @media screen and (max-width: 600px) {
-    min-height: 200px;
-  }
-`;
+import { ChartWrapper, ChartTypeButton } from './styled';
 
 const CHART_VIEW = {
   VOLUME: 'Volume',
@@ -30,7 +21,7 @@ const CHART_VIEW = {
 };
 
 const PanelLoaderWrapper = ({ isLoading, children }) => (
-  <Panel minHeight={'320px'} maxHeight={'320px'} style={{ border: 'none', padding: '0' }}>
+  <Panel minHeight={'340px'} maxHeight={'340px'} style={{ border: 'none', padding: '0' }}>
     {isLoading ? <LocalLoader /> : children}
   </Panel>
 );
@@ -42,8 +33,8 @@ const TokenChart = ({ address, base }) => {
 
   const addressPrev = usePrevious(address);
   const volumeAndLiquidityData = useTokenChartData(address);
-  const priceData = useTokenPriceData(address, timeframeOptions.YEAR, 86400);
-  const weeklyHorlyPriceData = useTokenPriceData(address, timeframeOptions.WEEK, 14400);
+  const dailyYearPriceData = useTokenPriceData(address, timeframeOptions.YEAR, 86400);
+  const weeklyHourlyPriceData = useTokenPriceData(address, timeframeOptions.WEEK, 14400);
 
   useEffect(() => {
     if (address !== addressPrev && addressPrev) {
@@ -71,7 +62,7 @@ const TokenChart = ({ address, base }) => {
       setIsHourlyPriceData(true);
 
       return {
-        formattedPriceData: weeklyHorlyPriceData?.map((data) => ({
+        formattedPriceData: weeklyHourlyPriceData?.map((data) => ({
           time: dayjs(data.timestamp * 1000).format('YYYY-MM-DD, HH:mm'),
           open: parseFloat(data.open),
           close: parseFloat(data.close),
@@ -82,13 +73,13 @@ const TokenChart = ({ address, base }) => {
     setIsHourlyPriceData(false);
 
     return {
-      formattedPriceData: priceData?.map((data) => ({
+      formattedPriceData: dailyYearPriceData?.map((data) => ({
         time: dayjs(data.timestamp * 1000).format('YYYY-MM-DD'),
         open: parseFloat(data.open),
         close: parseFloat(data.close),
       })),
     };
-  }, [priceData, weeklyHorlyPriceData, activeFilter]);
+  }, [dailyYearPriceData, weeklyHourlyPriceData, activeFilter]);
 
   // const below1080 = useMedia('(max-width: 1080px)');
   const below600 = useMedia('(max-width: 600px)');
@@ -102,29 +93,27 @@ const TokenChart = ({ address, base }) => {
         </Flex>
       ) : (
         <Flex mb={20} justifyContent={'space-between'}>
-          <Flex>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.LIQUIDITY}
+          <Flex style={{ gap: '6px' }}>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.LIQUIDITY}
               onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
-              style={{ marginRight: '6px' }}
             >
-              Liquidity
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.VOLUME}
+              <Typography.Text>TVL</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.VOLUME}
               onClick={() => setChartFilter(CHART_VIEW.VOLUME)}
-              style={{ marginRight: '6px' }}
             >
-              Volume
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.PRICE}
+              <Typography.Text>VOLUME</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.PRICE}
               onClick={() => {
                 setChartFilter(CHART_VIEW.PRICE);
               }}
             >
-              Price
-            </OptionButton>
+              <Typography.Text>PRICE</Typography.Text>
+            </ChartTypeButton>
           </Flex>
           <div>
             <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />

@@ -8,7 +8,7 @@ const RadioTimeFilter = ({ onChange, options, activeValue }) => {
     <Wrapper>
       {Object.keys(options).map((key) => (
         <Button key={key} onClick={() => onChange(options[key])} isActive={activeValue === options[key]}>
-          <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>{options[key]}</Typography.LargeText>
+          <Typography.Text sx={{ letterSpacing: '0.08em' }}>{options[key]}</Typography.Text>
         </Button>
       ))}
     </Wrapper>

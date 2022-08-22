@@ -93,11 +93,8 @@ function TokenPage({ address }) {
 
   // volume
   const volume =
-    oneDayVolumeUSD || oneDayVolumeUSD === 0
-      ? formattedNum(oneDayVolumeUSD === 0 ? oneDayVolumeUT : oneDayVolumeUSD, true)
-      : oneDayVolumeUSD === 0
-      ? '$0'
-      : '-';
+    (oneDayVolumeUSD || oneDayVolumeUSD === 0) &&
+    formattedNum(oneDayVolumeUSD === 0 ? oneDayVolumeUT : oneDayVolumeUSD, true);
 
   // mark if using untracked volume
   const [usingUtVolume, setUsingUtVolume] = useState(false);
@@ -108,7 +105,7 @@ function TokenPage({ address }) {
   const volumeChange = formattedPercent(!usingUtVolume ? volumeChangeUSD : volumeChangeUT);
 
   // liquidity
-  const liquidity = totalLiquidityUSD ? formattedNum(totalLiquidityUSD, true) : totalLiquidityUSD === 0 ? '$0' : '-';
+  const liquidity = totalLiquidityUSD && formattedNum(totalLiquidityUSD, true);
   const liquidityChange = formattedPercent(liquidityChangeUSD);
 
   // transactions
@@ -116,7 +113,6 @@ function TokenPage({ address }) {
 
   const below1080 = useMedia('(max-width: 1080px)');
   const below600 = useMedia('(max-width: 600px)');
-  const below500 = useMedia('(max-width: 500px)');
 
   // format for long symbol
   const LENGTH = below1080 ? 10 : 16;
@@ -138,12 +134,16 @@ function TokenPage({ address }) {
       <ContentWrapper>
         <RowBetween style={{ flexWrap: 'wrap', alingItems: 'start' }}>
           <AutoRow align="flex-end" style={{ width: 'fit-content' }}>
-            <Typography.LargeText color={'text10'}>
+            <Typography.LargeText color={'text10'} sx={{ marginRight: '4px' }}>
               <BasicLink to="/tokens">{'Tokens '}</BasicLink>
             </Typography.LargeText>
-            <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, address, 'address')}>
-              {'→ ' + symbol}
-            </ExternalListLink>
+            {symbol ? (
+              <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, address, 'address')}>
+                {'→ ' + symbol}
+              </ExternalListLink>
+            ) : (
+              <Skeleton style={{ width: '60px' }} />
+            )}
           </AutoRow>
           {!below600 && <Search small={true} />}
         </RowBetween>
@@ -210,12 +210,20 @@ function TokenPage({ address }) {
             )}
             <Panel>
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>
-                <DailyChangeLabel label={'TVL'} value={liquidity} dailyChange={liquidityChange} />
-                <DailyChangeLabel label={'VOLUME'} value={volume} dailyChange={volumeChange} />
+                <DailyChangeLabel
+                  label={'TVL'}
+                  value={liquidity}
+                  dailyChange={(liquidityChangeUSD || liquidityChangeUSD === 0) && liquidityChange}
+                />
+                <DailyChangeLabel
+                  label={'VOLUME'}
+                  value={volume}
+                  dailyChange={(volumeChangeUSD || volumeChangeUSD === 0) && volumeChange}
+                />
                 <DailyChangeLabel
                   label={'TRANSACTIONS'}
-                  value={oneDayTxns ? localNumber(oneDayTxns) : oneDayTxns === 0 ? 0 : '-'}
-                  dailyChange={txnChangeFormatted}
+                  value={(oneDayTxns || oneDayTxns === 0) && localNumber(oneDayTxns)}
+                  dailyChange={(txnChange || txnChange === 0) && txnChangeFormatted}
                 />
               </Flex>
             </Panel>

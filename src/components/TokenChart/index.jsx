@@ -1,6 +1,6 @@
 import dayjs from 'dayjs';
 import { useState, useEffect, useMemo } from 'react';
-import { useMedia, usePrevious } from 'react-use';
+import { usePrevious } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
@@ -8,7 +8,6 @@ import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { useTokenChartData, useTokenPriceData } from '../../contexts/TokenData';
 import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
-import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
@@ -81,45 +80,35 @@ const TokenChart = ({ address, base }) => {
     };
   }, [dailyYearPriceData, weeklyHourlyPriceData, activeFilter]);
 
-  // const below1080 = useMedia('(max-width: 1080px)');
-  const below600 = useMedia('(max-width: 600px)');
-
   return (
     <ChartWrapper>
-      {below600 ? (
-        <Flex justifyContent={'space-between'} mb={40}>
-          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
-          <DropdownBasicSelect options={TIME_FILTER_OPTIONS} active={activeFilter} setActive={setActiveFilter} />
+      <Flex mb={20} justifyContent={'space-between'}>
+        <Flex style={{ gap: '6px' }}>
+          <ChartTypeButton
+            isActive={chartFilter === CHART_VIEW.LIQUIDITY}
+            onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
+          >
+            <Typography.Text>TVL</Typography.Text>
+          </ChartTypeButton>
+          <ChartTypeButton
+            isActive={chartFilter === CHART_VIEW.VOLUME}
+            onClick={() => setChartFilter(CHART_VIEW.VOLUME)}
+          >
+            <Typography.Text>VOLUME</Typography.Text>
+          </ChartTypeButton>
+          <ChartTypeButton
+            isActive={chartFilter === CHART_VIEW.PRICE}
+            onClick={() => {
+              setChartFilter(CHART_VIEW.PRICE);
+            }}
+          >
+            <Typography.Text>PRICE</Typography.Text>
+          </ChartTypeButton>
         </Flex>
-      ) : (
-        <Flex mb={20} justifyContent={'space-between'}>
-          <Flex style={{ gap: '6px' }}>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.LIQUIDITY}
-              onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
-            >
-              <Typography.Text>TVL</Typography.Text>
-            </ChartTypeButton>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.VOLUME}
-              onClick={() => setChartFilter(CHART_VIEW.VOLUME)}
-            >
-              <Typography.Text>VOLUME</Typography.Text>
-            </ChartTypeButton>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.PRICE}
-              onClick={() => {
-                setChartFilter(CHART_VIEW.PRICE);
-              }}
-            >
-              <Typography.Text>PRICE</Typography.Text>
-            </ChartTypeButton>
-          </Flex>
-          <div>
-            <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
-          </div>
-        </Flex>
-      )}
+        <div>
+          <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
+        </div>
+      </Flex>
       {chartFilter === CHART_VIEW.LIQUIDITY && (
         <PanelLoaderWrapper isLoading={!formattedLiquidityData}>
           <Chart

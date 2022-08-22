@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import Skeleton from 'react-loading-skeleton';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
@@ -15,7 +16,7 @@ const DailyChangeLabel = ({ label, value, dailyChange }) => (
         <Icon icon={<ClockSvg height={16} width={16} />} />
         <Typography.SmallBoldText color={'text7'}>24H</Typography.SmallBoldText>
       </Flex>
-      <DailyChange>{dailyChange}</DailyChange>
+      {dailyChange ? <DailyChange>{dailyChange}</DailyChange> : <Skeleton style={{ width: '40px', height: '14px' }} />}
     </Flex>
   </Flex>
 );

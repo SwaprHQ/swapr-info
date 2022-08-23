@@ -94,6 +94,12 @@ export const TIME_FILTER_OPTIONS = {
   YEAR: '1Y',
 };
 
+export const STACKED_CHART_TIME_FILTER_OPTIONS = {
+  MONTH_1: '1M',
+  MONTH_3: '3M',
+  YEAR: '1Y',
+};
+
 // hide from overview list
 export const OVERVIEW_TOKEN_BLACKLIST = [
   '0x495c7f3a713870f68f8b418b355c085dfdc412c3',

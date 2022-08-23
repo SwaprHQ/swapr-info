@@ -212,7 +212,7 @@ function TokenPage({ address }) {
                 />
                 <DailyChangeLabel
                   label={'VOLUME'}
-                  value={(volume || volume === 0) && volume}
+                  value={volume}
                   dailyChange={(volumeChangeUSD || volumeChangeUSD === 0) && volumeChange}
                 />
                 <DailyChangeLabel

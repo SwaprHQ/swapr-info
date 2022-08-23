@@ -532,7 +532,7 @@ export function formattedPercent(percent = false) {
 
   let fixedPercent = percent.toFixed(2);
   if (fixedPercent === '0.00') {
-    return '0%';
+    return <Typography.SmallHeader color={'text10'}>0%</Typography.SmallHeader>;
   }
   if (fixedPercent > 0) {
     if (fixedPercent > 100) {

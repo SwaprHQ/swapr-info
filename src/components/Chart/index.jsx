@@ -115,8 +115,7 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
     <>
       <Header
         title={title}
-        value={formattedNum(headerValue)}
-        isValueCurrency={isCurrency}
+        value={formattedNum(headerValue, isCurrency)}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}

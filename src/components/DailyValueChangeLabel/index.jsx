@@ -9,7 +9,7 @@ import LabeledValue from '../LabeledValue';
 import { DailyChange } from './styled';
 
 const DailyChangeLabel = ({ label, value, dailyChange }) => (
-  <Flex justifyContent={'space-between'}>
+  <Flex justifyContent={'space-between'} flexGrow={1}>
     <LabeledValue label={label} value={value} />
     <Flex flexDirection={'column'} alignItems={'end'} style={{ gap: '8px' }}>
       <Flex alignItems={'center'} justifyContent={'end'}>

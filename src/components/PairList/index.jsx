@@ -26,9 +26,9 @@ const List = styled(Box)`
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 100px 1fr 1fr;
-  grid-template-areas: 'name vol liq';
-  padding: 0 36px;
+  grid-template-columns: 100px 1fr;
+  grid-template-areas: 'name vol';
+  padding: 0 20px;
 
   > * {
     justify-content: flex-end;
@@ -40,10 +40,11 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 680px) {
+    padding: 0 36px;
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: 'name symbol liq vol ';
+    grid-template-areas: 'name symbol liq vol';
 
     > * {
       justify-content: flex-end;
@@ -56,6 +57,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 1080px) {
+    padding: 0 36px;
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 0.1fr 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
@@ -178,7 +180,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
               </FeeText>
             )}
           </FlexText>
-          <FlexText area={'liq'}>{liquidity}</FlexText>
+          {!below680 && <FlexText area={'liq'}>{liquidity}</FlexText>}
           <FlexText area={'vol'}>{volume}</FlexText>
           {!below680 && <FlexText area={'volWeek'}>{formattedNum(pairData.oneWeekVolumeUSD, true)}</FlexText>}
           {!below1080 && (
@@ -223,11 +225,11 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
 
   return (
     <>
-      <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
+      <Panel style={{ marginTop: '6px', padding: below680 ? '20px 0' : '32px 0' }}>
         <DashGrid
           center={true}
           disbaleLinks={disbaleLinks}
-          style={{ height: 'fit-content', padding: '0 36px 24px 36px' }}
+          style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
         >
           {!below1080 && (
             <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
@@ -236,22 +238,24 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
           )}
           <Flex alignItems="center" sx={{ justifyContent: 'flex-start' }}>
             <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-              Pair / Swap Fee
+              {below600 ? 'Pair' : 'Pair / Swap Fee'}
             </Typography.SmallBoldText>
           </Flex>
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText
-              area="liq"
-              onClick={() => {
-                setSortedColumn(SORT_FIELD.LIQ);
-                setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
-              }}
-            >
-              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
-              </Typography.SmallBoldText>
-            </ClickableText>
-          </Flex>
+          {!below680 && (
+            <Flex alignItems="center" justifyContent="flexEnd">
+              <ClickableText
+                area="liq"
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.LIQ);
+                  setSortDirection(sortedColumn !== SORT_FIELD.LIQ ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  Liquidity {sortedColumn === SORT_FIELD.LIQ ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
           <Flex alignItems="center">
             <ClickableText
               area="vol"
@@ -314,9 +318,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
           )}
         </DashGrid>
         <Divider />
-        <List p={0}>
-          {!pairList || pairList.length === 0 || Object.keys(pairs).length <= 2 ? <LocalLoader /> : pairList}
-        </List>
+        <List p={0}>{!pairList || pairList.length === 0 ? <LocalLoader /> : pairList}</List>
       </Panel>
       <PageButtons
         activePage={page}

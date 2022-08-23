@@ -22,7 +22,7 @@ const CandleStickChart = ({
   const theme = useTheme();
   const [filteredData, setFilteredData] = useState([]);
   const [headerValue, setHeaderValue] = useState(currentPrice);
-  const [activeDate, setActiveDate] = useState(null);
+  const [activeDate, setActiveDate] = useState(new Date());
   const [dailyChange, setDailyChange] = useState();
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
 
@@ -171,7 +171,7 @@ const CandleStickChart = ({
 CandleStickChart.propTypes = {
   title: PropTypes.string,
   data: PropTypes.any.isRequired,
-  currentPrice: PropTypes.number,
+  currentPrice: PropTypes.any,
   tooltipTitle: PropTypes.string,
   showTimeFilter: PropTypes.bool,
   isCurrency: PropTypes.bool,

@@ -470,7 +470,7 @@ export const toSignificant = (number, significantDigits) => {
 
 export const formattedNum = (number, usd = false) => {
   if (isNaN(number) || number === '' || number === undefined) {
-    return usd ? '$ 0' : 0;
+    return usd ? formatDollarAmount(0, 0) : 0;
   }
 
   let num = parseFloat(number);
@@ -481,7 +481,7 @@ export const formattedNum = (number, usd = false) => {
 
   if (num === 0) {
     if (usd) {
-      return '$ 0';
+      return formatDollarAmount(0, 0);
     }
     return 0;
   }

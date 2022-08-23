@@ -644,7 +644,7 @@ export function useTokenData(tokenAddress) {
   const tokenData = state?.[tokenAddress];
 
   useEffect(() => {
-    if (!tokenData && nativeCurrencyPrice && nativeCurrencyPriceOld && isAddress(tokenAddress)) {
+    if ((!tokenData || !tokenData.id) && nativeCurrencyPrice && nativeCurrencyPriceOld && isAddress(tokenAddress)) {
       getTokenData(client, blockClient, tokenAddress, nativeCurrencyPrice, nativeCurrencyPriceOld).then((data) => {
         update(tokenAddress, data);
       });

@@ -6,10 +6,9 @@ import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE, Typography } from '../Theme';
+import { Typography } from '../Theme';
 import { PageWrapper, ContentWrapper } from '../components';
 import { ButtonLight, ButtonDark } from '../components/ButtonStyled';
-import { AutoColumn } from '../components/Column';
 import CopyHelper from '../components/Copy';
 import DailyChangeLabel from '../components/DailyValueChangeLabel';
 import LabeledValue from '../components/LabeledValue';
@@ -17,7 +16,7 @@ import Link, { BasicLink, ExternalListLink } from '../components/Link';
 import Loader from '../components/LocalLoader';
 import PairList from '../components/PairList';
 import Panel from '../components/Panel';
-import { AutoRow, RowBetween, RowFixed } from '../components/Row';
+import { AutoRow, RowFixed } from '../components/Row';
 import Search from '../components/Search';
 import TokenChart from '../components/TokenChart';
 import TokenLogo from '../components/TokenLogo';
@@ -25,7 +24,6 @@ import TxnList from '../components/TxnList';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useDataForList } from '../contexts/PairData';
 import { useTokenData, useTokenTransactions, useTokenPairs } from '../contexts/TokenData';
-import { useColor } from '../hooks';
 import { formattedNum, formattedPercent, getExplorerLink, getPoolLink, getSwapLink, localNumber } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -40,7 +38,7 @@ const PanelWrapper = styled.div`
   width: 100%;
   align-items: start;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (max-width: 1080px) {
     grid-template-columns: 1fr;
     align-items: stretch;
     > * {
@@ -57,7 +55,6 @@ const PanelWrapper = styled.div`
 
 function TokenPage({ address }) {
   const {
-    id,
     name,
     symbol,
     priceUSD,
@@ -76,9 +73,6 @@ function TokenPage({ address }) {
     document.querySelector('body').scrollTo(0, 0);
   }, []);
 
-  // detect color from token
-  const backgroundColor = useColor(id, symbol);
-
   const allPairs = useTokenPairs(address);
 
   // pairs to show in pair list
@@ -88,8 +82,8 @@ function TokenPage({ address }) {
   const transactions = useTokenTransactions(address);
 
   // price
-  const price = priceUSD ? formattedNum(priceUSD, true) : '';
-  const priceChange = priceChangeUSD ? formattedPercent(priceChangeUSD) : '';
+  const price = priceUSD || priceUSD === 0 ? formattedNum(priceUSD, true) : '';
+  const priceChange = priceChangeUSD || priceChangeUSD === 0 ? formattedPercent(priceChangeUSD) : '';
 
   // volume
   const volume =
@@ -105,18 +99,20 @@ function TokenPage({ address }) {
   const volumeChange = formattedPercent(!usingUtVolume ? volumeChangeUSD : volumeChangeUT);
 
   // liquidity
-  const liquidity = totalLiquidityUSD && formattedNum(totalLiquidityUSD, true);
+  const liquidity = (totalLiquidityUSD || totalLiquidityUSD === 0) && formattedNum(totalLiquidityUSD, true);
   const liquidityChange = formattedPercent(liquidityChangeUSD);
 
   // transactions
   const txnChangeFormatted = formattedPercent(txnChange);
 
   const below1080 = useMedia('(max-width: 1080px)');
-  const below600 = useMedia('(max-width: 600px)');
+  const below700 = useMedia('(max-width: 710px)');
 
   // format for long symbol
   const LENGTH = below1080 ? 10 : 16;
   const formattedSymbol = symbol?.length > LENGTH ? symbol.slice(0, LENGTH) + '...' : symbol;
+
+  const swaprButtonsWidth = below700 ? '100%' : 'initial';
 
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
@@ -132,7 +128,7 @@ function TokenPage({ address }) {
   return (
     <PageWrapper>
       <ContentWrapper>
-        <RowBetween style={{ flexWrap: 'wrap', alingItems: 'start' }}>
+        <Flex justifyContent={'space-between'}>
           <AutoRow align="flex-end" style={{ width: 'fit-content' }}>
             <Typography.LargeText color={'text10'} sx={{ marginRight: '4px' }}>
               <BasicLink to="/tokens">{'Tokens '}</BasicLink>
@@ -145,70 +141,69 @@ function TokenPage({ address }) {
               <Skeleton style={{ width: '60px' }} />
             )}
           </AutoRow>
-          {!below600 && <Search small={true} />}
-        </RowBetween>
+          {!below700 && <Search small={true} />}
+        </Flex>
         <DashboardWrapper>
-          <RowBetween
-            style={{
-              flexWrap: 'wrap',
-              marginBottom: '2rem',
-            }}
-          >
+          <Flex marginBottom={'20px'} justifyContent={below700 ? 'center' : 'space-between'}>
             <RowFixed style={{ flexWrap: 'wrap' }}>
-              <Flex alignItems={'center'} style={{ gap: '10px' }}>
-                {symbol ? (
-                  <>
-                    <TokenLogo address={address} defaultText={symbol} size="32px" />
-                    <Typography.LargeHeader color={'text10'}>{name}</Typography.LargeHeader>
-                    <Typography.LargeHeader color={'text10'}>
-                      {formattedSymbol ? `(${formattedSymbol})` : ''}
-                    </Typography.LargeHeader>
-                  </>
-                ) : (
-                  <Skeleton style={{ width: '250px' }} />
-                )}
-                {price ? (
-                  !below1080 && <Typography.LargeBoldText color={'text9'}>{price}</Typography.LargeBoldText>
-                ) : (
-                  <Skeleton style={{ width: '120px' }} />
-                )}
-              </Flex>
+              {!below700 && (
+                <>
+                  <Flex alignItems={'center'} style={{ gap: '10px', height: '34px' }}>
+                    {symbol ? (
+                      <>
+                        <TokenLogo address={address} defaultText={symbol} size="32px" />
+                        <Typography.LargeHeader color={'text10'}>{name}</Typography.LargeHeader>
+                        <Typography.LargeHeader color={'text10'}>
+                          {formattedSymbol ? `(${formattedSymbol})` : ''}
+                        </Typography.LargeHeader>
+                      </>
+                    ) : (
+                      <Skeleton style={{ width: '150px' }} />
+                    )}
+                    {price ? (
+                      !below1080 && <Typography.LargeBoldText color={'text9'}>{price}</Typography.LargeBoldText>
+                    ) : (
+                      <Skeleton style={{ width: '120px' }} />
+                    )}
+                  </Flex>
+                </>
+              )}
             </RowFixed>
-            <Flex style={{ gap: '16px' }}>
-              <Link href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
-                <ButtonLight>
+            <Flex style={{ gap: '16px', width: swaprButtonsWidth }}>
+              <Link
+                href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)}
+                external
+                style={{ width: swaprButtonsWidth }}
+              >
+                <ButtonLight style={{ width: swaprButtonsWidth }}>
                   <Typography.SmallBoldText color={'bd1'} sx={{ letterSpacing: '0.08em' }}>
                     + ADD LIQUIDITY
                   </Typography.SmallBoldText>
                 </ButtonLight>
               </Link>
-              <Link href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)} external>
-                <ButtonDark>
+              <Link
+                href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, address)}
+                external
+                style={{ width: swaprButtonsWidth }}
+              >
+                <ButtonDark style={{ width: swaprButtonsWidth }}>
                   <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                     TRADE
                   </Typography.SmallBoldText>
                 </ButtonDark>
               </Link>
             </Flex>
-          </RowBetween>
+          </Flex>
           <PanelWrapper>
-            {below1080 && price && (
+            {below700 && price && (
               <Panel>
-                <AutoColumn gap="20px">
-                  <RowBetween>
-                    <TYPE.main>Price</TYPE.main>
-                    <div />
-                  </RowBetween>
-                  <RowBetween align="flex-end">
-                    <TYPE.main fontSize={'1.5rem'} lineHeight={1} fontWeight={500}>
-                      {price}
-                    </TYPE.main>
-                    <TYPE.main>{priceChange}</TYPE.main>
-                  </RowBetween>
-                </AutoColumn>
+                <Flex style={{ gap: '10px' }}>
+                  <TokenLogo address={address} defaultText={symbol} size="32px" />
+                  <DailyChangeLabel label={'PRICE'} value={price} dailyChange={priceChange} />
+                </Flex>
               </Panel>
             )}
-            <Panel>
+            <Panel style={{ maxHeight: '205px' }}>
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                 <DailyChangeLabel
                   label={'TVL'}
@@ -217,7 +212,7 @@ function TokenPage({ address }) {
                 />
                 <DailyChangeLabel
                   label={'VOLUME'}
-                  value={volume}
+                  value={(volume || volume === 0) && volume}
                   dailyChange={(volumeChangeUSD || volumeChangeUSD === 0) && volumeChange}
                 />
                 <DailyChangeLabel
@@ -227,7 +222,7 @@ function TokenPage({ address }) {
                 />
               </Flex>
             </Panel>
-            <Panel>
+            <Panel style={{ maxHeight: '205px' }}>
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                 <Flex justifyContent={'space-between'}>
                   <LabeledValue label={'SYMBOL'} value={symbol} />
@@ -267,12 +262,19 @@ function TokenPage({ address }) {
           </PanelWrapper>
           <Typography.Custom
             color={'text10'}
-            sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400, marginTop: '40px', marginBottom: '20px' }}
+            sx={{
+              fontSize: '20px',
+              lineHeight: '24px',
+              fontWeight: 400,
+              marginTop: '40px',
+              marginBottom: '20px',
+              textAlign: below700 ? 'center' : 'left',
+            }}
           >
             Top Pairs
           </Typography.Custom>
-          {address && fetchedPairsList ? (
-            <PairList color={backgroundColor} address={address} pairs={fetchedPairsList} />
+          {!!(address && fetchedPairsList) ? (
+            <PairList address={address} pairs={fetchedPairsList} />
           ) : (
             <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
               <Loader />
@@ -280,12 +282,19 @@ function TokenPage({ address }) {
           )}
           <Typography.Custom
             color={'text10'}
-            sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400, marginTop: '40px', marginBottom: '20px' }}
+            sx={{
+              fontSize: '20px',
+              lineHeight: '24px',
+              fontWeight: 400,
+              marginTop: '40px',
+              marginBottom: '20px',
+              textAlign: below700 ? 'center' : 'left',
+            }}
           >
             Transactions
           </Typography.Custom>
           {transactions ? (
-            <TxnList color={backgroundColor} transactions={transactions} />
+            <TxnList transactions={transactions} />
           ) : (
             <Panel rounded>
               <Loader />

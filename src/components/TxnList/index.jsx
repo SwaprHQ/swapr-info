@@ -27,7 +27,7 @@ const DashGrid = styled.div`
   grid-gap: 1em;
   grid-template-columns: 100px 1fr 1fr;
   grid-template-areas: 'txn value time';
-  padding: 0 36px;
+  padding: 0 20px;
 
   > * {
     justify-content: flex-end;
@@ -40,7 +40,9 @@ const DashGrid = styled.div`
     }
   }
 
-  @media screen and (min-width: 500px) {
+  @media screen and (min-width: 680px) {
+    padding: 0 36px;
+
     > * {
       &:first-child {
         width: 180px;
@@ -49,7 +51,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 780px) {
-    max-width: 1320px;
+    padding: 0 36px;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther time';
 
@@ -61,7 +63,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 1080px) {
-    max-width: 1320px;
+    padding: 0 36px;
     grid-template-columns: 1.2fr 1fr 1fr 1fr 1fr 1fr;
     grid-template-areas: 'txn value amountToken amountOther account time';
   }
@@ -301,8 +303,11 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
 
   return (
     <>
-      <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
-        <DashGrid center={true} style={{ height: 'fit-content', padding: '0 36px 24px 36px' }}>
+      <Panel style={{ marginTop: '6px', padding: below680 ? '20px 0' : '32px 0' }}>
+        <DashGrid
+          center={true}
+          style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
+        >
           <Flex area={'txn'} sx={{ gap: '6px' }}>
             {below680 ? (
               <SortText

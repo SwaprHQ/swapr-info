@@ -29,7 +29,7 @@ const DashGrid = styled.div`
   grid-gap: 1em;
   grid-template-columns: 100px 1fr;
   grid-template-areas: 'name vol';
-  padding: 0 36px;
+  padding: 0 20px;
 
   > * {
     justify-content: flex-end;
@@ -41,6 +41,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 680px) {
+    padding: 0 36px;
     display: grid;
     grid-gap: 1em;
     grid-template-columns: 180px 1fr 1fr 1fr;
@@ -57,6 +58,7 @@ const DashGrid = styled.div`
   }
 
   @media screen and (min-width: 1080px) {
+    padding: 0 36px;
     display: grid;
     grid-gap: 0.5em;
     grid-template-columns: 0.1fr 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
@@ -187,8 +189,11 @@ function TopTokenList({ tokens, itemMax = 10 }) {
 
   return (
     <>
-      <Panel style={{ marginTop: '6px', padding: '32px 0' }}>
-        <DashGrid center={true} style={{ height: 'fit-content', padding: '0 36px 24px 36px' }}>
+      <Panel style={{ marginTop: '6px', padding: below680 ? '20px 0' : '32px 0' }}>
+        <DashGrid
+          center={true}
+          style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
+        >
           {!below1080 && (
             <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
               #

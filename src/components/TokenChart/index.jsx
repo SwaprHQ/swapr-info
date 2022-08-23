@@ -121,7 +121,7 @@ const TokenChart = ({ address, base }) => {
         </PanelLoaderWrapper>
       )}
       {chartFilter === CHART_VIEW.PRICE && (
-        <PanelLoaderWrapper isLoading={!formattedPriceData || !base}>
+        <PanelLoaderWrapper isLoading={!formattedPriceData || (!base && base !== 0)}>
           <CandleStickChart
             data={formattedPriceData}
             currentPrice={base}

@@ -21,7 +21,7 @@ const LabeledValue = ({ label, value }) => (
 
 LabeledValue.propTypes = {
   label: PropTypes.string.isRequired,
-  value: PropTypes.any.isRequired,
+  value: PropTypes.any,
 };
 
 export default LabeledValue;

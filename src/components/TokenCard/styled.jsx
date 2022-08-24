@@ -10,7 +10,7 @@ const Wrapper = styled.div`
   min-width: 150px;
   border-radius: 12px;
   box-shadow: ${({ theme }) => `0px 0.5px 0px 0.1px ${theme.bd1}`};
-
+  margin: ${({ margin }) => (margin ? `${margin}` : '0')};
   background: ${({ isNegative }) =>
     isNegative
       ? `linear-gradient(226.13deg, rgba(152, 15, 15, 0.2) -7.71%, rgba(152, 15, 15, 0) 85.36%), linear-gradient(113.18deg, rgba(255, 255, 255, 0.15) -0.1%, rgba(0, 0, 0, 0) 98.9%), #0C0B11`

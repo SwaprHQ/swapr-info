@@ -1,8 +1,8 @@
 import { useEffect, useRef, useMemo } from 'react';
 import 'feather-icons';
+import Marquee from 'react-fast-marquee';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
@@ -11,21 +11,6 @@ import Search from '../components/Search';
 import TokenCard from '../components/TokenCard';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
-
-export const ScrollableRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  overflow-x: auto;
-  white-space: nowrap;
-  gap: 14px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.bd1};
-  background-color: ${({ theme }) => theme.bg7};
-
-  -ms-overflow-style: none;
-  scrollbar-width: none;
-`;
 
 function AllTokensPage() {
   const allTokens = useAllTokenData();
@@ -64,6 +49,10 @@ function AllTokensPage() {
     [allTokens],
   );
 
+  if (topMovers.length === 0) {
+    return null;
+  }
+
   return (
     <PageWrapper>
       <FullWrapper gap={'0'}>
@@ -71,7 +60,14 @@ function AllTokensPage() {
           <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader>
           {!below800 && <Search small={true} />}
         </Flex>
-        <ScrollableRow ref={increaseRef}>
+        <Marquee
+          gradient
+          gradientWidth={below800 ? 10 : 30}
+          gradientColor={[11, 11, 17]}
+          speed={40}
+          style={{ margin: '5px 0px', height: 'fit-content' }}
+          pauseOnHover
+        >
           {topMovers.length > 0 ? (
             topMovers.map((token) => (
               <TokenCard
@@ -80,12 +76,13 @@ function AllTokensPage() {
                 symbol={token.symbol}
                 price={token.priceUSD}
                 priceChange={token.priceChangeUSD}
+                margin="0px 5px"
               />
             ))
           ) : (
             <LocalLoader height={'26px'} />
           )}
-        </ScrollableRow>
+        </Marquee>
         {below800 && (
           <Box marginTop={'20px'}>
             <Search small={true} />

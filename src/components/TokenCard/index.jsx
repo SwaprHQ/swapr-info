@@ -5,9 +5,9 @@ import { formattedNum, formattedPercent } from '../../utils';
 import TokenLogo from '../TokenLogo';
 import { PercentageChange, Wrapper } from './styled';
 
-const TokenCard = ({ address, symbol, price, priceChange }) => {
+const TokenCard = ({ address, symbol, price, priceChange, margin }) => {
   return (
-    <Wrapper isNegative={priceChange < 0}>
+    <Wrapper isNegative={priceChange < 0} margin={margin}>
       <TokenLogo address={address} />
       <div>
         <Typography.Text color={'text8'}>{symbol}</Typography.Text>
@@ -23,6 +23,7 @@ TokenCard.propTypes = {
   symbol: PropTypes.string,
   price: PropTypes.number,
   priceChange: PropTypes.number,
+  margin: PropTypes.string,
 };
 
 export default TokenCard;

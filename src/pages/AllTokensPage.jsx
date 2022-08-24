@@ -3,7 +3,6 @@ import 'feather-icons';
 import Marquee from 'react-fast-marquee';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';

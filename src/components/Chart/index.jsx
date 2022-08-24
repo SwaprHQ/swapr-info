@@ -102,7 +102,7 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
           break;
         }
         default: {
-          limitDate.setFullYear(limitDate.getDate() - 7);
+          limitDate.setDate(limitDate.getDate() - 7);
           break;
         }
       }

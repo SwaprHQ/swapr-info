@@ -1,8 +1,9 @@
-import { useEffect, useRef, useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 import 'feather-icons';
 import Marquee from 'react-fast-marquee';
 import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
+import styled from 'styled-components';
 
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
@@ -12,33 +13,23 @@ import TokenCard from '../components/TokenCard';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
 
+export const ScrollableRow = styled.div`
+  overflow-x: auto;
+  gap: 14px;
+  padding: 20px;
+  border-radius: 8px;
+  border: 1px solid ${({ theme }) => theme.bd1};
+  background-color: ${({ theme }) => theme.bg7};
+`;
+
 function AllTokensPage() {
   const allTokens = useAllTokenData();
-  const increaseRef = useRef(null);
+
   const below800 = useMedia('(max-width: 800px)');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
-
-  useEffect(() => {
-    let interval;
-
-    if (Object.values(allTokens).length > 0 && increaseRef && increaseRef.current) {
-      setTimeout(() => {
-        interval = setInterval(() => {
-          if (
-            increaseRef.current &&
-            increaseRef.current.scrollLeft + increaseRef.current.offsetWidth < increaseRef.current.scrollWidth
-          ) {
-            increaseRef.current.scrollTo(increaseRef.current.scrollLeft + 1, 0);
-          }
-        }, 50);
-      }, 3000);
-    }
-
-    return () => clearInterval(interval);
-  }, [increaseRef, allTokens]);
 
   const topMovers = useMemo(
     () =>
@@ -49,40 +40,42 @@ function AllTokensPage() {
     [allTokens],
   );
 
-  if (topMovers.length === 0) {
-    return null;
-  }
+  const isTopMoversEmpty = Object.keys(allTokens).length > 0 && topMovers.length === 0;
 
   return (
     <PageWrapper>
       <FullWrapper gap={'0'}>
         <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
-          <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader>
+          {!isTopMoversEmpty ? <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader> : <div />}
           {!below800 && <Search small={true} />}
         </Flex>
-        <Marquee
-          gradient
-          gradientWidth={below800 ? 10 : 30}
-          gradientColor={[11, 11, 17]}
-          speed={40}
-          style={{ margin: '5px 0px', height: 'fit-content' }}
-          pauseOnHover
-        >
-          {topMovers.length > 0 ? (
-            topMovers.map((token) => (
-              <TokenCard
-                key={token.id}
-                address={token.id}
-                symbol={token.symbol}
-                price={token.priceUSD}
-                priceChange={token.priceChangeUSD}
-                margin="0px 5px"
-              />
-            ))
-          ) : (
-            <LocalLoader height={'26px'} />
-          )}
-        </Marquee>
+        {!isTopMoversEmpty && (
+          <ScrollableRow>
+            {topMovers.length > 0 ? (
+              <Marquee
+                gradient
+                gradientWidth={below800 ? 10 : 30}
+                gradientColor={[11, 11, 17]}
+                speed={40}
+                style={{ margin: '5px 0px', height: 'fit-content' }}
+                pauseOnHover
+              >
+                {topMovers.map((token) => (
+                  <TokenCard
+                    key={token.id}
+                    address={token.id}
+                    symbol={token.symbol}
+                    price={token.priceUSD}
+                    priceChange={token.priceChangeUSD}
+                    margin="0px 5px"
+                  />
+                ))}
+              </Marquee>
+            ) : (
+              <LocalLoader height={'26px'} />
+            )}
+          </ScrollableRow>
+        )}
         {below800 && (
           <Box marginTop={'20px'}>
             <Search small={true} />

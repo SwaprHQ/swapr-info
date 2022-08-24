@@ -13,15 +13,6 @@ import TokenCard from '../components/TokenCard';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
 
-export const ScrollableRow = styled.div`
-  overflow-x: auto;
-  gap: 14px;
-  padding: 20px;
-  border-radius: 8px;
-  border: 1px solid ${({ theme }) => theme.bd1};
-  background-color: ${({ theme }) => theme.bg7};
-`;
-
 function AllTokensPage() {
   const allTokens = useAllTokenData();
 
@@ -50,7 +41,7 @@ function AllTokensPage() {
           {!below800 && <Search small={true} />}
         </Flex>
         {!isTopMoversEmpty && (
-          <ScrollableRow>
+          <>
             {topMovers.length > 0 ? (
               <Marquee
                 gradient
@@ -74,7 +65,7 @@ function AllTokensPage() {
             ) : (
               <LocalLoader height={'26px'} />
             )}
-          </ScrollableRow>
+          </>
         )}
         {below800 && (
           <Box marginTop={'20px'}>

@@ -74,7 +74,6 @@ export const ButtonLight = styled(Base)`
   border: ${({ theme }) => `1px solid ${theme.bd1}`};
   border-radius: 8px;
 
-  border-radius: 12px;
   white-space: nowrap;
 
   a {

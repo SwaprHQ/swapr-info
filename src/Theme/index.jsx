@@ -120,7 +120,7 @@ export const Typography = {
   SmallBoldText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={600}
-      fontSize={10}
+      fontSize={'10px'}
       lineHeight={'12px'}
       color={color || 'text1'}
       sx={sx}
@@ -132,7 +132,7 @@ export const Typography = {
   SmallText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
-      fontSize={10}
+      fontSize={'10px'}
       lineHeight={'10px'}
       color={color || 'text1'}
       sx={sx}
@@ -144,7 +144,7 @@ export const Typography = {
   Text: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
-      fontSize={13}
+      fontSize={'13px'}
       lineHeight={'16px'}
       color={color || 'text1'}
       sx={sx}
@@ -168,7 +168,7 @@ export const Typography = {
   LargeText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
-      fontSize={14}
+      fontSize={'14px'}
       lineHeight={'17px'}
       color={color || 'text1'}
       sx={sx}
@@ -180,7 +180,7 @@ export const Typography = {
   LargeBoldText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={600}
-      fontSize={14}
+      fontSize={'14px'}
       lineHeight={'17px'}
       color={color || 'text1'}
       sx={sx}
@@ -192,7 +192,7 @@ export const Typography = {
   SmallHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
-      fontSize={16}
+      fontSize={'16px'}
       lineHeight={'19px'}
       color={color || 'text1'}
       sx={sx}
@@ -216,7 +216,7 @@ export const Typography = {
   LargeHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
-      fontSize={24}
+      fontSize={'24px'}
       lineHeight={'29px'}
       color={color || 'text1'}
       sx={sx}
@@ -228,7 +228,7 @@ export const Typography = {
   LargeBoldHeader: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={700}
-      fontSize={24}
+      fontSize={'24px'}
       lineHeight={'29px'}
       color={color || 'text1'}
       sx={sx}

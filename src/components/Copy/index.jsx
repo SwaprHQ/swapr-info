@@ -1,14 +1,15 @@
-import { CheckCircle, Copy } from 'react-feather';
+import { CheckCircle } from 'react-feather';
 import styled from 'styled-components';
 
 import { StyledIcon } from '..';
+import { ReactComponent as ClipboardCopySvg } from '../../assets/svg/clipboard-copy.svg';
 import { useCopyClipboard } from '../../hooks';
 
 const CopyIcon = styled.div`
+  display: flex;
   color: #aeaeae;
   flex-shrink: 0;
-  margin-right: 1rem;
-  margin-left: 0.5rem;
+  margin-left: 4px;
   text-decoration: none;
   :hover,
   :active,
@@ -33,13 +34,13 @@ export default function CopyHelper({ toCopy }) {
       {isCopied ? (
         <TransactionStatusText>
           <StyledIcon>
-            <CheckCircle size={'14'} />
+            <CheckCircle size={'16'} />
           </StyledIcon>
         </TransactionStatusText>
       ) : (
         <TransactionStatusText>
           <StyledIcon>
-            <Copy size={'14'} />
+            <ClipboardCopySvg height={16} width={16} />
           </StyledIcon>
         </TransactionStatusText>
       )}

@@ -11,7 +11,7 @@ import { useDarkModeManager } from '../../contexts/LocalStorage';
 import { usePairChartData, useHourlyRateData, usePairData } from '../../contexts/PairData';
 import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
 import { OptionButton } from '../ButtonStyled';
-import CandleStickChart from '../CandleChart';
+import CandleStickChart from '../CandleStickChart';
 import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import { AutoRow } from '../Row';

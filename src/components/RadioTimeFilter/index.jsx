@@ -8,7 +8,7 @@ const RadioTimeFilter = ({ onChange, options, activeValue }) => {
     <Wrapper>
       {Object.keys(options).map((key) => (
         <Button key={key} onClick={() => onChange(options[key])} isActive={activeValue === options[key]}>
-          <Typography.LargeText sx={{ letterSpacing: '0.08em' }}>{options[key]}</Typography.LargeText>
+          <Typography.Text sx={{ letterSpacing: '0.08em' }}>{options[key]}</Typography.Text>
         </Button>
       ))}
     </Wrapper>
@@ -17,16 +17,8 @@ const RadioTimeFilter = ({ onChange, options, activeValue }) => {
 
 RadioTimeFilter.propTypes = {
   onChange: PropTypes.func.isRequired,
-  filterOptions: PropTypes.object.isRequired,
+  options: PropTypes.object.isRequired,
   activeValue: PropTypes.string,
-};
-
-RadioTimeFilter.defaultProps = {
-  filterOptions: {
-    MONTH_1: '1M',
-    MONTH_3: '3M',
-    YEAR: '1Y',
-  },
 };
 
 export default RadioTimeFilter;

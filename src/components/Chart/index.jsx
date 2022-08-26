@@ -4,17 +4,12 @@ import { useCallback, useEffect, useState } from 'react';
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useTheme } from 'styled-components';
 
+import { TIME_FILTER_OPTIONS } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
 
-const TIME_FILTER_OPTIONS = {
-  WEEk: '1W',
-  MONTH_1: '1M',
-  YEAR: '1Y',
-};
-
-const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) => {
+const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFilter, showTimeFilter }) => {
   const theme = useTheme();
   const [filteredData, setFilteredData] = useState(data);
   const [headerValue, setHeaderValue] = useState(null);
@@ -35,7 +30,7 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) 
           pastHeaderValue += data[data.length - 2][key];
         });
 
-      const dailyChange = ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100;
+      const dailyChange = pastHeaderValue > 0 ? ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100 : 0;
 
       setDailyChange(dailyChange);
       setActiveDate(data[data.length - 1].time);
@@ -93,8 +88,8 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) 
     if (data && data.length > 0) {
       let limitDate = new Date();
 
-      switch (activeFilter) {
-        case TIME_FILTER_OPTIONS.WEEk: {
+      switch (overridingActiveFilter ?? activeFilter) {
+        case TIME_FILTER_OPTIONS.WEEK: {
           limitDate.setDate(limitDate.getDate() - 7);
           break;
         }
@@ -107,21 +102,20 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) 
           break;
         }
         default: {
-          limitDate.setFullYear(limitDate.getDate() - 7);
+          limitDate.setDate(limitDate.getDate() - 7);
           break;
         }
       }
 
       setFilteredData(data.filter((data) => new Date(data.time).getTime() > limitDate.getTime()));
     }
-  }, [data, activeFilter]);
+  }, [data, overridingActiveFilter, activeFilter]);
 
   return (
     <>
       <Header
         title={title}
-        value={formattedNum(headerValue)}
-        isValueCurrency={isCurrency}
+        value={formattedNum(headerValue, isCurrency)}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
@@ -191,12 +185,13 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, showTimeFilter }) 
 };
 
 Chart.propTypes = {
-  title: PropTypes.string.isRequired,
+  title: PropTypes.string,
   tooltipTitle: PropTypes.string,
   data: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
   isCurrency: PropTypes.bool,
   showTimeFilter: PropTypes.bool,
+  overridingActiveFilter: PropTypes.oneOf(Object.values(TIME_FILTER_OPTIONS)),
   maxWith: PropTypes.number,
   minHeight: PropTypes.number,
 };

@@ -84,8 +84,20 @@ export const timeframeOptions = {
   WEEK: '1 week',
   MONTH: '1 month',
   // THREE_MONTHS: '3 months',
-  // YEAR: '1 year',
+  YEAR: '1 year',
   ALL_TIME: 'All time',
+};
+
+export const TIME_FILTER_OPTIONS = {
+  WEEK: '1W',
+  MONTH_1: '1M',
+  YEAR: '1Y',
+};
+
+export const STACKED_CHART_TIME_FILTER_OPTIONS = {
+  MONTH_1: '1M',
+  MONTH_3: '3M',
+  YEAR: '1Y',
 };
 
 // hide from overview list

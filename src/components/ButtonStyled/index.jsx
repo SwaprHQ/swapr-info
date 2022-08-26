@@ -60,21 +60,28 @@ const ContentWrapper = styled.div`
 `;
 
 export const ButtonLight = styled(Base)`
+  min-width: 148px;
+  height: 32px;
+
   background-color: ${({ color, theme }) =>
     color ? transparentize(0.9, color) : transparentize(0.9, theme.swaprLink)};
-  color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.swaprLink)};
 
-  min-width: fit-content;
-  border-radius: 12px;
+  background: linear-gradient(118.9deg, rgba(255, 255, 255, 0.2) -0.59%, rgba(0, 0, 0, 0) 132.78%),
+    linear-gradient(0deg, #171621, #171621), rgba(61, 55, 88, 0.7);
+  background-blend-mode: overlay, normal, normal;
+  backdrop-filter: blur(25px);
+
+  border: ${({ theme }) => `1px solid ${theme.bd1}`};
+  border-radius: 8px;
+
   white-space: nowrap;
 
   a {
     color: ${({ color, theme }) => (color ? darken(0.1, color) : theme.swaprLink)};
   }
 
-  :hover {
-    background-color: ${({ color, theme }) =>
-      color ? transparentize(0.8, color) : transparentize(0.8, theme.swaprLink)};
+  :hover > * {
+    color: ${({ theme }) => theme.text8};
   }
 `;
 
@@ -98,15 +105,16 @@ export function ButtonDropdown({ disabled = false, children, open, ...rest }) {
 }
 
 export const ButtonDark = styled(Base)`
-  background-color: ${({ color, theme }) => (color ? color : theme.swaprLink)};
-  color: white;
-  width: fit-content;
-  border-radius: 12px;
-  white-space: nowrap;
+  min-width: 148px;
+  height: 32px;
 
-  :hover {
-    background-color: ${({ color, theme }) => (color ? darken(0.1, color) : darken(0.1, theme.swaprLink))};
-  }
+  background: linear-gradient(118.9deg, rgba(255, 255, 255, 0.2) -0.59%, rgba(0, 0, 0, 0) 132.78%),
+    rgba(61, 55, 88, 0.7);
+  background-blend-mode: overlay, normal;
+  backdrop-filter: blur(25px);
+
+  border: ${({ theme }) => `1px solid ${theme.bd1}`};
+  border-radius: 8px;
 `;
 
 export const ButtonFaded = styled(Base)`

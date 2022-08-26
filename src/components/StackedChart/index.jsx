@@ -4,16 +4,10 @@ import { useCallback, useEffect, useState } from 'react';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
 import { Typography } from '../../Theme';
-import { NETWORK_COLORS, SupportedNetwork } from '../../constants';
+import { NETWORK_COLORS, SupportedNetwork, STACKED_CHART_TIME_FILTER_OPTIONS } from '../../constants';
 import { formattedNum, formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
-
-const TIME_FILTER_OPTIONS = {
-  MONTH_1: '1M',
-  MONTH_3: '3M',
-  YEAR: '1Y',
-};
 
 const LegendItem = (value) => <Typography.LargeText sx={{ display: 'inline' }}>{value}</Typography.LargeText>;
 
@@ -21,7 +15,7 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
+  const [activeFilter, setActiveFilter] = useState(STACKED_CHART_TIME_FILTER_OPTIONS.MONTH_1);
   const [dailyChange, setDailyChange] = useState();
 
   // set header values to the latest point of the chart
@@ -100,15 +94,15 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
       let limitDate = new Date();
 
       switch (activeFilter) {
-        case TIME_FILTER_OPTIONS.MONTH_1: {
+        case STACKED_CHART_TIME_FILTER_OPTIONS.MONTH_1: {
           limitDate.setMonth(limitDate.getMonth() - 1);
           break;
         }
-        case TIME_FILTER_OPTIONS.MONTH_3: {
+        case STACKED_CHART_TIME_FILTER_OPTIONS.MONTH_3: {
           limitDate.setMonth(limitDate.getMonth() - 3);
           break;
         }
-        case TIME_FILTER_OPTIONS.YEAR: {
+        case STACKED_CHART_TIME_FILTER_OPTIONS.YEAR: {
           limitDate.setFullYear(limitDate.getFullYear() - 1);
           break;
         }
@@ -132,7 +126,7 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
         activeFilter={activeFilter}
-        filterOptions={TIME_FILTER_OPTIONS}
+        filterOptions={STACKED_CHART_TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
       <ResponsiveContainer maxHeight={maxHeight} maxWith={maxWith} minHeight={minHeight}>

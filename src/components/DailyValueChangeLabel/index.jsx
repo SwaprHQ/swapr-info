@@ -12,7 +12,7 @@ const DailyChangeLabel = ({ label, value, dailyChange }) => (
   <Flex justifyContent={'space-between'} flexGrow={1}>
     <LabeledValue label={label} value={value} />
     <Flex flexDirection={'column'} alignItems={'end'} style={{ gap: '8px' }}>
-      <Flex alignItems={'center'} justifyContent={'end'}>
+      <Flex alignItems={'center'} justifyContent={'end'} style={{ height: '15px' }}>
         <Icon icon={<ClockSvg height={16} width={16} />} />
         <Typography.SmallBoldText color={'text7'}>24H</Typography.SmallBoldText>
       </Flex>

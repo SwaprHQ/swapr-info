@@ -1,6 +1,5 @@
 import dayjs from 'dayjs';
-import { useState, useEffect, useMemo } from 'react';
-import { usePrevious } from 'react-use';
+import { useState, useMemo } from 'react';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
@@ -30,16 +29,9 @@ const TokenChart = ({ address, base }) => {
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.WEEK);
   const [isHourlyPriceData, setIsHourlyPriceData] = useState(false);
 
-  const addressPrev = usePrevious(address);
   const volumeAndLiquidityData = useTokenChartData(address);
   const dailyYearPriceData = useTokenPriceData(address, timeframeOptions.YEAR, 86400);
   const weeklyHourlyPriceData = useTokenPriceData(address, timeframeOptions.WEEK, 14400);
-
-  useEffect(() => {
-    if (address !== addressPrev && addressPrev) {
-      setChartFilter(CHART_VIEW.LIQUIDITY);
-    }
-  }, [address, addressPrev]);
 
   // format data values
   const { formattedLiquidityData, formattedVolumeData } = useMemo(() => {

@@ -122,21 +122,15 @@ const GlobalPage = () => {
           )}
           <GlobalStats />
           <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
-            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
-              Top Tokens
-            </Typography.Custom>
+            <Typography.MediumHeader color={'text10'}>Top Tokens</Typography.MediumHeader>
           </ListOptions>
           <TopTokenList tokens={allTokens} />
           <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
-            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
-              Top Pairs
-            </Typography.Custom>
+            <Typography.MediumHeader color={'text10'}>Top Pairs</Typography.MediumHeader>
           </ListOptions>
           <PairList pairs={allPairs} />
           <ListOptions gap="10px" style={{ marginTop: '40px', marginBottom: '20px' }}>
-            <Typography.Custom color={'text10'} sx={{ fontSize: '20px', lineHeight: '24px', fontWeight: 400 }}>
-              Transactions
-            </Typography.Custom>
+            <Typography.MediumHeader color={'text10'}>Transactions</Typography.MediumHeader>
           </ListOptions>
           <TxnList transactions={transactions} />
         </div>

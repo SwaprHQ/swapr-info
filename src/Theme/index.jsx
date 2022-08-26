@@ -153,6 +153,18 @@ export const Typography = {
       {children}
     </TextWrapper>
   ),
+  BoldText: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={600}
+      fontSize={13}
+      lineHeight={'16px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
   LargeText: ({ color, children, sx, className }) => (
     <TextWrapper
       fontWeight={400}
@@ -182,6 +194,18 @@ export const Typography = {
       fontWeight={400}
       fontSize={'16px'}
       lineHeight={'19px'}
+      color={color || 'text1'}
+      sx={sx}
+      className={className}
+    >
+      {children}
+    </TextWrapper>
+  ),
+  MediumHeader: ({ color, children, sx, className }) => (
+    <TextWrapper
+      fontWeight={400}
+      fontSize={20}
+      lineHeight={'24px'}
       color={color || 'text1'}
       sx={sx}
       className={className}

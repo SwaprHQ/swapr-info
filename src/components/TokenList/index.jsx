@@ -44,8 +44,8 @@ const DashGrid = styled.div`
     padding: 0 36px;
     display: grid;
     grid-gap: 1em;
-    grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: 'name symbol liq vol';
+    grid-template-columns: 180px 1fr 1fr 1fr 1fr;
+    grid-template-areas: 'name symbol price liq vol';
 
     > * {
       justify-content: flex-end;
@@ -173,7 +173,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
             <FormattedName text={item.symbol} maxCharacters={5} />
           </FlexText>
         )}
-        {!below1080 && <FlexText area={'price'}>{formattedNum(item.priceUSD, true)}</FlexText>}
+        <FlexText area={'price'}>{formattedNum(item.priceUSD, true)}</FlexText>
         {!below1080 && <FlexText area={'change'}>{formattedPercent(item.priceChangeUSD)}</FlexText>}
         {!below680 && (
           <FlexText color={'text1'} area={'liq'}>
@@ -229,21 +229,19 @@ function TopTokenList({ tokens, itemMax = 10 }) {
               </ClickableText>
             </Flex>
           )}
-          {!below1080 && (
-            <Flex alignItems="center">
-              <ClickableText
-                area="price"
-                onClick={() => {
-                  setSortedColumn(SORT_FIELD.PRICE);
-                  setSortDirection(sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection);
-                }}
-              >
-                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                  Price {sortedColumn === SORT_FIELD.PRICE ? (!sortDirection ? '↑' : '↓') : ''}
-                </Typography.SmallBoldText>
-              </ClickableText>
-            </Flex>
-          )}
+          <Flex alignItems="center">
+            <ClickableText
+              area="price"
+              onClick={() => {
+                setSortedColumn(SORT_FIELD.PRICE);
+                setSortDirection(sortedColumn !== SORT_FIELD.PRICE ? true : !sortDirection);
+              }}
+            >
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                Price {sortedColumn === SORT_FIELD.PRICE ? (!sortDirection ? '↑' : '↓') : ''}
+              </Typography.SmallBoldText>
+            </ClickableText>
+          </Flex>
           {!below1080 && (
             <Flex alignItems="center">
               <ClickableText

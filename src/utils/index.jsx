@@ -455,7 +455,7 @@ export const formatDollarAmount = (num, digits) => {
   const formatter = new Intl.NumberFormat([], {
     style: 'currency',
     currency: 'USD',
-    currencyDisplay: 'narrowSymbol',
+    currencyDisplay: 'symbol',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });

@@ -54,7 +54,7 @@ const TokenChart = ({ address, base }) => {
 
       return {
         formattedPriceData: weeklyHourlyPriceData?.map((data) => ({
-          time: dayjs(data.timestamp * 1000).format('YYYY-MM-DD HH:mm'),
+          timestamp: data.timestamp * 1000,
           open: parseFloat(data.open),
           close: parseFloat(data.close),
         })),
@@ -65,7 +65,7 @@ const TokenChart = ({ address, base }) => {
 
     return {
       formattedPriceData: dailyYearPriceData?.map((data) => ({
-        time: dayjs(data.timestamp * 1000).format('YYYY-MM-DD'),
+        timestamp: data.timestamp * 1000,
         open: parseFloat(data.open),
         close: parseFloat(data.close),
       })),

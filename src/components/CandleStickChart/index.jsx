@@ -31,7 +31,7 @@ const CandleStickChart = ({
       data
         .filter((data) => data.close && data.open)
         .map((candle) => ({
-          time: candle.time,
+          time: candle.timestamp,
           low: Math.min(candle.open, candle.close),
           high: Math.max(candle.open, candle.close),
           height: Math.abs(candle.close - candle.open),

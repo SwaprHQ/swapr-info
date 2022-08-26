@@ -154,7 +154,7 @@ export const FullWrapper = styled.div`
   justify-content: start;
   align-items: start;
   grid-template-columns: 1fr;
-  grid-gap: 24px;
+  grid-gap: ${({ gap }) => gap ?? '24px'};
   max-width: 1440px;
   width: 100%;
   margin: 0 auto;

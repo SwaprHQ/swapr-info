@@ -15,7 +15,6 @@ import Link, { BasicLink, ExternalListLink } from '../components/Link';
 import Loader from '../components/LocalLoader';
 import PairChart from '../components/PairChart';
 import Panel from '../components/Panel';
-import { RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import TokenLogo from '../components/TokenLogo';
 import TxnList from '../components/TxnList';

@@ -61,7 +61,7 @@ const ContentWrapper = styled.div`
 
 export const ButtonLight = styled(Base)`
   min-width: 148px;
-  height: 32px;
+  height: 36px;
 
   background-color: ${({ color, theme }) =>
     color ? transparentize(0.9, color) : transparentize(0.9, theme.swaprLink)};
@@ -106,7 +106,7 @@ export function ButtonDropdown({ disabled = false, children, open, ...rest }) {
 
 export const ButtonDark = styled(Base)`
   min-width: 148px;
-  height: 32px;
+  height: 36px;
 
   background: linear-gradient(118.9deg, rgba(255, 255, 255, 0.2) -0.59%, rgba(0, 0, 0, 0) 132.78%),
     rgba(61, 55, 88, 0.7);

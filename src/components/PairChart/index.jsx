@@ -1,20 +1,19 @@
-import { darken } from 'polished';
-import { useState, useRef, useEffect } from 'react';
+import dayjs from 'dayjs';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import { Area, XAxis, YAxis, ResponsiveContainer, Tooltip, AreaChart, BarChart, Bar } from 'recharts';
 import styled from 'styled-components';
 
-import { EmptyCard } from '..';
-import { timeframeOptions } from '../../constants';
-import { useDarkModeManager } from '../../contexts/LocalStorage';
-import { usePairChartData, useHourlyRateData, usePairData } from '../../contexts/PairData';
-import { toK, toNiceDate, toNiceDateYear, formattedNum, getTimeframe } from '../../utils';
-import { OptionButton } from '../ButtonStyled';
+import { Typography } from '../../Theme';
+import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
+import { usePairChartData, usePairData, usePairRateData } from '../../contexts/PairData';
 import CandleStickChart from '../CandleStickChart';
+import Chart from '../Chart';
 import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
-import { AutoRow } from '../Row';
+import Panel from '../Panel';
+import RadioTimeFilter from '../RadioTimeFilter';
+import { ChartTypeButton } from '../TokenChart/styled';
 
 const ChartWrapper = styled.div`
   height: 100%;
@@ -25,13 +24,6 @@ const ChartWrapper = styled.div`
   }
 `;
 
-const OptionsRow = styled.div`
-  display: flex;
-  flex-direction: row;
-  width: 100%;
-  margin-bottom: 10px;
-`;
-
 const CHART_VIEW = {
   VOLUME: 'Volume',
   LIQUIDITY: 'Liquidity',
@@ -40,18 +32,22 @@ const CHART_VIEW = {
   RATE1: 'Rate 1',
 };
 
-const PairChart = ({ address, color, base0, base1 }) => {
+const PanelLoaderWrapper = ({ isLoading, children }) => (
+  <Panel minHeight={'340px'} maxHeight={'340px'} style={{ border: 'none', padding: '0' }}>
+    {isLoading ? <LocalLoader /> : children}
+  </Panel>
+);
+
+const PairChart = ({ address, base0, base1 }) => {
   const [chartFilter, setChartFilter] = useState(CHART_VIEW.LIQUIDITY);
-
-  const [timeWindow, setTimeWindow] = useState(timeframeOptions.MONTH);
-
-  const [darkMode] = useDarkModeManager();
-  const textColor = darkMode ? 'white' : 'black';
+  const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.WEEK);
+  const [isHourlyPriceData, setIsHourlyPriceData] = useState(false);
 
   // update the width on a window resize
   const ref = useRef();
   const isClient = typeof window === 'object';
   const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
+
   const [height, setHeight] = useState(ref?.current?.container?.clientHeight);
   useEffect(() => {
     if (!isClient) {
@@ -67,10 +63,71 @@ const PairChart = ({ address, color, base0, base1 }) => {
 
   // get data for pair, and rates
   const pairData = usePairData(address);
-  let chartData = usePairChartData(address);
-  const hourlyData = useHourlyRateData(address, timeWindow);
-  const hourlyRate0 = hourlyData && hourlyData[0];
-  const hourlyRate1 = hourlyData && hourlyData[1];
+  const liquidityVolumeAndUtilizationData = usePairChartData(address);
+
+  const dailyYearData = usePairRateData(address, timeframeOptions.YEAR, 86400);
+  const weeklyHourlyData = usePairRateData(address, timeframeOptions.WEEK, 3600);
+
+  // format liquidity, volume, and utilization values
+  const { formattedLiquidityData, formattedVolumeData, formattedUtilizationData } = useMemo(
+    () => ({
+      formattedLiquidityData: liquidityVolumeAndUtilizationData?.map((data) => ({
+        time: dayjs(data.date * 1000).format('YYYY-MM-DD'),
+        value: parseFloat(data.reserveUSD),
+      })),
+      formattedVolumeData: liquidityVolumeAndUtilizationData?.map((data) => ({
+        time: dayjs(data.date * 1000).format('YYYY-MM-DD'),
+        value: parseFloat(data.dailyVolumeUSD),
+      })),
+      formattedUtilizationData: liquidityVolumeAndUtilizationData?.map((data) => ({
+        time: dayjs(data.date * 1000).format('YYYY-MM-DD'),
+        value: parseFloat(data.utilization),
+      })),
+    }),
+    [liquidityVolumeAndUtilizationData],
+  );
+
+  // format prices values
+  const { formattedPriceDataRate0, formattedPriceDataRate1 } = useMemo(() => {
+    if (activeFilter === TIME_FILTER_OPTIONS.WEEK && weeklyHourlyData) {
+      setIsHourlyPriceData(true);
+
+      return {
+        formattedPriceDataRate0: weeklyHourlyData[0]?.map((data) => ({
+          timestamp: data.timestamp * 1000,
+          open: parseFloat(data.open),
+          close: parseFloat(data.close),
+        })),
+        formattedPriceDataRate1: weeklyHourlyData[1]?.map((data) => ({
+          timestamp: data.timestamp * 1000,
+          open: parseFloat(data.open),
+          close: parseFloat(data.close),
+        })),
+      };
+    }
+
+    if (dailyYearData) {
+      setIsHourlyPriceData(false);
+
+      return {
+        formattedPriceDataRate0: dailyYearData[0]?.map((data) => ({
+          timestamp: data.timestamp * 1000,
+          open: parseFloat(data.open),
+          close: parseFloat(data.close),
+        })),
+        formattedPriceDataRate1: dailyYearData[1]?.map((data) => ({
+          timestamp: data.timestamp * 1000,
+          open: parseFloat(data.open),
+          close: parseFloat(data.close),
+        })),
+      };
+    }
+
+    return {
+      formattedPriceDataRate0: [],
+      formattedPriceDataRate1: [],
+    };
+  }, [dailyYearData, weeklyHourlyData, activeFilter]);
 
   // formatted symbols for overflow
   const formattedSymbol0 =
@@ -78,327 +135,125 @@ const PairChart = ({ address, color, base0, base1 }) => {
   const formattedSymbol1 =
     pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol;
 
-  const below1600 = useMedia('(max-width: 1600px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+  // const below1600 = useMedia('(max-width: 1600px)');
+  // const below1080 = useMedia('(max-width: 1080px)');
   const below600 = useMedia('(max-width: 600px)');
-
-  let utcStartTime = getTimeframe(timeWindow);
-  chartData = chartData?.filter((entry) => entry.date >= utcStartTime);
-
-  if (chartData && chartData.length === 0) {
-    return (
-      <ChartWrapper>
-        <EmptyCard height="300px">No historical data yet.</EmptyCard>{' '}
-      </ChartWrapper>
-    );
-  }
-
-  /**
-   * Used to format values on chart on scroll
-   * Needs to be raw html for chart API to parse styles
-   * @param {*} val
-   */
-  function valueFormatter(val) {
-    if (chartFilter === CHART_VIEW.RATE0) {
-      return (
-        formattedNum(val) +
-        `<span style="font-size: 12px; margin-left: 4px;">${formattedSymbol1}/${formattedSymbol0}<span>`
-      );
-    }
-    if (chartFilter === CHART_VIEW.RATE1) {
-      return (
-        formattedNum(val) +
-        `<span style="font-size: 12px; margin-left: 4px;">${formattedSymbol0}/${formattedSymbol1}<span>`
-      );
-    }
-  }
-
-  const aspect = below1080 ? 60 / 20 : below1600 ? 60 / 28 : 60 / 22;
 
   return (
     <ChartWrapper>
       {below600 ? (
         <Flex justifyContent={'space-between'} mb={40}>
           <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
-          <DropdownBasicSelect options={timeframeOptions} active={timeWindow} setActive={setTimeWindow} />
+          <DropdownBasicSelect options={TIME_FILTER_OPTIONS} active={activeFilter} setActive={setActiveFilter} />
         </Flex>
       ) : (
-        <OptionsRow>
-          <AutoRow gap="6px" style={{ flexWrap: 'nowrap' }}>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.LIQUIDITY}
-              onClick={() => {
-                setTimeWindow(timeframeOptions.ALL_TIME);
-                setChartFilter(CHART_VIEW.LIQUIDITY);
-              }}
+        <Flex mb={20} justifyContent={'space-between'}>
+          <Flex style={{ gap: '6px' }}>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.LIQUIDITY}
+              onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
             >
-              Liquidity
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.VOLUME}
+              <Typography.Text>TVL</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.VOLUME}
               onClick={() => {
-                setTimeWindow(timeframeOptions.ALL_TIME);
                 setChartFilter(CHART_VIEW.VOLUME);
               }}
             >
-              Volume
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.UTILIZATION}
+              <Typography.Text>VOLUME</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.UTILIZATION}
               onClick={() => {
-                setTimeWindow(timeframeOptions.ALL_TIME);
                 setChartFilter(CHART_VIEW.UTILIZATION);
               }}
             >
-              Utilization
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.RATE0}
+              <Typography.Text>UTILIZATION</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.RATE0}
               onClick={() => {
-                setTimeWindow(timeframeOptions.WEEK);
                 setChartFilter(CHART_VIEW.RATE0);
               }}
             >
-              {pairData.token0 ? formattedSymbol1 + '/' + formattedSymbol0 : '-'}
-            </OptionButton>
-            <OptionButton
-              active={chartFilter === CHART_VIEW.RATE1}
+              <Typography.Text>{pairData.token0 ? formattedSymbol1 + '-' + formattedSymbol0 : '-'}</Typography.Text>
+            </ChartTypeButton>
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.RATE1}
               onClick={() => {
-                setTimeWindow(timeframeOptions.WEEK);
                 setChartFilter(CHART_VIEW.RATE1);
               }}
             >
-              {pairData.token0 ? formattedSymbol0 + '/' + formattedSymbol1 : '-'}
-            </OptionButton>
-          </AutoRow>
-          <AutoRow justify="flex-end" gap="6px">
-            <OptionButton
-              active={timeWindow === timeframeOptions.WEEK}
-              onClick={() => setTimeWindow(timeframeOptions.WEEK)}
-            >
-              1W
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.MONTH}
-              onClick={() => setTimeWindow(timeframeOptions.MONTH)}
-            >
-              1M
-            </OptionButton>
-            <OptionButton
-              active={timeWindow === timeframeOptions.ALL_TIME}
-              onClick={() => setTimeWindow(timeframeOptions.ALL_TIME)}
-            >
-              All
-            </OptionButton>
-          </AutoRow>
-        </OptionsRow>
+              <Typography.Text>{pairData.token0 ? formattedSymbol0 + '-' + formattedSymbol1 : '-'}</Typography.Text>
+            </ChartTypeButton>
+          </Flex>
+          <div>
+            <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
+          </div>
+        </Flex>
       )}
       {chartFilter === CHART_VIEW.LIQUIDITY && (
-        <ResponsiveContainer aspect={aspect}>
-          <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
-            <defs>
-              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={color} stopOpacity={0.35} />
-                <stop offset="95%" stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              tickMargin={14}
-              minTickGap={80}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="date"
-              tick={{ fill: textColor }}
-              type={'number'}
-              domain={['dataMin', 'dataMax']}
-            />
-            <YAxis
-              type="number"
-              orientation="right"
-              tickFormatter={(tick) => '$' + toK(tick)}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={0}
-              tickMargin={16}
-              tick={{ fill: textColor }}
-            />
-            <Tooltip
-              cursor={true}
-              formatter={(val) => formattedNum(val, true)}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: color,
-                color: 'black',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
-            />
-            <Area
-              strokeWidth={2}
-              dot={false}
-              type="monotone"
-              name={' (USD)'}
-              dataKey={'reserveUSD'}
-              yAxisId={0}
-              stroke={darken(0.12, color)}
-              fill="url(#colorUv)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
+        <PanelLoaderWrapper isLoading={!formattedLiquidityData}>
+          <Chart
+            data={formattedLiquidityData}
+            showTimeFilter={false}
+            overridingActiveFilter={activeFilter}
+            type={'AREA'}
+            tooltipTitle={'Liquidity'}
+          />
+        </PanelLoaderWrapper>
       )}
-
-      {chartFilter === CHART_VIEW.UTILIZATION && (
-        <ResponsiveContainer aspect={aspect}>
-          <AreaChart margin={{ top: 0, right: 10, bottom: 6, left: 0 }} barCategoryGap={1} data={chartData}>
-            <defs>
-              <linearGradient id="colorUv" x1="0" y1="0" x2="0" y2="1">
-                <stop offset="5%" stopColor={color} stopOpacity={0.35} />
-                <stop offset="95%" stopColor={color} stopOpacity={0} />
-              </linearGradient>
-            </defs>
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              tickMargin={14}
-              minTickGap={80}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="date"
-              tick={{ fill: textColor }}
-              type={'number'}
-              domain={['dataMin', 'dataMax']}
-            />
-            <YAxis
-              type="number"
-              orientation="right"
-              tickFormatter={(tick) => toK(tick) + '%'}
-              axisLine={false}
-              tickLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              yAxisId={0}
-              tickMargin={16}
-              tick={{ fill: textColor }}
-            />
-            <Tooltip
-              cursor={true}
-              formatter={(val) => formattedNum(val, false) + '%'}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: color,
-                color: 'black',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
-            />
-            <Area
-              strokeWidth={2}
-              dot={false}
-              type="monotone"
-              name={'Utilization'}
-              dataKey={'utilization'}
-              yAxisId={0}
-              stroke={darken(0.12, color)}
-              fill="url(#colorUv)"
-            />
-          </AreaChart>
-        </ResponsiveContainer>
-      )}
-
-      {chartFilter === CHART_VIEW.RATE1 &&
-        (hourlyRate1 ? (
-          <ResponsiveContainer aspect={aspect} ref={ref}>
-            <CandleStickChart
-              data={hourlyRate1}
-              base={base0}
-              margin={false}
-              width={width}
-              valueFormatter={valueFormatter}
-            />
-          </ResponsiveContainer>
-        ) : (
-          <LocalLoader />
-        ))}
-
-      {chartFilter === CHART_VIEW.RATE0 &&
-        (hourlyRate0 ? (
-          <ResponsiveContainer aspect={aspect} ref={ref}>
-            <CandleStickChart
-              data={hourlyRate0}
-              base={base1}
-              margin={false}
-              width={width}
-              valueFormatter={valueFormatter}
-            />
-          </ResponsiveContainer>
-        ) : (
-          <LocalLoader />
-        ))}
-
       {chartFilter === CHART_VIEW.VOLUME && (
-        <ResponsiveContainer aspect={aspect}>
-          <BarChart
-            margin={{ top: 0, right: 0, bottom: 6, left: below1080 ? 0 : 10 }}
-            barCategoryGap={1}
-            data={chartData}
-          >
-            <XAxis
-              tickLine={false}
-              axisLine={false}
-              interval="preserveEnd"
-              minTickGap={80}
-              tickMargin={14}
-              tickFormatter={(tick) => toNiceDate(tick)}
-              dataKey="date"
-              tick={{ fill: textColor }}
-              type={'number'}
-              domain={['dataMin', 'dataMax']}
-            />
-            <YAxis
-              type="number"
-              axisLine={false}
-              tickMargin={16}
-              tickFormatter={(tick) => '$' + toK(tick)}
-              tickLine={false}
-              interval="preserveEnd"
-              orientation="right"
-              minTickGap={80}
-              yAxisId={0}
-              tick={{ fill: textColor }}
-            />
-            <Tooltip
-              cursor={{ fill: color, opacity: 0.1 }}
-              formatter={(val) => formattedNum(val, true)}
-              labelFormatter={(label) => toNiceDateYear(label)}
-              labelStyle={{ paddingTop: 4 }}
-              contentStyle={{
-                padding: '10px 14px',
-                borderRadius: 10,
-                borderColor: color,
-                color: 'black',
-              }}
-              wrapperStyle={{ top: -70, left: -10 }}
-            />
-            <Bar
-              type="monotone"
-              name={'Volume'}
-              dataKey={'dailyVolumeUSD'}
-              fill={color}
-              opacity={'0.4'}
-              yAxisId={0}
-              stroke={color}
-            />
-          </BarChart>
-        </ResponsiveContainer>
+        <PanelLoaderWrapper isLoading={!formattedVolumeData}>
+          <Chart
+            data={formattedVolumeData}
+            showTimeFilter={false}
+            overridingActiveFilter={activeFilter}
+            type={'BAR'}
+            tooltipTitle={'Volume'}
+          />
+        </PanelLoaderWrapper>
       )}
+      {chartFilter === CHART_VIEW.UTILIZATION && (
+        <PanelLoaderWrapper isLoading={!formattedUtilizationData}>
+          <Chart
+            data={formattedUtilizationData}
+            showTimeFilter={false}
+            overridingActiveFilter={activeFilter}
+            type={'AREA'}
+            tooltipTitle={'Utilization'}
+          />
+        </PanelLoaderWrapper>
+      )}
+      {chartFilter === CHART_VIEW.RATE1 &&
+        (formattedPriceDataRate1 ? (
+          <PanelLoaderWrapper isLoading={formattedPriceDataRate1.length === 0}>
+            <CandleStickChart
+              data={formattedPriceDataRate1}
+              currentPrice={base0}
+              overridingActiveFilter={activeFilter}
+              showTimeFilter={false}
+              isHourlyData={isHourlyPriceData}
+            />
+          </PanelLoaderWrapper>
+        ) : (
+          <LocalLoader />
+        ))}
+      {chartFilter === CHART_VIEW.RATE0 &&
+        (formattedPriceDataRate0 ? (
+          <PanelLoaderWrapper isLoading={formattedPriceDataRate0.length === 0}>
+            <CandleStickChart
+              data={formattedPriceDataRate0}
+              currentPrice={base1}
+              overridingActiveFilter={activeFilter}
+              showTimeFilter={false}
+              isHourlyData={isHourlyPriceData}
+            />
+          </PanelLoaderWrapper>
+        ) : (
+          <LocalLoader />
+        ))}
     </ChartWrapper>
   );
 };

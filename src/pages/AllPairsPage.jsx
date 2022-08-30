@@ -22,7 +22,7 @@ function AllPairsPage() {
     <PageWrapper>
       <FullWrapper>
         <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-          <Typography.LargeHeader>Top Pairs</Typography.LargeHeader>
+          <Typography.MediumHeader>Top Pairs</Typography.MediumHeader>
           {!below800 && <Search small={true} />}
         </Flex>
         <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />

@@ -34,6 +34,7 @@ import {
   splitQuery,
   toLiquidityMiningCampaign,
   getStakedAmountUSD,
+  getBlocksForTimestamps,
 } from '../utils';
 import { updateNameData } from '../utils/data';
 import { isSyncedBlockAboveThreshold, useLatestBlocks } from './Application';
@@ -132,14 +133,14 @@ function reducer(state, { type, payload }) {
     }
 
     case UPDATE_HOURLY_DATA: {
-      const { address, hourlyData, timeWindow } = payload;
+      const { address, data, timeWindow, interval } = payload;
       return {
         ...state,
         [address]: {
           ...state?.[address],
-          hourlyData: {
-            ...state?.[address]?.hourlyData,
-            [timeWindow]: hourlyData,
+          [timeWindow]: {
+            ...state?.[address]?.[timeWindow],
+            [interval]: data,
           },
         },
       };
@@ -201,10 +202,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateHourlyData = useCallback((address, hourlyData, timeWindow) => {
+  const updateHourlyData = useCallback((address, data, timeWindow, interval) => {
     dispatch({
       type: UPDATE_HOURLY_DATA,
-      payload: { address, hourlyData, timeWindow },
+      payload: { address, data, timeWindow, interval },
     });
   }, []);
 
@@ -460,22 +461,22 @@ const getPairChartData = async (client, pairAddress) => {
 
     data = data.sort((a, b) => (parseInt(a.date) > parseInt(b.date) ? 1 : -1));
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return data;
 };
 
-const getHourlyRateData = async (client, blockClient, pairAddress, startTime, latestBlock) => {
+const getPairRateData = async (client, blockClient, pairAddress, startTime, interval = 3600, latestBlock) => {
   try {
     const utcEndTime = dayjs.utc();
     let time = startTime;
 
     // create an array of hour start times until we reach current hour
     const timestamps = [];
-    while (time <= utcEndTime.unix() - 3600) {
+    while (time <= utcEndTime.unix()) {
       timestamps.push(time);
-      time += 3600;
+      time += interval;
     }
 
     // backout if invalid timestamp format
@@ -486,7 +487,7 @@ const getHourlyRateData = async (client, blockClient, pairAddress, startTime, la
     // once you have all the timestamps, get the blocks for each timestamp in a bulk query
     let blocks;
 
-    blocks = await getBlocksFromTimestamps(blockClient, timestamps, 100);
+    blocks = await getBlocksForTimestamps(blockClient, timestamps);
 
     // catch failing case
     if (!blocks || blocks?.length === 0) {
@@ -590,29 +591,27 @@ export function Updater() {
   return null;
 }
 
-export function useHourlyRateData(pairAddress, timeWindow) {
+export function usePairRateData(pairAddress, timeWindow, interval = 3600) {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
   const [state, { updateHourlyData }] = usePairDataContext();
-  const chartData = state?.[pairAddress]?.hourlyData?.[timeWindow];
+  const chartData = state?.[pairAddress]?.[timeWindow]?.[interval];
   const [latestBlock] = useLatestBlocks();
 
   useEffect(() => {
     const currentTime = dayjs.utc();
-    const windowSize = timeWindow === timeframeOptions.MONTH ? 'month' : 'week';
-    const startTime =
-      timeWindow === timeframeOptions.ALL_TIME
-        ? 1589760000
-        : currentTime.subtract(1, windowSize).startOf('hour').unix();
+    const windowSize = timeWindow === timeframeOptions.WEEK ? 'week' : 'year';
+
+    const startTime = currentTime.subtract(1, windowSize).startOf('hour').unix();
 
     async function fetch() {
-      let data = await getHourlyRateData(client, blockClient, pairAddress, startTime, latestBlock);
-      updateHourlyData(pairAddress, data, timeWindow);
+      let data = await getPairRateData(client, blockClient, pairAddress, startTime, interval, latestBlock);
+      updateHourlyData(pairAddress, data, timeWindow, interval);
     }
     if (!chartData) {
       fetch();
     }
-  }, [chartData, timeWindow, pairAddress, updateHourlyData, latestBlock, client, blockClient]);
+  }, [chartData, timeWindow, pairAddress, updateHourlyData, latestBlock, client, blockClient, interval]);
 
   return chartData;
 }
@@ -815,6 +814,7 @@ export function usePairChartData(pairAddress) {
     }
     checkForChartData();
   }, [chartData, pairAddress, updateChartData, client]);
+
   return chartData;
 }
 

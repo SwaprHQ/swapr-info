@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import { useState, useRef, useEffect, useMemo } from 'react';
+import Skeleton from 'react-loading-skeleton';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
@@ -171,22 +172,30 @@ const PairChart = ({ address, base0, base1 }) => {
             >
               <Typography.Text>UTILIZATION</Typography.Text>
             </ChartTypeButton>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.RATE0}
-              onClick={() => {
-                setChartFilter(CHART_VIEW.RATE0);
-              }}
-            >
-              <Typography.Text>{pairData.token0 ? formattedSymbol1 + '-' + formattedSymbol0 : '-'}</Typography.Text>
-            </ChartTypeButton>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.RATE1}
-              onClick={() => {
-                setChartFilter(CHART_VIEW.RATE1);
-              }}
-            >
-              <Typography.Text>{pairData.token0 ? formattedSymbol0 + '-' + formattedSymbol1 : '-'}</Typography.Text>
-            </ChartTypeButton>
+            {pairData.token0 ? (
+              <ChartTypeButton
+                isActive={chartFilter === CHART_VIEW.RATE0}
+                onClick={() => {
+                  setChartFilter(CHART_VIEW.RATE0);
+                }}
+              >
+                <Typography.Text>{formattedSymbol1 + '-' + formattedSymbol0}</Typography.Text>
+              </ChartTypeButton>
+            ) : (
+              <Skeleton style={{ width: '70px', height: '22px' }} />
+            )}
+            {pairData.token0 ? (
+              <ChartTypeButton
+                isActive={chartFilter === CHART_VIEW.RATE1}
+                onClick={() => {
+                  setChartFilter(CHART_VIEW.RATE1);
+                }}
+              >
+                <Typography.Text>{formattedSymbol0 + '-' + formattedSymbol1}</Typography.Text>
+              </ChartTypeButton>
+            ) : (
+              <Skeleton style={{ width: '70px', height: '22px' }} />
+            )}
           </Flex>
           <div>
             <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />

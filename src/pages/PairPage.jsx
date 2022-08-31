@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
@@ -62,9 +62,6 @@ const FixedPanel = styled(Panel)`
 `;
 
 function PairPage({ pairAddress, history }) {
-  const [usingTrackedLiquidity, setUsingTrackedLiquidity] = useState(true);
-  const [usingUntrackedVolume, setUsingUntrackedVolume] = useState(false);
-
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
@@ -77,30 +74,19 @@ function PairPage({ pairAddress, history }) {
     reserve0,
     reserve1,
     reserveUSD,
-    trackedReserveUSD,
     oneDayVolumeUSD,
     volumeChangeUSD,
     oneDayVolumeUntracked,
-    volumeChangeUntracked,
     liquidityChangeUSD,
     swapFee: pairSwapFeeBips,
   } = usePairData(pairAddress);
 
-  // mark if using untracked liquidity
   useEffect(() => {
-    setUsingTrackedLiquidity(!trackedReserveUSD ? false : true);
-  }, [trackedReserveUSD]);
-
-  // mark if using untracked volume
-  useEffect(() => {
-    setUsingUntrackedVolume(oneDayVolumeUSD === 0 ? true : false);
-  }, [oneDayVolumeUSD]);
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
 
   // liquidity
-  const liquidity =
-    trackedReserveUSD || trackedReserveUSD === 0
-      ? formattedNum(trackedReserveUSD, true)
-      : (reserveUSD || reserveUSD === 0) && formattedNum(reserveUSD, true);
+  const liquidity = (reserveUSD || reserveUSD === 0) && formattedNum(reserveUSD, true);
   const liquidityChange = formattedPercent(liquidityChangeUSD);
 
   // volume
@@ -108,7 +94,7 @@ function PairPage({ pairAddress, history }) {
     oneDayVolumeUSD || oneDayVolumeUSD === 0
       ? formattedNum(oneDayVolumeUSD, true)
       : formattedNum(oneDayVolumeUntracked);
-  const volumeChange = formattedPercent(!usingUntrackedVolume ? volumeChangeUSD : volumeChangeUntracked);
+  const volumeChange = formattedPercent(volumeChangeUSD);
 
   // utilization
   const daysInterval = 1;
@@ -137,9 +123,7 @@ function PairPage({ pairAddress, history }) {
     formattedPercent(prevUtilization === 0 ? 0 : ((utilization - prevUtilization) / prevUtilization) * 100);
 
   // fees
-  const fees = usingUntrackedVolume
-    ? oneDayVolumeUntracked * (pairSwapFeeBips / 10000)
-    : oneDayVolumeUSD * (pairSwapFeeBips / 10000);
+  const fees = oneDayVolumeUSD * (pairSwapFeeBips / 10000);
 
   // token data for usd
   const token0USD =
@@ -165,6 +149,7 @@ function PairPage({ pairAddress, history }) {
   const below600 = useMedia('(max-width: 600px)');
 
   const swaprButtonsWidth = below600 ? '100%' : 'initial';
+  const isPairLoading = !token0 || !token1;
 
   return (
     <PageWrapper>
@@ -185,30 +170,34 @@ function PairPage({ pairAddress, history }) {
         <DashboardWrapper>
           <Flex justifyContent={'space-between'} style={{ gap: '16px', marginBottom: '20px' }}>
             <Flex style={{ gap: '16px' }}>
-              <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
-                <Flex alignItems={'center'} style={{ gap: '8px' }}>
-                  <TokenLogo address={token0?.id} defaultText={token0?.symbol} size={'16px'} />
-                  <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
-                    {token0 && token1
-                      ? `1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
-                          parseFloat(token0?.derivedNativeCurrency) ? '(' + token0USD + ')' : ''
-                        }`
-                      : '-'}
-                  </Typography.SmallBoldText>
-                </Flex>
-              </FixedPanel>
-              <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
-                <Flex alignItems={'center'} style={{ gap: '8px' }}>
-                  <TokenLogo address={token1?.id} defaultText={token1?.symbol} size={'16px'} />
-                  <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
-                    {token0 && token1
-                      ? `1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
-                          parseFloat(token1?.derivedNativeCurrency) ? '(' + token1USD + ')' : ''
-                        }`
-                      : '-'}
-                  </Typography.SmallBoldText>
-                </Flex>
-              </FixedPanel>
+              {!isPairLoading ? (
+                <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
+                  <Flex alignItems={'center'} style={{ gap: '8px' }}>
+                    <TokenLogo address={token0.id} defaultText={token0.symbol} size={'16px'} />
+                    <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
+                      {`1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
+                        parseFloat(token0.derivedNativeCurrency) ? '(' + token0USD + ')' : ''
+                      }`}
+                    </Typography.SmallBoldText>
+                  </Flex>
+                </FixedPanel>
+              ) : (
+                <Skeleton style={{ width: '160px', height: '36px' }} />
+              )}
+              {!isPairLoading ? (
+                <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
+                  <Flex alignItems={'center'} style={{ gap: '8px' }}>
+                    <TokenLogo address={token1.id} defaultText={token1.symbol} size={'16px'} />
+                    <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
+                      {`1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
+                        parseFloat(token1.derivedNativeCurrency) ? '(' + token1USD + ')' : ''
+                      }`}
+                    </Typography.SmallBoldText>
+                  </Flex>
+                </FixedPanel>
+              ) : (
+                <Skeleton style={{ width: '160px', height: '36px' }} />
+              )}
             </Flex>
             <Flex style={{ gap: '16px', width: swaprButtonsWidth }}>
               <Link
@@ -240,12 +229,12 @@ function PairPage({ pairAddress, history }) {
               <Panel style={{ height: '100%' }}>
                 <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                   <DailyChangeLabel
-                    label={`TVL ${!usingTrackedLiquidity && '(Untracked)'}`}
+                    label={'TVL'}
                     value={liquidity}
                     dailyChange={(liquidityChangeUSD || liquidityChangeUSD === 0) && liquidityChange}
                   />
                   <DailyChangeLabel
-                    label={`VOLUME ${usingUntrackedVolume && '(Untracked)'}`}
+                    label={'VOLUME'}
                     value={volume}
                     dailyChange={(volumeChangeUSD || volumeChangeUSD === 0) && volumeChange}
                   />
@@ -269,23 +258,23 @@ function PairPage({ pairAddress, history }) {
                   <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                     {token0?.id ? (
                       <Flex alignItems={'center'} style={{ gap: '8px' }}>
-                        <TokenLogo defaultText={token0?.symbol} address={token0?.id} size={'18px'} />
+                        <TokenLogo defaultText={token0.symbol} address={token0.id} size={'18px'} />
                         <Typography.LargeBoldText color={'text6'}>
                           {formattedNum(reserve0)} {token0.symbol}
                         </Typography.LargeBoldText>
                       </Flex>
                     ) : (
-                      <Skeleton style={{ width: '140px', height: '20px' }} />
+                      <Skeleton style={{ width: '140px', height: '18px' }} />
                     )}
                     {token1?.id ? (
                       <Flex alignItems={'center'} style={{ gap: '8px' }}>
-                        <TokenLogo defaultText={token1?.symbol} address={token1?.id} size={'18px'} />
+                        <TokenLogo defaultText={token1.symbol} address={token1.id} size={'18px'} />
                         <Typography.LargeBoldText color={'text6'}>
                           {formattedNum(reserve1)} {token1.symbol}
                         </Typography.LargeBoldText>
                       </Flex>
                     ) : (
-                      <Skeleton style={{ width: '140px', height: '20px' }} />
+                      <Skeleton style={{ width: '140px', height: '18px' }} />
                     )}
                   </Flex>
                 </Flex>
@@ -317,7 +306,7 @@ function PairPage({ pairAddress, history }) {
                   <LabeledValue
                     label={'PAIR NAME'}
                     value={
-                      token0 && token1 ? `${token0.symbol}-${token1.symbol}` : <Skeleton style={{ width: '60px' }} />
+                      token0 && token1 ? `${token0.symbol}-${token1.symbol}` : <Skeleton style={{ width: '90px' }} />
                     }
                   />
                   <LabeledValue

@@ -691,12 +691,12 @@ export function usePairData(pairAddress) {
 
   useEffect(() => {
     async function fetchData() {
-      if (!pairData && pairAddress) {
+      if ((!pairData || !pairData.id) && pairAddress && isAddress(pairAddress)) {
         let data = await getBulkPairData(client, blockClient, [pairAddress], nativeCurrencyPrice, selectedNetwork);
         data && update(pairAddress, data[0]);
       }
     }
-    if (!pairData && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
+    if ((!pairData || !pairData.id) && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
       fetchData();
     }
   }, [pairAddress, pairData, update, nativeCurrencyPrice, client, blockClient, selectedNetwork]);

@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import Decimal from 'decimal.js-light';
 import { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
 
 import { Interface } from '@ethersproject/abi';
 import { getAddress } from '@ethersproject/address';
 import { Contract } from '@ethersproject/contracts';
 import { parseUnits } from '@ethersproject/units';
-import { TokenAmount, Token, Pair, Currency } from '@swapr/sdk';
+import { TokenAmount, Token, Pair, Currency, Price, PricedToken, PricedTokenAmount, KpiToken } from '@swapr/sdk';
 
 import multicallAbi from '../abi/multicall.json';
 import {
@@ -18,12 +19,16 @@ import {
   PAIRS_HISTORICAL_BULK,
   HOURLY_PAIR_RATES,
   liquidityMiningCampaignsQuery,
+  LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+  KPI_TOKENS_QUERY,
+  DERIVED_NATIVE_CURRENCY_QUERY,
 } from '../apollo/queries';
 import {
   CHAIN_READONLY_PROVIDERS,
   ChainIdForSupportedNetwork,
   MULTICALL_ADDRESS,
   timeframeOptions,
+  ChainId,
 } from '../constants';
 import {
   getPercentChange,
@@ -39,7 +44,12 @@ import {
 import { updateNameData } from '../utils/data';
 import { isSyncedBlockAboveThreshold, useLatestBlocks } from './Application';
 import { useNativeCurrencyPrice } from './GlobalData';
-import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
+import {
+  useBlocksSubgraphClient,
+  useCarrotSubgraphClient,
+  useSelectedNetwork,
+  useSwaprSubgraphClient,
+} from './Network';
 
 const RESET = 'RESET';
 const UPDATE = 'UPDATE';
@@ -816,6 +826,179 @@ export function usePairChartData(pairAddress) {
   }, [chartData, pairAddress, updateChartData, client]);
 
   return chartData;
+}
+
+export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
+  const [liquidityMiningCampaigns, setLiquidityMiningCampaigns] = useState(null);
+
+  const selectedNetwork = useSelectedNetwork();
+  const client = useSwaprSubgraphClient();
+  const carrotClient = useCarrotSubgraphClient();
+
+  const chainId = ChainId[selectedNetwork];
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!liquidityMiningCampaigns && pairAddress && isAddress(pairAddress)) {
+        const data = await getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp);
+        setLiquidityMiningCampaigns(data);
+      }
+    }
+
+    fetchData();
+  }, [chainId, liquidityMiningCampaigns, client, carrotClient, pairAddress, endTimestamp]);
+
+  return liquidityMiningCampaigns || [];
+}
+
+/**
+ * Build the campaings objects, linked to a pair, with all the required information.
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} pairAddress
+ * @param {*} endTimestamp
+ * @returns
+ */
+async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const { data: liquidityMiningData } = await client.query({
+      query: LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+      variables: {
+        pairAddress,
+        endTimestamp,
+      },
+    });
+
+    const kpiTokensData = await getKpiTokensData(
+      chainId,
+      client,
+      carrotClient,
+      liquidityMiningData.liquidityMiningCampaigns,
+    );
+
+    const campaings = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
+      const pairData = campaign.stakablePair;
+
+      const tokenA = new Token(
+        chainId,
+        getAddress(pairData.token0.id),
+        parseInt(pairData.token0.decimals),
+        pairData.token0.symbol,
+        pairData.token0.name,
+      );
+      const tokenB = new Token(
+        chainId,
+        getAddress(pairData.token1.id),
+        parseInt(pairData.token1.decimals),
+        pairData.token1.symbol,
+        pairData.token1.name,
+      );
+
+      const tokenAmountA = new TokenAmount(tokenA, parseUnits(pairData.reserve0, pairData.token0.decimals).toString());
+      const tokenAmountB = new TokenAmount(tokenB, parseUnits(pairData.reserve1, pairData.token1.decimals).toString());
+
+      const final = new Pair(tokenAmountA, tokenAmountB);
+
+      return toLiquidityMiningCampaign(
+        chainId,
+        final,
+        pairData.totalSupply,
+        pairData.reserveNativeCurrency,
+        kpiTokensData,
+        campaign,
+        nativeCurrency,
+      );
+    });
+
+    return campaings || [];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Fetch the kpi tokens data, linked to the provided liquidity mining campaings (if there are any).
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} liquidityMiningCampaigns
+ */
+async function getKpiTokensData(chainId, client, carrotClient, liquidityMiningCampaigns) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const kpiTokensAddresses = liquidityMiningCampaigns.flatMap((campaign) =>
+      campaign.rewards.map((reward) => reward.token.id.toLowerCase()),
+    );
+
+    const { data: kpiTokensData } = await carrotClient.query({
+      query: KPI_TOKENS_QUERY,
+      variables: { ids: kpiTokensAddresses },
+    });
+
+    const collateralTokenAddresses = kpiTokensData.kpiTokens.map((kpiTokenData) =>
+      kpiTokenData.collateral.token.address.toLowerCase(),
+    );
+
+    const { data: collateralTokenPrices } = await client.query({
+      query: DERIVED_NATIVE_CURRENCY_QUERY,
+      variables: { tokenIds: collateralTokenAddresses },
+    });
+
+    return kpiTokensData.kpiTokens.map((kpiTokenData) => {
+      const collateralToken = new Token(
+        chainId,
+        getAddress(kpiTokenData.collateral.token.address),
+        parseInt(kpiTokenData.collateral.token.decimals),
+        kpiTokenData.collateral.token.symbol,
+        kpiTokenData.collateral.token.name,
+      );
+
+      const collateralPrice = collateralTokenPrices.tokens.find(
+        (token) => token.address.toLowerCase() === kpiTokenData.collateral.token.address.toLowerCase(),
+      );
+
+      const collateralTokenPrice = new Price({
+        baseCurrency: collateralToken,
+        quoteCurrency: nativeCurrency,
+        denominator: parseUnits('1', nativeCurrency.decimals).toString(),
+        numerator: parseUnits(
+          collateralPrice ? new Decimal(collateralPrice.derivedNativeCurrency).toFixed(nativeCurrency.decimals) : '0',
+          nativeCurrency.decimals,
+        ).toString(),
+      });
+
+      const pricedCollateral = new PricedToken(
+        chainId,
+        collateralToken.address,
+        collateralToken.decimals,
+        collateralTokenPrice,
+        collateralToken.symbol,
+        collateralToken.name,
+      );
+
+      const collateralTokenAmount = new PricedTokenAmount(pricedCollateral, kpiTokenData.collateral.amount);
+
+      const kpiToken = new KpiToken(
+        chainId,
+        getAddress(kpiTokenData.address),
+        kpiTokenData.totalSupply,
+        collateralTokenAmount,
+        kpiTokenData.kpiId,
+        kpiTokenData.symbol,
+        kpiTokenData.name,
+      );
+
+      return kpiToken;
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**

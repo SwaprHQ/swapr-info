@@ -1,3 +1,4 @@
+import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { withRouter } from 'react-router-dom';
@@ -12,6 +13,7 @@ import CopyHelper from '../components/Copy';
 import DailyChangeLabel from '../components/DailyValueChangeLabel';
 import LabeledValue from '../components/LabeledValue';
 import Link, { BasicLink, ExternalListLink } from '../components/Link';
+import LiquidityFarmingCampaignCard from '../components/LiquidityFarmingCampaignCard';
 import Loader from '../components/LocalLoader';
 import PairChart from '../components/PairChart';
 import Panel from '../components/Panel';
@@ -20,7 +22,12 @@ import TokenLogo from '../components/TokenLogo';
 import TxnList from '../components/TxnList';
 import { useNativeCurrencyPrice } from '../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
-import { usePairChartData, usePairData, usePairTransactions } from '../contexts/PairData';
+import {
+  useLiquidityMiningCampaignsForPair,
+  usePairChartData,
+  usePairData,
+  usePairTransactions,
+} from '../contexts/PairData';
 import { formattedNum, formattedPercent, getExplorerLink, getPoolLink, getSwapLink } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -61,6 +68,12 @@ const FixedPanel = styled(Panel)`
   }
 `;
 
+const CampaignsWraoper = styled.div`
+  display: flex;
+  gap: 20px;
+  margin-top: 20px;
+`;
+
 function PairPage({ pairAddress, history }) {
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrency = useNativeCurrencySymbol();
@@ -80,6 +93,12 @@ function PairPage({ pairAddress, history }) {
     liquidityChangeUSD,
     swapFee: pairSwapFeeBips,
   } = usePairData(pairAddress);
+
+  // get campaings in the last 7 days
+  const liquidityMiningCampaings = useLiquidityMiningCampaignsForPair(
+    pairAddress,
+    dayjs.utc().subtract(1, 'week').unix(),
+  );
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);
@@ -157,7 +176,7 @@ function PairPage({ pairAddress, history }) {
         <Flex alignItems={'end'} justifyContent={'space-between'}>
           <Typography.LargeText color={'text10'} sx={{ marginRight: '4px' }}>
             <BasicLink to="/pairs">{'Pairs '}</BasicLink>
-            {token0 && token1 ? (
+            {!isPairLoading ? (
               <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, pairAddress, 'address')}>
                 {`→  ${token0?.symbol}-${token1?.symbol}`}
               </ExternalListLink>
@@ -182,7 +201,7 @@ function PairPage({ pairAddress, history }) {
                   </Flex>
                 </FixedPanel>
               ) : (
-                <Skeleton style={{ width: '160px', height: '36px' }} />
+                <Skeleton style={{ width: '160px', height: '34px' }} />
               )}
               {!isPairLoading ? (
                 <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
@@ -196,7 +215,7 @@ function PairPage({ pairAddress, history }) {
                   </Flex>
                 </FixedPanel>
               ) : (
-                <Skeleton style={{ width: '160px', height: '36px' }} />
+                <Skeleton style={{ width: '160px', height: '34px' }} />
               )}
             </Flex>
             <Flex style={{ gap: '16px', width: swaprButtonsWidth }}>
@@ -378,6 +397,20 @@ function PairPage({ pairAddress, history }) {
                 </Flex>
               </Flex>
             </Panel>
+            <CampaignsWraoper>
+              {liquidityMiningCampaings &&
+                liquidityMiningCampaings.map(({ address, targetedPair, endsAt, apy }) => (
+                  <LiquidityFarmingCampaignCard
+                    key={address}
+                    token0={{ id: targetedPair.token0.address, symbol: targetedPair.token0.symbol }}
+                    token1={{ id: targetedPair.token1.address, symbol: targetedPair.token1.symbol }}
+                    expiration={endsAt * 1000}
+                    apy={apy.toFixed(2)}
+                    stakeAmount={0}
+                    stakeCap={0}
+                  />
+                ))}
+            </CampaignsWraoper>
             <Typography.Custom
               color={'text10'}
               sx={{

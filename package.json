@@ -25,7 +25,7 @@
     "@reach/portal": "^0.10.3",
     "@reach/router": "^1.2.1",
     "@react-spring/web": "^9.4.4",
-    "@swapr/sdk": "^0.10.7",
+    "@swapr/sdk": "^1.6.0",
     "animated-number-react": "^0.1.1",
     "apollo-cache-inmemory": "^1.6.3",
     "apollo-client": "^2.6.4",

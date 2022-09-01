@@ -768,6 +768,78 @@ const PairFields = `
   }
 `;
 
+export const LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR = graphql`
+  query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
+    liquidityMiningCampaigns(first: 1000, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
+      id
+      startsAt
+      endsAt
+      locked
+      stakedAmount
+      stakingCap
+      stakablePair {
+        id
+        reserve0
+        reserve1
+        totalSupply
+        reserveNativeCurrency
+        token0 {
+          id
+          symbol
+          name
+          decimals
+        }
+        token1 {
+          id
+          symbol
+          name
+          decimals
+        }
+      }
+      rewards {
+        id
+        token {
+          id
+          symbol
+          decimals
+          derivedNativeCurrency
+        }
+        amount
+      }
+    }
+  }
+`;
+
+export const KPI_TOKENS_QUERY = graphql`
+  query kpiTokens($ids: [ID!]!) {
+    kpiTokens(where: { id_in: $ids }) {
+      address: id
+      symbol
+      name
+      totalSupply
+      kpiId
+      collateral {
+        token {
+          address: id
+          symbol
+          name
+          decimals
+        }
+        amount
+      }
+    }
+  }
+`;
+
+export const DERIVED_NATIVE_CURRENCY_QUERY = graphql`
+  query getTokensDerivedNativeCurrency($tokenIds: [ID!]!) {
+    tokens(where: { id_in: $tokenIds }) {
+      address: id
+      derivedNativeCurrency
+    }
+  }
+`;
+
 // returns active campaigns by default
 // if status "expired" is passed it will return expired campaigns
 export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) => {

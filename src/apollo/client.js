@@ -74,3 +74,11 @@ export const blockClients = {
     defaultOptions: defaultApolloConfig,
   }),
 };
+
+export const carrotSubgraphCliet = {
+  [SupportedNetwork.XDAI]: new ApolloClient({
+    link: new HttpLink({ uri: BASE_SUBGRAPH + 'luzzif/carrot-xdai' }),
+    cache: new InMemoryCache(),
+    defaultOptions: defaultApolloConfig,
+  }),
+};

@@ -3,7 +3,14 @@ import { createContext, useContext, useReducer, useMemo, useCallback, useEffect 
 import { useLocation } from 'react-router-dom';
 
 import { blockClients, carrotSubgraphCliet, clients } from '../apollo/client';
-import { ChainId, NATIVE_CURRENCY_SYMBOL, NATIVE_CURRENCY_WRAPPER, SupportedNetworkForChainId } from '../constants';
+import {
+  ChainId,
+  FACTORY_ADDRESS,
+  FACTORY_STARTING_BLOCK,
+  NATIVE_CURRENCY_SYMBOL,
+  NATIVE_CURRENCY_WRAPPER,
+  SupportedNetworkForChainId,
+} from '../constants';
 import { useApplicationContextResetter } from './Application';
 import { useGlobalContextResetter } from './GlobalData';
 import { useSavedNetwork } from './LocalStorage';
@@ -85,6 +92,12 @@ export function Updater() {
 export function useSelectedNetwork() {
   const [state] = useNetworkContext();
   return state.selectedNetwork;
+}
+
+export function useStartingBlock() {
+  const [state] = useNetworkContext();
+
+  return FACTORY_STARTING_BLOCK[FACTORY_ADDRESS[state.selectedNetwork]];
 }
 
 export function useSelectedNetworkUpdater() {

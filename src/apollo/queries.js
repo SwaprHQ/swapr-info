@@ -1,12 +1,6 @@
 import graphql from 'graphql-tag';
 
-import { BUNDLE_ID, FACTORY_ADDRESS, SupportedNetwork } from '../constants';
-
-const FACTORY_STARTING_BLOCK = {
-  [FACTORY_ADDRESS[SupportedNetwork.MAINNET]]: 10000000,
-  [FACTORY_ADDRESS[SupportedNetwork.XDAI]]: 14557349,
-  [FACTORY_ADDRESS[SupportedNetwork.ARBITRUM_ONE]]: 277186,
-};
+import { BUNDLE_ID, FACTORY_STARTING_BLOCK } from '../constants';
 
 export const SUBGRAPH_HEALTH = graphql`
   query health($name: Bytes) {
@@ -120,7 +114,7 @@ export const TOP_LPS_PER_PAIRS = graphql`
   }
 `;
 
-export const HOURLY_PAIR_RATES = (pairAddress, blocks) => {
+export const PAIR_RATES = (pairAddress, blocks) => {
   let queryString = 'query blocks {';
   queryString += blocks.map(
     (block) => `

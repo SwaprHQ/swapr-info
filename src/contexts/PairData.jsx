@@ -17,7 +17,7 @@ import {
   PAIRS_CURRENT,
   PAIRS_BULK,
   PAIRS_HISTORICAL_BULK,
-  HOURLY_PAIR_RATES,
+  PAIR_RATES,
   liquidityMiningCampaignsQuery,
   LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
   KPI_TOKENS_QUERY,
@@ -48,6 +48,7 @@ import {
   useBlocksSubgraphClient,
   useCarrotSubgraphClient,
   useSelectedNetwork,
+  useStartingBlock,
   useSwaprSubgraphClient,
 } from './Network';
 
@@ -57,7 +58,7 @@ const UPDATE_PAIR_TXNS = 'UPDATE_PAIR_TXNS';
 const UPDATE_CHART_DATA = 'UPDATE_CHART_DATA';
 const UPDATE_MINING_DATA = 'UPDATE_MINING_DATA';
 const UPDATE_TOP_PAIRS = 'UPDATE_TOP_PAIRS';
-const UPDATE_HOURLY_DATA = 'UPDATE_HOURLY_DATA';
+const UPDATE_PRICE_DATA = 'UPDATE_PRICE_DATA';
 
 export const STATUS = {
   ACTIVE: 'active',
@@ -142,7 +143,7 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_HOURLY_DATA: {
+    case UPDATE_PRICE_DATA: {
       const { address, data, timeWindow, interval } = payload;
       return {
         ...state,
@@ -212,9 +213,9 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateHourlyData = useCallback((address, data, timeWindow, interval) => {
+  const updatePriceData = useCallback((address, data, timeWindow, interval) => {
     dispatch({
-      type: UPDATE_HOURLY_DATA,
+      type: UPDATE_PRICE_DATA,
       payload: { address, data, timeWindow, interval },
     });
   }, []);
@@ -234,11 +235,11 @@ export default function Provider({ children }) {
             updatePairTxns,
             updateChartData,
             updateTopPairs,
-            updateHourlyData,
+            updatePriceData,
             reset,
           },
         ],
-        [state, update, updateMiningData, updatePairTxns, updateChartData, updateTopPairs, updateHourlyData, reset],
+        [state, update, updateMiningData, updatePairTxns, updateChartData, updateTopPairs, updatePriceData, reset],
       )}
     >
       {children}
@@ -477,7 +478,15 @@ const getPairChartData = async (client, pairAddress) => {
   return data;
 };
 
-const getPairRateData = async (client, blockClient, pairAddress, startTime, interval = 3600, latestBlock) => {
+const getPairRateData = async (
+  client,
+  blockClient,
+  pairAddress,
+  startTime,
+  interval = 3600,
+  latestBlock,
+  startingBlock,
+) => {
   try {
     const utcEndTime = dayjs.utc();
     let time = startTime;
@@ -494,23 +503,23 @@ const getPairRateData = async (client, blockClient, pairAddress, startTime, inte
       return [];
     }
 
-    // once you have all the timestamps, get the blocks for each timestamp in a bulk query
-    let blocks;
+    const blocks = await getBlocksForTimestamps(blockClient, timestamps);
 
-    blocks = await getBlocksForTimestamps(blockClient, timestamps);
+    // exclude blocks older than the factory one
+    const actualBlocks = blocks.filter((block) => {
+      if (latestBlock) {
+        return Number(block.number) > startingBlock && Number(block.number) <= Number(latestBlock);
+      }
+
+      return Number(block.number) > startingBlock;
+    });
 
     // catch failing case
-    if (!blocks || blocks?.length === 0) {
+    if (!actualBlocks || actualBlocks?.length === 0) {
       return [];
     }
 
-    if (latestBlock) {
-      blocks = blocks.filter((b) => {
-        return parseFloat(b.number) <= parseFloat(latestBlock);
-      });
-    }
-
-    const result = await splitQuery(HOURLY_PAIR_RATES, client, [pairAddress], blocks, 100);
+    const result = await splitQuery(PAIR_RATES, client, [pairAddress], actualBlocks, 100);
 
     // format token native currency price results
     let values = [];
@@ -604,9 +613,10 @@ export function Updater() {
 export function usePairRateData(pairAddress, timeWindow, interval = 3600) {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
-  const [state, { updateHourlyData }] = usePairDataContext();
+  const [state, { updatePriceData }] = usePairDataContext();
   const chartData = state?.[pairAddress]?.[timeWindow]?.[interval];
   const [latestBlock] = useLatestBlocks();
+  const startingBlock = useStartingBlock();
 
   useEffect(() => {
     const currentTime = dayjs.utc();
@@ -615,13 +625,24 @@ export function usePairRateData(pairAddress, timeWindow, interval = 3600) {
     const startTime = currentTime.subtract(1, windowSize).startOf('hour').unix();
 
     async function fetch() {
-      let data = await getPairRateData(client, blockClient, pairAddress, startTime, interval, latestBlock);
-      updateHourlyData(pairAddress, data, timeWindow, interval);
+      if (pairAddress && isAddress(pairAddress)) {
+        let data = await getPairRateData(
+          client,
+          blockClient,
+          pairAddress,
+          startTime,
+          interval,
+          latestBlock,
+          startingBlock,
+        );
+        updatePriceData(pairAddress, data, timeWindow, interval);
+      }
     }
+
     if (!chartData) {
       fetch();
     }
-  }, [chartData, timeWindow, pairAddress, updateHourlyData, latestBlock, client, blockClient, interval]);
+  }, [chartData, timeWindow, pairAddress, updatePriceData, latestBlock, startingBlock, client, blockClient, interval]);
 
   return chartData;
 }
@@ -873,12 +894,15 @@ async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient,
       },
     });
 
-    const kpiTokensData = await getKpiTokensData(
-      chainId,
-      client,
-      carrotClient,
-      liquidityMiningData.liquidityMiningCampaigns,
-    );
+    let kpiTokensData = [];
+    if (carrotClient) {
+      kpiTokensData = await getKpiTokensData(
+        chainId,
+        client,
+        carrotClient,
+        liquidityMiningData.liquidityMiningCampaigns,
+      );
+    }
 
     const campaings = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
       const pairData = campaign.stakablePair;

@@ -155,6 +155,12 @@ export const BLOCK_DIFFERENCE_THRESHOLD = {
   [SupportedNetwork.ARBITRUM_ONE]: 200, // Arbitrum one has multiple blocks in the same second
 };
 
+export const FACTORY_STARTING_BLOCK = {
+  [FACTORY_ADDRESS[SupportedNetwork.MAINNET]]: 10000000,
+  [FACTORY_ADDRESS[SupportedNetwork.XDAI]]: 14557349,
+  [FACTORY_ADDRESS[SupportedNetwork.ARBITRUM_ONE]]: 277186,
+};
+
 export const NETWORK_COLORS = {
   [SupportedNetwork.MAINNET]: '#2E17F2',
   [SupportedNetwork.XDAI]: '#F2994A',

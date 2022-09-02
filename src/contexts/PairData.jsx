@@ -871,7 +871,7 @@ export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
     fetchData();
   }, [chainId, liquidityMiningCampaigns, client, carrotClient, pairAddress, endTimestamp]);
 
-  return liquidityMiningCampaigns || [];
+  return liquidityMiningCampaigns || null;
 }
 
 /**

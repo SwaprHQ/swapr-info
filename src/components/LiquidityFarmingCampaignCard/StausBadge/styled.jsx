@@ -1,6 +1,6 @@
 import styled from 'styled-components';
 
-const Wrapper = styled.div`
+const ActiveEndedWrapper = styled.div`
   width: fit-content;
   padding: 3px 4px;
 
@@ -8,4 +8,12 @@ const Wrapper = styled.div`
   border-radius: 4px;
 `;
 
-export { Wrapper };
+const LockedWrapper = styled.div`
+  width: fit-content;
+  padding: 3px 4px;
+
+  border: ${({ theme }) => `1.5px solid ${theme.orange1}`};
+  border-radius: 4px;
+`;
+
+export { ActiveEndedWrapper, LockedWrapper };

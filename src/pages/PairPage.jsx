@@ -13,7 +13,7 @@ import CopyHelper from '../components/Copy';
 import DailyChangeLabel from '../components/DailyValueChangeLabel';
 import LabeledValue from '../components/LabeledValue';
 import Link, { BasicLink, ExternalListLink } from '../components/Link';
-import LiquidityFarmingCampaignCard from '../components/LiquidityFarmingCampaignCard';
+import LiquidityMiningCampaingCardList from '../components/LiquidityMiningCampaingCardList';
 import Loader from '../components/LocalLoader';
 import PairChart from '../components/PairChart';
 import Panel from '../components/Panel';
@@ -66,12 +66,6 @@ const FixedPanel = styled(Panel)`
     cursor: pointer;
     opacity: 0.6;
   }
-`;
-
-const CampaignsWraoper = styled.div`
-  display: flex;
-  gap: 20px;
-  margin-top: 20px;
 `;
 
 function PairPage({ pairAddress, history }) {
@@ -397,20 +391,10 @@ function PairPage({ pairAddress, history }) {
                 </Flex>
               </Flex>
             </Panel>
-            <CampaignsWraoper>
-              {liquidityMiningCampaings &&
-                liquidityMiningCampaings.map(({ address, targetedPair, endsAt, apy }) => (
-                  <LiquidityFarmingCampaignCard
-                    key={address}
-                    token0={{ id: targetedPair.token0.address, symbol: targetedPair.token0.symbol }}
-                    token1={{ id: targetedPair.token1.address, symbol: targetedPair.token1.symbol }}
-                    expiration={endsAt * 1000}
-                    apy={apy.toFixed(2)}
-                    stakeAmount={0}
-                    stakeCap={0}
-                  />
-                ))}
-            </CampaignsWraoper>
+            <LiquidityMiningCampaingCardList
+              campaings={liquidityMiningCampaings}
+              nativeCurrencyPrice={nativeCurrencyPrice && parseFloat(nativeCurrencyPrice)}
+            />
             <Typography.Custom
               color={'text10'}
               sx={{

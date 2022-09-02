@@ -506,13 +506,15 @@ const getPairRateData = async (
     const blocks = await getBlocksForTimestamps(blockClient, timestamps);
 
     // exclude blocks older than the factory one
-    const actualBlocks = blocks.filter((block) => {
-      if (latestBlock) {
-        return Number(block.number) > startingBlock && Number(block.number) <= Number(latestBlock);
-      }
+    const actualBlocks = blocks
+      .filter((block) => block.number)
+      .filter((block) => {
+        if (latestBlock) {
+          return Number(block.number) > startingBlock && Number(block.number) <= Number(latestBlock);
+        }
 
-      return Number(block.number) > startingBlock;
-    });
+        return Number(block.number) > startingBlock;
+      });
 
     // catch failing case
     if (!actualBlocks || actualBlocks?.length === 0) {

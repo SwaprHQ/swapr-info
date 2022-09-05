@@ -1,4 +1,3 @@
-import Skeleton from 'react-loading-skeleton';
 import styled from 'styled-components';
 
 const Wrapper = styled.div`
@@ -9,7 +8,7 @@ const Wrapper = styled.div`
   border-radius: 12px;
   padding: 16px;
 
-  width: 312px;
+  min-width: 312px;
   height: 147px;
 
   background: ${({ isActive }) =>
@@ -24,14 +23,10 @@ const Wrapper = styled.div`
   }
 
   transition: opacity 200ms;
+
+  @media screen and (max-width: 600px) {
+    min-width: 0;
+  }
 `;
 
-const SkeletonWrapper = styled(Skeleton)`
-  border-radius: 12px;
-  padding: 16px;
-
-  width: 312px;
-  height: 147px;
-`;
-
-export { Wrapper, SkeletonWrapper };
+export { Wrapper };

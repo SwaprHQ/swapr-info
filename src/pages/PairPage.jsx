@@ -42,7 +42,7 @@ const PanelWrapper = styled.div`
   width: 100%;
   align-items: start;
 
-  @media screen and (max-width: 1024px) {
+  @media screen and (max-width: 1100px) {
     grid-template-columns: 1fr;
     align-items: stretch;
     > * {
@@ -65,6 +65,10 @@ const FixedPanel = styled(Panel)`
   :hover {
     cursor: pointer;
     opacity: 0.6;
+  }
+
+  @media screen and (max-width: 600px) {
+    width: 100%;
   }
 `;
 
@@ -157,8 +161,8 @@ function PairPage({ pairAddress, history }) {
   const formattedSymbol0 = token0?.symbol.length > 6 ? token0?.symbol.slice(0, 5) + '...' : token0?.symbol;
   const formattedSymbol1 = token1?.symbol.length > 6 ? token1?.symbol.slice(0, 5) + '...' : token1?.symbol;
 
-  const below1080 = useMedia('(max-width: 1080px)');
-  // const below900 = useMedia('(max-width: 900px)');
+  const below1100 = useMedia('(max-width: 1100px)');
+  const below900 = useMedia('(max-width: 900px)');
   const below600 = useMedia('(max-width: 600px)');
 
   const swaprButtonsWidth = below600 ? '100%' : 'initial';
@@ -181,35 +185,43 @@ function PairPage({ pairAddress, history }) {
           {!below600 && <Search small={true} />}
         </Flex>
         <DashboardWrapper>
-          <Flex justifyContent={'space-between'} style={{ gap: '16px', marginBottom: '20px' }}>
+          <Flex
+            justifyContent={'space-between'}
+            flexDirection={below900 ? 'column' : 'row'}
+            style={{ gap: '16px', marginBottom: '20px' }}
+          >
             <Flex style={{ gap: '16px' }}>
               {!isPairLoading ? (
                 <FixedPanel onClick={() => history.push(`/token/${token0?.id}`)}>
-                  <Flex alignItems={'center'} style={{ gap: '8px' }}>
+                  <Flex alignItems={'center'} justifyContent={'center'} style={{ gap: '8px' }}>
                     <TokenLogo address={token0.id} defaultText={token0.symbol} size={'16px'} />
                     <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
                       {`1 ${formattedSymbol0} = ${token0Rate} ${formattedSymbol1} ${
-                        parseFloat(token0.derivedNativeCurrency) ? '(' + token0USD + ')' : ''
+                        !below600 && parseFloat(token0.derivedNativeCurrency) ? '(' + token0USD + ')' : ''
                       }`}
                     </Typography.SmallBoldText>
                   </Flex>
                 </FixedPanel>
               ) : (
-                <Skeleton style={{ width: '160px', height: '34px' }} />
+                <div style={{ width: !below600 ? '160px' : '100%' }}>
+                  <Skeleton height={'34px'} borderRadius={'8px'} />
+                </div>
               )}
               {!isPairLoading ? (
                 <FixedPanel onClick={() => history.push(`/token/${token1?.id}`)}>
-                  <Flex alignItems={'center'} style={{ gap: '8px' }}>
+                  <Flex alignItems={'center'} justifyContent={'center'} style={{ gap: '8px' }}>
                     <TokenLogo address={token1.id} defaultText={token1.symbol} size={'16px'} />
                     <Typography.SmallBoldText color={'text1'} sx={{ letterSpacing: '0.05em' }}>
                       {`1 ${formattedSymbol1} = ${token1Rate} ${formattedSymbol0}  ${
-                        parseFloat(token1.derivedNativeCurrency) ? '(' + token1USD + ')' : ''
+                        !below600 && parseFloat(token1.derivedNativeCurrency) ? '(' + token1USD + ')' : ''
                       }`}
                     </Typography.SmallBoldText>
                   </Flex>
                 </FixedPanel>
               ) : (
-                <Skeleton style={{ width: '160px', height: '34px' }} />
+                <div style={{ width: !below600 ? '160px' : '100%' }}>
+                  <Skeleton height={'34px'} borderRadius={'8px'} />
+                </div>
               )}
             </Flex>
             <Flex style={{ gap: '16px', width: swaprButtonsWidth }}>
@@ -218,7 +230,7 @@ function PairPage({ pairAddress, history }) {
                 href={getPoolLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 style={{ width: swaprButtonsWidth }}
               >
-                <ButtonLight>
+                <ButtonLight style={{ width: swaprButtonsWidth, minWidth: below600 ? '0' : '148px' }}>
                   <Typography.SmallBoldText color={'bd1'} sx={{ letterSpacing: '0.08em' }}>
                     + ADD LIQUIDITY
                   </Typography.SmallBoldText>
@@ -229,7 +241,7 @@ function PairPage({ pairAddress, history }) {
                 href={getSwapLink(selectedNetwork, nativeCurrency, nativeCurrencyWrapper, token0?.id, token1?.id)}
                 style={{ width: swaprButtonsWidth }}
               >
-                <ButtonDark>
+                <ButtonDark style={{ width: swaprButtonsWidth, minWidth: below600 ? '0' : '148px' }}>
                   <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                     TRADE
                   </Typography.SmallBoldText>
@@ -294,8 +306,8 @@ function PairPage({ pairAddress, history }) {
               </Panel>
               <Panel
                 style={{
-                  gridColumn: below1080 ? '' : '2/4',
-                  gridRow: below1080 ? '' : '1/3',
+                  gridColumn: below1100 ? '' : '2/4',
+                  gridRow: below1100 ? '' : '1/3',
                 }}
               >
                 <PairChart address={pairAddress} base0={reserve1 / reserve0} base1={reserve0 / reserve1} />
@@ -304,9 +316,11 @@ function PairPage({ pairAddress, history }) {
             <Panel marginTop={'20px'}>
               <Flex flexDirection={'column'} style={{ gap: '28px' }}>
                 <Flex justifyContent={'space-between'}>
-                  <Typography.Custom sx={{ fontWeight: 500, fontSize: '16px', lineHeight: '19px' }}>
-                    Pair Information
-                  </Typography.Custom>
+                  {!below600 && (
+                    <Typography.Custom sx={{ fontWeight: 500, fontSize: '16px', lineHeight: '19px' }}>
+                      Pair Information
+                    </Typography.Custom>
+                  )}
                   <Link external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
                     <ButtonDark>
                       <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
@@ -315,7 +329,11 @@ function PairPage({ pairAddress, history }) {
                     </ButtonDark>
                   </Link>
                 </Flex>
-                <Flex justifyContent={'space-between'}>
+                <Flex
+                  justifyContent={'space-between'}
+                  flexDirection={below900 ? 'column' : 'row'}
+                  style={{ gap: '20px' }}
+                >
                   <LabeledValue
                     label={'PAIR NAME'}
                     value={

@@ -26,6 +26,10 @@ const CardsWrapper = styled.div`
   gap: 20px;
 
   margin-top: 20px;
+
+  @media screen and (max-width: 600px) {
+    flex-direction: column;
+  }
 `;
 
 const ActiveBadge = styled.div`

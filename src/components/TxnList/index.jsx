@@ -296,7 +296,9 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
             </ExternalListLink>
           </FlexText>
         )}
-        <FlexText area={'time'}>{formatTime(item.timestamp)}</FlexText>
+        <FlexText area={'time'}>
+          {below680 && dayjs().diff(item.timestamp * 1000, 'minute') <= 60 ? 'recently' : formatTime(item.timestamp)}
+        </FlexText>
       </DashGrid>
     );
   };

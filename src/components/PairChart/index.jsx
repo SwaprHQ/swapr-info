@@ -10,7 +10,6 @@ import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { usePairChartData, usePairData, usePairRateData } from '../../contexts/PairData';
 import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
-import DropdownBasicSelect from '../DropdownBasicSelect';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
@@ -18,7 +17,7 @@ import { ChartTypeButton } from '../TokenChart/styled';
 
 const ChartWrapper = styled.div`
   height: 100%;
-  max-height: 340px;
+  min-height: 340px;
 
   @media screen and (max-width: 600px) {
     min-height: 200px;
@@ -136,34 +135,27 @@ const PairChart = ({ address, base0, base1 }) => {
   const formattedSymbol1 =
     pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol;
 
-  // const below1600 = useMedia('(max-width: 1600px)');
-  // const below1080 = useMedia('(max-width: 1080px)');
   const below600 = useMedia('(max-width: 600px)');
 
   return (
     <ChartWrapper>
-      {below600 ? (
-        <Flex justifyContent={'space-between'} mb={40}>
-          <DropdownBasicSelect options={CHART_VIEW} active={chartFilter} setActive={setChartFilter} />
-          <DropdownBasicSelect options={TIME_FILTER_OPTIONS} active={activeFilter} setActive={setActiveFilter} />
-        </Flex>
-      ) : (
-        <Flex mb={20} justifyContent={'space-between'}>
-          <Flex style={{ gap: '6px' }}>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.LIQUIDITY}
-              onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
-            >
-              <Typography.Text>TVL</Typography.Text>
-            </ChartTypeButton>
-            <ChartTypeButton
-              isActive={chartFilter === CHART_VIEW.VOLUME}
-              onClick={() => {
-                setChartFilter(CHART_VIEW.VOLUME);
-              }}
-            >
-              <Typography.Text>VOLUME</Typography.Text>
-            </ChartTypeButton>
+      <Flex mb={20} justifyContent={'space-between'} flexDirection={below600 ? 'column' : 'row'} style={{ gap: '8px' }}>
+        <Flex style={{ gap: '6px' }}>
+          <ChartTypeButton
+            isActive={chartFilter === CHART_VIEW.LIQUIDITY}
+            onClick={() => setChartFilter(CHART_VIEW.LIQUIDITY)}
+          >
+            <Typography.Text>TVL</Typography.Text>
+          </ChartTypeButton>
+          <ChartTypeButton
+            isActive={chartFilter === CHART_VIEW.VOLUME}
+            onClick={() => {
+              setChartFilter(CHART_VIEW.VOLUME);
+            }}
+          >
+            <Typography.Text>VOLUME</Typography.Text>
+          </ChartTypeButton>
+          {!below600 && (
             <ChartTypeButton
               isActive={chartFilter === CHART_VIEW.UTILIZATION}
               onClick={() => {
@@ -172,36 +164,40 @@ const PairChart = ({ address, base0, base1 }) => {
             >
               <Typography.Text>UTILIZATION</Typography.Text>
             </ChartTypeButton>
-            {pairData.token0 ? (
-              <ChartTypeButton
-                isActive={chartFilter === CHART_VIEW.RATE0}
-                onClick={() => {
-                  setChartFilter(CHART_VIEW.RATE0);
-                }}
-              >
-                <Typography.Text>{formattedSymbol1 + '-' + formattedSymbol0}</Typography.Text>
-              </ChartTypeButton>
-            ) : (
-              <Skeleton style={{ width: '70px', height: '22px' }} />
-            )}
-            {pairData.token0 ? (
-              <ChartTypeButton
-                isActive={chartFilter === CHART_VIEW.RATE1}
-                onClick={() => {
-                  setChartFilter(CHART_VIEW.RATE1);
-                }}
-              >
-                <Typography.Text>{formattedSymbol0 + '-' + formattedSymbol1}</Typography.Text>
-              </ChartTypeButton>
-            ) : (
-              <Skeleton style={{ width: '70px', height: '22px' }} />
-            )}
-          </Flex>
-          <div>
-            <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
-          </div>
+          )}
+          {pairData.token0 ? (
+            <ChartTypeButton
+              isActive={chartFilter === CHART_VIEW.RATE0}
+              onClick={() => {
+                setChartFilter(CHART_VIEW.RATE0);
+              }}
+            >
+              <Typography.Text>{formattedSymbol1 + '-' + formattedSymbol0}</Typography.Text>
+            </ChartTypeButton>
+          ) : (
+            <Skeleton style={{ width: '70px', height: '22px' }} />
+          )}
+          {!below600 && (
+            <>
+              {pairData.token0 ? (
+                <ChartTypeButton
+                  isActive={chartFilter === CHART_VIEW.RATE1}
+                  onClick={() => {
+                    setChartFilter(CHART_VIEW.RATE1);
+                  }}
+                >
+                  <Typography.Text>{formattedSymbol0 + '-' + formattedSymbol1}</Typography.Text>
+                </ChartTypeButton>
+              ) : (
+                <Skeleton style={{ width: '70px', height: '22px' }} />
+              )}
+            </>
+          )}
         </Flex>
-      )}
+        <div>
+          <RadioTimeFilter options={TIME_FILTER_OPTIONS} activeValue={activeFilter} onChange={setActiveFilter} />
+        </div>
+      </Flex>
       {chartFilter === CHART_VIEW.LIQUIDITY && (
         <PanelLoaderWrapper isLoading={!formattedLiquidityData}>
           <Chart

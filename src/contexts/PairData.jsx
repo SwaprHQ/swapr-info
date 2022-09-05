@@ -814,6 +814,7 @@ export function useLiquidityMiningCampaignData() {
               final,
               pairData.totalSupply,
               pairData.reserveNativeCurrency,
+              [],
               pair,
               nativeCurrency,
             );

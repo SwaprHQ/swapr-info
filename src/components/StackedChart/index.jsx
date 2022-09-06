@@ -60,7 +60,7 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
         });
 
       // get the previous day data
-      const oneDayOldData = filteredData[activeIndex !== 0 ? activeIndex - 1 : activeIndex];
+      const oneDayOldData = filteredData[activeIndex === 0 ? activeIndex : activeIndex - 1];
 
       if (oneDayOldData) {
         Object.keys(oneDayOldData)

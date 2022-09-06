@@ -1,5 +1,8 @@
 import styled from 'styled-components';
 
+const GREEN_PERCENTAGE_LIMIT = 50;
+const ORANGE_PERCENTAGE_LIMIT = 70;
+
 const BarWrapper = styled.div`
   position: relative;
 `;
@@ -20,7 +23,11 @@ const ColoredBar = styled.div`
   height: 3px;
 
   background: ${({ theme, progress }) =>
-    progress < 50 ? theme.green1 : progress >= 50 && progress < 70 ? theme.orange1 : theme.red1};
+    progress < GREEN_PERCENTAGE_LIMIT
+      ? theme.green1
+      : progress >= GREEN_PERCENTAGE_LIMIT && progress < ORANGE_PERCENTAGE_LIMIT
+      ? theme.orange1
+      : theme.red1};
   opacity: 0.5;
   border-radius: 6px;
 `;
@@ -33,9 +40,9 @@ const ProgressPercentage = styled.div`
   color: ${({ theme, progress }) =>
     progress === 0
       ? theme.text10
-      : progress < 50
+      : progress < GREEN_PERCENTAGE_LIMIT
       ? theme.green1
-      : progress >= 50 && progress < 70
+      : progress >= GREEN_PERCENTAGE_LIMIT && progress < ORANGE_PERCENTAGE_LIMIT
       ? theme.orange1
       : theme.red1}};
 `;

@@ -25,11 +25,11 @@ CrosshairTooltip.propTypes = {
   title: PropTypes.string,
   active: PropTypes.bool,
   payload: PropTypes.array,
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']).isRequired,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
 };
 
 CrosshairTooltip.defaultProps = {
-  isValueCurrency: true,
+  dataType: 'CURRENCY',
 };
 
 export default CrosshairTooltip;

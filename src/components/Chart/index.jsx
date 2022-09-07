@@ -192,7 +192,7 @@ Chart.propTypes = {
   tooltipTitle: PropTypes.string,
   data: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']).isRequired,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
   showTimeFilter: PropTypes.bool,
   overridingActiveFilter: PropTypes.oneOf(Object.values(TIME_FILTER_OPTIONS)),
   maxWith: PropTypes.number,

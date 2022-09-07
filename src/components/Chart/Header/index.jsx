@@ -41,7 +41,7 @@ Header.propTypes = {
   title: PropTypes.string,
   dailyChange: PropTypes.any,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']).isRequired,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
   date: PropTypes.string,
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,
@@ -50,7 +50,7 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  isValueCurrency: true,
+  dataType: 'CURRENCY',
   showTimeFilter: true,
 };
 

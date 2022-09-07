@@ -2,7 +2,7 @@ import qs from 'qs';
 import { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { blockClients, carrotSubgraphCliet, clients } from '../apollo/client';
+import { blockClients, carrotSubgraphClient, clients } from '../apollo/client';
 import {
   ChainId,
   FACTORY_ADDRESS,
@@ -130,7 +130,7 @@ export function useBlocksSubgraphClient() {
 
 export function useCarrotSubgraphClient() {
   const [state] = useNetworkContext();
-  return carrotSubgraphCliet[state.selectedNetwork];
+  return carrotSubgraphClient[state.selectedNetwork];
 }
 
 export function useNativeCurrencySymbol() {

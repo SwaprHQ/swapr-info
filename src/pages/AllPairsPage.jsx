@@ -1,29 +1,74 @@
 import { useEffect } from 'react';
 import 'feather-icons';
+import Marquee from 'react-fast-marquee';
 import { useMedia } from 'react-use';
-import { Flex } from 'rebass';
+import { Box, Flex } from 'rebass';
 
 import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
+import LocalLoader from '../components/LocalLoader';
+import PairCard from '../components/PairCard';
 import PairList from '../components/PairList';
 import Search from '../components/Search';
-import { useAllPairData } from '../contexts/PairData';
+import { useAllPairData, useTopTVLPairs } from '../contexts/PairData';
 
 function AllPairsPage() {
   const allPairs = useAllPairData();
+  const topTVLPairs = useTopTVLPairs();
+
+  const below800 = useMedia('(max-width: 800px)');
 
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const below800 = useMedia('(max-width: 800px)');
+  const isTopTVLTokenEmpty = !topTVLPairs || topTVLPairs.length === 0;
 
   return (
     <PageWrapper>
-      <FullWrapper>
-        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-          <Typography.MediumHeader>Top Pairs</Typography.MediumHeader>
+      <FullWrapper gap={'0'}>
+        <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
+          {!isTopTVLTokenEmpty ? (
+            <Typography.MediumHeader color={'text10'}>Top TVL Pairs</Typography.MediumHeader>
+          ) : (
+            <div />
+          )}
           {!below800 && <Search small={true} />}
+        </Flex>
+        <Flex height={'125px'}>
+          {!isTopTVLTokenEmpty ? (
+            <Marquee
+              delay={0}
+              gradient
+              gradientWidth={below800 ? 10 : 30}
+              gradientColor={[11, 11, 17]}
+              speed={40}
+              style={{ margin: '5px 0px', height: 'fit-content' }}
+              pauseOnHover
+            >
+              {topTVLPairs.map((pair) => (
+                <PairCard
+                  key={pair.id}
+                  token0={{ address: pair.token0.id, symbol: pair.token0.symbol }}
+                  token1={{ address: pair.token1.id, symbol: pair.token1.symbol }}
+                  tvl={pair.reserveUSD}
+                  liquidityMiningCampaigns={pair.liquidityMiningCampaigns}
+                />
+              ))}
+            </Marquee>
+          ) : (
+            <LocalLoader height={'125'} style={{ margin: '5px 0' }} />
+          )}
+        </Flex>
+        {below800 && (
+          <Box marginTop={'20px'}>
+            <Search small={true} />
+          </Box>
+        )}
+        <Flex alignItems={'flex-end'} justifyContent={below800 ? 'center' : 'space-between'}>
+          <Typography.MediumHeader color={'text10'} sx={{ marginTop: '40px', marginBottom: '20px' }}>
+            Top Pairs
+          </Typography.MediumHeader>
         </Flex>
         <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
       </FullWrapper>

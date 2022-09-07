@@ -16,6 +16,13 @@ const Wrapper = styled.div`
     linear-gradient(143.3deg, rgba(46, 23, 242, 0.5) -185.11%, rgba(46, 23, 242, 0) 49.63%), rgba(57, 51, 88, 0.3);
   backdrop-filter: blur(25px);
   background-blend-mode: overlay, normal;
+
+  :hover {
+    cursor: pointer;
+    opacity: 0.6;
+  }
+
+  transition: opacity 200ms;
 `;
 
 export { Wrapper };

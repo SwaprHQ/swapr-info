@@ -49,6 +49,7 @@ function AllPairsPage() {
               {topTVLPairs.map((pair) => (
                 <PairCard
                   key={pair.id}
+                  pairAddress={pair.id}
                   token0={{ address: pair.token0.id, symbol: pair.token0.symbol }}
                   token1={{ address: pair.token1.id, symbol: pair.token1.symbol }}
                   tvl={pair.reserveUSD}

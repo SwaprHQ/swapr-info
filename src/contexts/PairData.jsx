@@ -1,12 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import Decimal from 'decimal.js-light';
 import { createContext, useContext, useReducer, useMemo, useCallback, useEffect, useState } from 'react';
 
 import { Interface } from '@ethersproject/abi';
 import { getAddress } from '@ethersproject/address';
 import { Contract } from '@ethersproject/contracts';
 import { parseUnits } from '@ethersproject/units';
-import { TokenAmount, Token, Pair, Currency } from '@swapr/sdk';
+import { TokenAmount, Token, Pair, Currency, Price, PricedToken, PricedTokenAmount, KpiToken } from '@swapr/sdk';
 
 import multicallAbi from '../abi/multicall.json';
 import {
@@ -16,14 +17,18 @@ import {
   PAIRS_CURRENT,
   PAIRS_BULK,
   PAIRS_HISTORICAL_BULK,
-  HOURLY_PAIR_RATES,
+  PAIR_RATES,
   liquidityMiningCampaignsQuery,
+  LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+  KPI_TOKENS_QUERY,
+  DERIVED_NATIVE_CURRENCY_QUERY,
 } from '../apollo/queries';
 import {
   CHAIN_READONLY_PROVIDERS,
   ChainIdForSupportedNetwork,
   MULTICALL_ADDRESS,
   timeframeOptions,
+  ChainId,
 } from '../constants';
 import {
   getPercentChange,
@@ -34,11 +39,18 @@ import {
   splitQuery,
   toLiquidityMiningCampaign,
   getStakedAmountUSD,
+  getBlocksForTimestamps,
 } from '../utils';
 import { updateNameData } from '../utils/data';
 import { isSyncedBlockAboveThreshold, useLatestBlocks } from './Application';
 import { useNativeCurrencyPrice } from './GlobalData';
-import { useBlocksSubgraphClient, useSelectedNetwork, useSwaprSubgraphClient } from './Network';
+import {
+  useBlocksSubgraphClient,
+  useCarrotSubgraphClient,
+  useSelectedNetwork,
+  useStartingBlock,
+  useSwaprSubgraphClient,
+} from './Network';
 
 const RESET = 'RESET';
 const UPDATE = 'UPDATE';
@@ -46,7 +58,7 @@ const UPDATE_PAIR_TXNS = 'UPDATE_PAIR_TXNS';
 const UPDATE_CHART_DATA = 'UPDATE_CHART_DATA';
 const UPDATE_MINING_DATA = 'UPDATE_MINING_DATA';
 const UPDATE_TOP_PAIRS = 'UPDATE_TOP_PAIRS';
-const UPDATE_HOURLY_DATA = 'UPDATE_HOURLY_DATA';
+const UPDATE_PRICE_DATA = 'UPDATE_PRICE_DATA';
 
 export const STATUS = {
   ACTIVE: 'active',
@@ -131,15 +143,15 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_HOURLY_DATA: {
-      const { address, hourlyData, timeWindow } = payload;
+    case UPDATE_PRICE_DATA: {
+      const { address, data, timeWindow, interval } = payload;
       return {
         ...state,
         [address]: {
           ...state?.[address],
-          hourlyData: {
-            ...state?.[address]?.hourlyData,
-            [timeWindow]: hourlyData,
+          [timeWindow]: {
+            ...state?.[address]?.[timeWindow],
+            [interval]: data,
           },
         },
       };
@@ -201,10 +213,10 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateHourlyData = useCallback((address, hourlyData, timeWindow) => {
+  const updatePriceData = useCallback((address, data, timeWindow, interval) => {
     dispatch({
-      type: UPDATE_HOURLY_DATA,
-      payload: { address, hourlyData, timeWindow },
+      type: UPDATE_PRICE_DATA,
+      payload: { address, data, timeWindow, interval },
     });
   }, []);
 
@@ -223,11 +235,11 @@ export default function Provider({ children }) {
             updatePairTxns,
             updateChartData,
             updateTopPairs,
-            updateHourlyData,
+            updatePriceData,
             reset,
           },
         ],
-        [state, update, updateMiningData, updatePairTxns, updateChartData, updateTopPairs, updateHourlyData, reset],
+        [state, update, updateMiningData, updatePairTxns, updateChartData, updateTopPairs, updatePriceData, reset],
       )}
     >
       {children}
@@ -460,22 +472,30 @@ const getPairChartData = async (client, pairAddress) => {
 
     data = data.sort((a, b) => (parseInt(a.date) > parseInt(b.date) ? 1 : -1));
   } catch (e) {
-    console.log(e);
+    console.error(e);
   }
 
   return data;
 };
 
-const getHourlyRateData = async (client, blockClient, pairAddress, startTime, latestBlock) => {
+const getPairRateData = async (
+  client,
+  blockClient,
+  pairAddress,
+  startTime,
+  interval = 3600,
+  latestBlock,
+  startingBlock,
+) => {
   try {
     const utcEndTime = dayjs.utc();
     let time = startTime;
 
     // create an array of hour start times until we reach current hour
     const timestamps = [];
-    while (time <= utcEndTime.unix() - 3600) {
+    while (time <= utcEndTime.unix()) {
       timestamps.push(time);
-      time += 3600;
+      time += interval;
     }
 
     // backout if invalid timestamp format
@@ -483,23 +503,30 @@ const getHourlyRateData = async (client, blockClient, pairAddress, startTime, la
       return [];
     }
 
-    // once you have all the timestamps, get the blocks for each timestamp in a bulk query
-    let blocks;
+    const blocks = await getBlocksForTimestamps(blockClient, timestamps);
 
-    blocks = await getBlocksFromTimestamps(blockClient, timestamps, 100);
+    if (!blocks) {
+      console.error('Error fetching blocks');
+      return [[], []];
+    }
+
+    // exclude blocks older than the factory one
+    const actualBlocks = blocks
+      .filter((block) => block)
+      .filter((block) => {
+        if (latestBlock) {
+          return Number(block.number) > startingBlock && Number(block.number) <= Number(latestBlock);
+        }
+
+        return Number(block.number) > startingBlock;
+      });
 
     // catch failing case
-    if (!blocks || blocks?.length === 0) {
+    if (!actualBlocks || actualBlocks?.length === 0) {
       return [];
     }
 
-    if (latestBlock) {
-      blocks = blocks.filter((b) => {
-        return parseFloat(b.number) <= parseFloat(latestBlock);
-      });
-    }
-
-    const result = await splitQuery(HOURLY_PAIR_RATES, client, [pairAddress], blocks, 100);
+    const result = await splitQuery(PAIR_RATES, client, [pairAddress], actualBlocks, 100);
 
     // format token native currency price results
     let values = [];
@@ -590,29 +617,39 @@ export function Updater() {
   return null;
 }
 
-export function useHourlyRateData(pairAddress, timeWindow) {
+export function usePairRateData(pairAddress, timeWindow, interval = 3600) {
   const client = useSwaprSubgraphClient();
   const blockClient = useBlocksSubgraphClient();
-  const [state, { updateHourlyData }] = usePairDataContext();
-  const chartData = state?.[pairAddress]?.hourlyData?.[timeWindow];
+  const [state, { updatePriceData }] = usePairDataContext();
+  const chartData = state?.[pairAddress]?.[timeWindow]?.[interval];
   const [latestBlock] = useLatestBlocks();
+  const startingBlock = useStartingBlock();
 
   useEffect(() => {
     const currentTime = dayjs.utc();
-    const windowSize = timeWindow === timeframeOptions.MONTH ? 'month' : 'week';
-    const startTime =
-      timeWindow === timeframeOptions.ALL_TIME
-        ? 1589760000
-        : currentTime.subtract(1, windowSize).startOf('hour').unix();
+    const windowSize = timeWindow === timeframeOptions.WEEK ? 'week' : 'year';
+
+    const startTime = currentTime.subtract(1, windowSize).startOf('hour').unix();
 
     async function fetch() {
-      let data = await getHourlyRateData(client, blockClient, pairAddress, startTime, latestBlock);
-      updateHourlyData(pairAddress, data, timeWindow);
+      if (pairAddress && isAddress(pairAddress)) {
+        let data = await getPairRateData(
+          client,
+          blockClient,
+          pairAddress,
+          startTime,
+          interval,
+          latestBlock,
+          startingBlock,
+        );
+        updatePriceData(pairAddress, data, timeWindow, interval);
+      }
     }
+
     if (!chartData) {
       fetch();
     }
-  }, [chartData, timeWindow, pairAddress, updateHourlyData, latestBlock, client, blockClient]);
+  }, [chartData, timeWindow, pairAddress, updatePriceData, latestBlock, startingBlock, client, blockClient, interval]);
 
   return chartData;
 }
@@ -692,12 +729,12 @@ export function usePairData(pairAddress) {
 
   useEffect(() => {
     async function fetchData() {
-      if (!pairData && pairAddress) {
+      if ((!pairData || !pairData.id) && pairAddress && isAddress(pairAddress)) {
         let data = await getBulkPairData(client, blockClient, [pairAddress], nativeCurrencyPrice, selectedNetwork);
         data && update(pairAddress, data[0]);
       }
     }
-    if (!pairData && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
+    if ((!pairData || !pairData.id) && pairAddress && nativeCurrencyPrice && isAddress(pairAddress)) {
       fetchData();
     }
   }, [pairAddress, pairData, update, nativeCurrencyPrice, client, blockClient, selectedNetwork]);
@@ -777,6 +814,7 @@ export function useLiquidityMiningCampaignData() {
               final,
               pairData.totalSupply,
               pairData.reserveNativeCurrency,
+              [],
               pair,
               nativeCurrency,
             );
@@ -815,7 +853,184 @@ export function usePairChartData(pairAddress) {
     }
     checkForChartData();
   }, [chartData, pairAddress, updateChartData, client]);
+
   return chartData;
+}
+
+export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
+  const [liquidityMiningCampaigns, setLiquidityMiningCampaigns] = useState(null);
+
+  const selectedNetwork = useSelectedNetwork();
+  const client = useSwaprSubgraphClient();
+  const carrotClient = useCarrotSubgraphClient();
+
+  const chainId = ChainId[selectedNetwork];
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!liquidityMiningCampaigns && pairAddress && isAddress(pairAddress)) {
+        const data = await getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp);
+        setLiquidityMiningCampaigns(data);
+      }
+    }
+
+    fetchData();
+  }, [chainId, liquidityMiningCampaigns, client, carrotClient, pairAddress, endTimestamp]);
+
+  return liquidityMiningCampaigns || null;
+}
+
+/**
+ * Build the campaings objects, linked to a pair, with all the required information.
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} pairAddress
+ * @param {*} endTimestamp
+ * @returns
+ */
+async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const { data: liquidityMiningData } = await client.query({
+      query: LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+      variables: {
+        pairAddress,
+        endTimestamp,
+      },
+    });
+
+    let kpiTokensData = [];
+    if (carrotClient) {
+      kpiTokensData = await getKpiTokensData(
+        chainId,
+        client,
+        carrotClient,
+        liquidityMiningData.liquidityMiningCampaigns,
+      );
+    }
+
+    const campaings = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
+      const pairData = campaign.stakablePair;
+
+      const tokenA = new Token(
+        chainId,
+        getAddress(pairData.token0.id),
+        parseInt(pairData.token0.decimals),
+        pairData.token0.symbol,
+        pairData.token0.name,
+      );
+      const tokenB = new Token(
+        chainId,
+        getAddress(pairData.token1.id),
+        parseInt(pairData.token1.decimals),
+        pairData.token1.symbol,
+        pairData.token1.name,
+      );
+
+      const tokenAmountA = new TokenAmount(tokenA, parseUnits(pairData.reserve0, pairData.token0.decimals).toString());
+      const tokenAmountB = new TokenAmount(tokenB, parseUnits(pairData.reserve1, pairData.token1.decimals).toString());
+
+      const final = new Pair(tokenAmountA, tokenAmountB);
+
+      return toLiquidityMiningCampaign(
+        chainId,
+        final,
+        pairData.totalSupply,
+        pairData.reserveNativeCurrency,
+        kpiTokensData,
+        campaign,
+        nativeCurrency,
+      );
+    });
+
+    return campaings || [];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Fetch the kpi tokens data, linked to the provided liquidity mining campaings (if there are any).
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} liquidityMiningCampaigns
+ */
+async function getKpiTokensData(chainId, client, carrotClient, liquidityMiningCampaigns) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const kpiTokensAddresses = liquidityMiningCampaigns.flatMap((campaign) =>
+      campaign.rewards.map((reward) => reward.token.id.toLowerCase()),
+    );
+
+    const { data: kpiTokensData } = await carrotClient.query({
+      query: KPI_TOKENS_QUERY,
+      variables: { ids: kpiTokensAddresses },
+    });
+
+    const collateralTokenAddresses = kpiTokensData.kpiTokens.map((kpiTokenData) =>
+      kpiTokenData.collateral.token.address.toLowerCase(),
+    );
+
+    const { data: collateralTokenPrices } = await client.query({
+      query: DERIVED_NATIVE_CURRENCY_QUERY,
+      variables: { tokenIds: collateralTokenAddresses },
+    });
+
+    return kpiTokensData.kpiTokens.map((kpiTokenData) => {
+      const collateralToken = new Token(
+        chainId,
+        getAddress(kpiTokenData.collateral.token.address),
+        parseInt(kpiTokenData.collateral.token.decimals),
+        kpiTokenData.collateral.token.symbol,
+        kpiTokenData.collateral.token.name,
+      );
+
+      const collateralPrice = collateralTokenPrices.tokens.find(
+        (token) => token.address.toLowerCase() === kpiTokenData.collateral.token.address.toLowerCase(),
+      );
+
+      const collateralTokenPrice = new Price({
+        baseCurrency: collateralToken,
+        quoteCurrency: nativeCurrency,
+        denominator: parseUnits('1', nativeCurrency.decimals).toString(),
+        numerator: parseUnits(
+          collateralPrice ? new Decimal(collateralPrice.derivedNativeCurrency).toFixed(nativeCurrency.decimals) : '0',
+          nativeCurrency.decimals,
+        ).toString(),
+      });
+
+      const pricedCollateral = new PricedToken(
+        chainId,
+        collateralToken.address,
+        collateralToken.decimals,
+        collateralTokenPrice,
+        collateralToken.symbol,
+        collateralToken.name,
+      );
+
+      const collateralTokenAmount = new PricedTokenAmount(pricedCollateral, kpiTokenData.collateral.amount);
+
+      const kpiToken = new KpiToken(
+        chainId,
+        getAddress(kpiTokenData.address),
+        kpiTokenData.totalSupply,
+        collateralTokenAmount,
+        kpiTokenData.kpiId,
+        kpiTokenData.symbol,
+        kpiTokenData.name,
+      );
+
+      return kpiToken;
+    });
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**

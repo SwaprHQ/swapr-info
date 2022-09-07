@@ -605,12 +605,15 @@ export function getLpTokenPrice(pair, nativeCurrency, totalSupply, reserveNative
         new Decimal(totalSupply).toFixed(pair.liquidityToken.decimals),
         pair.liquidityToken.decimals,
       ).toString();
-  return new Price(
-    pair.liquidityToken,
-    nativeCurrency,
-    priceDenominator,
-    parseUnits(new Decimal(reserveNativeCurrency).toFixed(nativeCurrency.decimals), nativeCurrency.decimals).toString(),
-  );
+  return new Price({
+    baseCurrency: pair.liquidityToken,
+    quoteCurrency: nativeCurrency,
+    denominator: priceDenominator,
+    numerator: parseUnits(
+      new Decimal(reserveNativeCurrency).toFixed(nativeCurrency.decimals),
+      nativeCurrency.decimals,
+    ).toString(),
+  });
 }
 
 export function toLiquidityMiningCampaign(
@@ -618,45 +621,59 @@ export function toLiquidityMiningCampaign(
   targetedPair,
   targetedPairLpTokenTotalSupply,
   targetedPairReserveNativeCurrency,
+  kpiTokens,
   campaign,
   nativeCurrency,
 ) {
   const rewards = campaign.rewards.map((reward) => {
-    const rewardToken = reward.token;
-    const properRewardToken = new Token(
+    const rewardToken = new Token(
       chainId,
-      getAddress(rewardToken.id),
-      parseInt(rewardToken.decimals),
-      rewardToken.symbol,
-      rewardToken.name,
+      getAddress(reward.token.id),
+      parseInt(reward.token.decimals),
+      reward.token.symbol,
+      reward.token.name,
     );
 
-    const rewardTokenPriceNativeCurrency = new Price(
-      properRewardToken,
-      nativeCurrency,
-      parseUnits('1', nativeCurrency.decimals).toString(),
-      parseUnits(
-        new Decimal(rewardToken.derivedNativeCurrency).toFixed(nativeCurrency.decimals),
+    const kpiToken = kpiTokens.find((kpiToken) => kpiToken.address.toLowerCase() === reward.token.id.toLowerCase());
+    if (kpiToken) {
+      return new PricedTokenAmount(
+        kpiToken,
+        parseUnits(new Decimal(reward.amount).toFixed(rewardToken.decimals), rewardToken.decimals).toString(),
+      );
+    }
+
+    const rewardTokenPriceNativeCurrency = new Price({
+      baseCurrency: rewardToken,
+      quoteCurrency: nativeCurrency,
+      denominator: parseUnits('1', nativeCurrency.decimals).toString(),
+      numerator: parseUnits(
+        new Decimal(reward.token.derivedNativeCurrency).toFixed(nativeCurrency.decimals),
         nativeCurrency.decimals,
       ).toString(),
-    );
+    });
 
     const pricedRewardToken = new PricedToken(
       chainId,
-      getAddress(rewardToken.id),
-      parseInt(rewardToken.decimals),
+      getAddress(rewardToken.address),
+      rewardToken.decimals,
       rewardTokenPriceNativeCurrency,
       rewardToken.symbol,
       rewardToken.name,
     );
-    return new PricedTokenAmount(pricedRewardToken, parseUnits(reward.amount, rewardToken.decimals).toString());
+
+    return new PricedTokenAmount(
+      pricedRewardToken,
+      parseUnits(new Decimal(reward.amount).toFixed(rewardToken.decimals), rewardToken.decimals).toString(),
+    );
   });
+
   const lpTokenPriceNativeCurrency = getLpTokenPrice(
     targetedPair,
     nativeCurrency,
     targetedPairLpTokenTotalSupply,
     targetedPairReserveNativeCurrency,
   );
+
   const stakedPricedToken = new PricedToken(
     chainId,
     getAddress(targetedPair.liquidityToken.address),
@@ -665,32 +682,34 @@ export function toLiquidityMiningCampaign(
     targetedPair.liquidityToken.symbol,
     targetedPair.liquidityToken.name,
   );
+
   const staked = new PricedTokenAmount(
     stakedPricedToken,
     parseUnits(campaign.stakedAmount, stakedPricedToken.decimals).toString(),
   );
-  return new LiquidityMiningCampaign(
-    campaign.startsAt,
-    campaign.endsAt,
+
+  return new LiquidityMiningCampaign({
+    startsAt: campaign.startsAt,
+    endsAt: campaign.endsAt,
     targetedPair,
     rewards,
     staked,
-    campaign.locked,
-    new TokenAmount(
+    locked: campaign.locked,
+    stakingCap: new TokenAmount(
       targetedPair.liquidityToken,
       parseUnits(campaign.stakingCap, targetedPair.liquidityToken.decimals).toString(),
     ),
-    getAddress(campaign.id),
-  );
+    address: getAddress(campaign.id),
+  });
 }
 
 export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice, nativeCurrency) {
-  const nativeCurrencyPrice = new Price(
-    nativeCurrency,
-    USD,
-    parseUnits('1', USD.decimals).toString(),
-    parseUnits(new Decimal(nativeCurrencyUSDPrice).toFixed(18), USD.decimals).toString(),
-  );
+  const nativeCurrencyPrice = new Price({
+    baseCurrency: nativeCurrency,
+    quoteCurrency: USD,
+    denominator: parseUnits('1', USD.decimals).toString(),
+    numerator: parseUnits(new Decimal(nativeCurrencyUSDPrice).toFixed(18), USD.decimals).toString(),
+  });
   return CurrencyAmount.usd(
     parseUnits(
       campaign.staked.nativeCurrencyAmount.multiply(nativeCurrencyPrice).toFixed(USD.decimals),
@@ -729,4 +748,39 @@ export function chunk(arr, chunkSize) {
   }
 
   return chunked;
+}
+
+/**
+ *  Get countdown string from timestamp.
+ *
+ * @param {*} timestamp Milliseconds timestamp
+ */
+export function formatCountDownString(timestamp) {
+  if (timestamp <= 0) {
+    return '00D 00H 00M';
+  }
+
+  const daysLeft = timestamp / 1000 / 60 / 60 / 24;
+  const hoursLeft = (timestamp / 1000 / 60 / 60) % 24;
+  const minutesLeft = (timestamp / 1000 / 60) % 60;
+
+  return `${Math.floor(daysLeft)}D ${Math.floor(hoursLeft)}H ${Math.floor(minutesLeft)}M`;
+}
+
+/**
+ * Format the value based on the data type
+ *
+ * @param {*} value
+ * @param {*} dataType CURRENCY | PERCENTAGE
+ */
+export function formatChartValueByType(value, dataType) {
+  if (dataType === 'CURRENCY') {
+    return formattedNum(value, true);
+  }
+
+  if (dataType === 'PERCENTAGE') {
+    return formattedNum(value) + '%';
+  }
+
+  return value;
 }

@@ -195,13 +195,19 @@ function TokenPage({ address }) {
             </Flex>
           </Flex>
           <PanelWrapper>
-            {below700 && price && (
-              <Panel>
-                <Flex style={{ gap: '10px' }}>
-                  <TokenLogo address={address} defaultText={symbol} size="32px" />
-                  <DailyChangeLabel label={'PRICE'} value={price} dailyChange={priceChange} />
-                </Flex>
-              </Panel>
+            {below700 && (
+              <>
+                <Panel>
+                  <Flex style={{ gap: '10px' }}>
+                    {symbol ? (
+                      <TokenLogo address={address} defaultText={symbol} size="32px" />
+                    ) : (
+                      <Skeleton circle={true} height={'33px'} width={'33px'} />
+                    )}
+                    <DailyChangeLabel label={'PRICE'} value={price} dailyChange={priceChange} />
+                  </Flex>
+                </Panel>
+              </>
             )}
             <Panel style={{ maxHeight: '205px' }}>
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>

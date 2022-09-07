@@ -17,7 +17,6 @@ import Row, { RowFixed } from '../Row';
 import TokenLogo from '../TokenLogo';
 
 const Container = styled.div`
-  height: 48px;
   position: relative;
 
   @media screen and (max-width: 600px) {

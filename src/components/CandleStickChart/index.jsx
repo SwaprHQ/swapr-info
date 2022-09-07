@@ -111,12 +111,12 @@ const CandleStickChart = ({
           break;
         }
         default: {
-          limitDate.setFullYear(limitDate.getDate() - 7);
+          limitDate.setMonth(limitDate.getMonth() - 1);
           break;
         }
       }
 
-      // sort and add index to the chart data in order to properly obtain
+      // add index to the chart data in order to properly obtain
       // % changes between values
       setFilteredData(
         formattedCandlesData

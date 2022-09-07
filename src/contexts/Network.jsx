@@ -2,8 +2,15 @@ import qs from 'qs';
 import { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
-import { blockClients, clients } from '../apollo/client';
-import { ChainId, NATIVE_CURRENCY_SYMBOL, NATIVE_CURRENCY_WRAPPER, SupportedNetworkForChainId } from '../constants';
+import { blockClients, carrotSubgraphCliet, clients } from '../apollo/client';
+import {
+  ChainId,
+  FACTORY_ADDRESS,
+  FACTORY_STARTING_BLOCK,
+  NATIVE_CURRENCY_SYMBOL,
+  NATIVE_CURRENCY_WRAPPER,
+  SupportedNetworkForChainId,
+} from '../constants';
 import { useApplicationContextResetter } from './Application';
 import { useGlobalContextResetter } from './GlobalData';
 import { useSavedNetwork } from './LocalStorage';
@@ -87,6 +94,12 @@ export function useSelectedNetwork() {
   return state.selectedNetwork;
 }
 
+export function useStartingBlock() {
+  const [state] = useNetworkContext();
+
+  return FACTORY_STARTING_BLOCK[FACTORY_ADDRESS[state.selectedNetwork]];
+}
+
 export function useSelectedNetworkUpdater() {
   const [, { updateSelectedNetwork }] = useNetworkContext();
   const resetApplicationContext = useApplicationContextResetter();
@@ -113,6 +126,11 @@ export function useSwaprSubgraphClient() {
 export function useBlocksSubgraphClient() {
   const [state] = useNetworkContext();
   return blockClients[state.selectedNetwork];
+}
+
+export function useCarrotSubgraphClient() {
+  const [state] = useNetworkContext();
+  return carrotSubgraphCliet[state.selectedNetwork];
 }
 
 export function useNativeCurrencySymbol() {

@@ -1,16 +1,29 @@
 import PropTypes from 'prop-types';
 
 import { Typography } from '../../../Theme';
+import { formatChartValueByType } from '../../../utils';
 import RadioTimeFilter from '../../RadioTimeFilter';
 import { Container, DailyChange, FlexContainer } from './styled';
 
-const Header = ({ title, value, dailyChange, date, filterOptions, activeFilter, onFilterChange, showTimeFilter }) => (
+const Header = ({
+  title,
+  value,
+  dataType,
+  dailyChange,
+  date,
+  filterOptions,
+  activeFilter,
+  onFilterChange,
+  showTimeFilter,
+}) => (
   <Container>
     <div>
       <Typography.LargeBoldText color={'text7'} sx={{ textTransform: 'uppercase', marginBottom: '4px' }}>
         {title}
       </Typography.LargeBoldText>
-      <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>{value}</Typography.LargeBoldHeader>
+      <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>
+        {formatChartValueByType(value, dataType)}
+      </Typography.LargeBoldHeader>
       <FlexContainer>
         <Typography.Text color={'text7'}>{date}</Typography.Text>
         <DailyChange>{dailyChange}</DailyChange>
@@ -28,6 +41,7 @@ Header.propTypes = {
   title: PropTypes.string,
   dailyChange: PropTypes.any,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
   date: PropTypes.string,
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,
@@ -36,7 +50,7 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  isValueCurrency: true,
+  dataType: 'CURRENCY',
   showTimeFilter: true,
 };
 

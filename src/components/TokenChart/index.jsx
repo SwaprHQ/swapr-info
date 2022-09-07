@@ -112,17 +112,6 @@ const TokenChart = ({ address, base }) => {
           />
         </PanelLoaderWrapper>
       )}
-      {chartFilter === CHART_VIEW.PRICE && (
-        <PanelLoaderWrapper isLoading={!formattedPriceData || (!base && base !== 0)}>
-          <CandleStickChart
-            data={formattedPriceData}
-            currentPrice={base}
-            showTimeFilter={false}
-            overridingActiveFilter={activeFilter}
-            isHourlyData={isHourlyPriceData}
-          />
-        </PanelLoaderWrapper>
-      )}
       {chartFilter === CHART_VIEW.VOLUME && (
         <PanelLoaderWrapper isLoading={!formattedVolumeData}>
           <Chart
@@ -131,6 +120,17 @@ const TokenChart = ({ address, base }) => {
             overridingActiveFilter={activeFilter}
             type={'BAR'}
             tooltipTitle={'Volume'}
+          />
+        </PanelLoaderWrapper>
+      )}
+      {chartFilter === CHART_VIEW.PRICE && (
+        <PanelLoaderWrapper isLoading={!formattedPriceData || (!base && base !== 0)}>
+          <CandleStickChart
+            data={formattedPriceData}
+            currentPrice={base}
+            showTimeFilter={false}
+            overridingActiveFilter={activeFilter}
+            isHourlyData={isHourlyPriceData}
           />
         </PanelLoaderWrapper>
       )}

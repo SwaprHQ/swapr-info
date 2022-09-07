@@ -31,9 +31,14 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
           pastStackedDataValue += data[data.length - 2][key];
         });
 
-      const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
+      if (pastStackedDataValue > 0) {
+        const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
 
-      setDailyChange(dailyChange);
+        setDailyChange(dailyChange);
+      } else {
+        setDailyChange(0);
+      }
+
       setActiveDate(data[data.length - 1].time);
       setStackedDataValue(currentStackedDataValue);
     }
@@ -41,8 +46,10 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
 
   // set header values to the current point of the chart
   const setCurrentStackedValue = (params) => {
-    const { activePayload, activeLabel } = params;
+    const { activePayload } = params;
     if (activePayload && activePayload.length) {
+      const activeIndex = activePayload[0].payload.index;
+
       let currentStackedDataValue = 0;
       let pastStackedDataValue = 0;
 
@@ -52,12 +59,8 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
           currentStackedDataValue += series.value;
         });
 
-      // get the previous day data by subtracting
-      // one day from the active label
-      // (the label is the actual date in the YYYY-MM-DD format)
-      const oneDayOldDate = new Date(activeLabel);
-      oneDayOldDate.setDate(oneDayOldDate.getDate() - 1);
-      const oneDayOldData = filteredData.find((data) => data.time === dayjs(oneDayOldDate).format('YYYY-MM-DD'));
+      // get the previous day data
+      const oneDayOldData = filteredData[activeIndex === 0 ? activeIndex : activeIndex - 1];
 
       if (oneDayOldData) {
         Object.keys(oneDayOldData)
@@ -107,12 +110,18 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
           break;
         }
         default: {
-          limitDate.setFullYear(limitDate.getMonth() - 1);
+          limitDate.setMonth(limitDate.getMonth() - 1);
           break;
         }
       }
 
-      setFilteredData(data.filter((data) => new Date(data.time).getTime() > limitDate.getTime()));
+      // add index to the chart data in order to properly obtain
+      // % changes between values
+      setFilteredData(
+        data
+          .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+          .map((data, index) => ({ ...data, index })),
+      );
     }
   }, [data, activeFilter]);
 

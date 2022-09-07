@@ -1,12 +1,6 @@
 import graphql from 'graphql-tag';
 
-import { BUNDLE_ID, FACTORY_ADDRESS, SupportedNetwork } from '../constants';
-
-const FACTORY_STARTING_BLOCK = {
-  [FACTORY_ADDRESS[SupportedNetwork.MAINNET]]: 10000000,
-  [FACTORY_ADDRESS[SupportedNetwork.XDAI]]: 14557349,
-  [FACTORY_ADDRESS[SupportedNetwork.ARBITRUM_ONE]]: 277186,
-};
+import { BUNDLE_ID, FACTORY_STARTING_BLOCK } from '../constants';
 
 export const SUBGRAPH_HEALTH = graphql`
   query health($name: Bytes) {
@@ -120,7 +114,7 @@ export const TOP_LPS_PER_PAIRS = graphql`
   }
 `;
 
-export const HOURLY_PAIR_RATES = (pairAddress, blocks) => {
+export const PAIR_RATES = (pairAddress, blocks) => {
   let queryString = 'query blocks {';
   queryString += blocks.map(
     (block) => `
@@ -765,6 +759,78 @@ const PairFields = `
     token0Price
     token1Price
     createdAtTimestamp
+  }
+`;
+
+export const LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR = graphql`
+  query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
+    liquidityMiningCampaigns(first: 1000, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
+      id
+      startsAt
+      endsAt
+      locked
+      stakedAmount
+      stakingCap
+      stakablePair {
+        id
+        reserve0
+        reserve1
+        totalSupply
+        reserveNativeCurrency
+        token0 {
+          id
+          symbol
+          name
+          decimals
+        }
+        token1 {
+          id
+          symbol
+          name
+          decimals
+        }
+      }
+      rewards {
+        id
+        token {
+          id
+          symbol
+          decimals
+          derivedNativeCurrency
+        }
+        amount
+      }
+    }
+  }
+`;
+
+export const KPI_TOKENS_QUERY = graphql`
+  query kpiTokens($ids: [ID!]!) {
+    kpiTokens(where: { id_in: $ids }) {
+      address: id
+      symbol
+      name
+      totalSupply
+      kpiId
+      collateral {
+        token {
+          address: id
+          symbol
+          name
+          decimals
+        }
+        amount
+      }
+    }
+  }
+`;
+
+export const DERIVED_NATIVE_CURRENCY_QUERY = graphql`
+  query getTokensDerivedNativeCurrency($tokenIds: [ID!]!) {
+    tokens(where: { id_in: $tokenIds }) {
+      address: id
+      derivedNativeCurrency
+    }
   }
 `;
 

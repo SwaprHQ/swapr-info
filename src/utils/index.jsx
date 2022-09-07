@@ -766,3 +766,21 @@ export function formatCountDownString(timestamp) {
 
   return `${Math.floor(daysLeft)}D ${Math.floor(hoursLeft)}H ${Math.floor(minutesLeft)}M`;
 }
+
+/**
+ * Format the value based on the data type
+ *
+ * @param {*} value
+ * @param {*} dataType CURRENCY | PERCENTAGE
+ */
+export function formatChartValueByType(value, dataType) {
+  if (dataType === 'CURRENCY') {
+    return formattedNum(value, true);
+  }
+
+  if (dataType === 'PERCENTAGE') {
+    return formattedNum(value) + '%';
+  }
+
+  return value;
+}

@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { useState, useRef, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
@@ -42,24 +42,6 @@ const PairChart = ({ address, base0, base1 }) => {
   const [chartFilter, setChartFilter] = useState(CHART_VIEW.LIQUIDITY);
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.WEEK);
   const [isHourlyPriceData, setIsHourlyPriceData] = useState(false);
-
-  // update the width on a window resize
-  const ref = useRef();
-  const isClient = typeof window === 'object';
-  const [width, setWidth] = useState(ref?.current?.container?.clientWidth);
-
-  const [height, setHeight] = useState(ref?.current?.container?.clientHeight);
-  useEffect(() => {
-    if (!isClient) {
-      return false;
-    }
-    function handleResize() {
-      setWidth(ref?.current?.container?.clientWidth ?? width);
-      setHeight(ref?.current?.container?.clientHeight ?? height);
-    }
-    window.addEventListener('resize', handleResize);
-    return () => window.removeEventListener('resize', handleResize);
-  }, [height, isClient, width]); // Empty array ensures that effect is only run on mount and unmount
 
   // get data for pair, and rates
   const pairData = usePairData(address);
@@ -224,9 +206,11 @@ const PairChart = ({ address, base0, base1 }) => {
         <PanelLoaderWrapper isLoading={!formattedUtilizationData}>
           <Chart
             data={formattedUtilizationData}
+            dataType={'PERCENTAGE'}
             showTimeFilter={false}
             overridingActiveFilter={activeFilter}
             type={'AREA'}
+            isCurrency={false}
             tooltipTitle={'Utilization'}
           />
         </PanelLoaderWrapper>

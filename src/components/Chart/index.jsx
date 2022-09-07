@@ -5,11 +5,11 @@ import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxi
 import { useTheme } from 'styled-components';
 
 import { TIME_FILTER_OPTIONS } from '../../constants';
-import { formattedNum, formattedPercent } from '../../utils';
+import { formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
 
-const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFilter, showTimeFilter }) => {
+const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilter, showTimeFilter }) => {
   const theme = useTheme();
   const [filteredData, setFilteredData] = useState(data);
   const [headerValue, setHeaderValue] = useState(null);
@@ -115,7 +115,8 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
     <>
       <Header
         title={title}
-        value={formattedNum(headerValue, isCurrency)}
+        value={headerValue}
+        dataType={dataType}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
@@ -142,7 +143,8 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
             <YAxis hide />
             <Tooltip
               isAnimationActive={false}
-              content={<CrosshairTooltip title={tooltipTitle || title} isValueCurrency={isCurrency} />}
+              content={<CrosshairTooltip title={tooltipTitle || title} />}
+              dataType={dataType}
             />
             <Area
               animationDuration={500}
@@ -166,7 +168,8 @@ const Chart = ({ title, tooltipTitle, data, type, isCurrency, overridingActiveFi
             <YAxis hide />
             <Tooltip
               isAnimationActive={false}
-              content={<CrosshairTooltip title={tooltipTitle || title} isValueCurrency={isCurrency} />}
+              content={<CrosshairTooltip title={tooltipTitle || title} />}
+              dataType={dataType}
             />
             <Bar
               animationDuration={500}
@@ -189,7 +192,7 @@ Chart.propTypes = {
   tooltipTitle: PropTypes.string,
   data: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
-  isCurrency: PropTypes.bool,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']).isRequired,
   showTimeFilter: PropTypes.bool,
   overridingActiveFilter: PropTypes.oneOf(Object.values(TIME_FILTER_OPTIONS)),
   maxWith: PropTypes.number,
@@ -199,7 +202,7 @@ Chart.propTypes = {
 Chart.defaultProps = {
   type: 'AREA',
   data: [],
-  isCurrency: true,
+  dataType: 'CURRENCY',
   showTimeFilter: true,
 };
 

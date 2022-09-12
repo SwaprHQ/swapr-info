@@ -3,17 +3,16 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   position: relative;
-  background-color: ${({ theme }) => theme.dropdownBg};
+  background-color: ${({ theme }) => theme.bg7};
   border: 1px solid ${({ color, theme }) => color || theme.bd1};
   width: ${({ width }) => (width ? width : '160px')};
-  padding: 4px 10px;
-  padding-right: 6px;
-  border-radius: 8px;
+  padding: 14px 15px;
+  border-radius: 12px;
   display: flex;
   align-items: center;
   justify-content: center;
 
-  :hover {
+  &:hover {
     cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
   }
 `;
@@ -33,26 +32,22 @@ const IconWrapper = styled.span`
 const Dropdown = styled.div`
   z-index: 2;
   position: absolute;
-  top: 38px;
+  top: 57px;
   left: -1px;
-  padding-top: 40px;
-  background-color: ${({ theme }) => theme.dropdownBg};
-  backdrop-filter: blur(25px);
+  background-color: ${({ theme }) => theme.bg7};
   border: 1px solid ${({ color, theme }) => color || theme.bd1};
-  padding: 10px 10px;
-  border-radius: 8px;
-  width: calc(100% - 20px);
-  font-weight: 500;
-  font-size: 1rem;
-  color: black;
-  :hover {
+  padding: 14px 15px;
+  border-radius: 12px;
+  width: calc(100% - 30px);
+
+  &:hover {
     cursor: pointer;
   }
 `;
 
 const ArrowStyled = styled(Arrow)`
-  height: 20px;
-  width: 20px;
+  height: 22px;
+  width: 22px;
   margin-left: 6px;
 `;
 

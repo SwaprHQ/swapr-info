@@ -16,14 +16,19 @@ function AllPairsPage() {
     window.scrollTo(0, 0);
   }, []);
 
-  const below800 = useMedia('(max-width: 800px)');
+  const below600 = useMedia('(max-width: 600px)');
 
   return (
     <PageWrapper>
-      <FullWrapper>
-        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-          <Typography.MediumHeader>Top Pairs</Typography.MediumHeader>
-          {!below800 && <Search small={true} />}
+      <FullWrapper gap={'0'}>
+        <Flex alignItems={'center'} justifyContent={below600 ? 'center' : 'space-between'}>
+          <Typography.MediumHeader
+            color={'text10'}
+            sx={{ textAlign: below600 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+          >
+            Top Pairs
+          </Typography.MediumHeader>
+          {!below600 && <Search small={true} />}
         </Flex>
         <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
       </FullWrapper>

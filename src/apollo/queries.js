@@ -847,9 +847,9 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
         endsAt
         locked
         stakingCap
-        rewards{
+        rewards {
           id
-          token{
+          token {
             id
             decimals
             symbol
@@ -859,6 +859,7 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
           amount
         }
         stakablePair {
+          id
           token0 {
             id
             derivedNativeCurrency
@@ -886,6 +887,7 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
       }
     }
   `;
+
   return graphql(queryString);
 };
 

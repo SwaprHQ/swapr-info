@@ -225,7 +225,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
 
   return (
     <>
-      <Panel style={{ marginTop: '6px', padding: below680 ? '20px 0' : '32px 0' }}>
+      <Panel style={{ padding: below680 ? '20px 0' : '32px 0' }}>
         <DashGrid
           center={true}
           disbaleLinks={disbaleLinks}

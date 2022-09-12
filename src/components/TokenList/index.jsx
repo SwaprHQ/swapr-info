@@ -189,7 +189,7 @@ function TopTokenList({ tokens, itemMax = 10 }) {
 
   return (
     <>
-      <Panel style={{ marginTop: '6px', padding: below680 ? '20px 0' : '32px 0' }}>
+      <Panel style={{ padding: below680 ? '20px 0' : '32px 0' }}>
         <DashGrid
           center={true}
           style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}

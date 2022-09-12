@@ -5,10 +5,8 @@ const Wrapper = styled.div`
   align-items: center;
   justify-content: space-between;
   gap: 3px;
-
   padding: 2px 3px;
-
-  border: ${({ theme }) => `1.5px solid ${theme.orange1}`};
+  border: ${({ theme, isActive }) => `1.5px solid ${isActive ? theme.orange1 : theme.mercuryGray}`};
   border-radius: 4px;
 `;
 

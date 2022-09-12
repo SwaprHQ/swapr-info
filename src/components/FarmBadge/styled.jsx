@@ -8,7 +8,7 @@ const Wrapper = styled.div`
 
   padding: 2px 3px;
 
-  border: ${({ theme }) => `1.5px solid ${theme.green1}`};
+  border: ${({ theme, isActive }) => `1.5px solid ${isActive ? theme.green1 : theme.mercuryGray}`};
   border-radius: 4px;
 `;
 

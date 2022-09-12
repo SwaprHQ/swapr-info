@@ -56,8 +56,8 @@ const PairCard = ({ pairAddress, token0, token1, tvl, liquidityMiningCampaigns }
             </div>
           </Flex>
           <Flex flexDirection={'column'} style={{ gap: '8px' }}>
-            {isFarming && <FarmBadge />}
-            {hasCarrotRewards && <CarrotBadge />}
+            <FarmBadge isActive={!!isFarming} />
+            <CarrotBadge isActive={!!hasCarrotRewards} />
           </Flex>
         </Flex>
       </Wrapper>

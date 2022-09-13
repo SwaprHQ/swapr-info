@@ -37,7 +37,7 @@ function AllTokensPage() {
       <FullWrapper gap={'0'}>
         <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
           {!isTopMoversEmpty ? <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader> : <div />}
-          {!below800 && <Search small={true} />}
+          {!below800 && <Search />}
         </Flex>
         {!isTopMoversEmpty && (
           <>
@@ -68,7 +68,7 @@ function AllTokensPage() {
         )}
         {below800 && (
           <Box marginTop={'20px'}>
-            <Search small={true} />
+            <Search />
           </Box>
         )}
         <Typography.MediumHeader

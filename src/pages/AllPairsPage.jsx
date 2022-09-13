@@ -28,7 +28,7 @@ function AllPairsPage() {
           >
             Top Pairs
           </Typography.MediumHeader>
-          {!below600 && <Search small={true} />}
+          {!below600 && <Search />}
         </Flex>
         <PairList pairs={allPairs} disbaleLinks={true} maxItems={20} />
       </FullWrapper>

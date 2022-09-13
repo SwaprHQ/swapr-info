@@ -27,21 +27,26 @@ function FarmingPage() {
   return (
     <PageWrapper>
       <FullWrapper gap={0}>
-        <Flex alignItems={'center'} justifyContent={'space-between'}>
+        <Flex
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          flexDirection={below600 ? 'column' : 'row'}
+          marginBottom={'20px'}
+        >
           <Typography.MediumHeader
             color={'text10'}
             sx={{ textAlign: below600 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
           >
             Farming
           </Typography.MediumHeader>
-          {!below600 && <Search small={true} />}
+          <Search />
         </Flex>
         <Box marginBottom={'20px'}>
           <DropdownBasicSelect
             options={{ active: 'Active Campaigns', expired: 'Expired Campaigns' }}
             active={statusFilter === STATUS.ACTIVE ? 'Active Campaigns' : 'Expired Campaigns'}
             setActive={handleStatusFilterChange}
-            width={'224px'}
+            width={below600 ? 'auto' : '224px'}
           />
         </Box>
         <FarmingList campaigns={campaigns && campaigns[statusFilter]} disbaleLinks={true} maxItems={10} />

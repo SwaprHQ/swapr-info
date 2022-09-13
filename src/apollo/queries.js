@@ -762,7 +762,7 @@ const PairFields = `
   }
 `;
 
-export const LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR = graphql`
+export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
   query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
     liquidityMiningCampaigns(first: 1000, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
       id

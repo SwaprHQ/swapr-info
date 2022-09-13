@@ -13,7 +13,7 @@ import CopyHelper from '../components/Copy';
 import DailyChangeLabel from '../components/DailyValueChangeLabel';
 import LabeledValue from '../components/LabeledValue';
 import Link, { BasicLink, ExternalListLink } from '../components/Link';
-import LiquidityMiningCampaingCardList from '../components/LiquidityMiningCampaingCardList';
+import LiquidityMiningCampaignCardList from '../components/LiquidityMiningCampaignCardList';
 import Loader from '../components/LocalLoader';
 import PairChart from '../components/PairChart';
 import Panel from '../components/Panel';
@@ -92,8 +92,8 @@ function PairPage({ pairAddress, history }) {
     swapFee: pairSwapFeeBips,
   } = usePairData(pairAddress);
 
-  // get campaings in the last 7 days
-  const liquidityMiningCampaings = useLiquidityMiningCampaignsForPair(
+  // get campaigns in the last 7 days
+  const liquidityMiningCampaigns = useLiquidityMiningCampaignsForPair(
     pairAddress,
     dayjs.utc().subtract(1, 'week').unix(),
   );
@@ -409,8 +409,8 @@ function PairPage({ pairAddress, history }) {
                 </Flex>
               </Flex>
             </Panel>
-            <LiquidityMiningCampaingCardList
-              campaings={liquidityMiningCampaings}
+            <LiquidityMiningCampaignCardList
+              campaigns={liquidityMiningCampaigns}
               nativeCurrencyPrice={nativeCurrencyPrice && parseFloat(nativeCurrencyPrice)}
             />
             <Typography.Custom

@@ -21,12 +21,12 @@ const LiquidityFarmingCampaignCard = ({
   isLocked,
   isLimited,
 }) => {
-  const isCampaingActive = new Date(expiration).getTime() > new Date().getTime();
+  const isCampaignActive = new Date(expiration).getTime() > new Date().getTime();
   const expiringIn = new Date(expiration).getTime() - new Date().getTime();
   const progress = parseInt(stakeCap.toFixed(2)) > 0 ? stakeAmount.multiply('100').divide(stakeCap).toFixed(0) : 0;
 
   return (
-    <Wrapper isActive={isCampaingActive}>
+    <Wrapper isActive={isCampaignActive}>
       <Flex justifyContent={'space-between'} alignItems={'end'}>
         <DoubleTokenLogo
           a0={token0.id}
@@ -40,7 +40,7 @@ const LiquidityFarmingCampaignCard = ({
             <Icon icon={<ClockSvg height={16} width={14} />} />
             <Typography.SmallBoldText color={'text7'}>{formatCountDownString(expiringIn)}</Typography.SmallBoldText>
           </Flex>
-          <StatusBadge isActive={isCampaingActive} isLocked={isLocked} />
+          <StatusBadge isActive={isCampaignActive} isLocked={isLocked} />
         </Flex>
       </Flex>
       <Typography.LargeBoldText color={'text6'} sx={{ letterSpacing: '0.02em' }}>

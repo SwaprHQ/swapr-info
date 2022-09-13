@@ -10,7 +10,7 @@ import { Typography } from '../../Theme';
 import carrotListLogoUrl from '../../assets/images/carrot.png';
 import { ChainId } from '../../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
-import { formattedNum, getSwaprLink } from '../../utils';
+import { formatDollarAmount, formattedNum, getSwaprLink } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
 import Link, { InternalListLink } from '../Link';
@@ -22,8 +22,8 @@ const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/);
 export const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 80px 0.6fr 0.4fr 0.5fr 40px;
-  grid-template-areas: 'pair campaigns tvl volume rewardTokens apy';
+  grid-template-columns: 1fr 0.6fr 0.6fr 1fr 0.2fr;
+  grid-template-areas: 'pair tvl apy rewardTokens link';
   padding: 10px 36px;
   height: 100px;
 
@@ -110,7 +110,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
     const yieldPer1k = (parseFloat(apy) / 365) * 10;
 
     return (
-      <DashGrid>
+      <DashGrid style={{ padding: below680 ? '0 20px' : '0 36px' }}>
         {!below1080 && (
           <FlexText area={'index'} sx={{ marginRight: '1rem', minWidth: '16px' }}>
             {index}
@@ -129,31 +129,49 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
             style={{ whiteSpace: 'nowrap' }}
             to={'/pair/' + campaign.targetedPair.liquidityToken.address}
           >
-            <Typography.Custom
-              color={'text1'}
-              sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px', letterSpacing: '0.02em' }}
-            >
-              {nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol
-                ? nativeCurrency
-                : campaign.targetedPair.token0.symbol}
-            </Typography.Custom>
-            <Typography.Custom
-              color={'text1'}
-              sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px', letterSpacing: '0.02em' }}
-            >
-              {nativeCurrencyWrapper.symbol === campaign.targetedPair.token1.symbol
-                ? nativeCurrency
-                : campaign.targetedPair.token1.symbol}
-            </Typography.Custom>
+            {!below680 ? (
+              <>
+                <Typography.Custom
+                  color={'text1'}
+                  sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px', letterSpacing: '0.02em' }}
+                >
+                  {nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol
+                    ? nativeCurrency
+                    : campaign.targetedPair.token0.symbol}
+                </Typography.Custom>
+                <Typography.Custom
+                  color={'text1'}
+                  sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px', letterSpacing: '0.02em' }}
+                >
+                  {nativeCurrencyWrapper.symbol === campaign.targetedPair.token1.symbol
+                    ? nativeCurrency
+                    : campaign.targetedPair.token1.symbol}
+                </Typography.Custom>
+              </>
+            ) : (
+              <>
+                <Typography.SmallBoldText color={'text1'}>
+                  {nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol
+                    ? nativeCurrency
+                    : campaign.targetedPair.token0.symbol}
+                </Typography.SmallBoldText>
+                <Typography.SmallBoldText color={'text1'}>
+                  {nativeCurrencyWrapper.symbol === campaign.targetedPair.token1.symbol
+                    ? nativeCurrency
+                    : campaign.targetedPair.token1.symbol}
+                </Typography.SmallBoldText>
+              </>
+            )}
           </InternalListLink>
         </FlexText>
         <FlexText area="tvl">
-          {formattedNum(
+          {formatDollarAmount(
             parseFloat(campaign.staked.nativeCurrencyAmount.toFixed(USD.decimals)) * nativeCurrencyPrice,
-            true,
+            2,
+            'short',
           )}
         </FlexText>
-        <FlexText area="yield">{formattedNum(yieldPer1k, true)} / DAY</FlexText>
+        {!below680 && <FlexText area="yield">{formattedNum(yieldPer1k, true)} / DAY</FlexText>}
         <FlexText area="apy">
           <AutoRow width="auto!important">{apy}%</AutoRow>
         </FlexText>

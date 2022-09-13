@@ -98,9 +98,6 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
         } else if (sortConfig.column === SORT_FIELD.DAY_YIELD) {
           data1 = (parseFloat(apyA.toFixed(18)) / 365) * 10;
           data2 = (parseFloat(apyB.toFixed(18)) / 365) * 10;
-
-          console.log('DATA 1', data1);
-          console.log('DATA 2', data2);
         } else {
           data1 = parseFloat(stakedA.nativeCurrencyAmount.toFixed(USD.decimals)) * parseFloat(nativeCurrencyPrice);
           data2 = parseFloat(stakedB.nativeCurrencyAmount.toFixed(USD.decimals)) * parseFloat(nativeCurrencyPrice);
@@ -138,28 +135,30 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
               #
             </Typography.SmallBoldText>
           )}
-          <Flex alignItems="center" sx={{ justifyContent: 'flex-start' }}>
+          <Flex alignItems={'center'} sx={{ justifyContent: 'flex-start' }}>
             <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
               PAIR
             </Typography.SmallBoldText>
           </Flex>
-          <Flex alignItems="center" justifyContent="flexEnd">
+          <Flex alignItems={'center'} justifyContent={below680 ? 'center' : 'flex-end'}>
             <ClickableText area="tvl" onClick={sortHandler(SORT_FIELD.STAKE)}>
               <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                STAKED IN USD
+                {below680 ? 'TVL' : 'STAKED IN USD'}
                 <SortIndicator sortColumn={SORT_FIELD.STAKE} {...sortConfig} />
               </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText area="yield" onClick={sortHandler(SORT_FIELD.DAY_YIELD)}>
-              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
-                YIELD PER $1000
-                <SortIndicator sortColumn={SORT_FIELD.DAY_YIELD} {...sortConfig} />
-              </Typography.SmallBoldText>
-            </ClickableText>
-          </Flex>
-          <Flex alignItems="center" justifyContent="flexEnd">
+          {!below680 && (
+            <Flex alignItems={'center'} justifyContent={'flex-end'}>
+              <ClickableText area="yield" onClick={sortHandler(SORT_FIELD.DAY_YIELD)}>
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  YIELD PER $1000
+                  <SortIndicator sortColumn={SORT_FIELD.DAY_YIELD} {...sortConfig} />
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+          <Flex alignItems={'center'} justifyContent={below680 ? 'center' : 'flex-end'}>
             <ClickableText area="apy" onClick={sortHandler(SORT_FIELD.APY)}>
               <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
                 APY
@@ -167,12 +166,12 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
               </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-          <Flex alignItems="center" justifyContent="flex-end">
+          <Flex alignItems={'center'} justifyContent={'flex-end'}>
             <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
               REWARD
             </Typography.SmallBoldText>
           </Flex>
-          <Flex alignItems="center" justifyContent="flexEnd">
+          <Flex alignItems={'center'} justifyContent={'flex-end'}>
             <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
               LINK
             </Typography.SmallBoldText>

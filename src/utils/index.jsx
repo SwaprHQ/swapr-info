@@ -451,11 +451,13 @@ export const formatNumber = (num) => {
 };
 
 // using a currency library here in case we want to add more in future
-export const formatDollarAmount = (num, digits) => {
+export const formatDollarAmount = (num, digits, short) => {
   const formatter = new Intl.NumberFormat([], {
     style: 'currency',
     currency: 'USD',
     currencyDisplay: 'symbol',
+    notation: short ? 'compact' : 'standard',
+    compactDisplay: short ? 'short' : 'long',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });

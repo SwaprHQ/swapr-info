@@ -60,7 +60,7 @@ export const GET_BLOCKS_FOR_TIMESTAMPS = (timestamps) => {
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1000, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
+    return `t${timestamp}:blocks(first: 100, orderBy: timestamp, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
       number
     }`;
   });
@@ -799,6 +799,34 @@ export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
           derivedNativeCurrency
         }
         amount
+      }
+    }
+  }
+`;
+export const LIQUIDITY_MINING_CAMPAIGNS_BY_ID = graphql`
+  query liquidityMiningCampaigns($id: ID!) {
+    liquidityMiningCampaigns(first: 1, where: { id: $id }) {
+      id
+      owner
+      stakablePair {
+        token0 {
+          symbol
+        }
+        token1 {
+          symbol
+        }
+      }
+      deposits {
+        id
+        amount
+        user
+        timestamp
+      }
+      withdrawals {
+        id
+        amount
+        user
+        timestamp
       }
     }
   }

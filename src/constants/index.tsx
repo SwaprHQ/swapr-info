@@ -119,7 +119,6 @@ export const TOKEN_LISTS = [
   'https://ipfs.io/ipfs/QmUWnK6AFHZ3S1hR7Up1h3Ntax3fP1ZyiTptDNG2cWLTeK',
   'https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json',
   'https://umaproject.org/uma.tokenlist.json',
-  'https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json',
   'https://app.tryroll.com/tokens.json',
   'https://tokens.coingecko.com/uniswap/all.json',
   'https://www.gemini.com/uniswap/manifest.json',

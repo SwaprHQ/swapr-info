@@ -344,7 +344,7 @@ export function useTokensLists() {
 
             return tokens;
           } catch (error) {
-            console.warn("error Couldn't load a token list");
+            console.warn("Couldn't load a token list", error, url);
           }
         }),
       );

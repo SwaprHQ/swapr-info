@@ -22,6 +22,7 @@ import {
   LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR,
   KPI_TOKENS_QUERY,
   DERIVED_NATIVE_CURRENCY_QUERY,
+  TOP_TVL_PAIRS,
 } from '../apollo/queries';
 import { CHAIN_READONLY_PROVIDERS, MULTICALL_ADDRESS, timeframeOptions, ChainId } from '../constants';
 import {
@@ -52,6 +53,7 @@ const UPDATE_CHART_DATA = 'UPDATE_CHART_DATA';
 const UPDATE_MINING_DATA = 'UPDATE_MINING_DATA';
 const UPDATE_TOP_PAIRS = 'UPDATE_TOP_PAIRS';
 const UPDATE_PRICE_DATA = 'UPDATE_PRICE_DATA';
+const UPDATE_TOP_TVL_PAIRS = 'UPDATE_TOP_TVL_PAIRS';
 
 export const STATUS = {
   ACTIVE: 'active',
@@ -75,7 +77,7 @@ function usePairDataContext() {
   return useContext(PairDataContext);
 }
 
-const INITIAL_STATE = { topPairs: {}, campaigns: {} };
+const INITIAL_STATE = { topPairs: {}, campaigns: {}, topTVLPairs: {} };
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -156,10 +158,22 @@ function reducer(state, { type, payload }) {
       };
     }
 
+    case UPDATE_TOP_TVL_PAIRS: {
+      const { topTVLPairs, network } = payload;
+      return {
+        ...state,
+        topTVLPairs: {
+          ...state.topTVLPairs,
+          [network]: topTVLPairs,
+        },
+      };
+    }
+
     case RESET: {
       return {
         topPairs: state.topPairs,
         campaigns: state.campaigns,
+        topTVLPairs: state.topTVLPairs,
       };
     }
 
@@ -220,6 +234,13 @@ export default function Provider({ children }) {
     });
   }, []);
 
+  const updateTopTVLPairs = useCallback((topTVLPairs, network) => {
+    dispatch({
+      type: UPDATE_TOP_TVL_PAIRS,
+      payload: { topTVLPairs, network },
+    });
+  }, []);
+
   const reset = useCallback(() => {
     dispatch({ type: RESET });
   }, []);
@@ -236,10 +257,21 @@ export default function Provider({ children }) {
             updateChartData,
             updateTopPairs,
             updatePriceData,
+            updateTopTVLPairs,
             reset,
           },
         ],
-        [state, update, updateMiningData, updatePairTxns, updateChartData, updateTopPairs, updatePriceData, reset],
+        [
+          state,
+          update,
+          updateMiningData,
+          updatePairTxns,
+          updateChartData,
+          updateTopPairs,
+          updatePriceData,
+          updateTopTVLPairs,
+          reset,
+        ],
       )}
     >
       {children}
@@ -565,6 +597,18 @@ const getPairRateData = async (
   }
 };
 
+const getTopTVLPairs = async (client) => {
+  try {
+    const { data } = await client.query({
+      query: TOP_TVL_PAIRS,
+    });
+
+    return data.pairs;
+  } catch (error) {
+    console.error(error);
+  }
+};
+
 export function Updater() {
   const client = useSwaprSubgraphClient();
   const network = useSelectedNetwork();
@@ -824,6 +868,27 @@ export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
   }, [chainId, liquidityMiningCampaigns, client, carrotClient, pairAddress, endTimestamp]);
 
   return liquidityMiningCampaigns || null;
+}
+
+export function useTopTVLPairs() {
+  const client = useSwaprSubgraphClient();
+  const network = useSelectedNetwork();
+  const [state, { updateTopTVLPairs }] = usePairDataContext();
+
+  const topTVLPairs = state.topTVLPairs?.[network];
+
+  useEffect(() => {
+    async function fetch() {
+      const data = await getTopTVLPairs(client);
+      updateTopTVLPairs(data, network);
+    }
+
+    if (!topTVLPairs) {
+      fetch();
+    }
+  }, [topTVLPairs, updateTopTVLPairs, network, client]);
+
+  return topTVLPairs;
 }
 
 /**

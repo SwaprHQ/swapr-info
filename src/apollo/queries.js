@@ -927,6 +927,32 @@ export const PAIRS_CURRENT = graphql`
   }
 `;
 
+export const TOP_TVL_PAIRS = graphql`
+  query pairs {
+    pairs(first: 20, orderBy: reserveUSD, orderDirection: desc) {
+      id
+      token0 {
+        id
+        symbol
+      }
+      token1 {
+        id
+        symbol
+      }
+      reserveUSD
+      liquidityMiningCampaigns {
+        id
+        endsAt
+        rewards {
+          token {
+            symbol
+          }
+        }
+      }
+    }
+  }
+`;
+
 export const PAIR_DATA = (pairAddress, block) => {
   const queryString = `
     ${PairFields}

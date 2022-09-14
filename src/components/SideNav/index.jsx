@@ -272,19 +272,19 @@ function SideNav({ history }) {
                 DXdocs
               </Link>
             </Typography.Text>
-            <Flex marginTop={'6px'}>
-              <Typography.SmallText sx={{ marginRight: '16px' }}>
-                {nativeCurrencySymbol}:{' '}
+            <Flex marginTop={'6px'} style={{ gap: '16px' }}>
+              <Flex alignItems={'center'} style={{ gap: '4px' }}>
+                <Typography.SmallText>{nativeCurrencySymbol}: </Typography.SmallText>
                 <Typography.Custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
                   {formattedNativeCurrencyPrice}
                 </Typography.Custom>
-              </Typography.SmallText>
-              <Typography.SmallText>
-                SWPR:{' '}
+              </Flex>
+              <Flex alignItems={'center'} style={{ gap: '4px' }}>
+                <Typography.SmallText>SWPR: </Typography.SmallText>
                 <Typography.Custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
                   {formattedSwprPrice}
                 </Typography.Custom>
-              </Typography.SmallText>
+              </Flex>
             </Flex>
             {!below1180 && (
               <Flex>

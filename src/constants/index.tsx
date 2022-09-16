@@ -120,6 +120,7 @@ export const TOKEN_LISTS = [
   'https://raw.githubusercontent.com/compound-finance/token-list/master/compound.tokenlist.json',
   'https://umaproject.org/uma.tokenlist.json',
   'https://app.tryroll.com/tokens.json',
+  'https://raw.githubusercontent.com/SetProtocol/uniswap-tokenlist/main/set.tokenlist.json',
   'https://tokens.coingecko.com/uniswap/all.json',
   'https://www.gemini.com/uniswap/manifest.json',
   'https://raw.githubusercontent.com/The-Blockchain-Association/sec-notice-list/master/ba-sec-list.json',

@@ -32,7 +32,7 @@ function AllPairsPage() {
             color={'text10'}
             sx={{ textAlign: below600 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
           >
-            Top Pairs
+            Top TVL Pairs
           </Typography.MediumHeader>
           {!below600 && <Search />}
         </Flex>

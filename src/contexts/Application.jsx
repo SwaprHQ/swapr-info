@@ -340,11 +340,9 @@ export function useTokensLists() {
         TOKEN_LISTS.map(async (url) => {
           try {
             const resp = await fetch(url);
-            const tokens = await resp.json();
-
-            return tokens;
+            return await resp.json();
           } catch (error) {
-            console.warn("Couldn't load a token list", error, url);
+            console.warn("Couldn't load a token list", url, error);
           }
         }),
       );

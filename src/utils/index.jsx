@@ -773,9 +773,9 @@ export function formatCountDownString(timestamp) {
  * @param {*} value
  * @param {*} dataType CURRENCY | PERCENTAGE
  */
-export function formatChartValueByType(value, dataType) {
+export function formatChartValueByType(value, dataType, short) {
   if (dataType === 'CURRENCY') {
-    return formattedNum(value, true);
+    return formatDollarAmount(value, short ? 2 : 0, short);
   }
 
   if (dataType === 'PERCENTAGE') {
@@ -783,4 +783,20 @@ export function formatChartValueByType(value, dataType) {
   }
 
   return value;
+}
+
+/**
+ * Get date week range from a date
+ * @param {*} date
+ * @returns
+ */
+export function getWeekFormattedDate(date, short) {
+  const fromWeek = dayjs(date).isoWeek();
+  const toWeek = dayjs(date).isoWeek() + 1;
+
+  return `${dayjs()
+    .isoWeek(fromWeek)
+    .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')} - ${dayjs()
+    .isoWeek(toWeek)
+    .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')}`;
 }

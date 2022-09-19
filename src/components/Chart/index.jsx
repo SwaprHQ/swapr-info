@@ -1,13 +1,67 @@
 import dayjs from 'dayjs';
+import isoWeek from 'dayjs/plugin/isoWeek';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
+import { useMedia } from 'react-use';
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useTheme } from 'styled-components';
 
 import { TIME_FILTER_OPTIONS } from '../../constants';
-import { formattedPercent } from '../../utils';
+import { formattedPercent, getWeekFormattedDate } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
+
+dayjs.extend(isoWeek);
+
+const getFilterLimitDate = (timeFilter) => {
+  let limitDate = new Date();
+
+  switch (timeFilter) {
+    case TIME_FILTER_OPTIONS.WEEK: {
+      limitDate.setDate(limitDate.getDate() - 7);
+      break;
+    }
+    case TIME_FILTER_OPTIONS.MONTH_1: {
+      limitDate.setMonth(limitDate.getMonth() - 1);
+      break;
+    }
+    case TIME_FILTER_OPTIONS.YEAR: {
+      limitDate.setFullYear(limitDate.getFullYear() - 1);
+      break;
+    }
+    default: {
+      limitDate.setDate(limitDate.getDate() - 7);
+      break;
+    }
+  }
+
+  return limitDate;
+};
+
+const getWeeklyAggregatedData = (limitDate, data) => {
+  const rawWeeklyAggregatedData = data
+    .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+    .reduce(
+      (previous, current) => ({
+        ...previous,
+        [dayjs(current.time).isoWeek()]: previous[dayjs(current.time).isoWeek()]
+          ? previous[dayjs(current.time).isoWeek()] + current.value
+          : current.value,
+      }),
+      {},
+    );
+
+  let weeklyAggregatedData = [];
+
+  Object.keys(rawWeeklyAggregatedData).forEach((weekNumber) => {
+    weeklyAggregatedData.push({
+      time: dayjs().isoWeek(weekNumber).format('YYYY-MM-DD'),
+      value: rawWeeklyAggregatedData[weekNumber],
+    });
+  });
+
+  return weeklyAggregatedData;
+};
 
 const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilter, showTimeFilter }) => {
   const theme = useTheme();
@@ -16,6 +70,9 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
   const [activeDate, setActiveDate] = useState(null);
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
   const [dailyChange, setDailyChange] = useState();
+  const [isWeeklyActive, setIsWeeklyActive] = useState(false);
+
+  const below500 = useMedia('(max-width: 500px)');
 
   // set header values to the latest point of the chart
   const setDefaultHeaderValues = useCallback(() => {
@@ -40,31 +97,16 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
 
   // set header values to the current point of the chart
   const setCurrentHeaderValues = (params) => {
-    const { activePayload, activeLabel } = params;
+    const { activePayload } = params;
     if (activePayload && activePayload.length) {
-      const { time, value } = activePayload[0].payload;
+      const { time, value, index } = activePayload[0].payload;
 
-      let pastValue = 0;
-
-      // get the previous day data by subtracting
-      // one day from the active label
-      const oneDayOldDate = new Date(activeLabel);
-      oneDayOldDate.setDate(oneDayOldDate.getDate() - 1);
-      const oneDayOldData = filteredData.find(
-        (data) => dayjs(data.time).format('YYYY-MM-DD') === dayjs(oneDayOldDate).format('YYYY-MM-DD'),
-      );
-
-      if (oneDayOldData) {
-        Object.keys(oneDayOldData)
-          .filter((key) => key !== 'time')
-          .forEach((key) => {
-            pastValue += oneDayOldData[key];
-          });
-      }
+      // get previous data
+      const oldData = filteredData[index !== 0 ? index - 1 : index];
 
       // avoid getting infinity by dividing by 0
-      if (pastValue > 0) {
-        const dailyChange = ((value - pastValue) / pastValue) * 100;
+      if (oldData?.value > 0) {
+        const dailyChange = ((value - oldData.value) / oldData.value) * 100;
 
         setDailyChange(dailyChange);
       } else {
@@ -76,6 +118,20 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
     }
   };
 
+  useEffect(() => {
+    const limitDate = getFilterLimitDate(overridingActiveFilter ?? activeFilter);
+
+    if (isWeeklyActive) {
+      setFilteredData(getWeeklyAggregatedData(limitDate, data));
+    } else {
+      setFilteredData(
+        data
+          .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+          .map((data, index) => ({ ...data, index })),
+      );
+    }
+  }, [data, activeFilter, isWeeklyActive, overridingActiveFilter]);
+
   // set default filtered data
   useEffect(() => {
     if (filteredData && filteredData.length > 0) {
@@ -86,30 +142,20 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
   // update filtered data on time filter change
   useEffect(() => {
     if (data && data.length > 0) {
-      let limitDate = new Date();
+      const limitDate = getFilterLimitDate(overridingActiveFilter ?? activeFilter);
 
-      switch (overridingActiveFilter ?? activeFilter) {
-        case TIME_FILTER_OPTIONS.WEEK: {
-          limitDate.setDate(limitDate.getDate() - 7);
-          break;
-        }
-        case TIME_FILTER_OPTIONS.MONTH_1: {
-          limitDate.setMonth(limitDate.getMonth() - 1);
-          break;
-        }
-        case TIME_FILTER_OPTIONS.YEAR: {
-          limitDate.setFullYear(limitDate.getFullYear() - 1);
-          break;
-        }
-        default: {
-          limitDate.setDate(limitDate.getDate() - 7);
-          break;
-        }
+      if (isWeeklyActive && activeFilter !== TIME_FILTER_OPTIONS.WEEK) {
+        const weeklyData = getWeeklyAggregatedData(limitDate, data);
+        setFilteredData(
+          weeklyData
+            .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+            .map((data, index) => ({ ...data, index })),
+        );
+      } else {
+        setIsWeeklyActive(false);
       }
-
-      setFilteredData(data.filter((data) => new Date(data.time).getTime() > limitDate.getTime()));
     }
-  }, [data, overridingActiveFilter, activeFilter]);
+  }, [data, overridingActiveFilter, activeFilter, isWeeklyActive]);
 
   return (
     <>
@@ -119,10 +165,12 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
         dataType={dataType}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
-        date={dayjs(activeDate).format('MMMM D, YYYY')}
+        date={isWeeklyActive ? getWeekFormattedDate(activeDate, below500) : dayjs(activeDate).format('MMMM D, YYYY')}
         activeFilter={activeFilter}
+        isWeeklyActive={isWeeklyActive}
         filterOptions={TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
+        onWeeklyToggle={() => setIsWeeklyActive((previousValue) => !previousValue)}
       />
       <ResponsiveContainer>
         {type === 'AREA' ? (
@@ -143,7 +191,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
             <YAxis hide />
             <Tooltip
               isAnimationActive={false}
-              content={<CrosshairTooltip title={tooltipTitle || title} />}
+              content={<CrosshairTooltip title={tooltipTitle || title} isWeeklyActive={isWeeklyActive} />}
               dataType={dataType}
             />
             <Area
@@ -168,7 +216,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
             <YAxis hide />
             <Tooltip
               isAnimationActive={false}
-              content={<CrosshairTooltip title={tooltipTitle || title} />}
+              content={<CrosshairTooltip title={tooltipTitle || title} isWeeklyActive={isWeeklyActive} />}
               dataType={dataType}
             />
             <Bar

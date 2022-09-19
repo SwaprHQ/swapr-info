@@ -57,14 +57,14 @@ const theme = (darkMode, color) => ({
   // borders
   bd1: darkMode ? '#464366' : '#464366',
 
-  //specialty colors
+  // specialty colors
   dropdownBg: darkMode ? 'rgba(104, 110, 148, 0.2)' : '',
   modalBG: darkMode ? 'rgba(0,0,0,0.85)' : 'rgba(0,0,0,0.6)',
   advancedBG: darkMode ? 'rgba(0,0,0,0.1)' : 'rgba(255,255,255,0.4)',
   onlyLight: darkMode ? '#22242a' : 'transparent',
   divider: darkMode ? 'rgba(43, 43, 43, 0.435)' : 'rgba(43, 43, 43, 0.035)',
 
-  //primary colors
+  // primary colors
   primary1: darkMode ? '#0D47A1' : '#2962FF',
   primary2: darkMode ? '#1976D2' : '#82B1FF',
   primary3: darkMode ? '#1E88E5' : '#438AFF',

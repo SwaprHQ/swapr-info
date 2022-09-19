@@ -80,12 +80,23 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
       let pastHeaderValue = 0;
       let currentHeaderValue = 0;
 
-      Object.keys(data[data.length - 1])
-        .filter((key) => key !== 'time')
-        .forEach((key) => {
-          currentHeaderValue += data[data.length - 1][key];
-          pastHeaderValue += data[data.length - 2][key];
-        });
+      if (isWeeklyActive) {
+        const weeklyAggregatedData = getWeeklyAggregatedData(getFilterLimitDate(activeFilter), data);
+
+        Object.keys(weeklyAggregatedData[weeklyAggregatedData.length - 1])
+          .filter((key) => key !== 'time')
+          .forEach((key) => {
+            currentHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 1][key];
+            pastHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 2][key];
+          });
+      } else {
+        Object.keys(data[data.length - 1])
+          .filter((key) => key !== 'time')
+          .forEach((key) => {
+            currentHeaderValue += data[data.length - 1][key];
+            pastHeaderValue += data[data.length - 2][key];
+          });
+      }
 
       const dailyChange = pastHeaderValue > 0 ? ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100 : 0;
 
@@ -93,7 +104,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
       setActiveDate(data[data.length - 1].time);
       setHeaderValue(currentHeaderValue);
     }
-  }, [data]);
+  }, [data, activeFilter, isWeeklyActive]);
 
   // set header values to the current point of the chart
   const setCurrentHeaderValues = (params) => {

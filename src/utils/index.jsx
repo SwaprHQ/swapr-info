@@ -791,12 +791,16 @@ export function formatChartValueByType(value, dataType, short) {
  * @returns
  */
 export function getWeekFormattedDate(date, short) {
-  const fromWeek = dayjs(date).isoWeek();
-  const toWeek = dayjs(date).isoWeek() + 1;
+  const fromWeek = dayjs(date).isoWeekday(7).isoWeek();
+  const toWeek = dayjs(date).isoWeekday(6).isoWeek() + 1;
 
   return `${dayjs()
     .isoWeek(fromWeek)
+    .isoWeekday(7)
+    .set('year', dayjs(date).year())
     .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')} - ${dayjs()
     .isoWeek(toWeek)
+    .isoWeekday(6)
+    .set('year', dayjs(date).year())
     .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')}`;
 }

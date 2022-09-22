@@ -41,22 +41,27 @@ const getFilterLimitDate = (timeFilter) => {
 const getWeeklyAggregatedData = (limitDate, data) => {
   const rawWeeklyAggregatedData = data
     .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
-    .reduce(
-      (previous, current) => ({
+    .reduce((previous, current) => {
+      const weekStart = dayjs(current.time).startOf('week');
+      const weekEnd = dayjs(current.time).endOf('week');
+
+      const weekId = `${dayjs(current.time).year()}-${weekStart.unix()}-${weekEnd.unix()}`;
+
+      return {
         ...previous,
-        [dayjs(current.time).isoWeek()]: previous[dayjs(current.time).isoWeek()]
-          ? previous[dayjs(current.time).isoWeek()] + current.value
-          : current.value,
-      }),
-      {},
-    );
+        [weekId]: previous[weekId] ? previous[weekId] + current.value : current.value,
+      };
+    }, {});
 
   let weeklyAggregatedData = [];
 
-  Object.keys(rawWeeklyAggregatedData).forEach((weekNumber) => {
+  Object.keys(rawWeeklyAggregatedData).forEach((weekId) => {
+    const weekYear = weekId.split('-')[0];
+    const weekNumber = dayjs.unix(weekId.split('-')[1]).isoWeek() + 1;
+
     weeklyAggregatedData.push({
-      time: dayjs().isoWeek(weekNumber).format('YYYY-MM-DD'),
-      value: rawWeeklyAggregatedData[weekNumber],
+      time: dayjs().isoWeek(weekNumber).startOf('week').set('year', weekYear).format('YYYY-MM-DD'),
+      value: rawWeeklyAggregatedData[weekId],
     });
   });
 
@@ -89,6 +94,8 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
             currentHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 1][key];
             pastHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 2][key];
           });
+
+        setActiveDate(weeklyAggregatedData[weeklyAggregatedData.length - 1].time);
       } else {
         Object.keys(data[data.length - 1])
           .filter((key) => key !== 'time')
@@ -96,12 +103,13 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
             currentHeaderValue += data[data.length - 1][key];
             pastHeaderValue += data[data.length - 2][key];
           });
+
+        setActiveDate(data[data.length - 1].time);
       }
 
       const dailyChange = pastHeaderValue > 0 ? ((currentHeaderValue - pastHeaderValue) / pastHeaderValue) * 100 : 0;
 
       setDailyChange(dailyChange);
-      setActiveDate(data[data.length - 1].time);
       setHeaderValue(currentHeaderValue);
     }
   }, [data, activeFilter, isWeeklyActive]);
@@ -157,6 +165,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
 
       if (isWeeklyActive && activeFilter !== TIME_FILTER_OPTIONS.WEEK) {
         const weeklyData = getWeeklyAggregatedData(limitDate, data);
+
         setFilteredData(
           weeklyData
             .filter((data) => new Date(data.time).getTime() > limitDate.getTime())

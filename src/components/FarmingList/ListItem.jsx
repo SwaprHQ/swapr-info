@@ -83,6 +83,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
 
   if (campaign) {
     const apy = campaign.apy.toFixed(2);
+    const kpiApy = campaign.ended ? 0 : campaign.kpiApy.toFixed(2);
     const yieldPer1k = (parseFloat(apy) / 365) * 10;
 
     return (
@@ -131,9 +132,12 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
             {formattedNum(yieldPer1k, true)} / DAY
           </FlexText>
         )}
-        <FlexText area={'apy'} justifyContent={'center'}>
-          {apy}%
-        </FlexText>
+        <Flex area={'apy'} justifyContent={'center'}>
+          <FlexText>{`${apy}% ${Number(kpiApy) !== 0 ? `+ ${kpiApy}%` : ''}`}</FlexText>
+          {Number(kpiApy) !== 0 && (
+            <TokenLogo source={carrotLogo} size={'16px'} defaultText={'CARROT'} style={{ marginLeft: '6px' }} />
+          )}
+        </Flex>
         <Flex area={'rewardTokens'} justifyContent={'center'} flexDirection={'column'} style={{ gap: '8px' }}>
           {campaign.rewards.map((reward, index) => {
             const isCarrotToken = carrotTokenRegex.test(reward.token.symbol);

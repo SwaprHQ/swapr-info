@@ -9,10 +9,13 @@ import { getAddress } from '@ethersproject/address';
 import { parseUnits } from '@ethersproject/units';
 import {
   CurrencyAmount,
+  Fraction,
   LiquidityMiningCampaign,
+  Percent,
   Price,
   PricedToken,
   PricedTokenAmount,
+  SECONDS_IN_YEAR,
   Token,
   TokenAmount,
   USD,
@@ -627,6 +630,8 @@ export function toLiquidityMiningCampaign(
   campaign,
   nativeCurrency,
 ) {
+  const kpiRewards = [];
+
   const rewards = campaign.rewards.map((reward) => {
     const rewardToken = new Token(
       chainId,
@@ -638,9 +643,11 @@ export function toLiquidityMiningCampaign(
 
     const kpiToken = kpiTokens.find((kpiToken) => kpiToken.address.toLowerCase() === reward.token.id.toLowerCase());
     if (kpiToken) {
-      return new PricedTokenAmount(
-        kpiToken,
-        parseUnits(new Decimal(reward.amount).toFixed(rewardToken.decimals), rewardToken.decimals).toString(),
+      kpiRewards.push(
+        new PricedTokenAmount(
+          kpiToken,
+          parseUnits(new Decimal(reward.amount).toFixed(rewardToken.decimals), rewardToken.decimals).toString(),
+        ),
       );
     }
 
@@ -690,7 +697,7 @@ export function toLiquidityMiningCampaign(
     parseUnits(campaign.stakedAmount, stakedPricedToken.decimals).toString(),
   );
 
-  return new LiquidityMiningCampaign({
+  const liquidityMiningCampaign = new LiquidityMiningCampaign({
     startsAt: campaign.startsAt,
     endsAt: campaign.endsAt,
     targetedPair,
@@ -703,6 +710,24 @@ export function toLiquidityMiningCampaign(
     ),
     address: getAddress(campaign.id),
   });
+
+  const cumulativeKpiRewardsAmountNativeCurrency = kpiRewards.reduce((accumulator, kpiRewardAmount) => {
+    return accumulator.add(kpiRewardAmount.nativeCurrencyAmount);
+  }, CurrencyAmount.nativeCurrency('0', chainId));
+
+  const yieldInPeriod = cumulativeKpiRewardsAmountNativeCurrency.divide(
+    liquidityMiningCampaign.staked.nativeCurrencyAmount,
+  );
+  const annualizationMultiplier = new Fraction(
+    SECONDS_IN_YEAR.toString(),
+    liquidityMiningCampaign.remainingDuration.toString(),
+  );
+  const rawApy = yieldInPeriod.multiply(annualizationMultiplier);
+
+  // add APY related to the KPI rewards
+  liquidityMiningCampaign.kpiApy = new Percent(rawApy.numerator, rawApy.denominator);
+
+  return liquidityMiningCampaign;
 }
 
 export function getStakedAmountUSD(campaign, nativeCurrencyUSDPrice, nativeCurrency) {

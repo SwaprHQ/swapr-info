@@ -10,7 +10,7 @@ import FarmingList from '../components/FarmingList';
 import Search from '../components/Search';
 import { STATUS, useLiquidityMiningCampaigns } from '../contexts/PairData';
 
-function FarmingPage() {
+const AllFarmsPage = () => {
   const campaigns = useLiquidityMiningCampaigns();
   const [statusFilter, setStatusFilter] = useState('active');
 
@@ -53,6 +53,6 @@ function FarmingPage() {
       </FullWrapper>
     </PageWrapper>
   );
-}
+};
 
-export default FarmingPage;
+export default AllFarmsPage;

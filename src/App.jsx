@@ -16,11 +16,11 @@ import { useLatestBlocks, useTokensLists } from './contexts/Application';
 import { useSelectedNetwork } from './contexts/Network';
 import AccountLookup from './pages/AccountLookup';
 import AccountPage from './pages/AccountPage';
+import AllFarmsPage from './pages/AllFarmsPage';
 import AllPairsPage from './pages/AllPairsPage';
 import AllTokensPage from './pages/AllTokensPage';
 import DashboardPage from './pages/DashboardPage';
 import FarmPage from './pages/FarmPage';
-import FarmingPage from './pages/FarmingPage';
 import GlobalPage from './pages/GlobalPage';
 import PairPage from './pages/PairPage';
 import TokenPage from './pages/TokenPage';
@@ -222,7 +222,7 @@ function App() {
 
           <Route path="/farming">
             <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <FarmingPage />
+              <AllFarmsPage />
             </LayoutWrapper>
           </Route>
 

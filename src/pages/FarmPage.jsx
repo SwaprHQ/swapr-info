@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import Skeleton from 'react-loading-skeleton';
 import { useHistory } from 'react-router-dom';

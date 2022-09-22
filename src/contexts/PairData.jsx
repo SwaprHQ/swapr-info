@@ -23,6 +23,7 @@ import {
   KPI_TOKENS_QUERY,
   DERIVED_NATIVE_CURRENCY_QUERY,
   TOP_TVL_PAIRS,
+  LIQUIDITY_MINING_CAMPAIGN_BY_ID,
 } from '../apollo/queries';
 import { CHAIN_READONLY_PROVIDERS, MULTICALL_ADDRESS, timeframeOptions, ChainId } from '../constants';
 import {
@@ -870,6 +871,29 @@ export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
   return liquidityMiningCampaigns || null;
 }
 
+export function useLiquidityMiningCampaignData(campaignAddress) {
+  const [liquidityMiningCampaignData, setLiquidityMiningCampaignData] = useState(null);
+
+  const selectedNetwork = useSelectedNetwork();
+  const client = useSwaprSubgraphClient();
+  const carrotClient = useCarrotSubgraphClient();
+
+  const chainId = ChainId[selectedNetwork];
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!liquidityMiningCampaignData && campaignAddress && isAddress(campaignAddress)) {
+        const data = await getLiquidityMiningCampaign(chainId, client, carrotClient, campaignAddress);
+        setLiquidityMiningCampaignData(data);
+      }
+    }
+
+    fetchData();
+  }, [chainId, liquidityMiningCampaignData, client, carrotClient, campaignAddress]);
+
+  return liquidityMiningCampaignData || null;
+}
+
 export function useTopTVLPairs() {
   const client = useSwaprSubgraphClient();
   const network = useSelectedNetwork();
@@ -889,6 +913,81 @@ export function useTopTVLPairs() {
   }, [topTVLPairs, updateTopTVLPairs, network, client]);
 
   return topTVLPairs;
+}
+
+/**
+ * Get and build the campaign object
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} campaignAddress
+ * @returns
+ */
+async function getLiquidityMiningCampaign(chainId, client, carrotClient, campaignAddress) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const { data: liquidityMiningData } = await client.query({
+      query: LIQUIDITY_MINING_CAMPAIGN_BY_ID,
+      variables: {
+        id: campaignAddress,
+      },
+    });
+
+    let kpiTokensData = [];
+    if (carrotClient) {
+      kpiTokensData = await getKpiTokensData(
+        chainId,
+        client,
+        carrotClient,
+        liquidityMiningData.liquidityMiningCampaigns,
+      );
+    }
+
+    // there's only one campaing since it queries by id
+    const liquidityMiningCampaign = liquidityMiningData.liquidityMiningCampaigns[0];
+
+    if (!liquidityMiningCampaign) {
+      console.warn("Couldn't load liquidity mining campaing", campaignAddress);
+
+      return {};
+    }
+
+    const pairData = liquidityMiningCampaign.stakablePair;
+
+    const tokenA = new Token(
+      chainId,
+      getAddress(pairData.token0.id),
+      parseInt(pairData.token0.decimals),
+      pairData.token0.symbol,
+      pairData.token0.name,
+    );
+    const tokenB = new Token(
+      chainId,
+      getAddress(pairData.token1.id),
+      parseInt(pairData.token1.decimals),
+      pairData.token1.symbol,
+      pairData.token1.name,
+    );
+
+    const tokenAmountA = new TokenAmount(tokenA, parseUnits(pairData.reserve0, pairData.token0.decimals).toString());
+    const tokenAmountB = new TokenAmount(tokenB, parseUnits(pairData.reserve1, pairData.token1.decimals).toString());
+
+    const final = new Pair(tokenAmountA, tokenAmountB);
+
+    return toLiquidityMiningCampaign(
+      chainId,
+      final,
+      pairData.totalSupply,
+      pairData.reserveNativeCurrency,
+      kpiTokensData,
+      liquidityMiningCampaign,
+      nativeCurrency,
+    );
+  } catch (error) {
+    console.error(error);
+  }
 }
 
 /**

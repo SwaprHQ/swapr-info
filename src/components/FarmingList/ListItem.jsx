@@ -105,7 +105,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
           )}
           <InternalListLink
             style={{ whiteSpace: 'nowrap' }}
-            to={'/pair/' + campaign.targetedPair.liquidityToken.address}
+            to={'/farming/' + campaign.address + '/' + campaign.targetedPair.liquidityToken.address}
           >
             <Typography.Custom color={'text1'} sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px' }}>
               {nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol

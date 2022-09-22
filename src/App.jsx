@@ -19,6 +19,7 @@ import AccountPage from './pages/AccountPage';
 import AllPairsPage from './pages/AllPairsPage';
 import AllTokensPage from './pages/AllTokensPage';
 import DashboardPage from './pages/DashboardPage';
+import FarmPage from './pages/FarmPage';
 import FarmingPage from './pages/FarmingPage';
 import GlobalPage from './pages/GlobalPage';
 import PairPage from './pages/PairPage';
@@ -113,6 +114,28 @@ function App() {
           </WarningWrapper>
         )}
         <Switch>
+          <Route
+            exacts
+            strict
+            path="/farming/:campaignAddress/:pairAddress"
+            render={({ match }) => {
+              if (
+                isAddress(match.params.campaignAddress.toLowerCase()) &&
+                isAddress(match.params.pairAddress.toLowerCase())
+              ) {
+                return (
+                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                    <FarmPage
+                      campaignAddress={match.params.campaignAddress.toLowerCase()}
+                      pairAddress={match.params.pairAddress.toLowerCase()}
+                    />
+                  </LayoutWrapper>
+                );
+              } else {
+                return <Redirect to="/home" />;
+              }
+            }}
+          />
           <Route
             exacts
             strict

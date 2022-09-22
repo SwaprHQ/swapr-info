@@ -39,6 +39,8 @@ const LiquidityMiningCampaignCardList = ({ campaigns, nativeCurrencyPrice }) => 
             .map(({ address, targetedPair, endsAt, apy, staked, stakingCap, locked }) => (
               <LiquidityFarmingCampaignCard
                 key={address}
+                address={address}
+                liquidityTokenAddress={targetedPair.liquidityToken.address}
                 token0={{ id: targetedPair.token0.address, symbol: targetedPair.token0.symbol }}
                 token1={{ id: targetedPair.token1.address, symbol: targetedPair.token1.symbol }}
                 expiration={endsAt * 1000}

@@ -1,4 +1,5 @@
 import PropTypes from 'prop-types';
+import { useHistory } from 'react-router-dom';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
@@ -11,6 +12,8 @@ import StatusBadge from './StausBadge';
 import { Wrapper } from './styled';
 
 const LiquidityFarmingCampaignCard = ({
+  address,
+  liquidityTokenAddress,
   token0,
   token1,
   expiration,
@@ -21,12 +24,17 @@ const LiquidityFarmingCampaignCard = ({
   isLocked,
   isLimited,
 }) => {
+  const history = useHistory();
+
   const isCampaignActive = new Date(expiration).getTime() > new Date().getTime();
   const expiringIn = new Date(expiration).getTime() - new Date().getTime();
   const progress = parseInt(stakeCap.toFixed(2)) > 0 ? stakeAmount.multiply('100').divide(stakeCap).toFixed(0) : 0;
 
   return (
-    <Wrapper isActive={isCampaignActive}>
+    <Wrapper
+      isActive={isCampaignActive}
+      onClick={() => history.push(`/farming/${address.toLowerCase()}/${liquidityTokenAddress.toLowerCase()}`)}
+    >
       <Flex justifyContent={'space-between'} alignItems={'end'}>
         <DoubleTokenLogo
           a0={token0.id}
@@ -64,6 +72,8 @@ const LiquidityFarmingCampaignCard = ({
 };
 
 LiquidityFarmingCampaignCard.propTypes = {
+  address: PropTypes.string.isRequired,
+  liquidityTokenAddress: PropTypes.string.isRequired,
   token0: PropTypes.shape({ id: PropTypes.string.isRequired, symbol: PropTypes.string.isRequired }).isRequired,
   token1: PropTypes.shape({ id: PropTypes.string.isRequired, symbol: PropTypes.string.isRequired }).isRequired,
   expiration: PropTypes.number.isRequired,

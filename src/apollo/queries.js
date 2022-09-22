@@ -764,7 +764,7 @@ const PairFields = `
 
 export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
   query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
-    liquidityMiningCampaigns(first: 1000, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
+    liquidityMiningCampaigns(first: 20, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
       id
       startsAt
       endsAt
@@ -803,30 +803,44 @@ export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
     }
   }
 `;
-export const LIQUIDITY_MINING_CAMPAIGNS_BY_ID = graphql`
+
+export const LIQUIDITY_MINING_CAMPAIGN_BY_ID = graphql`
   query liquidityMiningCampaigns($id: ID!) {
     liquidityMiningCampaigns(first: 1, where: { id: $id }) {
       id
-      owner
+      startsAt
+      endsAt
+      locked
+      stakedAmount
+      stakingCap
       stakablePair {
+        id
+        reserve0
+        reserve1
+        totalSupply
+        reserveNativeCurrency
         token0 {
+          id
           symbol
+          name
+          decimals
         }
         token1 {
+          id
           symbol
+          name
+          decimals
         }
       }
-      deposits {
+      rewards {
         id
+        token {
+          id
+          symbol
+          decimals
+          derivedNativeCurrency
+        }
         amount
-        user
-        timestamp
-      }
-      withdrawals {
-        id
-        amount
-        user
-        timestamp
       }
     }
   }

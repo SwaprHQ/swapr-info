@@ -8,7 +8,7 @@ const Wrapper = styled.div`
   border-radius: 12px;
   padding: 16px;
 
-  min-width: 312px;
+  min-width: 306px;
   height: 147px;
 
   background: ${({ isActive }) =>

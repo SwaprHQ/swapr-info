@@ -68,18 +68,14 @@ const FlexText = ({ area, justifyContent, flexDirection, color, children }) => (
 );
 
 export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
-  const below740 = useMedia('(max-width: 740px)');
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
+  const below740 = useMedia('(max-width: 740px)');
   const below1080 = useMedia('(max-width: 1080px)');
 
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const selectedNetwork = useSelectedNetwork();
-
-  const carrotLogo = `${window.location.origin}${
-    carrotListLogoUrl.startsWith('.') ? carrotListLogoUrl.substring(1) : carrotListLogoUrl
-  }`;
 
   if (campaign) {
     const apy = campaign.apy.toFixed(2);
@@ -133,9 +129,9 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
           </FlexText>
         )}
         <Flex area={'apy'} justifyContent={'center'}>
-          <FlexText>{`${apy}% ${Number(kpiApy) !== 0 ? `+ ${kpiApy}%` : ''}`}</FlexText>
-          {Number(kpiApy) !== 0 && (
-            <TokenLogo source={carrotLogo} size={'16px'} defaultText={'CARROT'} style={{ marginLeft: '6px' }} />
+          <FlexText>{`${apy}% ${!below600 && Number(kpiApy) !== 0 ? `+ ${kpiApy}%` : ''}`}</FlexText>
+          {!below740 && Number(kpiApy) !== 0 && (
+            <TokenLogo source={carrotListLogoUrl} size={'16px'} defaultText={'CARROT'} style={{ marginLeft: '6px' }} />
           )}
         </Flex>
         <Flex area={'rewardTokens'} justifyContent={'center'} flexDirection={'column'} style={{ gap: '8px' }}>
@@ -146,7 +142,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
               <Flex justifyContent={'center'} key={`${reward.address}${index}`}>
                 <TokenLogo
                   address={reward.token.address.toLowerCase()}
-                  source={isCarrotToken ? carrotLogo : undefined}
+                  source={isCarrotToken ? carrotListLogoUrl : undefined}
                   size="16px"
                   defaultText={isCarrotToken ? 'CARROT' : reward.token.symbol}
                   flexBasis="auto"

@@ -2,12 +2,11 @@ import dayjs from 'dayjs';
 import isoWeek from 'dayjs/plugin/isoWeek';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
-import { useMedia } from 'react-use';
 import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxis, YAxis } from 'recharts';
 import { useTheme } from 'styled-components';
 
 import { TIME_FILTER_OPTIONS } from '../../constants';
-import { formattedPercent, getWeekFormattedDate } from '../../utils';
+import { formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
 
@@ -76,8 +75,6 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
   const [activeFilter, setActiveFilter] = useState(TIME_FILTER_OPTIONS.MONTH_1);
   const [dailyChange, setDailyChange] = useState();
   const [isWeeklyActive, setIsWeeklyActive] = useState(false);
-
-  const below500 = useMedia('(max-width: 500px)');
 
   // set header values to the latest point of the chart
   const setDefaultHeaderValues = useCallback(() => {
@@ -185,7 +182,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
         dataType={dataType}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
-        date={isWeeklyActive ? getWeekFormattedDate(activeDate, below500) : dayjs(activeDate).format('MMMM D, YYYY')}
+        date={activeDate}
         activeFilter={activeFilter}
         isWeeklyActive={isWeeklyActive}
         filterOptions={TIME_FILTER_OPTIONS}

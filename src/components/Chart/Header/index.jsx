@@ -4,7 +4,7 @@ import { Flex } from 'rebass';
 
 import { Typography } from '../../../Theme';
 import { TIME_FILTER_OPTIONS } from '../../../constants';
-import { formatChartValueByType } from '../../../utils';
+import { formatChartDate, formatChartValueByType } from '../../../utils';
 import RadioTimeFilter from '../../RadioTimeFilter';
 import { Container, DailyChange, FlexContainer, WeeklyButton } from './styled';
 
@@ -21,7 +21,7 @@ const Header = ({
   onWeeklyToggle,
   showTimeFilter,
 }) => {
-  const below500 = useMedia('(max-width: 500px)');
+  const isBelow500 = useMedia('(max-width: 500px)');
 
   return (
     <Container>
@@ -30,10 +30,10 @@ const Header = ({
           {title}
         </Typography.LargeBoldText>
         <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>
-          {formatChartValueByType(value, dataType, below500)}
+          {formatChartValueByType(value, dataType, isBelow500)}
         </Typography.LargeBoldHeader>
         <FlexContainer alignItems={'center'} flexDirection={'row'}>
-          <Typography.Text color={'text7'}>{date}</Typography.Text>
+          <Typography.Text color={'text7'}>{formatChartDate(date, isWeeklyActive, isBelow500)}</Typography.Text>
           <DailyChange>{dailyChange}</DailyChange>
         </FlexContainer>
       </div>

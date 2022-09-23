@@ -451,11 +451,13 @@ export const formatNumber = (num) => {
 };
 
 // using a currency library here in case we want to add more in future
-export const formatDollarAmount = (num, digits) => {
+export const formatDollarAmount = (num, digits, short) => {
   const formatter = new Intl.NumberFormat([], {
     style: 'currency',
     currency: 'USD',
     currencyDisplay: 'symbol',
+    notation: short ? 'compact' : 'standard',
+    compactDisplay: short ? 'short' : 'long',
     minimumFractionDigits: digits,
     maximumFractionDigits: digits,
   });
@@ -803,4 +805,8 @@ export function getWeekFormattedDate(date, short) {
     .isoWeekday(6)
     .set('year', dayjs(date).year())
     .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')}`;
+}
+
+export function formatChartDate(date, isWeekly, short) {
+  return isWeekly ? getWeekFormattedDate(date, short) : dayjs(date).format(short ? 'MMM D, YY' : 'MMMM D, YYYY');
 }

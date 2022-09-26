@@ -21,7 +21,7 @@ const Header = ({
   onWeeklyToggle,
   showTimeFilter,
 }) => {
-  const isBelow500 = useMedia('(max-width: 500px)');
+  const isBelow500px = useMedia('(max-width: 500px)');
 
   return (
     <Container>
@@ -30,10 +30,10 @@ const Header = ({
           {title}
         </Typography.LargeBoldText>
         <Typography.LargeBoldHeader sx={{ marginRight: 10, marginBottom: '4px' }}>
-          {formatChartValueByType(value, dataType, isBelow500)}
+          {formatChartValueByType(value, dataType, isBelow500px)}
         </Typography.LargeBoldHeader>
         <FlexContainer alignItems={'center'} flexDirection={'row'}>
-          <Typography.Text color={'text7'}>{formatChartDate(date, isWeeklyActive, isBelow500)}</Typography.Text>
+          <Typography.Text color={'text7'}>{formatChartDate(date, isWeeklyActive, isBelow500px)}</Typography.Text>
           <DailyChange>{dailyChange}</DailyChange>
         </FlexContainer>
       </div>

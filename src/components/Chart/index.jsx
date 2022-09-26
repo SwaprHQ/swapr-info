@@ -44,7 +44,7 @@ const getWeeklyAggregatedData = (limitDate, data) => {
       const weekStart = dayjs(current.time).startOf('week');
       const weekEnd = dayjs(current.time).endOf('week');
 
-      const weekId = `${dayjs(current.time).year()}-${weekStart.unix()}-${weekEnd.unix()}`;
+      const weekId = `${weekStart.year()}-${weekStart.unix()}-${weekEnd.year()}-${weekEnd.unix()}`;
 
       return {
         ...previous,

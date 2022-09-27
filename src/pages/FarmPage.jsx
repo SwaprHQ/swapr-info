@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
+import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useHistory } from 'react-router-dom';
 import { useMedia } from 'react-use';
@@ -85,6 +86,10 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
   const liquidityMiningCampaigns = useLiquidityMiningCampaignsForPair(pairAddress, 0);
 
   const isBelow600px = useMedia('(max-width: 600px)');
+
+  useEffect(() => {
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
 
   const swaprButtonsWidth = isBelow600px ? '100%' : 'initial';
   const isPairLoading = !token0 || !token1;
@@ -326,40 +331,45 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
                 <Typography.Custom sx={{ fontWeight: 500, fontSize: '16px', lineHeight: '19px' }}>
                   Carrot campaigns
                 </Typography.Custom>
+                <Flex flexDirection={'column'} style={{ gap: '16px' }}>
+                  <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
+                    Learn how to use KPI tokens through Carrot by clicking{' '}
+                    <Link
+                      color={'text7'}
+                      external={true}
+                      href={'https://medium.com/carrot-eth/how-to-use-carrot-374e0e1abbe2'}
+                    >
+                      here
+                    </Link>
+                    .
+                  </Typography.Text>
+                  {campaign && campaign.kpiRewards.length > 0 && (
+                    <>
+                      <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
+                        This campaign contains Carrot KPI tokens that are redeemable for collateral upon reaching the
+                        goals expressed in the KPI.
+                      </Typography.Text>
+                      {campaign.kpiRewards.map((kpiReward) => (
+                        <Flex key={kpiReward.currency.kpiId} justifyContent={'space-between'}>
+                          <Flex alignItems={'center'} style={{ gap: '16px' }}>
+                            <TokenLogo source={carrotListLogoUrl} size={'20px'} />
+                            {!isBelow600px && (
+                              <Typography.LargeBoldText color={'text6'} sx={{ letterSpacing: '0.02em' }}>
+                                {kpiReward.currency.symbol}
+                              </Typography.LargeBoldText>
+                            )}
+                          </Flex>
+                          <GoToCampaignLink campaignId={kpiReward.currency.kpiId} />
+                        </Flex>
+                      ))}
+                    </>
+                  )}
+                </Flex>
                 {!campaign && <Skeleton height={'32px'} witdh={'120px'} />}
                 {campaign && campaign.kpiRewards.length === 0 && (
                   <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
                     There are no active Carrot campaings linked to this farm.
                   </Typography.Text>
-                )}
-                {campaign && campaign.kpiRewards.length > 0 && (
-                  <>
-                    <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
-                      This campaign contains Carrot KPI tokens that are redeemable for collateral upon reaching the
-                      goals expressed in the KPI. Learn how to use KPI tokens through Carrot by clicking{' '}
-                      <Link
-                        color={'text7'}
-                        external={true}
-                        href={'https://medium.com/carrot-eth/how-to-use-carrot-374e0e1abbe2'}
-                      >
-                        here
-                      </Link>
-                      .
-                    </Typography.Text>
-                    {campaign.kpiRewards.map((kpiReward) => (
-                      <Flex key={kpiReward.currency.kpiId} justifyContent={'space-between'}>
-                        <Flex alignItems={'center'} style={{ gap: '16px' }}>
-                          <TokenLogo source={carrotListLogoUrl} size={'20px'} />
-                          {!isBelow600px && (
-                            <Typography.LargeBoldText color={'text6'} sx={{ letterSpacing: '0.02em' }}>
-                              {kpiReward.currency.symbol}
-                            </Typography.LargeBoldText>
-                          )}
-                        </Flex>
-                        <GoToCampaignLink campaignId={kpiReward.currency.kpiId} />
-                      </Flex>
-                    ))}
-                  </>
                 )}
               </Flex>
             </Panel>

@@ -169,6 +169,8 @@ export const NETWORK_COLORS = {
 
 export const SWAPR_LINK = 'https://swapr.eth.limo/#';
 
+export const CARROT_LINK = 'https://carrot.eth.limo/#';
+
 export const SWAPR_COINGECKO_ENDPOINT = 'https://9gpgpb0ig0.execute-api.us-east-1.amazonaws.com/prod';
 
 export const CARROT_REWARD_TOKEN_REGEX = new RegExp(/g([a-zA-z]*)-\d{4}$/);

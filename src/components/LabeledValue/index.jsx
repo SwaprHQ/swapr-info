@@ -14,7 +14,7 @@ const LabeledValue = ({ label, value }) => (
         {value}
       </Typography.LargeBoldText>
     ) : (
-      <Skeleton style={{ width: '120px', height: '14px' }} />
+      <Skeleton height={'14px'} style={{ maxWidth: '120px' }} />
     )}
   </Flex>
 );

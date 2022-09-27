@@ -30,7 +30,7 @@ import {
   PRICES_BY_BLOCK,
   SHARE_VALUE,
 } from '../apollo/queries';
-import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK } from '../constants';
+import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK, CARROT_LINK } from '../constants';
 
 // format libraries
 const Decimal = toFormat(_Decimal);
@@ -151,6 +151,10 @@ export function getSwaprAppLink(nativeCurrency, linkVariable, selectedNetwork) {
 
 export function getSwaprLink(route, networkId) {
   return `${SWAPR_LINK}${route}?chainId=${networkId}`;
+}
+
+export function getCarrotCampaignLink(campaignId, networkId) {
+  return `${CARROT_LINK}/campaigns/${campaignId}?chainId=${networkId}`;
 }
 
 export function localNumber(val) {
@@ -726,6 +730,7 @@ export function toLiquidityMiningCampaign(
 
   // add APY related to the KPI rewards
   liquidityMiningCampaign.kpiApy = new Percent(rawApy.numerator, rawApy.denominator);
+  liquidityMiningCampaign.kpiRewards = kpiRewards;
 
   return liquidityMiningCampaign;
 }

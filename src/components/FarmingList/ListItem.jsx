@@ -8,15 +8,13 @@ import { USD } from '@swapr/sdk';
 
 import { Typography } from '../../Theme';
 import carrotListLogoUrl from '../../assets/images/carrot.png';
-import { ChainId } from '../../constants';
+import { CARROT_REWARD_TOKEN_REGEX, ChainId } from '../../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
 import { formatDollarAmount, formattedNum, getSwaprLink } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
 import Link, { InternalListLink } from '../Link';
 import TokenLogo from '../TokenLogo';
-
-const carrotTokenRegex = new RegExp(/g([a-zA-z]*)-\d{4}$/);
 
 export const DashGrid = styled.div`
   display: grid;
@@ -136,7 +134,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
         </Flex>
         <Flex area={'rewardTokens'} justifyContent={'center'} flexDirection={'column'} style={{ gap: '8px' }}>
           {campaign.rewards.map((reward, index) => {
-            const isCarrotToken = carrotTokenRegex.test(reward.token.symbol);
+            const isCarrotToken = CARROT_REWARD_TOKEN_REGEX.test(reward.token.symbol);
 
             return (
               <Flex justifyContent={'center'} key={`${reward.address}${index}`}>

@@ -766,6 +766,7 @@ export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
   query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
     liquidityMiningCampaigns(first: 20, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
       id
+      owner
       startsAt
       endsAt
       locked
@@ -808,6 +809,7 @@ export const LIQUIDITY_MINING_CAMPAIGN_BY_ID = graphql`
   query liquidityMiningCampaigns($id: ID!) {
     liquidityMiningCampaigns(first: 1, where: { id: $id }) {
       id
+      owner
       startsAt
       endsAt
       locked
@@ -884,6 +886,7 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
     query liquidityMiningCampaigns {
       liquidityMiningCampaigns(where: { ${endsAtP}: ${currentTime} }) {
         id
+        owner
         stakedAmount
         startsAt
         endsAt

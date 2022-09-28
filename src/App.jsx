@@ -16,10 +16,11 @@ import { useLatestBlocks, useTokensLists } from './contexts/Application';
 import { useSelectedNetwork } from './contexts/Network';
 import AccountLookup from './pages/AccountLookup';
 import AccountPage from './pages/AccountPage';
+import AllFarmsPage from './pages/AllFarmsPage';
 import AllPairsPage from './pages/AllPairsPage';
 import AllTokensPage from './pages/AllTokensPage';
 import DashboardPage from './pages/DashboardPage';
-import FarmingPage from './pages/FarmingPage';
+import FarmPage from './pages/FarmPage';
 import GlobalPage from './pages/GlobalPage';
 import PairPage from './pages/PairPage';
 import TokenPage from './pages/TokenPage';
@@ -116,6 +117,28 @@ function App() {
           <Route
             exacts
             strict
+            path="/farming/:campaignAddress/:pairAddress"
+            render={({ match }) => {
+              if (
+                isAddress(match.params.campaignAddress.toLowerCase()) &&
+                isAddress(match.params.pairAddress.toLowerCase())
+              ) {
+                return (
+                  <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
+                    <FarmPage
+                      campaignAddress={match.params.campaignAddress.toLowerCase()}
+                      pairAddress={match.params.pairAddress.toLowerCase()}
+                    />
+                  </LayoutWrapper>
+                );
+              } else {
+                return <Redirect to="/home" />;
+              }
+            }}
+          />
+          <Route
+            exacts
+            strict
             path="/token/:tokenAddress"
             render={({ match }) => {
               if (OVERVIEW_TOKEN_BLACKLIST.includes(match.params.tokenAddress.toLowerCase())) {
@@ -199,7 +222,7 @@ function App() {
 
           <Route path="/farming">
             <LayoutWrapper savedOpen={savedOpen} setSavedOpen={setSavedOpen}>
-              <FarmingPage />
+              <AllFarmsPage />
             </LayoutWrapper>
           </Route>
 

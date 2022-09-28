@@ -342,7 +342,7 @@ export function useTokensLists() {
             const resp = await fetch(url);
             return await resp.json();
           } catch (error) {
-            console.warn("error Couldn't load a token list", url, error);
+            console.warn("Couldn't load a token list", url, error);
           }
         }),
       );

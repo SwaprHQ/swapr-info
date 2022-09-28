@@ -95,9 +95,7 @@ const GlobalPage = () => {
                   {below800 ? 'Swapr Protocol Overview' : 'Swapr Protocol Overview'}
                 </Typography.LargeHeader>
               </Box>
-              <Box>
-                <Search small={true} />
-              </Box>
+              <Search />
             </Flex>
           </AutoColumn>
           {!below800 && (

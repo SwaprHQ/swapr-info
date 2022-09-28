@@ -19,18 +19,13 @@ import {
   PAIRS_HISTORICAL_BULK,
   PAIR_RATES,
   liquidityMiningCampaignsQuery,
-  LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+  LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR,
   KPI_TOKENS_QUERY,
   DERIVED_NATIVE_CURRENCY_QUERY,
   TOP_TVL_PAIRS,
+  LIQUIDITY_MINING_CAMPAIGN_BY_ID,
 } from '../apollo/queries';
-import {
-  CHAIN_READONLY_PROVIDERS,
-  ChainIdForSupportedNetwork,
-  MULTICALL_ADDRESS,
-  timeframeOptions,
-  ChainId,
-} from '../constants';
+import { CHAIN_READONLY_PROVIDERS, MULTICALL_ADDRESS, timeframeOptions, ChainId } from '../constants';
 import {
   getPercentChange,
   get2DayPercentChange,
@@ -39,7 +34,6 @@ import {
   getTimestampsForChanges,
   splitQuery,
   toLiquidityMiningCampaign,
-  getStakedAmountUSD,
   getBlocksForTimestamps,
 } from '../utils';
 import { updateNameData } from '../utils/data';
@@ -84,7 +78,7 @@ function usePairDataContext() {
   return useContext(PairDataContext);
 }
 
-const INITIAL_STATE = { topPairs: {}, topTVLPairs: {} };
+const INITIAL_STATE = { topPairs: {}, campaigns: {}, topTVLPairs: {} };
 
 function reducer(state, { type, payload }) {
   switch (type) {
@@ -99,11 +93,17 @@ function reducer(state, { type, payload }) {
       };
     }
     case UPDATE_MINING_DATA: {
-      const { status, liquidityMiningData } = payload;
+      const { status, liquidityMiningData, network } = payload;
 
       return {
         ...state,
-        [status]: liquidityMiningData,
+        campaigns: {
+          ...state.campaigns,
+          [network]: {
+            ...state.campaigns?.[network],
+            [status]: liquidityMiningData,
+          },
+        },
       };
     }
 
@@ -173,6 +173,7 @@ function reducer(state, { type, payload }) {
     case RESET: {
       return {
         topPairs: state.topPairs,
+        campaigns: state.campaigns,
         topTVLPairs: state.topTVLPairs,
       };
     }
@@ -206,10 +207,10 @@ export default function Provider({ children }) {
       },
     });
   }, []);
-  const updateMiningData = useCallback((status, liquidityMiningData) => {
+  const updateMiningData = useCallback((status, liquidityMiningData, network) => {
     dispatch({
       type: UPDATE_MINING_DATA,
-      payload: { status, liquidityMiningData },
+      payload: { status, liquidityMiningData, network },
     });
   }, []);
 
@@ -805,82 +806,28 @@ export function usePairTransactions(pairAddress) {
   return pairTxns;
 }
 
-export function useLiquidityMiningCampaignData() {
+export function useLiquidityMiningCampaigns() {
   const client = useSwaprSubgraphClient();
   const selectedNetwork = useSelectedNetwork();
   const [state, { updateMiningData }] = usePairDataContext();
-  const [nativeCurrencyUSDPrice] = useNativeCurrencyPrice();
-  let miningData = {};
-  Object.keys(STATUS).forEach((key) => (miningData[STATUS[key]] = state?.[STATUS[key]]));
+  const carrotClient = useCarrotSubgraphClient();
+
+  const chainId = ChainId[selectedNetwork];
+  const campaigns = state?.campaigns?.[selectedNetwork];
 
   useEffect(() => {
     async function fetchData(status) {
-      if (miningData[status] === undefined && nativeCurrencyUSDPrice !== undefined) {
-        const time = dayjs.utc().unix();
-        let {
-          data: { liquidityMiningCampaigns },
-        } = await client.query({
-          query: liquidityMiningCampaignsQuery(status, time),
-        });
-        const arrayWithMiningCampaignObject = [];
-        liquidityMiningCampaigns &&
-          liquidityMiningCampaigns.forEach((pair) => {
-            const pairData = pair.stakablePair;
-
-            const nativeCurrency = Currency.getNative(ChainIdForSupportedNetwork[selectedNetwork]);
-
-            const tokenA = new Token(
-              ChainIdForSupportedNetwork[selectedNetwork],
-              getAddress(pairData.token0.id),
-              parseInt(pairData.token0.decimals),
-              pairData.token0.symbol,
-              pairData.token0.name,
-            );
-            const tokenB = new Token(
-              ChainIdForSupportedNetwork[selectedNetwork],
-              getAddress(pairData.token1.id),
-              parseInt(pairData.token1.decimals),
-              pairData.token1.symbol,
-              pairData.token1.name,
-            );
-            const tokenAmountA = new TokenAmount(
-              tokenA,
-              parseUnits(pairData.reserve0, pairData.token0.decimals).toString(),
-            );
-            const tokenAmountB = new TokenAmount(
-              tokenB,
-              parseUnits(pairData.reserve1, pairData.token1.decimals).toString(),
-            );
-            const final = new Pair(tokenAmountA, tokenAmountB);
-
-            let miningCampaignObject = toLiquidityMiningCampaign(
-              ChainIdForSupportedNetwork[selectedNetwork],
-              final,
-              pairData.totalSupply,
-              pairData.reserveNativeCurrency,
-              [],
-              pair,
-              nativeCurrency,
-            );
-
-            const stakedPriceInUsd = getStakedAmountUSD(miningCampaignObject, nativeCurrencyUSDPrice, nativeCurrency);
-
-            arrayWithMiningCampaignObject.push({
-              ...pair,
-              miningCampaignObject,
-              stakedPriceInUsd: stakedPriceInUsd?.toFixed(2),
-            });
-          });
-
-        liquidityMiningCampaigns && updateMiningData(status, arrayWithMiningCampaignObject);
+      if (!campaigns?.active && !campaigns?.expired) {
+        const data = await getLiquidityMiningCampaigns(chainId, client, carrotClient, status);
+        updateMiningData(status, data, selectedNetwork);
       }
     }
 
-    Object.keys(STATUS).forEach((key) => fetchData(STATUS[key]));
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [client, selectedNetwork, updateMiningData, nativeCurrencyUSDPrice]);
+    fetchData('active');
+    fetchData('expired');
+  }, [campaigns, chainId, client, carrotClient, updateMiningData, selectedNetwork]);
 
-  return miningData;
+  return campaigns || null;
 }
 
 export function usePairChartData(pairAddress) {
@@ -913,7 +860,7 @@ export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
   useEffect(() => {
     async function fetchData() {
       if (!liquidityMiningCampaigns && pairAddress && isAddress(pairAddress)) {
-        const data = await getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp);
+        const data = await getLiquidityMiningCampaignsForPair(chainId, client, carrotClient, pairAddress, endTimestamp);
         setLiquidityMiningCampaigns(data);
       }
     }
@@ -922,6 +869,29 @@ export function useLiquidityMiningCampaignsForPair(pairAddress, endTimestamp) {
   }, [chainId, liquidityMiningCampaigns, client, carrotClient, pairAddress, endTimestamp]);
 
   return liquidityMiningCampaigns || null;
+}
+
+export function useLiquidityMiningCampaignData(campaignAddress) {
+  const [liquidityMiningCampaignData, setLiquidityMiningCampaignData] = useState(null);
+
+  const selectedNetwork = useSelectedNetwork();
+  const client = useSwaprSubgraphClient();
+  const carrotClient = useCarrotSubgraphClient();
+
+  const chainId = ChainId[selectedNetwork];
+
+  useEffect(() => {
+    async function fetchData() {
+      if (!liquidityMiningCampaignData && campaignAddress && isAddress(campaignAddress)) {
+        const data = await getLiquidityMiningCampaign(chainId, client, carrotClient, campaignAddress);
+        setLiquidityMiningCampaignData(data);
+      }
+    }
+
+    fetchData();
+  }, [chainId, liquidityMiningCampaignData, client, carrotClient, campaignAddress]);
+
+  return liquidityMiningCampaignData || null;
 }
 
 export function useTopTVLPairs() {
@@ -946,7 +916,82 @@ export function useTopTVLPairs() {
 }
 
 /**
- * Build the campaings objects, linked to a pair, with all the required information.
+ * Get and build the campaign object
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} campaignAddress
+ * @returns
+ */
+async function getLiquidityMiningCampaign(chainId, client, carrotClient, campaignAddress) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const { data: liquidityMiningData } = await client.query({
+      query: LIQUIDITY_MINING_CAMPAIGN_BY_ID,
+      variables: {
+        id: campaignAddress,
+      },
+    });
+
+    let kpiTokensData = [];
+    if (carrotClient) {
+      kpiTokensData = await getKpiTokensData(
+        chainId,
+        client,
+        carrotClient,
+        liquidityMiningData.liquidityMiningCampaigns,
+      );
+    }
+
+    // there's only one campaing since it queries by id
+    const liquidityMiningCampaign = liquidityMiningData.liquidityMiningCampaigns[0];
+
+    if (!liquidityMiningCampaign) {
+      console.warn("Couldn't load liquidity mining campaing", campaignAddress);
+
+      return {};
+    }
+
+    const pairData = liquidityMiningCampaign.stakablePair;
+
+    const tokenA = new Token(
+      chainId,
+      getAddress(pairData.token0.id),
+      parseInt(pairData.token0.decimals),
+      pairData.token0.symbol,
+      pairData.token0.name,
+    );
+    const tokenB = new Token(
+      chainId,
+      getAddress(pairData.token1.id),
+      parseInt(pairData.token1.decimals),
+      pairData.token1.symbol,
+      pairData.token1.name,
+    );
+
+    const tokenAmountA = new TokenAmount(tokenA, parseUnits(pairData.reserve0, pairData.token0.decimals).toString());
+    const tokenAmountB = new TokenAmount(tokenB, parseUnits(pairData.reserve1, pairData.token1.decimals).toString());
+
+    const final = new Pair(tokenAmountA, tokenAmountB);
+
+    return toLiquidityMiningCampaign(
+      chainId,
+      final,
+      pairData.totalSupply,
+      pairData.reserveNativeCurrency,
+      kpiTokensData,
+      liquidityMiningCampaign,
+      nativeCurrency,
+    );
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Build the campaigns objects, linked to a pair, with all the required information.
  *
  * @param {*} chainId
  * @param {*} client
@@ -955,12 +1000,12 @@ export function useTopTVLPairs() {
  * @param {*} endTimestamp
  * @returns
  */
-async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient, pairAddress, endTimestamp) {
+async function getLiquidityMiningCampaignsForPair(chainId, client, carrotClient, pairAddress, endTimestamp) {
   try {
     const nativeCurrency = Currency.getNative(chainId);
 
     const { data: liquidityMiningData } = await client.query({
-      query: LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR,
+      query: LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR,
       variables: {
         pairAddress,
         endTimestamp,
@@ -977,7 +1022,7 @@ async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient,
       );
     }
 
-    const campaings = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
+    const campaigns = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
       const pairData = campaign.stakablePair;
 
       const tokenA = new Token(
@@ -1011,14 +1056,81 @@ async function getLiquidityMiningCampaingsForPair(chainId, client, carrotClient,
       );
     });
 
-    return campaings || [];
+    return campaigns || [];
   } catch (error) {
     console.error(error);
   }
 }
 
 /**
- * Fetch the kpi tokens data, linked to the provided liquidity mining campaings (if there are any).
+ * Build the objects for the last 100 campaigns, with all the required information.
+ *
+ * @param {*} chainId
+ * @param {*} client
+ * @param {*} carrotClient
+ * @param {*} status active | expired
+ * @returns
+ */
+async function getLiquidityMiningCampaigns(chainId, client, carrotClient, status) {
+  try {
+    const nativeCurrency = Currency.getNative(chainId);
+
+    const { data: liquidityMiningData } = await client.query({
+      query: liquidityMiningCampaignsQuery(status, dayjs.utc().unix()),
+    });
+
+    let kpiTokensData = [];
+    if (carrotClient) {
+      kpiTokensData = await getKpiTokensData(
+        chainId,
+        client,
+        carrotClient,
+        liquidityMiningData.liquidityMiningCampaigns,
+      );
+    }
+
+    const campaigns = liquidityMiningData.liquidityMiningCampaigns.map((campaign) => {
+      const pairData = campaign.stakablePair;
+
+      const tokenA = new Token(
+        chainId,
+        getAddress(pairData.token0.id),
+        parseInt(pairData.token0.decimals),
+        pairData.token0.symbol,
+        pairData.token0.name,
+      );
+      const tokenB = new Token(
+        chainId,
+        getAddress(pairData.token1.id),
+        parseInt(pairData.token1.decimals),
+        pairData.token1.symbol,
+        pairData.token1.name,
+      );
+
+      const tokenAmountA = new TokenAmount(tokenA, parseUnits(pairData.reserve0, pairData.token0.decimals).toString());
+      const tokenAmountB = new TokenAmount(tokenB, parseUnits(pairData.reserve1, pairData.token1.decimals).toString());
+
+      const final = new Pair(tokenAmountA, tokenAmountB);
+
+      return toLiquidityMiningCampaign(
+        chainId,
+        final,
+        pairData.totalSupply,
+        pairData.reserveNativeCurrency,
+        kpiTokensData,
+        campaign,
+        nativeCurrency,
+      );
+    });
+
+    return campaigns || [];
+  } catch (error) {
+    console.error(error);
+  }
+}
+
+/**
+ * Fetch the kpi tokens data, linked to the provided liquidity mining campaigns (if there are any).
  *
  * @param {*} chainId
  * @param {*} client

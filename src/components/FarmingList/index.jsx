@@ -5,36 +5,21 @@ import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
+import { USD } from '@swapr/sdk';
+
+import { Typography } from '../../Theme';
 import { Divider } from '../../components';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import LocalLoader from '../LocalLoader';
+import PageButtons from '../PageButtons';
+import Panel from '../Panel';
 import ListItem, { DashGrid } from './ListItem';
 
 dayjs.extend(utc);
 
-const PageButtons = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-`;
-
-const Arrow = styled.div`
-  color: ${({ theme }) => theme.primary1};
-  opacity: ${(props) => (props.faded ? 0.3 : 1)};
-  padding: 0 20px;
-  user-select: none;
-  :hover {
-    cursor: pointer;
-  }
-`;
-
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
 `;
-
-const ListWrapper = styled.div``;
 
 const ClickableText = styled(Text)`
   color: ${({ theme }) => theme.text1};
@@ -48,10 +33,8 @@ const ClickableText = styled(Text)`
 
 const SORT_FIELD = {
   STAKE: 0,
-  REWARD_TOKENS: 1,
-  DAY_YIELD: 4,
-  APY: 5,
-  STAKE_DOLLARS: 6,
+  DAY_YIELD: 1,
+  APY: 2,
 };
 
 const SortIndicator = ({ sortColumn, column, direction }) => (
@@ -60,14 +43,12 @@ const SortIndicator = ({ sortColumn, column, direction }) => (
   </Box>
 );
 
-const FIELD_TO_VALUE = {
-  [SORT_FIELD.STAKE]: 'stakedAmount',
-  [SORT_FIELD.REWARD_TOKENS]: 'totalSupply',
-  [SORT_FIELD.STAKE_DOLLARS]: 'stakedPriceInUsd',
-};
-
 function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
+  const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+
+  const below680 = useMedia('(max-width: 680px)');
   const below1080 = useMedia('(max-width: 1080px)');
+
   // pagination
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -76,7 +57,7 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
   // sorting
   const [sortConfig, setSortConfig] = useState({
     direction: 'asc',
-    column: SORT_FIELD.STAKE_DOLLARS,
+    column: SORT_FIELD.STAKE,
   });
 
   useEffect(() => {
@@ -106,22 +87,20 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
 
   const campaignsList =
     campaigns &&
-    Object.keys(campaigns)
-      .sort((campaignA, campaignB) => {
-        const pairA = campaigns[campaignA];
-        const pairB = campaigns[campaignB];
-
+    campaigns
+      .sort(({ apy: apyA, staked: stakedA }, { apy: apyB, staked: stakedB }) => {
         let data1;
         let data2;
-        if (sortConfig.column === SORT_FIELD.APY || sortConfig.column === SORT_FIELD.DAY_YIELD) {
-          data1 = pairA.miningCampaignObject.apy.toFixed(18);
-          data2 = pairB.miningCampaignObject.apy.toFixed(18);
-        } else if (sortConfig.column === SORT_FIELD.STAKE || sortConfig.column === SORT_FIELD.STAKE_DOLLARS) {
-          data1 = pairA[FIELD_TO_VALUE[sortConfig.column]];
-          data2 = pairB[FIELD_TO_VALUE[sortConfig.column]];
+
+        if (sortConfig.column === SORT_FIELD.APY) {
+          data1 = apyA.toFixed(18);
+          data2 = apyB.toFixed(18);
+        } else if (sortConfig.column === SORT_FIELD.DAY_YIELD) {
+          data1 = (parseFloat(apyA.toFixed(18)) / 365) * 10;
+          data2 = (parseFloat(apyB.toFixed(18)) / 365) * 10;
         } else {
-          data1 = pairA.stakablePair[FIELD_TO_VALUE[sortConfig.column]];
-          data2 = pairB.stakablePair[FIELD_TO_VALUE[sortConfig.column]];
+          data1 = parseFloat(stakedA.nativeCurrencyAmount.toFixed(USD.decimals)) * parseFloat(nativeCurrencyPrice);
+          data2 = parseFloat(stakedB.nativeCurrencyAmount.toFixed(USD.decimals)) * parseFloat(nativeCurrencyPrice);
         }
 
         return parseFloat(data1) > parseFloat(data2)
@@ -129,83 +108,85 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
           : (sortConfig.direction === 'desc' ? 1 : -1) * -1;
       })
       .slice(ITEMS_PER_PAGE * (page - 1), page * ITEMS_PER_PAGE)
-      .map((pairIndex, index) => {
+      .map((campaign, index) => {
         return (
-          pairIndex && (
-            <div key={index}>
-              <ListItem key={index} index={(page - 1) * ITEMS_PER_PAGE + index + 1} pairData={campaigns[pairIndex]} />
-              <Divider />
-            </div>
-          )
+          <div key={campaign.address}>
+            <ListItem
+              key={campaign.address}
+              index={(page - 1) * ITEMS_PER_PAGE + index + 1}
+              campaign={campaign}
+              nativeCurrencyPrice={nativeCurrencyPrice && parseFloat(nativeCurrencyPrice)}
+            />
+            <Divider />
+          </div>
         );
       });
 
   return (
-    <ListWrapper>
-      <DashGrid
-        center={true}
-        disbaleLinks={disbaleLinks}
-        style={{ height: 'fit-content', padding: '0 1.125rem 1rem 1.125rem' }}
-      >
-        <Flex alignItems="center" sx={{ justifyContent: 'center !important' }}>
-          <TYPE.main area="name">Pair</TYPE.main>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText area="stake" onClick={sortHandler(SORT_FIELD.STAKE)}>
-            Staked (LP) <SortIndicator sortColumn={SORT_FIELD.STAKE} {...sortConfig} />
-          </ClickableText>
-        </Flex>
-
-        {!below1080 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText area="staked" onClick={sortHandler(SORT_FIELD.STAKE_DOLLARS)}>
-              Staked in USD <SortIndicator sortColumn={SORT_FIELD.STAKE_DOLLARS} {...sortConfig} />
+    <>
+      <Panel style={{ padding: below680 ? '20px 0' : '32px 0' }}>
+        <DashGrid
+          center={true}
+          disbaleLinks={disbaleLinks}
+          style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
+        >
+          {!below1080 && (
+            <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+              #
+            </Typography.SmallBoldText>
+          )}
+          <Flex alignItems={'center'} sx={{ justifyContent: 'flex-start' }}>
+            <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+              PAIR
+            </Typography.SmallBoldText>
+          </Flex>
+          <Flex alignItems={'center'} justifyContent={'center'}>
+            <ClickableText area="tvl" onClick={sortHandler(SORT_FIELD.STAKE)}>
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                {below680 ? 'TVL' : 'STAKED IN USD'}
+                <SortIndicator sortColumn={SORT_FIELD.STAKE} {...sortConfig} />
+              </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-        )}
-        {!below1080 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
-            <ClickableText area="yield1k" onClick={sortHandler(SORT_FIELD.DAY_YIELD)}>
-              Yield per $1000 <SortIndicator sortColumn={SORT_FIELD.DAY_YIELD} {...sortConfig} />
+          {!below680 && (
+            <Flex alignItems={'center'} justifyContent={'center'}>
+              <ClickableText area="yield" onClick={sortHandler(SORT_FIELD.DAY_YIELD)}>
+                <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                  YIELD PER $1000
+                  <SortIndicator sortColumn={SORT_FIELD.DAY_YIELD} {...sortConfig} />
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+          <Flex alignItems={'center'} justifyContent={'center'}>
+            <ClickableText area="apy" onClick={sortHandler(SORT_FIELD.APY)}>
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                APY
+                <SortIndicator sortColumn={SORT_FIELD.APY} {...sortConfig} />
+              </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-        )}
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText area="apy" onClick={sortHandler(SORT_FIELD.APY)}>
-            APY <SortIndicator sortColumn={SORT_FIELD.APY} {...sortConfig} />
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end">
-          <ClickableText area="rewardTokens" onClick={sortHandler(SORT_FIELD.REWARD_TOKENS)}>
-            Reward Tokens <SortIndicator sortColumn={SORT_FIELD.REWARD_TOKENS} {...sortConfig} />
-          </ClickableText>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flex-end" area="swaprLink">
-          <TYPE.main>Link</TYPE.main>
-        </Flex>
-      </DashGrid>
-      <Divider />
-      <List p={0}>{!campaignsList ? <LocalLoader /> : campaignsList}</List>
-      {campaignsList && (
-        <PageButtons>
-          <div
-            onClick={() => {
-              setPage(page === 1 ? page : page - 1);
-            }}
-          >
-            <Arrow faded={page === 1 ? true : false}>←</Arrow>
-          </div>
-          <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-          <div
-            onClick={() => {
-              setPage(page === maxPage ? page : page + 1);
-            }}
-          >
-            <Arrow faded={page === maxPage ? true : false}>→</Arrow>
-          </div>
-        </PageButtons>
-      )}
-    </ListWrapper>
+          <Flex alignItems={'center'} justifyContent={'center'}>
+            <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+              REWARD
+            </Typography.SmallBoldText>
+          </Flex>
+          <Flex alignItems={'center'} justifyContent={'flex-end'}>
+            <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+              LINK
+            </Typography.SmallBoldText>
+          </Flex>
+        </DashGrid>
+        <Divider />
+        <List p={0}>{!campaignsList ? <LocalLoader /> : campaignsList}</List>
+      </Panel>
+      <PageButtons
+        activePage={page}
+        maxPages={maxPage}
+        onPreviousClick={() => setPage(page === 1 ? page : page - 1)}
+        onNextClick={() => setPage(page === maxPage ? page : page + 1)}
+      />
+    </>
   );
 }
 

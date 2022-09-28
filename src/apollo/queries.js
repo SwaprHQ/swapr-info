@@ -60,7 +60,7 @@ export const GET_BLOCKS_FOR_TIMESTAMPS = (timestamps) => {
 export const GET_BLOCKS = (timestamps) => {
   let queryString = 'query blocks {';
   queryString += timestamps.map((timestamp) => {
-    return `t${timestamp}:blocks(first: 1000, orderBy: number, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
+    return `t${timestamp}:blocks(first: 100, orderBy: timestamp, orderDirection: asc, where: { timestamp_gt: ${timestamp} }) {
       number
     }`;
   });
@@ -762,9 +762,51 @@ const PairFields = `
   }
 `;
 
-export const LIQUIDITY_MINING_CAMPAINGS_FOR_PAIR = graphql`
+export const LIQUIDITY_MINING_CAMPAIGNS_FOR_PAIR = graphql`
   query liquidityMiningCampaigns($endTimestamp: Int!, $pairAddress: Bytes!) {
-    liquidityMiningCampaigns(first: 1000, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
+    liquidityMiningCampaigns(first: 20, where: { endsAt_gte: $endTimestamp, stakablePair_: { id: $pairAddress } }) {
+      id
+      startsAt
+      endsAt
+      locked
+      stakedAmount
+      stakingCap
+      stakablePair {
+        id
+        reserve0
+        reserve1
+        totalSupply
+        reserveNativeCurrency
+        token0 {
+          id
+          symbol
+          name
+          decimals
+        }
+        token1 {
+          id
+          symbol
+          name
+          decimals
+        }
+      }
+      rewards {
+        id
+        token {
+          id
+          symbol
+          decimals
+          derivedNativeCurrency
+        }
+        amount
+      }
+    }
+  }
+`;
+
+export const LIQUIDITY_MINING_CAMPAIGN_BY_ID = graphql`
+  query liquidityMiningCampaigns($id: ID!) {
+    liquidityMiningCampaigns(first: 1, where: { id: $id }) {
       id
       startsAt
       endsAt
@@ -847,9 +889,9 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
         endsAt
         locked
         stakingCap
-        rewards{
+        rewards {
           id
-          token{
+          token {
             id
             decimals
             symbol
@@ -859,6 +901,7 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
           amount
         }
         stakablePair {
+          id
           token0 {
             id
             derivedNativeCurrency
@@ -886,6 +929,7 @@ export const liquidityMiningCampaignsQuery = (status = 'active', currentTime) =>
       }
     }
   `;
+
   return graphql(queryString);
 };
 

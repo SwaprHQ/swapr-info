@@ -9,11 +9,11 @@ import { Typography } from '../../Theme';
 import LiquidityFarmingCampaignCard from '../LiquidityFarmingCampaignCard';
 import { ActiveBadge, CardsWrapper, EndBadge, Header } from './styled';
 
-const LiquidityMiningCampaingCardList = ({ campaings, nativeCurrencyPrice }) => {
+const LiquidityMiningCampaignCardList = ({ campaigns, nativeCurrencyPrice }) => {
   const below600 = useMedia('(max-width: 600px)');
 
-  const active = campaings?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() > new Date().getTime()).length;
-  const ended = campaings?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() < new Date().getTime()).length;
+  const active = campaigns?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() > new Date().getTime()).length;
+  const ended = campaigns?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() < new Date().getTime()).length;
 
   return (
     <Flex flexDirection={'column'}>
@@ -22,7 +22,7 @@ const LiquidityMiningCampaingCardList = ({ campaings, nativeCurrencyPrice }) => 
           <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
             CAMPAIGNS
           </Typography.SmallBoldText>
-          {campaings ? (
+          {campaigns ? (
             <>
               <ActiveBadge>{active}</ActiveBadge>
               <EndBadge>{ended}</EndBadge>
@@ -33,12 +33,14 @@ const LiquidityMiningCampaingCardList = ({ campaings, nativeCurrencyPrice }) => 
         </Header>
       </Flex>
       <CardsWrapper>
-        {campaings && nativeCurrencyPrice ? (
-          campaings
+        {campaigns && nativeCurrencyPrice ? (
+          campaigns
             .sort((a, b) => b.endsAt - a.endsAt)
             .map(({ address, targetedPair, endsAt, apy, staked, stakingCap, locked }) => (
               <LiquidityFarmingCampaignCard
                 key={address}
+                address={address}
+                liquidityTokenAddress={targetedPair.liquidityToken.address}
                 token0={{ id: targetedPair.token0.address, symbol: targetedPair.token0.symbol }}
                 token1={{ id: targetedPair.token1.address, symbol: targetedPair.token1.symbol }}
                 expiration={endsAt * 1000}
@@ -61,13 +63,13 @@ const LiquidityMiningCampaingCardList = ({ campaings, nativeCurrencyPrice }) => 
   );
 };
 
-LiquidityMiningCampaingCardList.propTypes = {
-  campaings: PropTypes.array,
+LiquidityMiningCampaignCardList.propTypes = {
+  campaigns: PropTypes.array,
   nativeCurrencyPrice: PropTypes.number,
 };
 
-LiquidityMiningCampaingCardList.defaultProps = {
-  campaings: [],
+LiquidityMiningCampaignCardList.defaultProps = {
+  campaigns: [],
 };
 
-export default LiquidityMiningCampaingCardList;
+export default LiquidityMiningCampaignCardList;

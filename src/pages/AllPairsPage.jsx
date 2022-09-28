@@ -16,7 +16,7 @@ function AllPairsPage() {
   const allPairs = useAllPairData();
   const topTVLPairs = useTopTVLPairs();
 
-  const below800 = useMedia('(max-width: 800px)');
+  const below600 = useMedia('(max-width: 600px)');
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -27,20 +27,21 @@ function AllPairsPage() {
   return (
     <PageWrapper>
       <FullWrapper gap={'0'}>
-        <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
-          {!isTopTVLTokenEmpty ? (
-            <Typography.MediumHeader color={'text10'}>Top TVL Pairs</Typography.MediumHeader>
-          ) : (
-            <div />
-          )}
-          {!below800 && <Search small={true} />}
+        <Flex alignItems={'center'} justifyContent={below600 ? 'center' : 'space-between'}>
+          <Typography.MediumHeader
+            color={'text10'}
+            sx={{ textAlign: below600 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+          >
+            Top TVL Pairs
+          </Typography.MediumHeader>
+          {!below600 && <Search />}
         </Flex>
         <Flex height={'125px'}>
           {!isTopTVLTokenEmpty ? (
             <Marquee
               delay={0}
               gradient
-              gradientWidth={below800 ? 10 : 30}
+              gradientWidth={below600 ? 10 : 30}
               gradientColor={[11, 11, 17]}
               speed={40}
               style={{ margin: '5px 0px', height: 'fit-content' }}
@@ -61,12 +62,12 @@ function AllPairsPage() {
             <LocalLoader height={'125'} style={{ margin: '5px 0' }} />
           )}
         </Flex>
-        {below800 && (
+        {below600 && (
           <Box marginTop={'20px'}>
             <Search small={true} />
           </Box>
         )}
-        <Flex alignItems={'flex-end'} justifyContent={below800 ? 'center' : 'space-between'}>
+        <Flex alignItems={'flex-end'} justifyContent={below600 ? 'center' : 'space-between'}>
           <Typography.MediumHeader color={'text10'} sx={{ marginTop: '40px', marginBottom: '20px' }}>
             Top Pairs
           </Typography.MediumHeader>

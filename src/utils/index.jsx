@@ -840,3 +840,7 @@ export function getWeekFormattedDate(date, short) {
 export function formatChartDate(date, isWeekly, short) {
   return isWeekly ? getWeekFormattedDate(date, short) : dayjs(date).format(short ? 'MMM D, YY' : 'MMMM D, YYYY');
 }
+
+export function shortenAddress(address) {
+  return address.slice(0, 6) + '...' + address.slice(38, 42);
+}

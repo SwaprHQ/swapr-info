@@ -64,7 +64,7 @@ function AllPairsPage() {
         </Flex>
         {below600 && (
           <Box marginTop={'20px'}>
-            <Search small={true} />
+            <Search />
           </Box>
         )}
         <Flex alignItems={'flex-end'} justifyContent={below600 ? 'center' : 'space-between'}>

@@ -114,14 +114,19 @@ export function useSavedAccounts() {
 
   const addAccount = useCallback(
     (account) => {
-      updateKey(SAVED_ACCOUNTS, [...(savedAccounts ?? []), account]);
+      const isAlreadySaved = savedAccounts?.findIndex((savedAccount) => savedAccount.id === account.id) ?? -1;
+
+      if (isAlreadySaved === -1) {
+        updateKey(SAVED_ACCOUNTS, [...(savedAccounts ?? []), account]);
+      }
     },
     [savedAccounts, updateKey],
   );
 
   const removeAccount = useCallback(
-    (account) => {
-      let index = savedAccounts?.indexOf(account) ?? -1;
+    (accountId) => {
+      let index = savedAccounts?.findIndex((account) => account.id === accountId) ?? -1;
+
       if (index > -1) {
         updateKey(SAVED_ACCOUNTS, [
           ...savedAccounts.slice(0, index),

@@ -3,9 +3,9 @@ import { Activity } from 'react-feather';
 import { useMedia } from 'react-use';
 import styled from 'styled-components';
 
-import { TYPE } from '../Theme';
+import { TYPE, Typography } from '../Theme';
 import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
-import { ButtonDropdown } from '../components/ButtonStyled';
+import { ButtonDark, ButtonDropdown } from '../components/ButtonStyled';
 import { AutoColumn } from '../components/Column';
 import DoubleTokenLogo from '../components/DoubleLogo';
 import Link, { BasicLink } from '../components/Link';
@@ -17,6 +17,7 @@ import Search from '../components/Search';
 import TxnList from '../components/TxnList';
 import UserChart from '../components/UserChart';
 import { FEE_WARNING_TOKENS } from '../constants';
+import { useSavedAccounts } from '../contexts/LocalStorage';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useUserTransactions, useUserPositions } from '../contexts/User';
 import { formattedNum, getExplorerLink } from '../utils';
@@ -77,27 +78,21 @@ const Warning = styled.div`
 `;
 
 function AccountPage({ account }) {
+  // if any position has token from fee warning list, show warning
+  const [showWarning, setShowWarning] = useState(false);
+  const [showDropdown, setShowDropdown] = useState(false);
+  const [activePosition, setActivePosition] = useState();
+
   // get data for this account
   const transactions = useUserTransactions(account);
   const { positions } = useUserPositions(account);
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const nativeCurrencySymbol = useNativeCurrencySymbol();
+  const [savedAccounts, addAccount, removeAccount] = useSavedAccounts();
 
-  // get data for user stats
-  const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length;
+  const below600 = useMedia('(max-width: 600px)');
 
-  // get derived totals
-  let totalSwappedUSD = useMemo(() => {
-    return transactions?.swaps
-      ? transactions?.swaps.reduce((total, swap) => {
-          return total + parseFloat(swap.amountUSD);
-        }, 0)
-      : 0;
-  }, [transactions]);
-
-  // if any position has token from fee warning list, show warning
-  const [showWarning, setShowWarning] = useState(false);
   useEffect(() => {
     if (positions) {
       for (let i = 0; i < positions.length; i++) {
@@ -109,12 +104,28 @@ function AccountPage({ account }) {
         }
       }
     }
-  }, [positions]);
+  }, [positions, addAccount, account]);
 
-  // settings for list view and dropdowns
-  const hideLPContent = positions && positions.length === 0;
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [activePosition, setActivePosition] = useState();
+  useEffect(() => {
+    window.scrollTo({
+      behavior: 'smooth',
+      top: 0,
+    });
+  }, []);
+
+  // get derived totals
+  let totalSwappedUSD = useMemo(() => {
+    return transactions?.swaps
+      ? transactions?.swaps.reduce((total, swap) => {
+          return total + parseFloat(swap.amountUSD);
+        }, 0)
+      : 0;
+  }, [transactions]);
+
+  const mostValuablePosition = useMemo(
+    () => positions && positions.sort((a, b) => b.principal.usd - a.principal.usd)[0],
+    [positions],
+  );
 
   const { positionValue, aggregateFees } = useMemo(() => {
     const dynamicPositions = activePosition ? [activePosition] : positions;
@@ -136,14 +147,32 @@ function AccountPage({ account }) {
     };
   }, [activePosition, positions]);
 
-  useEffect(() => {
-    window.scrollTo({
-      behavior: 'smooth',
-      top: 0,
-    });
-  }, []);
+  const isAccountAlreadySaved = useMemo(
+    () => savedAccounts && savedAccounts.findIndex((savedAccount) => savedAccount.id === account) !== -1,
+    [savedAccounts, account],
+  );
 
-  const below600 = useMedia('(max-width: 600px)');
+  // get data for user stats
+  const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length;
+
+  // settings for list view and dropdowns
+  const hideLPContent = positions && positions.length === 0;
+
+  const saveAccount = () => {
+    const accontToBeSaved = {
+      id: account,
+      pair: {
+        id: mostValuablePosition.pair.id,
+        token0: { id: mostValuablePosition.pair.token0.id, symbol: mostValuablePosition.pair.token0.symbol },
+        token1: { id: mostValuablePosition.pair.token1.id, symbol: mostValuablePosition.pair.token1.symbol },
+        usdValue:
+          (parseFloat(mostValuablePosition.liquidityTokenBalance) / parseFloat(mostValuablePosition.pair.totalSupply)) *
+          parseFloat(mostValuablePosition.pair.reserveUSD),
+      },
+    };
+
+    addAccount(accontToBeSaved);
+  };
 
   return (
     <PageWrapper>
@@ -152,7 +181,6 @@ function AccountPage({ account }) {
           <TYPE.body>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
             <Link external lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')}>
-              {' '}
               {account?.slice(0, 42)}{' '}
             </Link>
           </TYPE.body>
@@ -166,6 +194,19 @@ function AccountPage({ account }) {
                 <TYPE.main fontSize={14}>View on block explorer</TYPE.main>
               </Link>
             </span>
+            {isAccountAlreadySaved ? (
+              <ButtonDark onClick={() => removeAccount(account)}>
+                <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                  REMOVE ACCOUNT
+                </Typography.SmallBoldText>
+              </ButtonDark>
+            ) : (
+              <ButtonDark onClick={saveAccount}>
+                <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                  SAVE ACCOUNT
+                </Typography.SmallBoldText>
+              </ButtonDark>
+            )}
           </RowBetween>
         </div>
         <DashboardWrapper>

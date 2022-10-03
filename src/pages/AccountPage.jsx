@@ -16,7 +16,7 @@ import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import TxnList from '../components/TxnList';
 import UserChart from '../components/UserChart';
-import { FEE_WARNING_TOKENS } from '../constants';
+import { ChainId, FEE_WARNING_TOKENS } from '../constants';
 import { useSavedAccounts } from '../contexts/LocalStorage';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useUserTransactions, useUserPositions } from '../contexts/User';
@@ -152,6 +152,8 @@ function AccountPage({ account }) {
     [savedAccounts, account],
   );
 
+  const isAccountsLimitReached = useMemo(() => savedAccounts && savedAccounts.length >= 5, [savedAccounts]);
+
   // get data for user stats
   const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length;
 
@@ -161,13 +163,11 @@ function AccountPage({ account }) {
   const saveAccount = () => {
     const accontToBeSaved = {
       id: account,
+      network: ChainId[selectedNetwork],
       pair: {
         id: mostValuablePosition.pair.id,
         token0: { id: mostValuablePosition.pair.token0.id, symbol: mostValuablePosition.pair.token0.symbol },
         token1: { id: mostValuablePosition.pair.token1.id, symbol: mostValuablePosition.pair.token1.symbol },
-        usdValue:
-          (parseFloat(mostValuablePosition.liquidityTokenBalance) / parseFloat(mostValuablePosition.pair.totalSupply)) *
-          parseFloat(mostValuablePosition.pair.reserveUSD),
       },
     };
 
@@ -200,13 +200,13 @@ function AccountPage({ account }) {
                   REMOVE ACCOUNT
                 </Typography.SmallBoldText>
               </ButtonDark>
-            ) : (
+            ) : !isAccountsLimitReached ? (
               <ButtonDark onClick={saveAccount}>
                 <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                   SAVE ACCOUNT
                 </Typography.SmallBoldText>
               </ButtonDark>
-            )}
+            ) : null}
           </RowBetween>
         </div>
         <DashboardWrapper>
@@ -335,7 +335,7 @@ function AccountPage({ account }) {
           )}
           <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Positions
-          </TYPE.main>{' '}
+          </TYPE.main>
           <Panel
             style={{
               marginTop: '1.5rem',
@@ -345,7 +345,7 @@ function AccountPage({ account }) {
           </Panel>
           <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Transactions
-          </TYPE.main>{' '}
+          </TYPE.main>
           <Panel
             style={{
               marginTop: '1.5rem',
@@ -355,7 +355,7 @@ function AccountPage({ account }) {
           </Panel>
           <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Wallet Stats
-          </TYPE.main>{' '}
+          </TYPE.main>
           <Panel
             style={{
               marginTop: '1.5rem',

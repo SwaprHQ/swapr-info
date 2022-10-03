@@ -114,6 +114,32 @@ export const TOP_LPS_PER_PAIRS = graphql`
   }
 `;
 
+export const LIQUIDITY_POSITION_BY_USER_AND_PAIR = graphql`
+  query liquidityPositions($user: ID!, $pair: ID!) {
+    liquidityPositions(first: 1, where: { user_: { id: $user }, pair_: { id: $pair } }) {
+      id
+      liquidityTokenBalance
+      pair {
+        id
+        totalSupply
+        reserveUSD
+      }
+    }
+  }
+`;
+
+export const LIQUIDITY_MINING_POSITION_BY_USER_AND_PAIR = graphql`
+  query liquidityPositions($user: ID!, $pair: ID!) {
+    liquidityMiningPositions(
+      first: 100
+      where: { targetedPair_: { id: $pair }, user_: { id: $user }, stakedAmount_gt: 0 }
+    ) {
+      id
+      liquidityTokenBalance: stakedAmount
+    }
+  }
+`;
+
 export const PAIR_RATES = (pairAddress, blocks) => {
   let queryString = 'query blocks {';
   queryString += blocks.map(

@@ -8,6 +8,8 @@ import {
   USER_HISTORY,
   PAIR_DAY_DATA_BULK,
   USER_HISTORY_STAKE,
+  LIQUIDITY_POSITION_BY_USER_AND_PAIR,
+  LIQUIDITY_MINING_POSITION_BY_USER_AND_PAIR,
 } from '../apollo/queries';
 import { timeframeOptions } from '../constants';
 import { chunk } from '../utils';
@@ -592,6 +594,59 @@ export function useUserPositions(account) {
   }, [account, positions, updatePositions, nativeCurrencyPrice, snapshots, client, network]);
 
   return { positions };
+}
+
+export function useUserLiquidityPositionForPair(userId, pairId) {
+  const client = useSwaprSubgraphClient();
+  const [liquidityPositionUsdValue, setLiquidityPositionUsdValue] = useState(null);
+
+  useEffect(() => {
+    async function getLiquidityPosition(user, pair) {
+      try {
+        const liquidityPositionData = await client.query({
+          query: LIQUIDITY_POSITION_BY_USER_AND_PAIR,
+          variables: {
+            user,
+            pair,
+          },
+        });
+
+        const liquidityMiningPositionData = await client.query({
+          query: LIQUIDITY_MINING_POSITION_BY_USER_AND_PAIR,
+          variables: {
+            user,
+            pair,
+          },
+        });
+
+        // get total token balance of the liquidity mining positions
+        const liquidityMiningPositionsTokenBalance = liquidityMiningPositionData.data.liquidityMiningPositions.reduce(
+          (totalTokenBalance, liquidityMiningPosition) =>
+            totalTokenBalance + parseFloat(liquidityMiningPosition.liquidityTokenBalance),
+          0,
+        );
+
+        // since we query by user and pair we have
+        // only a single liquidity position
+        const liquidityTokenBalance =
+          liquidityPositionData.data.liquidityPositions[0].liquidityTokenBalance + liquidityMiningPositionsTokenBalance;
+        const totalSupply = liquidityPositionData.data.liquidityPositions[0].pair.totalSupply;
+        const reserveUSD = liquidityPositionData.data.liquidityPositions[0].pair.reserveUSD;
+
+        const usdValue = (parseFloat(liquidityTokenBalance) / parseFloat(totalSupply)) * parseFloat(reserveUSD);
+
+        setLiquidityPositionUsdValue(usdValue);
+      } catch (error) {
+        console.warn('Error fetching liquidity position', error, user, pair);
+      }
+    }
+
+    if (!liquidityPositionUsdValue) {
+      getLiquidityPosition(userId, pairId);
+    }
+  }, [client, userId, pairId, liquidityPositionUsdValue]);
+
+  return liquidityPositionUsdValue;
 }
 
 export function useUserContextResetter() {

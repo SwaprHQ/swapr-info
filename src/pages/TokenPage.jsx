@@ -141,7 +141,7 @@ function TokenPage({ address }) {
               <Skeleton style={{ width: '60px' }} />
             )}
           </AutoRow>
-          {!below700 && <Search small={true} />}
+          {!below700 && <Search />}
         </Flex>
         <DashboardWrapper>
           <Flex marginBottom={'20px'} justifyContent={below700 ? 'center' : 'space-between'}>

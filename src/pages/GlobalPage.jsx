@@ -88,7 +88,7 @@ const GlobalPage = () => {
       <ThemedBackground backgroundColor={transparentize(0.8, '#4526A2')} />
       <ContentWrapper>
         <div>
-          <AutoColumn gap={'24px'} style={{ marginBottom: '16px' }}>
+          <AutoColumn gap={'24px'} style={{ marginBottom: '20px' }}>
             <Flex flexDirection={below800 ? 'column' : 'row'} alignItems={'center'} style={{ gap: '20px' }}>
               <Box flex={'1'}>
                 <Typography.LargeHeader color={'text10'} sx={{ textAlign: below800 ? 'center' : 'left' }}>

@@ -83,6 +83,10 @@ export const ButtonLight = styled(Base)`
   :hover > * {
     color: ${({ theme }) => theme.text8};
   }
+
+  & > * {
+    transition: 200ms color;
+  }
 `;
 
 export function ButtonDropdown({ disabled = false, children, open, ...rest }) {
@@ -115,6 +119,13 @@ export const ButtonDark = styled(Base)`
 
   border: ${({ theme }) => `1px solid ${theme.bd1}`};
   border-radius: 8px;
+
+  :hover {
+    color: ${({ theme }) => theme.text8};
+    opacity: 0.7;
+  }
+
+  transition: 200ms opacity;
 `;
 
 export const ButtonFaded = styled(Base)`

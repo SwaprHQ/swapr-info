@@ -807,6 +807,10 @@ export function formatCountDownString(timestamp) {
  */
 export function formatChartValueByType(value, dataType, short) {
   if (dataType === 'CURRENCY') {
+    if (parseFloat(value) < 100000) {
+      return formatDollarAmount(value, 2);
+    }
+
     return formatDollarAmount(value, short ? 2 : 0, short);
   }
 

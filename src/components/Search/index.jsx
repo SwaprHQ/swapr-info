@@ -101,7 +101,7 @@ const CloseIcon = styled(X)`
 
 const Menu = styled.div`
   position: absolute;
-  z-index: 3;
+  z-index: 1;
   display: flex;
   flex-direction: column;
   width: 100%;

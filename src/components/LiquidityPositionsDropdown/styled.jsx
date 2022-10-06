@@ -2,7 +2,7 @@ import styled from 'styled-components';
 
 const Wrapper = styled.div`
   display: flex;
-  width: 260px;
+  width: ${({ width }) => width ?? '260px'};
   position: relative;
   background-color: ${({ theme }) => theme.bg7};
   border: 1px solid ${({ color, theme }) => color || theme.bd1};

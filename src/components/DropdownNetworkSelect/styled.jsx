@@ -16,6 +16,7 @@ const Wrapper = styled.div`
   border-radius: 12px;
   display: flex;
   align-items: center;
+  z-index: 2;
 
   :hover {
     cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};

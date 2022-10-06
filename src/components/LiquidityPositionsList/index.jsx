@@ -72,7 +72,7 @@ function LiquidityPositionsList({ lps, disbaleLinks, maxItems = 10 }) {
           </Flex>
         )}
         <FlexText area={'value'}>
-          <Typography.LargeText color={'text8'}>{formattedNum(lp.usd, true)}</Typography.LargeText>
+          <Typography.LargeText color={'text1'}>{formattedNum(lp.usd, true)}</Typography.LargeText>
         </FlexText>
       </DashGrid>
     );

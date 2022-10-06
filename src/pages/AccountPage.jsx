@@ -35,17 +35,12 @@ const PanelWrapper = styled.div`
   width: 100%;
   align-items: start;
 
-  @media screen and (max-width: 1100px) {
+  @media screen and (max-width: 1400px) {
     grid-template-columns: 1fr;
     align-items: stretch;
-    > * {
-      grid-column: 1 / 4;
-    }
 
     > * {
-      &:first-child {
-        width: 100%;
-      }
+      grid-column: 1 / 4;
     }
   }
 `;
@@ -71,7 +66,10 @@ function AccountPage({ account }) {
   const selectedNetwork = useSelectedNetwork();
   const [savedAccounts, addAccountToStorage, removeAccountFromStorage] = useSavedAccounts();
 
+  const isBelow400px = useMedia('(max-width: 400px)');
   const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow1000px = useMedia('(max-width: 1000px)');
+  const isBelow1400px = useMedia('(max-width: 1400px)');
 
   useEffect(() => {
     window.scrollTo({
@@ -186,7 +184,7 @@ function AccountPage({ account }) {
           <Typography.LargeText color={'text10'} sx={{ marginRight: '4px' }}>
             <BasicLink to="/accounts">{'Accounts '}</BasicLink>
             <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, account, 'address')}>
-              {`→  ${account}`}
+              {`→  ${isBelow1000px ? shortenAddress(account) : account}`}
             </ExternalListLink>
           </Typography.LargeText>
           {!isBelow600px && <Search />}
@@ -195,13 +193,16 @@ function AccountPage({ account }) {
           {formattedLiquidityMiningPositions ? (
             <Flex>
               {isAccountAlreadySaved ? (
-                <ButtonDark onClick={() => removeAccountFromStorage(account)}>
+                <ButtonDark
+                  onClick={() => removeAccountFromStorage(account)}
+                  style={{ width: isBelow600px ? '100%' : 'initial' }}
+                >
                   <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                     REMOVE ACCOUNT
                   </Typography.SmallBoldText>
                 </ButtonDark>
               ) : !isAccountsLimitReached ? (
-                <ButtonDark onClick={saveAccount}>
+                <ButtonDark onClick={saveAccount} style={{ width: isBelow600px ? '100%' : 'initial' }}>
                   <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                     SAVE ACCOUNT
                   </Typography.SmallBoldText>
@@ -209,17 +210,20 @@ function AccountPage({ account }) {
               ) : null}
             </Flex>
           ) : (
-            <Skeleton width={148} height={34} borderRadius={12} />
+            <Skeleton width={isBelow600px ? '100%' : 148} height={34} borderRadius={12} />
           )}
-          {formattedLiquidityMiningPositions ? (
-            <LiquidityPositionsDropdown
-              liquidityMiningPositions={formattedLiquidityMiningPositions}
-              active={activePosition}
-              setActive={setActivePosition}
-            />
-          ) : (
-            <Skeleton width={291} height={50} borderRadius={12} />
-          )}
+          <Flex>
+            {formattedLiquidityMiningPositions ? (
+              <LiquidityPositionsDropdown
+                liquidityMiningPositions={formattedLiquidityMiningPositions}
+                active={activePosition}
+                setActive={setActivePosition}
+                width={isBelow600px ? '100%' : '260px'}
+              />
+            ) : (
+              <Skeleton width={291} height={50} borderRadius={12} />
+            )}
+          </Flex>
         </Flex>
         <DashboardWrapper>
           {showWarning && <Warning>Fees cannot currently be calculated for pairs that include AMPL.</Warning>}
@@ -237,13 +241,15 @@ function AccountPage({ account }) {
                       )
                     }
                   />
-                  <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, account, 'address')}>
-                    <ButtonDark>
-                      <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
-                        VIEW ON EXPLORER ↗
-                      </Typography.SmallBoldText>
-                    </ButtonDark>
-                  </ExternalListLink>
+                  {!isBelow400px && (
+                    <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, account, 'address')}>
+                      <ButtonDark>
+                        <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                          VIEW ON EXPLORER ↗
+                        </Typography.SmallBoldText>
+                      </ButtonDark>
+                    </ExternalListLink>
+                  )}
                 </Flex>
                 <LabeledValue
                   label={'FEES EARNED (COMULATIVE)'}
@@ -308,15 +314,15 @@ function AccountPage({ account }) {
             </Panel>
             <Panel
               style={{
-                gridColumn: '2/4',
-                gridRow: '1/3',
+                minHeight: '423px',
+                gridColumn: isBelow1400px ? '' : '2/4',
+                gridRow: isBelow1400px ? '' : '1/3',
               }}
             >
               {activePosition.key !== 'all' ? (
                 <LiquidityMiningPositionChart account={account} position={activePosition} />
               ) : (
                 <UserLiquidityChart account={account} />
-                // <UserChart account={account} position={null} />
               )}
             </Panel>
           </PanelWrapper>
@@ -333,13 +339,7 @@ function AccountPage({ account }) {
           >
             Positions
           </Typography.Custom>
-          <Panel
-            style={{
-              marginTop: '1.5rem',
-            }}
-          >
-            <PositionList positions={cleanFormattedLiquidityMiningPositions} />
-          </Panel>
+          <PositionList positions={cleanFormattedLiquidityMiningPositions} />
           <Typography.Custom
             color={'text10'}
             sx={{

@@ -10,7 +10,7 @@ import DoubleTokenLogo from '../DoubleLogo';
 import Icon from '../Icon';
 import { Dropdown, LiquidityPosition, Wrapper } from './styled';
 
-const LiquidityPositionsDropdown = ({ liquidityMiningPositions, active, setActive }) => {
+const LiquidityPositionsDropdown = ({ liquidityMiningPositions, active, setActive, width }) => {
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -29,19 +29,8 @@ const LiquidityPositionsDropdown = ({ liquidityMiningPositions, active, setActiv
     }
   });
 
-  //   useEffect(() => {
-  //     if (liquidityMiningPositions) {
-  //       liquidityMiningPositions
-  //         .filter((liquidityMiningPosition) => liquidityMiningPosition.key !== 'all')
-  //         .forEach(({ pair }) => {
-  //           new Image().src = pair.token0.id;
-  //           new Image().src = pair.token1.id;
-  //         });
-  //     }
-  //   }, [liquidityMiningPositions]);
-
   return (
-    <Wrapper open={isDropdownOpen} ref={containerRef}>
+    <Wrapper open={isDropdownOpen} width={width} ref={containerRef}>
       <Flex onClick={() => setIsDropdownOpen(!isDropdownOpen)} justifyContent={'space-between'} width={'100%'}>
         <Flex style={{ gap: '8px' }} alignItems={'center'}>
           {activeLiquidityMiningPosition && activeLiquidityMiningPosition.key !== 'all' && (
@@ -114,6 +103,7 @@ LiquidityPositionsDropdown.propTypes = {
   liquidityMiningPositions: PropTypes.arrayOf(
     PropTypes.shape({ key: PropTypes.string.isRequired, label: PropTypes.string.isRequired }),
   ),
+  width: PropTypes.string,
 };
 
 export default LiquidityPositionsDropdown;

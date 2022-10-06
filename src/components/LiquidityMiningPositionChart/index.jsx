@@ -3,7 +3,6 @@ import { PropTypes } from 'prop-types';
 import { useState, useMemo } from 'react';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { TIME_FILTER_OPTIONS } from '../../constants';
@@ -13,15 +12,6 @@ import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
 import { ChartTypeButton } from '../TokenChart/styled';
-
-const ChartWrapper = styled.div`
-  height: 100%;
-  min-height: 340px;
-
-  @media screen and (max-width: 600px) {
-    min-height: 200px;
-  }
-`;
 
 const CHART_VIEW = {
   LIQUIDITY: 'Liquidity',
@@ -59,7 +49,7 @@ const LiquidityMiningPositionChart = ({ account, position }) => {
   const isBelow600px = useMedia('(max-width: 600px)');
 
   return (
-    <ChartWrapper>
+    <>
       <Flex
         mb={20}
         justifyContent={'space-between'}
@@ -108,7 +98,7 @@ const LiquidityMiningPositionChart = ({ account, position }) => {
           />
         </PanelLoaderWrapper>
       )}
-    </ChartWrapper>
+    </>
   );
 };
 

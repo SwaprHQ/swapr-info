@@ -105,7 +105,7 @@ const FIELD_TO_VALUE = {
   [SORT_FIELD.FEES]: 'oneDayVolumeUSD',
 };
 
-export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
+export default function PairList({ pairs, maxItems = 10 }) {
   const below600 = useMedia('(max-width: 600px)');
   const below680 = useMedia('(max-width: 680px)');
   const below1080 = useMedia('(max-width: 1080px)');
@@ -148,7 +148,7 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
         (pairData.oneDayVolumeUSD * pairSwapFeePercentage * 365 * 100) / pairData.reserveUSD,
       );
       return (
-        <DashGrid style={{ height: '48px' }} disbaleLinks={disbaleLinks} focus={true}>
+        <DashGrid style={{ height: '48px' }} focus={true}>
           {!below1080 && (
             <FlexText area={'index'} sx={{ marginRight: '1rem', minWidth: '16px' }}>
               {index}
@@ -228,7 +228,6 @@ export default function PairList({ pairs, disbaleLinks, maxItems = 10 }) {
       <Panel style={{ padding: below680 ? '20px 0' : '32px 0' }}>
         <DashGrid
           center={true}
-          disbaleLinks={disbaleLinks}
           style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
         >
           {!below1080 && (

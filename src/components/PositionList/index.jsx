@@ -6,38 +6,19 @@ import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import { Divider } from '../../components';
-import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
-import { formattedNum, getPoolLink } from '../../utils';
-import { ButtonLight } from '../ButtonStyled';
-import { AutoColumn } from '../Column';
+import { formatDollarAmount, formattedNum, getPoolLink } from '../../utils';
+import { ButtonDark } from '../ButtonStyled';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
-import Link, { CustomLink } from '../Link';
+import Link, { InternalListLink } from '../Link';
 import LocalLoader from '../LocalLoader';
-import { RowFixed } from '../Row';
+import PageButtons from '../PageButtons';
+import Panel from '../Panel';
 
 dayjs.extend(utc);
-
-const PageButtons = styled.div`
-  width: 100%;
-  display: flex;
-  justify-content: center;
-  margin-top: 2em;
-  margin-bottom: 0.5em;
-`;
-
-const Arrow = styled.div`
-  color: ${({ theme }) => theme.primary1};
-  opacity: ${(props) => (props.faded ? 0.3 : 1)};
-  padding: 0 20px;
-  user-select: none;
-  :hover {
-    cursor: pointer;
-  }
-`;
 
 const List = styled(Box)`
   -webkit-overflow-scrolling: touch;
@@ -46,39 +27,29 @@ const List = styled(Box)`
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 5px 0.5fr 1fr 1fr;
-  grid-template-areas: 'number name swapr return';
-  align-items: flex-start;
-  padding: 20px 0;
+  grid-template-columns: 2.5fr 1fr;
+  grid-template-areas: 'name swapr';
+  align-items: center;
+  padding: 0 20px;
 
-  > * {
-    justify-content: flex-end;
-    width: 100%;
-
-    :first-child {
-      justify-content: flex-start;
-      text-align: left;
-      width: 20px;
-    }
-  }
-
-  @media screen and (min-width: 1200px) {
-    grid-template-columns: 35px 2.5fr 1fr 1fr;
-    grid-template-areas: 'number name swapr return';
-  }
-
-  @media screen and (max-width: 740px) {
+  @media screen and (min-width: 500px) {
+    padding: 0 36px;
     grid-template-columns: 2.5fr 1fr 1fr;
     grid-template-areas: 'name swapr return';
   }
 
-  @media screen and (max-width: 500px) {
-    grid-template-columns: 2.5fr 1fr;
-    grid-template-areas: 'name swapr';
+  @media screen and (min-width: 600px) {
+    padding: 0 36px;
+    grid-template-columns: 35px 1.2fr 1fr 1fr;
+    grid-template-areas: 'number name swapr return';
+  }
+
+  @media screen and (min-width: 800px) {
+    padding: 0 36px;
+    grid-template-columns: 35px 2.5fr 1fr 1fr;
+    grid-template-areas: 'number name swapr return';
   }
 `;
-
-const ListWrapper = styled.div``;
 
 const ClickableText = styled(Text)`
   color: ${({ theme }) => theme.text1};
@@ -91,27 +62,15 @@ const ClickableText = styled(Text)`
   user-select: none;
 `;
 
-const DataText = styled(Flex)`
-  align-items: center;
-  text-align: center;
-  color: ${({ theme }) => theme.text1};
-  & > * {
-    font-size: 1em;
-  }
-
-  @media screen and (max-width: 600px) {
-    font-size: 13px;
-  }
-`;
-
 const SORT_FIELD = {
   VALUE: 'VALUE',
   SWAPR_RETURN: 'SWAPR_RETURN',
 };
 
 function PositionList({ positions }) {
-  const below500 = useMedia('(max-width: 500px)');
-  const below740 = useMedia('(max-width: 740px)');
+  const isBelow500px = useMedia('(max-width: 500px)');
+  const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow800px = useMedia('(max-width: 800px)');
 
   // pagination
   const [page, setPage] = useState(1);
@@ -141,37 +100,33 @@ function PositionList({ positions }) {
     }
   }, [positions]);
 
-  const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+  // const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   const ListItem = ({ position, index }) => {
     const poolOwnership = position.liquidityTokenBalance / position.pair.totalSupply;
     const valueUSD = poolOwnership * position.pair.reserveUSD;
 
     return (
-      <DashGrid style={{ opacity: poolOwnership > 0 ? 1 : 0.6 }} focus={true}>
-        {!below740 && <DataText area="number">{index}</DataText>}
-        <DataText area="name" justifyContent="flex-start" alignItems="flex-start">
-          <AutoColumn gap="8px" justify="flex-start" align="flex-start">
+      <DashGrid style={{ opacity: poolOwnership > 0 ? 1 : 0.6, height: '48px' }} focus={true}>
+        {!isBelow600px && <Typography.LargeText color={'text1'}>{index}</Typography.LargeText>}
+        <Flex alignItems={'center'} style={{ gap: '24px' }}>
+          <Flex alignItems={'center'} style={{ gap: '8px' }}>
             <DoubleTokenLogo
-              size={16}
+              size={20}
               a0={position.pair.token0.id}
               a1={position.pair.token1.id}
               defaultText0={position.pair.token0.symbol}
               defaultText1={position.pair.token1.symbol}
-              margin={!below740}
             />
-          </AutoColumn>
-          <AutoColumn gap="8px" justify="flex-start" style={{ marginLeft: '20px' }}>
-            <CustomLink to={'/pair/' + position.pair.id}>
-              <TYPE.main style={{ whiteSpace: 'nowrap' }} to={'/pair/'}>
-                <FormattedName
-                  text={position.pair.token0.symbol + '-' + position.pair.token1.symbol}
-                  maxCharacters={below740 ? 10 : 18}
-                />
-              </TYPE.main>
-            </CustomLink>
-
-            <RowFixed gap="8px" justify="flex-start">
+            <InternalListLink to={'/pair/' + position.pair.id}>
+              <FormattedName
+                text={position.pair.token0.symbol + '-' + position.pair.token1.symbol}
+                maxCharacters={isBelow600px ? 10 : 18}
+              />
+            </InternalListLink>
+          </Flex>
+          {!isBelow800px && (
+            <Flex style={{ gap: '8px' }}>
               <Link
                 external
                 href={getPoolLink(
@@ -181,9 +136,12 @@ function PositionList({ positions }) {
                   position.pair.token0.id,
                   position.pair.token1.id,
                 )}
-                style={{ marginRight: '.5rem' }}
               >
-                <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Add</ButtonLight>
+                <ButtonDark style={{ width: '76px', minWidth: '76px' }}>
+                  <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                    ADD
+                  </Typography.SmallBoldText>
+                </ButtonDark>
               </Link>
               {poolOwnership > 0 && (
                 <Link
@@ -197,23 +155,28 @@ function PositionList({ positions }) {
                     true,
                   )}
                 >
-                  <ButtonLight style={{ padding: '4px 6px', borderRadius: '4px' }}>Remove</ButtonLight>
+                  <ButtonDark style={{ width: '76px', minWidth: '76px' }}>
+                    <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                      REMOVE
+                    </Typography.SmallBoldText>
+                  </ButtonDark>
                 </Link>
               )}
-            </RowFixed>
-          </AutoColumn>
-        </DataText>
-        <DataText area="swapr">
-          <AutoColumn gap="12px" justify="flex-end">
-            <TYPE.main>{formattedNum(valueUSD, true, true)}</TYPE.main>
-            <AutoColumn gap="4px" justify="flex-end">
+            </Flex>
+          )}
+        </Flex>
+        <Flex justifyContent={'flex-end'}>
+          <Typography.LargeText color={'text1'} sx={{ display: 'flex' }}>
+            {formatDollarAmount(valueUSD, isBelow500px ? 2 : 0, isBelow500px)}
+          </Typography.LargeText>
+          {/* <Flex justify={'flex-end'}>
               <RowFixed>
-                <TYPE.small fontWeight={400}>
+                <Typography.SmallBoldText color={'text8'}>
                   {formattedNum(poolOwnership * parseFloat(position.pair.reserve0))}{' '}
-                </TYPE.small>
+                </Typography.SmallBoldText>
                 <FormattedName
                   text={position.pair.token0.symbol}
-                  maxCharacters={below740 ? 10 : 18}
+                  maxCharacters={isBelow600px ? 10 : 18}
                   margin={true}
                   fontSize={'11px'}
                 />
@@ -224,21 +187,19 @@ function PositionList({ positions }) {
                 </TYPE.small>
                 <FormattedName
                   text={position.pair.token1.symbol}
-                  maxCharacters={below740 ? 10 : 18}
+                  maxCharacters={isBelow600px ? 10 : 18}
                   margin={true}
                   fontSize={'11px'}
                 />
               </RowFixed>
-            </AutoColumn>
-          </AutoColumn>
-        </DataText>
-        {!below500 && (
-          <DataText area="return">
-            <AutoColumn gap="12px" justify="flex-end">
-              <TYPE.main color={position?.fees.sum > 0 ? 'green' : 'red'}>
-                <RowFixed>{formattedNum(position?.fees.sum, true, true)}</RowFixed>
-              </TYPE.main>
-              <AutoColumn gap="4px" justify="flex-end">
+            </Flex> */}
+        </Flex>
+        {!isBelow500px && (
+          <Flex justifyContent={'flex-end'}>
+            <Typography.LargeText color={position?.fees.sum > 0 ? 'green1' : 'red1'}>
+              {formattedNum(position?.fees.sum, true, true)}
+            </Typography.LargeText>
+            {/* <AutoColumn gap={'4px'} justify={'flex-end'}>
                 <RowFixed>
                   <TYPE.small fontWeight={400}>
                     {parseFloat(position.pair.token0.derivedNativeCurrency)
@@ -253,7 +214,7 @@ function PositionList({ positions }) {
                   </TYPE.small>
                   <FormattedName
                     text={position.pair.token0.symbol}
-                    maxCharacters={below740 ? 10 : 18}
+                    maxCharacters={isBelow600px ? 10 : 18}
                     margin={true}
                     fontSize={'11px'}
                   />
@@ -268,18 +229,17 @@ function PositionList({ positions }) {
                           false,
                           true,
                         )
-                      : 0}{' '}
+                      : 0}
                   </TYPE.small>
                   <FormattedName
                     text={position.pair.token1.symbol}
-                    maxCharacters={below740 ? 10 : 18}
+                    maxCharacters={isBelow600px ? 10 : 18}
                     margin={true}
                     fontSize={'11px'}
                   />
                 </RowFixed>
-              </AutoColumn>
-            </AutoColumn>
-          </DataText>
+              </AutoColumn> */}
+          </Flex>
         )}
       </DashGrid>
     );
@@ -288,7 +248,6 @@ function PositionList({ positions }) {
   const positionsSorted =
     positions &&
     positions
-
       .sort((p0, p1) => {
         if (sortedColumn === SORT_FIELD.PRINCIPAL) {
           return p0?.principal?.usd > p1?.principal?.usd ? (sortDirection ? -1 : 1) : sortDirection ? 1 : -1;
@@ -317,54 +276,65 @@ function PositionList({ positions }) {
       });
 
   return (
-    <ListWrapper>
-      <DashGrid center={true} style={{ height: '32px', padding: 0 }}>
-        {!below740 && (
-          <Flex alignItems="flex-start" justifyContent="flexStart">
-            <TYPE.main area="number">#</TYPE.main>
+    <>
+      <Panel style={{ padding: isBelow600px ? '20px 0' : '32px 0' }}>
+        <DashGrid
+          center={true}
+          style={{ height: 'fit-content', padding: isBelow500px ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
+        >
+          {!isBelow600px && (
+            <Flex alignItems={'flex-start'} justifyContent={'flexStart'}>
+              <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+                #
+              </Typography.SmallBoldText>
+            </Flex>
+          )}
+          <Flex justifyContent={'flex-start'}>
+            <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+              NAME
+            </Typography.SmallBoldText>
           </Flex>
-        )}
-        <Flex alignItems="flex-start" sx={{ justifyContent: 'center !important' }}>
-          <TYPE.main area="number">Name</TYPE.main>
-        </Flex>
-        <Flex alignItems="center" justifyContent="flexEnd">
-          <ClickableText
-            area="swapr"
-            onClick={() => {
-              setSortedColumn(SORT_FIELD.VALUE);
-              setSortDirection(sortedColumn !== SORT_FIELD.VALUE ? true : !sortDirection);
-            }}
-          >
-            {below740 ? 'Value' : 'Liquidity'} {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
-          </ClickableText>
-        </Flex>
-        {!below500 && (
-          <Flex alignItems="center" justifyContent="flexEnd">
+          <Flex alignItems={'center'} justifyContent={'flex-end'}>
             <ClickableText
-              area="return"
+              area={'swapr'}
               onClick={() => {
-                setSortedColumn(SORT_FIELD.SWAPR_RETURN);
-                setSortDirection(sortedColumn !== SORT_FIELD.SWAPR_RETURN ? true : !sortDirection);
+                setSortedColumn(SORT_FIELD.VALUE);
+                setSortDirection(sortedColumn !== SORT_FIELD.VALUE ? true : !sortDirection);
               }}
             >
-              {below740 ? 'Fees' : 'Total Fees Earned'}{' '}
-              {sortedColumn === SORT_FIELD.SWAPR_RETURN ? (!sortDirection ? '↑' : '↓') : ''}
+              <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+                {isBelow600px ? 'VALUE' : 'LIQUIDITY'}{' '}
+                {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
+              </Typography.SmallBoldText>
             </ClickableText>
           </Flex>
-        )}
-      </DashGrid>
-      <Divider />
-      <List p={0}>{!positionsSorted ? <LocalLoader /> : positionsSorted}</List>
-      <PageButtons>
-        <div onClick={() => setPage(page === 1 ? page : page - 1)}>
-          <Arrow faded={page === 1 ? true : false}>←</Arrow>
-        </div>
-        <TYPE.body>{'Page ' + page + ' of ' + maxPage}</TYPE.body>
-        <div onClick={() => setPage(page === maxPage ? page : page + 1)}>
-          <Arrow faded={page === maxPage ? true : false}>→</Arrow>
-        </div>
-      </PageButtons>
-    </ListWrapper>
+          {!isBelow500px && (
+            <Flex alignItems={'center'} justifyContent={'flex-end'}>
+              <ClickableText
+                area={'return'}
+                onClick={() => {
+                  setSortedColumn(SORT_FIELD.SWAPR_RETURN);
+                  setSortDirection(sortedColumn !== SORT_FIELD.SWAPR_RETURN ? true : !sortDirection);
+                }}
+              >
+                <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
+                  {isBelow600px ? 'FEES' : 'TOTAL FEES EARNED'}{' '}
+                  {sortedColumn === SORT_FIELD.SWAPR_RETURN ? (!sortDirection ? '↑' : '↓') : ''}
+                </Typography.SmallBoldText>
+              </ClickableText>
+            </Flex>
+          )}
+        </DashGrid>
+        <Divider />
+        <List p={0}>{!positionsSorted ? <LocalLoader /> : positionsSorted}</List>
+      </Panel>
+      <PageButtons
+        activePage={page}
+        maxPages={maxPage}
+        onPreviousClick={() => setPage(page === 1 ? page : page - 1)}
+        onNextClick={() => setPage(page === maxPage ? page : page + 1)}
+      />
+    </>
   );
 }
 

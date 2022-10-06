@@ -189,7 +189,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
         onFilterChange={setActiveFilter}
         onWeeklyToggle={() => setIsWeeklyActive((previousValue) => !previousValue)}
       />
-      <ResponsiveContainer>
+      <ResponsiveContainer height={'100%'}>
         {type === 'AREA' ? (
           <AreaChart
             className={'basic-chart'}

@@ -1,26 +1,14 @@
 import dayjs from 'dayjs';
 import { PropTypes } from 'prop-types';
 import { useMemo } from 'react';
-import styled from 'styled-components';
 
 import { useUserLiquidityChart } from '../../contexts/User';
 import Chart from '../Chart';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 
-const ChartWrapper = styled.div`
-  height: 100%;
-  min-height: 340px;
-
-  @media screen and (max-width: 600px) {
-    min-height: 200px;
-  }
-`;
-
 const PanelLoaderWrapper = ({ isLoading, children }) => (
-  <Panel minHeight={'340px'} style={{ border: 'none', padding: '0' }}>
-    {isLoading ? <LocalLoader /> : children}
-  </Panel>
+  <Panel style={{ border: 'none', padding: '0' }}>{isLoading ? <LocalLoader /> : children}</Panel>
 );
 
 const UserLiquidityChart = ({ account }) => {
@@ -39,11 +27,9 @@ const UserLiquidityChart = ({ account }) => {
   );
 
   return (
-    <ChartWrapper>
-      <PanelLoaderWrapper isLoading={!formattedLiquidityData}>
-        <Chart data={formattedLiquidityData} showTimeFilter={true} type={'AREA'} tooltipTitle={'Fees'} />
-      </PanelLoaderWrapper>
-    </ChartWrapper>
+    <PanelLoaderWrapper isLoading={!formattedLiquidityData}>
+      <Chart data={formattedLiquidityData} showTimeFilter={true} type={'AREA'} tooltipTitle={'Fees'} />
+    </PanelLoaderWrapper>
   );
 };
 

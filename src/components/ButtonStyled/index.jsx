@@ -118,7 +118,7 @@ export const ButtonDark = styled(Base)`
   backdrop-filter: blur(25px);
 
   border: ${({ theme }) => `1px solid ${theme.bd1}`};
-  border-radius: 8px;
+  border-radius: 12px;
 
   :hover {
     color: ${({ theme }) => theme.text8};

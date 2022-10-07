@@ -196,7 +196,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
             onMouseMove={setCurrentHeaderValues}
             onMouseLeave={setDefaultHeaderValues}
             data={filteredData}
-            margin={{ top: 5 }}
+            margin={{ top: 10 }}
           >
             <defs>
               <linearGradient id={'base'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>

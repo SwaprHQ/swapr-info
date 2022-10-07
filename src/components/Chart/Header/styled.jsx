@@ -4,7 +4,8 @@ import styled from 'styled-components';
 const Container = styled.div`
   display: flex;
   justify-content: space-between;
-  color: white;
+  min-height: 58px;
+  color: ${({ theme }) => theme.text1};
 `;
 
 const FlexContainer = styled(Flex)`

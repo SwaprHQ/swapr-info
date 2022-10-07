@@ -314,7 +314,7 @@ function AccountPage({ account }) {
             </Panel>
             <Panel
               style={{
-                minHeight: '423px',
+                minHeight: '425px',
                 gridColumn: isBelow1400px ? '' : '2/4',
                 gridRow: isBelow1400px ? '' : '1/3',
               }}

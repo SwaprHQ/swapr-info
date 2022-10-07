@@ -72,10 +72,7 @@ function AccountPage({ account }) {
   const isBelow1400px = useMedia('(max-width: 1400px)');
 
   useEffect(() => {
-    window.scrollTo({
-      behavior: 'smooth',
-      top: 0,
-    });
+    document.querySelector('body').scrollTo(0, 0);
   }, []);
 
   useEffect(() => {

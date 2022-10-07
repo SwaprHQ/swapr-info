@@ -8,6 +8,7 @@ import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { Divider } from '../../components';
+import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
 import { formatDollarAmount, formattedNum, getPoolLink } from '../../utils';
 import { ButtonDark } from '../ButtonStyled';
@@ -17,6 +18,7 @@ import Link, { InternalListLink } from '../Link';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
+import TokenLogo from '../TokenLogo';
 
 dayjs.extend(utc);
 
@@ -100,14 +102,14 @@ function PositionList({ positions }) {
     }
   }, [positions]);
 
-  // const [nativeCurrencyPrice] = useNativeCurrencyPrice();
+  const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   const ListItem = ({ position, index }) => {
     const poolOwnership = position.liquidityTokenBalance / position.pair.totalSupply;
     const valueUSD = poolOwnership * position.pair.reserveUSD;
 
     return (
-      <DashGrid style={{ opacity: poolOwnership > 0 ? 1 : 0.6, height: '48px' }} focus={true}>
+      <DashGrid style={{ opacity: poolOwnership > 0 ? 1 : 0.6, height: '82px' }} focus={true}>
         {!isBelow600px && <Typography.LargeText color={'text1'}>{index}</Typography.LargeText>}
         <Flex alignItems={'center'} style={{ gap: '24px' }}>
           <Flex alignItems={'center'} style={{ gap: '8px' }}>
@@ -165,80 +167,60 @@ function PositionList({ positions }) {
             </Flex>
           )}
         </Flex>
-        <Flex justifyContent={'flex-end'}>
+        <Flex alignItems={'flex-end'} flexDirection={'column'} style={{ gap: '8px' }}>
           <Typography.LargeText color={'text1'} sx={{ display: 'flex' }}>
             {formatDollarAmount(valueUSD, isBelow500px ? 2 : 0, isBelow500px)}
           </Typography.LargeText>
-          {/* <Flex justify={'flex-end'}>
-              <RowFixed>
-                <Typography.SmallBoldText color={'text8'}>
-                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve0))}{' '}
-                </Typography.SmallBoldText>
-                <FormattedName
-                  text={position.pair.token0.symbol}
-                  maxCharacters={isBelow600px ? 10 : 18}
-                  margin={true}
-                  fontSize={'11px'}
-                />
-              </RowFixed>
-              <RowFixed>
-                <TYPE.small fontWeight={400}>
-                  {formattedNum(poolOwnership * parseFloat(position.pair.reserve1))}{' '}
-                </TYPE.small>
-                <FormattedName
-                  text={position.pair.token1.symbol}
-                  maxCharacters={isBelow600px ? 10 : 18}
-                  margin={true}
-                  fontSize={'11px'}
-                />
-              </RowFixed>
-            </Flex> */}
+          <Flex flexDirection={'column'} style={{ gap: '6px' }}>
+            <Flex justifyContent={'flex-end'} alignItems={'center'} style={{ gap: '4px' }}>
+              <Typography.Text color={'text2'}>
+                {formattedNum(poolOwnership * parseFloat(position.pair.reserve0))}
+              </Typography.Text>
+              <TokenLogo address={position.pair.token0.id} size={'14px'} />
+            </Flex>
+            <Flex justifyContent={'flex-end'} alignItems={'center'} style={{ gap: '4px' }}>
+              <Typography.Text color={'text2'}>
+                {formattedNum(poolOwnership * parseFloat(position.pair.reserve1))}
+              </Typography.Text>
+              <TokenLogo address={position.pair.token1.id} size={'14px'} />
+            </Flex>
+          </Flex>
         </Flex>
         {!isBelow500px && (
-          <Flex justifyContent={'flex-end'}>
+          <Flex alignItems={'flex-end'} flexDirection={'column'} style={{ gap: '8px' }}>
             <Typography.LargeText color={position?.fees.sum > 0 ? 'green1' : 'red1'}>
               {formattedNum(position?.fees.sum, true, true)}
             </Typography.LargeText>
-            {/* <AutoColumn gap={'4px'} justify={'flex-end'}>
-                <RowFixed>
-                  <TYPE.small fontWeight={400}>
-                    {parseFloat(position.pair.token0.derivedNativeCurrency)
-                      ? formattedNum(
-                          position?.fees.sum /
-                            (parseFloat(position.pair.token0.derivedNativeCurrency) * nativeCurrencyPrice) /
-                            2,
-                          false,
-                          true,
-                        )
-                      : 0}{' '}
-                  </TYPE.small>
-                  <FormattedName
-                    text={position.pair.token0.symbol}
-                    maxCharacters={isBelow600px ? 10 : 18}
-                    margin={true}
-                    fontSize={'11px'}
-                  />
-                </RowFixed>
-                <RowFixed>
-                  <TYPE.small fontWeight={400}>
-                    {parseFloat(position.pair.token1.derivedNativeCurrency)
-                      ? formattedNum(
-                          position?.fees.sum /
-                            (parseFloat(position.pair.token1.derivedNativeCurrency) * nativeCurrencyPrice) /
-                            2,
-                          false,
-                          true,
-                        )
-                      : 0}
-                  </TYPE.small>
-                  <FormattedName
-                    text={position.pair.token1.symbol}
-                    maxCharacters={isBelow600px ? 10 : 18}
-                    margin={true}
-                    fontSize={'11px'}
-                  />
-                </RowFixed>
-              </AutoColumn> */}
+            <Flex flexDirection={'column'} style={{ gap: '6px' }}>
+              <Flex justifyContent={'flex-end'} alignItems={'center'} style={{ gap: '4px' }}>
+                <Typography.Text color={'text2'}>
+                  {parseFloat(position.pair.token0.derivedNativeCurrency)
+                    ? formattedNum(
+                        position?.fees.sum /
+                          (parseFloat(position.pair.token0.derivedNativeCurrency) * nativeCurrencyPrice) /
+                          2,
+                        false,
+                        true,
+                      )
+                    : 0}
+                </Typography.Text>
+                <TokenLogo address={position.pair.token0.id} size={'14px'} />
+              </Flex>
+              <Flex justifyContent={'flex-end'} alignItems={'center'} style={{ gap: '4px' }}>
+                <Typography.Text color={'text2'}>
+                  {parseFloat(position.pair.token1.derivedNativeCurrency)
+                    ? formattedNum(
+                        position?.fees.sum /
+                          (parseFloat(position.pair.token1.derivedNativeCurrency) * nativeCurrencyPrice) /
+                          2,
+                        false,
+                        true,
+                      )
+                    : 0}
+                </Typography.Text>
+                <TokenLogo address={position.pair.token1.id} size={'14px'} />
+              </Flex>
+            </Flex>
           </Flex>
         )}
       </DashGrid>
@@ -303,8 +285,7 @@ function PositionList({ positions }) {
               }}
             >
               <Typography.SmallBoldText color={'text8'} sx={{ display: 'flex', alignItems: 'center' }}>
-                {isBelow600px ? 'VALUE' : 'LIQUIDITY'}{' '}
-                {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
+                LIQUIDITY {sortedColumn === SORT_FIELD.VALUE ? (!sortDirection ? '↑' : '↓') : ''}
               </Typography.SmallBoldText>
             </ClickableText>
           </Flex>

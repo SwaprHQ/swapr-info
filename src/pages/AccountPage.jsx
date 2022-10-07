@@ -175,7 +175,8 @@ function AccountPage({ account }) {
   };
 
   // get data for user stats
-  const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length;
+  const transactionCount =
+    transactions && transactions.swaps?.length + transactions.burns?.length + transactions.mints?.length;
 
   return (
     <PageWrapper>
@@ -234,11 +235,7 @@ function AccountPage({ account }) {
                   <LabeledValue
                     label={'LIQUIDITY (INC. FEES)'}
                     value={
-                      aggregatedValues || aggregatedValues === 0 ? (
-                        formattedNum(aggregatedValues, true, true)
-                      ) : (
-                        <Skeleton width={90} />
-                      )
+                      aggregatedValues || aggregatedValues === 0 ? formattedNum(aggregatedValues, true, true) : null
                     }
                   />
                   {!isBelow400px && (
@@ -253,13 +250,7 @@ function AccountPage({ account }) {
                 </Flex>
                 <LabeledValue
                   label={'FEES EARNED (COMULATIVE)'}
-                  value={
-                    aggregatedFees || aggregatedFees === 0 ? (
-                      formattedNum(aggregatedFees, true, true)
-                    ) : (
-                      <Skeleton width={90} />
-                    )
-                  }
+                  value={aggregatedFees || aggregatedFees === 0 ? formattedNum(aggregatedFees, true, true) : null}
                 />
                 <Flex flexDirection={'column'} style={{ gap: '8px' }}>
                   <Typography.Custom
@@ -287,28 +278,20 @@ function AccountPage({ account }) {
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                 <LabeledValue
                   label={'TOTAL VALUE SWAPPED'}
-                  value={
-                    totalSwappedUSD || totalSwappedUSD === 0 ? (
-                      formattedNum(totalSwappedUSD, true)
-                    ) : (
-                      <Skeleton width={90} />
-                    )
-                  }
+                  value={totalSwappedUSD || totalSwappedUSD === 0 ? formattedNum(totalSwappedUSD, true) : null}
                 />
                 <LabeledValue
                   label={'TOTAL FEES PAID'}
                   value={
-                    totalSwappedUSD || totalSwappedUSD === 0 ? (
-                      // FIXME: keep in mind this is a potentially rough estimation, since pairs can have different swap fees
-                      formattedNum(totalSwappedUSD * 0.0025, true)
-                    ) : (
-                      <Skeleton width={90} />
-                    )
+                    totalSwappedUSD || totalSwappedUSD === 0
+                      ? // FIXME: keep in mind this is a potentially rough estimation, since pairs can have different swap fees
+                        formattedNum(totalSwappedUSD * 0.0025, true)
+                      : null
                   }
                 />
                 <LabeledValue
                   label={'TOTAL TRANSACTIONS'}
-                  value={transactionCount || transactionCount === 0 ? transactionCount : <Skeleton width={90} />}
+                  value={transactionCount || transactionCount === 0 ? transactionCount.toString() : null}
                 />
               </Flex>
             </Panel>

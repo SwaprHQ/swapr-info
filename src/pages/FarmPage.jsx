@@ -328,24 +328,24 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
                 </Flex>
               </Flex>
             </Panel>
-            <Panel style={{ height: '100%' }}>
-              <Flex flexDirection={'column'} style={{ gap: '28px' }}>
-                <Typography.Custom sx={{ fontWeight: 500, fontSize: '16px', lineHeight: '19px' }}>
-                  Carrot campaigns
-                </Typography.Custom>
-                <Flex flexDirection={'column'} style={{ gap: '16px' }}>
-                  <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
-                    Learn how to use KPI tokens through Carrot by clicking{' '}
-                    <Link
-                      color={'text7'}
-                      external={true}
-                      href={'https://medium.com/carrot-eth/how-to-use-carrot-374e0e1abbe2'}
-                    >
-                      here
-                    </Link>
-                    .
-                  </Typography.Text>
-                  {campaign && campaign.kpiRewards.length > 0 && (
+            {campaign && campaign.kpiRewards.length > 0 && (
+              <Panel style={{ height: '100%' }}>
+                <Flex flexDirection={'column'} style={{ gap: '28px' }}>
+                  <Typography.Custom sx={{ fontWeight: 500, fontSize: '16px', lineHeight: '19px' }}>
+                    Carrot campaigns
+                  </Typography.Custom>
+                  <Flex flexDirection={'column'} style={{ gap: '16px' }}>
+                    <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
+                      Learn how to use KPI tokens through Carrot by clicking{' '}
+                      <Link
+                        color={'text7'}
+                        external={true}
+                        href={'https://medium.com/carrot-eth/how-to-use-carrot-374e0e1abbe2'}
+                      >
+                        here
+                      </Link>
+                      .
+                    </Typography.Text>
                     <>
                       <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
                         This campaign contains Carrot KPI tokens that are redeemable for collateral upon reaching the
@@ -365,16 +365,11 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
                         </Flex>
                       ))}
                     </>
-                  )}
+                  </Flex>
+                  {!campaign && <Skeleton height={'32px'} witdh={'120px'} />}
                 </Flex>
-                {!campaign && <Skeleton height={'32px'} witdh={'120px'} />}
-                {campaign && campaign.kpiRewards.length === 0 && (
-                  <Typography.Text color={'text6'} sx={{ letterSpacing: '0.02em' }}>
-                    There are no active Carrot campaings linked to this farm.
-                  </Typography.Text>
-                )}
-              </Flex>
-            </Panel>
+              </Panel>
+            )}
             {campaign && isDxDaoCampaignOwner(campaign.owner) && (
               <Panel height={'fit-content'} width={isBelow600px ? '100%' : 'fit-content'}>
                 <Flex flexDirection={'column'} style={{ gap: '28px' }}>

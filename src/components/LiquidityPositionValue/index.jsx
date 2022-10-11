@@ -11,7 +11,7 @@ const LiquidityPositionValue = ({ user, pair }) => {
 
   const isBelow600px = useMedia('(max-width: 600px)');
 
-  return usdValue ? (
+  return usdValue || usdValue === 0 ? (
     <Typography.LargeText color={'text1'}>{formatDollarAmount(usdValue, 2, isBelow600px)}</Typography.LargeText>
   ) : (
     <Skeleton width={80} />

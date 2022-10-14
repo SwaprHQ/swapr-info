@@ -13,9 +13,9 @@ import { Wrapper } from './styled';
 
 const PairCard = ({ pairAddress, token0, token1, tvl, liquidityMiningCampaigns }) => {
   const isFarming = liquidityMiningCampaigns.find((campaign) => campaign.endsAt >= dayjs.utc().unix());
-  const hasCarrotRewards = liquidityMiningCampaigns.find((campaign) =>
-    campaign.rewards.find((reward) => CARROT_REWARD_TOKEN_REGEX.test(reward.token.symbol)),
-  );
+  const hasCarrotRewards = liquidityMiningCampaigns
+    .filter((campaign) => campaign.endsAt >= dayjs.utc().unix())
+    .find((campaign) => campaign.rewards.find((reward) => CARROT_REWARD_TOKEN_REGEX.test(reward.token.symbol)));
 
   return (
     <InternalListLink to={'/pair/' + pairAddress}>

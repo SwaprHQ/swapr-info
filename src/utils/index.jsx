@@ -30,7 +30,16 @@ import {
   PRICES_BY_BLOCK,
   SHARE_VALUE,
 } from '../apollo/queries';
-import { SupportedNetwork, timeframeOptions, ETHERSCAN_PREFIXES, ChainId, SWAPR_LINK, CARROT_LINK } from '../constants';
+import {
+  SupportedNetwork,
+  timeframeOptions,
+  ETHERSCAN_PREFIXES,
+  ChainId,
+  SWAPR_LINK,
+  CARROT_LINK,
+  SWAPR_WALLET,
+  MULTI_CHAIN_MULTI_SIG,
+} from '../constants';
 
 // format libraries
 const Decimal = toFormat(_Decimal);
@@ -731,6 +740,7 @@ export function toLiquidityMiningCampaign(
   // add APY related to the KPI rewards
   liquidityMiningCampaign.kpiApy = new Percent(rawApy.numerator, rawApy.denominator);
   liquidityMiningCampaign.kpiRewards = kpiRewards;
+  liquidityMiningCampaign.owner = campaign.owner;
 
   return liquidityMiningCampaign;
 }
@@ -839,4 +849,8 @@ export function getWeekFormattedDate(date, short) {
 
 export function formatChartDate(date, isWeekly, short) {
   return isWeekly ? getWeekFormattedDate(date, short) : dayjs(date).format(short ? 'MMM D, YY' : 'MMMM D, YYYY');
+}
+
+export function isDxDaoCampaignOwner(campaignOwner) {
+  return [SWAPR_WALLET, MULTI_CHAIN_MULTI_SIG].includes(campaignOwner);
 }

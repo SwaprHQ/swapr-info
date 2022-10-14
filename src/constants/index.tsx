@@ -167,6 +167,10 @@ export const NETWORK_COLORS = {
   [SupportedNetwork.ARBITRUM_ONE]: '#685EC6',
 };
 
+export const MULTI_CHAIN_MULTI_SIG = '0x9467dcfd4519287e3878c018c02f5670465a9003';
+
+export const SWAPR_WALLET = '0x3172edda6ff8b2b2fa7fed40ee1fd92f1f4dd424';
+
 export const SWAPR_LINK = 'https://swapr.eth.limo/#';
 
 export const CARROT_LINK = 'https://carrot.eth.limo/#';

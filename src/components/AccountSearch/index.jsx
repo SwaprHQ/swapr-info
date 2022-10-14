@@ -11,11 +11,17 @@ import { Input, Wrapper } from './styled';
 function AccountSearch({ history, isSmall }) {
   const [accountValue, setAccountValue] = useState();
 
-  function handleAccountSearch() {
+  const handleAccountSearch = () => {
     if (isAddress(accountValue)) {
       history.push('/account/' + accountValue);
     }
-  }
+  };
+
+  const handleEnterPressed = (event) => {
+    if (event.key === 'Enter') {
+      handleAccountSearch();
+    }
+  };
 
   return (
     <AutoColumn gap={'1rem'}>
@@ -28,6 +34,7 @@ function AccountSearch({ history, isSmall }) {
         <Wrapper>
           <Input
             placeholder={'Search Wallet / Account'}
+            onKeyDownCapture={handleEnterPressed}
             onChange={(e) => {
               setAccountValue(e.target.value);
             }}

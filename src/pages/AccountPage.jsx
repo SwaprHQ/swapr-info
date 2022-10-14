@@ -230,7 +230,7 @@ function AccountPage({ account }) {
               <Flex flexDirection={'column'} style={{ gap: '20px' }}>
                 <Flex justifyContent={'space-between'}>
                   <LabeledValue
-                    label={'LIQUIDITY (INC. FEES)'}
+                    label={'LIQUIDITY (INCL. FEES)'}
                     value={
                       aggregatedValues || aggregatedValues === 0 ? formattedNum(aggregatedValues, true, true) : null
                     }
@@ -246,7 +246,7 @@ function AccountPage({ account }) {
                   )}
                 </Flex>
                 <LabeledValue
-                  label={'FEES EARNED (COMULATIVE)'}
+                  label={'FEES EARNED (CUMULATIVE)'}
                   value={aggregatedFees || aggregatedFees === 0 ? formattedNum(aggregatedFees, true, true) : null}
                 />
                 <Flex flexDirection={'column'} style={{ gap: '8px' }}>

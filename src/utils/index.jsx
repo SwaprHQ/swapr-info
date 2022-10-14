@@ -639,6 +639,7 @@ export function toLiquidityMiningCampaign(
   targetedPair,
   targetedPairLpTokenTotalSupply,
   targetedPairReserveNativeCurrency,
+  pairReserveUSD,
   kpiTokens,
   campaign,
   nativeCurrency,
@@ -741,6 +742,7 @@ export function toLiquidityMiningCampaign(
   liquidityMiningCampaign.kpiApy = new Percent(rawApy.numerator, rawApy.denominator);
   liquidityMiningCampaign.kpiRewards = kpiRewards;
   liquidityMiningCampaign.owner = campaign.owner;
+  liquidityMiningCampaign.targetedPair.reserveUSD = pairReserveUSD;
 
   return liquidityMiningCampaign;
 }

@@ -111,7 +111,7 @@ function PositionList({ positions }) {
     return (
       <DashGrid style={{ height: '82px' }} focus={true}>
         {!isBelow600px && <Typography.LargeText color={'text1'}>{index}</Typography.LargeText>}
-        <Flex alignItems={'center'} style={{ gap: '24px' }}>
+        <Flex alignItems={'center'} justifyContent={'space-between'} style={{ maxWidth: '350px' }}>
           <Flex alignItems={'center'} style={{ gap: '8px' }}>
             <DoubleTokenLogo
               size={20}

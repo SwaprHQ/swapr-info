@@ -171,6 +171,13 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
               REWARD
             </Typography.SmallBoldText>
           </Flex>
+          {!below1080 && (
+            <Flex alignItems={'owner'} justifyContent={'center'}>
+              <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
+                OWNER
+              </Typography.SmallBoldText>
+            </Flex>
+          )}
           <Flex alignItems={'center'} justifyContent={'flex-end'}>
             <Typography.SmallBoldText color={'text8'} sx={{ textTransform: 'uppercase' }}>
               LINK

@@ -10,7 +10,7 @@ import { Typography } from '../../Theme';
 import carrotListLogoUrl from '../../assets/images/carrot.png';
 import { CARROT_REWARD_TOKEN_REGEX, ChainId } from '../../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
-import { formatDollarAmount, formattedNum, getSwaprLink } from '../../utils';
+import { formatDollarAmount, formattedNum, getSwaprLink, isDxDaoCampaignOwner } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
 import Link, { InternalListLink } from '../Link';
@@ -52,8 +52,8 @@ export const DashGrid = styled.div`
   @media screen and (min-width: 1081px) {
     display: grid;
     grid-gap: 0.5em;
-    grid-template-columns: 0.2fr 1fr 1fr 1fr 1fr 1fr 0.5fr;
-    grid-template-areas: 'index pair tvl yield apy rewardTokens link';
+    grid-template-columns: 0.2fr 1fr 1fr 1fr 1fr 1fr 0.5fr 0.5fr;
+    grid-template-areas: 'index pair tvl yield apy rewardTokens owner link';
   }
 `;
 
@@ -166,6 +166,11 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
             );
           })}
         </Flex>
+        {!below1080 && (
+          <Flex area={'owner'} justifyContent={'center'}>
+            <FlexText>{isDxDaoCampaignOwner(campaign.owner) ? 'DXdao' : 'Other'}</FlexText>
+          </Flex>
+        )}
         <FlexText area="link">
           <Link
             color={'text8'}

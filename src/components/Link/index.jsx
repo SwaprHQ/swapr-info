@@ -65,6 +65,11 @@ export const InternalListLink = styled(RouterLink)`
     color: ${({ color, theme }) => (color ? color : theme.text8)};
     opacity: 0.7;
   }
+
+  & > div,
+  & > * > div {
+    transition: 200ms opacity;
+  }
 `;
 
 export const ExternalListLink = styled(WrappedLink)`
@@ -77,6 +82,8 @@ export const ExternalListLink = styled(WrappedLink)`
     color: ${({ color, theme }) => (color ? theme[color] : theme.text8)};
     opacity: 0.7;
   }
+
+  transition: 200ms opacity;
 `;
 
 export default Link;

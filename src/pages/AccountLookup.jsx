@@ -3,49 +3,53 @@ import 'feather-icons';
 import { withRouter } from 'react-router-dom';
 import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
-import { TYPE, Typography } from '../Theme';
+import { Typography } from '../Theme';
 import { PageWrapper, FullWrapper } from '../components';
 import AccountSearch from '../components/AccountSearch';
-import LPList from '../components/LPList';
-import LocalLoader from '../components/LocalLoader';
-import Panel from '../components/Panel';
-import Search from '../components/Search';
+import LiquidityPositionsList from '../components/LiquidityPositionsList';
+import SavedAccounts from '../components/SavedAccounts';
 import { useTopLps } from '../contexts/GlobalData';
 import { useSwaprSubgraphClient } from '../contexts/Network';
 
-const AccountWrapper = styled.div`
-  @media screen and (max-width: 600px) {
-    width: 100%;
-  }
-`;
-
 function AccountLookup() {
+  const client = useSwaprSubgraphClient();
+  const topLps = useTopLps(client);
+
+  const isBelow600px = useMedia('(max-width: 600px)');
+
   // scroll to top
   useEffect(() => {
     window.scrollTo(0, 0);
   }, []);
 
-  const client = useSwaprSubgraphClient();
-  const topLps = useTopLps(client);
-
-  const below600 = useMedia('(max-width: 600px)');
-
   return (
     <PageWrapper>
-      <FullWrapper>
-        <Flex alignItems={'flex-end'} justifyContent={'space-between'}>
-          <Typography.LargeHeader>Wallet analytics</Typography.LargeHeader>
-          {!below600 && <Search small={true} />}
+      <FullWrapper gap={0}>
+        <Flex
+          alignItems={'center'}
+          justifyContent={'space-between'}
+          flexDirection={isBelow600px ? 'column' : 'row'}
+          marginBottom={'20px'}
+        >
+          <Typography.MediumHeader
+            color={'text10'}
+            sx={{ textAlign: isBelow600px ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+          >
+            Wallet analytics
+          </Typography.MediumHeader>
         </Flex>
-        <AccountWrapper>
-          <AccountSearch />
-        </AccountWrapper>
-        <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '2rem' }}>
+        <Flex flexDirection={'column'} style={{ gap: '20px' }}>
+          <AccountSearch isSmall={isBelow600px} />
+          <SavedAccounts />
+        </Flex>
+        <Typography.MediumHeader
+          color={'text10'}
+          sx={{ textAlign: isBelow600px ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+        >
           Top Liquidity Positions
-        </TYPE.main>
-        <Panel>{topLps && topLps.length > 0 ? <LPList lps={topLps} maxItems={200} /> : <LocalLoader />}</Panel>
+        </Typography.MediumHeader>
+        <LiquidityPositionsList lps={topLps} maxItems={20} />
       </FullWrapper>
     </PageWrapper>
   );

@@ -639,6 +639,7 @@ export function toLiquidityMiningCampaign(
   targetedPair,
   targetedPairLpTokenTotalSupply,
   targetedPairReserveNativeCurrency,
+  pairReserveUSD,
   kpiTokens,
   campaign,
   nativeCurrency,
@@ -741,6 +742,7 @@ export function toLiquidityMiningCampaign(
   liquidityMiningCampaign.kpiApy = new Percent(rawApy.numerator, rawApy.denominator);
   liquidityMiningCampaign.kpiRewards = kpiRewards;
   liquidityMiningCampaign.owner = campaign.owner;
+  liquidityMiningCampaign.targetedPair.reserveUSD = pairReserveUSD;
 
   return liquidityMiningCampaign;
 }
@@ -817,6 +819,10 @@ export function formatCountDownString(timestamp) {
  */
 export function formatChartValueByType(value, dataType, short) {
   if (dataType === 'CURRENCY') {
+    if (parseFloat(value) < 100000) {
+      return formatDollarAmount(value, 2);
+    }
+
     return formatDollarAmount(value, short ? 2 : 0, short);
   }
 
@@ -849,6 +855,10 @@ export function getWeekFormattedDate(date, short) {
 
 export function formatChartDate(date, isWeekly, short) {
   return isWeekly ? getWeekFormattedDate(date, short) : dayjs(date).format(short ? 'MMM D, YY' : 'MMMM D, YYYY');
+}
+
+export function shortenAddress(address) {
+  return address.slice(0, 6) + '...' + address.slice(38, 42);
 }
 
 export function isDxDaoCampaignOwner(campaignOwner) {

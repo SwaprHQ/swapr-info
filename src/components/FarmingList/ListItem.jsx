@@ -79,6 +79,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
     const apy = campaign.apy.toFixed(2);
     const kpiApy = campaign.ended ? 0 : campaign.kpiApy.toFixed(2);
     const yieldPer1k = (parseFloat(apy) / 365) * 10;
+    const stakedPriceUsd = parseFloat(campaign.staked.nativeCurrencyAmount.toFixed(USD.decimals)) * nativeCurrencyPrice;
 
     return (
       <DashGrid style={{ padding: below680 ? '10px 20px' : '10px 36px' }}>
@@ -90,7 +91,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
         <FlexText area={'pair'} justifyContent={'flex-start'}>
           {!below600 && (
             <DoubleTokenLogo
-              size={below740 ? 16 : 36}
+              size={below740 ? 16 : 20}
               a0={campaign.targetedPair.token0.address}
               a1={campaign.targetedPair.token1.address}
               defaultText0={campaign.targetedPair.token0.symbol}
@@ -102,24 +103,29 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
             style={{ whiteSpace: 'nowrap' }}
             to={'/farming/' + campaign.address + '/' + campaign.targetedPair.liquidityToken.address}
           >
-            <Typography.Custom color={'text1'} sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px' }}>
-              {nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol
-                ? nativeCurrency
-                : campaign.targetedPair.token0.symbol}
-            </Typography.Custom>
-            <Typography.Custom color={'text1'} sx={{ fontWeight: 600, fontSize: '16px', lineHeight: '19px' }}>
-              {nativeCurrencyWrapper.symbol === campaign.targetedPair.token1.symbol
-                ? nativeCurrency
-                : campaign.targetedPair.token1.symbol}
-            </Typography.Custom>
+            <FormattedName
+              text={
+                (nativeCurrencyWrapper.symbol === campaign.targetedPair.token0.symbol
+                  ? nativeCurrency
+                  : campaign.targetedPair.token0.symbol) +
+                '-' +
+                (nativeCurrencyWrapper.symbol === campaign.targetedPair.token1.symbol
+                  ? nativeCurrency
+                  : campaign.targetedPair.token1.symbol)
+              }
+              maxCharacters={below680 ? 8 : 16}
+              adjustSize={true}
+              link={true}
+            />
           </InternalListLink>
         </FlexText>
         <FlexText area={'tvl'} justifyContent={'center'}>
-          {formatDollarAmount(
-            parseFloat(campaign.staked.nativeCurrencyAmount.toFixed(USD.decimals)) * nativeCurrencyPrice,
-            2,
-            below680,
-          )}
+          <Flex flexDirection={'column'} alignItems={'center'} style={{ gap: '8px' }}>
+            {formatDollarAmount(stakedPriceUsd, 2, below680)}
+            <Typography.SmallText color={'text2'}>
+              {((stakedPriceUsd / campaign.targetedPair.reserveUSD) * 100).toFixed(2)}% of TVL
+            </Typography.SmallText>
+          </Flex>
         </FlexText>
         {!below680 && (
           <FlexText area={'yield'} justifyContent={'center'}>

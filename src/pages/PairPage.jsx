@@ -182,7 +182,7 @@ function PairPage({ pairAddress, history }) {
               <Skeleton style={{ width: '60px' }} />
             )}
           </Typography.LargeText>
-          {!below600 && <Search small={true} />}
+          {!below600 && <Search />}
         </Flex>
         <DashboardWrapper>
           <Flex
@@ -321,13 +321,13 @@ function PairPage({ pairAddress, history }) {
                       Pair Information
                     </Typography.Custom>
                   )}
-                  <Link external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
+                  <ExternalListLink external href={getExplorerLink(selectedNetwork, pairAddress, 'token')}>
                     <ButtonDark>
                       <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
                         VIEW ON EXPLORER ↗
                       </Typography.SmallBoldText>
                     </ButtonDark>
-                  </Link>
+                  </ExternalListLink>
                 </Flex>
                 <Flex
                   justifyContent={'space-between'}

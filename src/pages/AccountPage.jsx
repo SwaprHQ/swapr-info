@@ -1,69 +1,48 @@
 import { useState, useMemo, useEffect } from 'react';
-import { Activity } from 'react-feather';
+import Skeleton from 'react-loading-skeleton';
 import { useMedia } from 'react-use';
+import { Flex } from 'rebass';
 import styled from 'styled-components';
 
-import { TYPE } from '../Theme';
-import { PageWrapper, ContentWrapper, StyledIcon } from '../components';
-import { ButtonDropdown } from '../components/ButtonStyled';
-import { AutoColumn } from '../components/Column';
-import DoubleTokenLogo from '../components/DoubleLogo';
-import Link, { BasicLink } from '../components/Link';
-import PairReturnsChart from '../components/PairReturnsChart';
+import { Typography } from '../Theme';
+import { PageWrapper, ContentWrapper } from '../components';
+import { ButtonDark } from '../components/ButtonStyled';
+import CopyHelper from '../components/Copy';
+import LabeledValue from '../components/LabeledValue';
+import { BasicLink, ExternalListLink } from '../components/Link';
+import LiquidityMiningPositionChart from '../components/LiquidityMiningPositionChart';
+import LiquidityPositionsDropdown from '../components/LiquidityPositionsDropdown';
 import Panel from '../components/Panel';
 import PositionList from '../components/PositionList';
-import Row, { AutoRow, RowFixed, RowBetween } from '../components/Row';
 import Search from '../components/Search';
 import TxnList from '../components/TxnList';
-import UserChart from '../components/UserChart';
-import { FEE_WARNING_TOKENS } from '../constants';
-import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
+import UserLiquidityChart from '../components/UserLiquidityChart';
+import { ChainId, FEE_WARNING_TOKENS } from '../constants';
+import { useSavedAccounts } from '../contexts/LocalStorage';
+import { useSelectedNetwork } from '../contexts/Network';
 import { useUserTransactions, useUserPositions } from '../contexts/User';
-import { formattedNum, getExplorerLink } from '../utils';
+import { formattedNum, getExplorerLink, shortenAddress } from '../utils';
 
 const DashboardWrapper = styled.div`
   width: 100%;
 `;
 
-const DropdownWrapper = styled.div`
-  position: relative;
-  margin-bottom: 1rem;
-  border: 1px solid #edeef2;
-  border-radius: 12px;
-`;
-
-const Flyout = styled.div`
-  position: absolute;
-  top: 38px;
-  left: -1px;
-  width: 100%;
-  background-color: ${({ theme }) => theme.bg1};
-  z-index: 999;
-  border-bottom-right-radius: 10px;
-  border-bottom-left-radius: 10px;
-  padding-top: 4px;
-  border: 1px solid #edeef2;
-  border-top: none;
-`;
-
-const MenuRow = styled(Row)`
-  width: 100%;
-  padding: 12px 0;
-  padding-left: 12px;
-
-  :hover {
-    cursor: pointer;
-    background-color: ${({ theme }) => theme.bg2};
-  }
-`;
-
 const PanelWrapper = styled.div`
-  grid-template-columns: 1fr;
+  grid-template-columns: repeat(3, 1fr);
   grid-template-rows: max-content;
-  gap: 6px;
+  gap: 20px;
   display: inline-grid;
   width: 100%;
   align-items: start;
+
+  @media screen and (max-width: 1400px) {
+    grid-template-columns: 1fr;
+    align-items: stretch;
+
+    > * {
+      grid-column: 1 / 4;
+    }
+  }
 `;
 
 const Warning = styled.div`
@@ -77,27 +56,25 @@ const Warning = styled.div`
 `;
 
 function AccountPage({ account }) {
+  // if any position has token from fee warning list, show warning
+  const [showWarning, setShowWarning] = useState(false);
+  const [activePosition, setActivePosition] = useState({ key: 'all', label: 'All positions' });
+
   // get data for this account
   const transactions = useUserTransactions(account);
   const { positions } = useUserPositions(account);
   const selectedNetwork = useSelectedNetwork();
-  const nativeCurrencyWrapper = useNativeCurrencyWrapper();
-  const nativeCurrencySymbol = useNativeCurrencySymbol();
+  const [savedAccounts, addAccountToStorage, removeAccountFromStorage] = useSavedAccounts();
 
-  // get data for user stats
-  const transactionCount = transactions?.swaps?.length + transactions?.burns?.length + transactions?.mints?.length;
+  const isBelow400px = useMedia('(max-width: 400px)');
+  const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow1000px = useMedia('(max-width: 1000px)');
+  const isBelow1400px = useMedia('(max-width: 1400px)');
 
-  // get derived totals
-  let totalSwappedUSD = useMemo(() => {
-    return transactions?.swaps
-      ? transactions?.swaps.reduce((total, swap) => {
-          return total + parseFloat(swap.amountUSD);
-        }, 0)
-      : 0;
-  }, [transactions]);
+  useEffect(() => {
+    document.querySelector('body').scrollTo(0, 0);
+  }, []);
 
-  // if any position has token from fee warning list, show warning
-  const [showWarning, setShowWarning] = useState(false);
   useEffect(() => {
     if (positions) {
       for (let i = 0; i < positions.length; i++) {
@@ -109,237 +86,254 @@ function AccountPage({ account }) {
         }
       }
     }
-  }, [positions]);
+  }, [positions, addAccountToStorage, account]);
 
-  // settings for list view and dropdowns
-  const hideLPContent = positions && positions.length === 0;
-  const [showDropdown, setShowDropdown] = useState(false);
-  const [activePosition, setActivePosition] = useState();
+  // get derived totals
+  let totalSwappedUSD = useMemo(
+    () =>
+      transactions && transactions.swaps
+        ? transactions.swaps.reduce((total, swap) => total + parseFloat(swap.amountUSD), 0)
+        : null,
+    [transactions],
+  );
 
-  const { positionValue, aggregateFees } = useMemo(() => {
-    const dynamicPositions = activePosition ? [activePosition] : positions;
-    const aggregateFees = dynamicPositions?.reduce(function (total, position) {
-      return total + position.fees.sum;
-    }, 0);
+  const mostValuablePosition = useMemo(
+    () => positions && positions.sort((a, b) => b.principal.usd - a.principal.usd)[0],
+    [positions],
+  );
 
-    const positionValue = dynamicPositions?.reduce((total, position) => {
-      return (
-        total +
-        (parseFloat(position?.liquidityTokenBalance) / parseFloat(position?.pair?.totalSupply)) *
-          position?.pair?.reserveUSD
-      );
-    }, 0);
+  const { formattedLiquidityMiningPositions, cleanFormattedLiquidityMiningPositions } = useMemo(() => {
+    if (positions) {
+      const formattedPositions = positions.map((position) => ({
+        ...position,
+        key: position.pair.id,
+        label: `${position.pair.token0.symbol}-${position.pair.token1.symbol} position`,
+      }));
+
+      return {
+        formattedLiquidityMiningPositions: [...formattedPositions, { key: 'all', label: 'All positions' }],
+        cleanFormattedLiquidityMiningPositions: formattedPositions,
+      };
+    }
 
     return {
-      positionValue,
-      aggregateFees,
+      formattedLiquidityMiningPositions: null,
+      cleanFormattedLiquidityMiningPositions: null,
     };
-  }, [activePosition, positions]);
+  }, [positions]);
 
-  useEffect(() => {
-    window.scrollTo({
-      behavior: 'smooth',
-      top: 0,
-    });
-  }, []);
+  const { aggregatedValues, aggregatedFees } = useMemo(() => {
+    if (cleanFormattedLiquidityMiningPositions) {
+      const actualPositions = activePosition.key === 'all' ? cleanFormattedLiquidityMiningPositions : [activePosition];
 
-  const below600 = useMedia('(max-width: 600px)');
+      // aggregate fees of all positions
+      const aggregatedFees = actualPositions.reduce((total, position) => total + parseFloat(position.fees.sum), 0);
+
+      // aggregate values of all positions
+      const aggregatedValues = actualPositions.reduce(
+        (total, position) =>
+          total +
+          (parseFloat(position.liquidityTokenBalance) / parseFloat(position.pair.totalSupply)) *
+            parseFloat(position.pair.reserveUSD),
+        0,
+      );
+
+      return {
+        aggregatedValues,
+        aggregatedFees,
+      };
+    }
+
+    return {
+      aggregatedValues: null,
+      aggregatedFees: null,
+    };
+  }, [activePosition, cleanFormattedLiquidityMiningPositions]);
+
+  const isAccountAlreadySaved = useMemo(
+    () => savedAccounts && savedAccounts.findIndex((savedAccount) => savedAccount.id === account) !== -1,
+    [savedAccounts, account],
+  );
+
+  const isAccountsLimitReached = useMemo(() => savedAccounts && savedAccounts.length >= 5, [savedAccounts]);
+
+  const saveAccount = () => {
+    const accontToBeSaved = {
+      id: account,
+      network: ChainId[selectedNetwork],
+      pair: {
+        id: mostValuablePosition.pair.id,
+        token0: { id: mostValuablePosition.pair.token0.id, symbol: mostValuablePosition.pair.token0.symbol },
+        token1: { id: mostValuablePosition.pair.token1.id, symbol: mostValuablePosition.pair.token1.symbol },
+      },
+    };
+
+    addAccountToStorage(accontToBeSaved);
+  };
+
+  // get data for user stats
+  const transactionCount =
+    transactions && transactions.swaps?.length + transactions.burns?.length + transactions.mints?.length;
 
   return (
     <PageWrapper>
       <ContentWrapper>
-        <RowBetween>
-          <TYPE.body>
-            <BasicLink to="/accounts">{'Accounts '}</BasicLink>→{' '}
-            <Link external lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')}>
-              {' '}
-              {account?.slice(0, 42)}{' '}
-            </Link>
-          </TYPE.body>
-          {!below600 && <Search small={true} />}
-        </RowBetween>
-        <div>
-          <RowBetween>
-            <span>
-              <TYPE.header fontSize={24}>{account?.slice(0, 6) + '...' + account?.slice(38, 42)}</TYPE.header>
-              <Link lineHeight={'145.23%'} href={getExplorerLink(selectedNetwork, account, 'address')} target="_blank">
-                <TYPE.main fontSize={14}>View on block explorer</TYPE.main>
-              </Link>
-            </span>
-          </RowBetween>
-        </div>
+        <Flex alignItems={'end'} justifyContent={'space-between'}>
+          <Typography.LargeText color={'text10'} sx={{ marginRight: '4px' }}>
+            <BasicLink to="/accounts">{'Accounts '}</BasicLink>
+            <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, account, 'address')}>
+              {`→  ${isBelow1000px ? shortenAddress(account) : account}`}
+            </ExternalListLink>
+          </Typography.LargeText>
+          {!isBelow600px && <Search />}
+        </Flex>
+        <Flex style={{ gap: '20px' }} flexDirection={'column'}>
+          {formattedLiquidityMiningPositions ? (
+            <Flex>
+              {isAccountAlreadySaved ? (
+                <ButtonDark
+                  onClick={() => removeAccountFromStorage(account)}
+                  style={{ width: isBelow600px ? '100%' : 'initial' }}
+                >
+                  <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                    REMOVE ACCOUNT
+                  </Typography.SmallBoldText>
+                </ButtonDark>
+              ) : !isAccountsLimitReached ? (
+                <ButtonDark onClick={saveAccount} style={{ width: isBelow600px ? '100%' : 'initial' }}>
+                  <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                    SAVE ACCOUNT
+                  </Typography.SmallBoldText>
+                </ButtonDark>
+              ) : null}
+            </Flex>
+          ) : (
+            <Skeleton width={isBelow600px ? '100%' : 148} height={34} borderRadius={12} />
+          )}
+          <Flex>
+            {formattedLiquidityMiningPositions ? (
+              <LiquidityPositionsDropdown
+                liquidityMiningPositions={formattedLiquidityMiningPositions}
+                active={activePosition}
+                setActive={setActivePosition}
+                width={isBelow600px ? '100%' : '260px'}
+              />
+            ) : (
+              <Skeleton width={291} height={50} borderRadius={12} />
+            )}
+          </Flex>
+        </Flex>
         <DashboardWrapper>
           {showWarning && <Warning>Fees cannot currently be calculated for pairs that include AMPL.</Warning>}
-          {!hideLPContent && (
-            <DropdownWrapper>
-              <ButtonDropdown width="100%" onClick={() => setShowDropdown(!showDropdown)} open={showDropdown}>
-                {!activePosition && (
-                  <RowFixed>
-                    <StyledIcon>
-                      <Activity size={16} />
-                    </StyledIcon>
-                    <TYPE.body ml={'10px'}>All Positions</TYPE.body>
-                  </RowFixed>
-                )}
-                {activePosition && (
-                  <RowFixed>
-                    <DoubleTokenLogo
-                      a0={activePosition.pair.token0.id}
-                      a1={activePosition.pair.token1.id}
-                      defaultText0={activePosition.pair.token0.symbol}
-                      defaultText1={activePosition.pair.token1.symbol}
-                      size={16}
-                    />
-                    <TYPE.body ml={'16px'}>
-                      {activePosition.pair.token0.symbol}-{activePosition.pair.token1.symbol} Position
-                    </TYPE.body>
-                  </RowFixed>
-                )}
-              </ButtonDropdown>
-              {showDropdown && (
-                <Flyout>
-                  <AutoColumn gap="0px">
-                    {positions?.map((p, i) => {
-                      if (p.pair.token1.symbol === nativeCurrencyWrapper.symbol) {
-                        p.pair.token1.symbol = nativeCurrencySymbol;
-                      }
-                      if (p.pair.token0.symbol === nativeCurrencyWrapper.symbol) {
-                        p.pair.token0.symbol = nativeCurrencySymbol;
-                      }
-                      return (
-                        p.pair.id !== activePosition?.pair.id && (
-                          <MenuRow
-                            onClick={() => {
-                              setActivePosition(p);
-                              setShowDropdown(false);
-                            }}
-                            key={i}
-                          >
-                            <DoubleTokenLogo
-                              a0={p.pair.token0.id}
-                              a1={p.pair.token1.id}
-                              defaultText0={p.pair.token0.id.symbol}
-                              defaultText1={p.pair.token1.id.symbol}
-                              size={16}
-                            />
-                            <TYPE.body ml={'16px'}>
-                              {p.pair.token0.symbol}-{p.pair.token1.symbol} Position
-                            </TYPE.body>
-                          </MenuRow>
-                        )
-                      );
-                    })}
-                    {activePosition && (
-                      <MenuRow
-                        onClick={() => {
-                          setActivePosition();
-                          setShowDropdown(false);
-                        }}
-                      >
-                        <RowFixed>
-                          <StyledIcon>
-                            <Activity size={16} />
-                          </StyledIcon>
-                          <TYPE.body ml={'10px'}>All Positions</TYPE.body>
-                        </RowFixed>
-                      </MenuRow>
+          <PanelWrapper>
+            <Panel>
+              <Flex flexDirection={'column'} style={{ gap: '20px' }}>
+                <Flex justifyContent={'space-between'}>
+                  <LabeledValue
+                    label={'LIQUIDITY (INCL. FEES)'}
+                    value={
+                      aggregatedValues || aggregatedValues === 0 ? formattedNum(aggregatedValues, true, true) : null
+                    }
+                  />
+                  {!isBelow400px && (
+                    <ExternalListLink external={true} href={getExplorerLink(selectedNetwork, account, 'address')}>
+                      <ButtonDark>
+                        <Typography.SmallBoldText color={'text8'} sx={{ letterSpacing: '0.08em' }}>
+                          VIEW ON EXPLORER ↗
+                        </Typography.SmallBoldText>
+                      </ButtonDark>
+                    </ExternalListLink>
+                  )}
+                </Flex>
+                <LabeledValue
+                  label={'FEES EARNED (CUMULATIVE)'}
+                  value={aggregatedFees || aggregatedFees === 0 ? formattedNum(aggregatedFees, true, true) : null}
+                />
+                <Flex flexDirection={'column'} style={{ gap: '8px' }}>
+                  <Typography.Custom
+                    color={'text7'}
+                    sx={{ fontSize: '12px', fontWeight: 600, letterSpacing: '0.15em' }}
+                  >
+                    {'ADDRESS'}
+                  </Typography.Custom>
+                  <Flex>
+                    {account ? (
+                      <>
+                        <Typography.LargeBoldText color={'text6'} sx={{ letterSpacing: '0.02em' }}>
+                          {shortenAddress(account)}
+                        </Typography.LargeBoldText>
+                        <CopyHelper toCopy={account} />{' '}
+                      </>
+                    ) : (
+                      <Skeleton width={90} />
                     )}
-                  </AutoColumn>
-                </Flyout>
-              )}
-            </DropdownWrapper>
-          )}
-          {!hideLPContent && (
-            <Panel style={{ height: '100%', marginBottom: '1rem' }}>
-              <AutoRow gap="20px">
-                <AutoColumn gap="10px">
-                  <RowBetween>
-                    <TYPE.body>Liquidity (Including Fees)</TYPE.body>
-                    <div />
-                  </RowBetween>
-                  <RowFixed align="flex-end">
-                    <TYPE.header fontSize={'24px'} lineHeight={1}>
-                      {formattedNum(positionValue, true, true)}
-                    </TYPE.header>
-                  </RowFixed>
-                </AutoColumn>
-                <AutoColumn gap="10px">
-                  <RowBetween>
-                    <TYPE.body>Fees Earned (Cumulative)</TYPE.body>
-                    <div />
-                  </RowBetween>
-                  <RowFixed align="flex-end">
-                    <TYPE.header
-                      fontSize={'24px'}
-                      lineHeight={1}
-                      color={aggregateFees > 0 ? 'green' : aggregateFees < 0 ? 'red' : 'white'}
-                    >
-                      {aggregateFees ? formattedNum(aggregateFees, true, true) : '-'}
-                    </TYPE.header>
-                  </RowFixed>
-                </AutoColumn>
-              </AutoRow>
+                  </Flex>
+                </Flex>
+              </Flex>
             </Panel>
-          )}
-          {!hideLPContent && (
-            <PanelWrapper>
-              <Panel style={{ gridColumn: '1' }}>
-                {activePosition ? (
-                  <PairReturnsChart account={account} position={activePosition} />
-                ) : (
-                  <UserChart account={account} position={activePosition} />
-                )}
-              </Panel>
-            </PanelWrapper>
-          )}
-          <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
+            <Panel>
+              <Flex flexDirection={'column'} style={{ gap: '20px' }}>
+                <LabeledValue
+                  label={'TOTAL VALUE SWAPPED'}
+                  value={totalSwappedUSD || totalSwappedUSD === 0 ? formattedNum(totalSwappedUSD, true) : null}
+                />
+                <LabeledValue
+                  label={'TOTAL FEES PAID'}
+                  value={
+                    totalSwappedUSD || totalSwappedUSD === 0
+                      ? // FIXME: keep in mind this is a potentially rough estimation, since pairs can have different swap fees
+                        formattedNum(totalSwappedUSD * 0.0025, true)
+                      : null
+                  }
+                />
+                <LabeledValue
+                  label={'TOTAL TRANSACTIONS'}
+                  value={transactionCount || transactionCount === 0 ? transactionCount.toString() : null}
+                />
+              </Flex>
+            </Panel>
+            <Panel
+              style={{
+                minHeight: '425px',
+                gridColumn: isBelow1400px ? '' : '2/4',
+                gridRow: isBelow1400px ? '' : '1/3',
+              }}
+            >
+              {activePosition.key !== 'all' ? (
+                <LiquidityMiningPositionChart account={account} position={activePosition} />
+              ) : (
+                <UserLiquidityChart account={account} />
+              )}
+            </Panel>
+          </PanelWrapper>
+          <Typography.Custom
+            color={'text10'}
+            sx={{
+              fontSize: '20px',
+              lineHeight: '24px',
+              fontWeight: 400,
+              marginTop: '40px',
+              marginBottom: '20px',
+              textAlign: isBelow600px ? 'center' : 'left',
+            }}
+          >
             Positions
-          </TYPE.main>{' '}
-          <Panel
-            style={{
-              marginTop: '1.5rem',
+          </Typography.Custom>
+          <PositionList positions={cleanFormattedLiquidityMiningPositions} />
+          <Typography.Custom
+            color={'text10'}
+            sx={{
+              fontSize: '20px',
+              lineHeight: '24px',
+              fontWeight: 400,
+              marginTop: '40px',
+              marginBottom: '20px',
+              textAlign: isBelow600px ? 'center' : 'left',
             }}
           >
-            <PositionList positions={positions} />
-          </Panel>
-          <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
             Transactions
-          </TYPE.main>{' '}
-          <Panel
-            style={{
-              marginTop: '1.5rem',
-            }}
-          >
-            <TxnList transactions={transactions} />
-          </Panel>
-          <TYPE.main fontSize={'1.125rem'} style={{ marginTop: '3rem' }}>
-            Wallet Stats
-          </TYPE.main>{' '}
-          <Panel
-            style={{
-              marginTop: '1.5rem',
-            }}
-          >
-            <AutoRow gap="20px">
-              <AutoColumn gap="8px">
-                <TYPE.header fontSize={24}>{totalSwappedUSD ? formattedNum(totalSwappedUSD, true) : '-'}</TYPE.header>
-                <TYPE.main>Total Value Swapped</TYPE.main>
-              </AutoColumn>
-              <AutoColumn gap="8px">
-                <TYPE.header fontSize={24}>
-                  {totalSwappedUSD
-                    ? // FIXME: keep in mind this is a potentially rough estimation, since pairs can have different swap fees
-                      formattedNum(totalSwappedUSD * 0.0025, true)
-                    : '-'}
-                </TYPE.header>
-                <TYPE.main>Total Fees Paid</TYPE.main>
-              </AutoColumn>
-              <AutoColumn gap="8px">
-                <TYPE.header fontSize={24}>{transactionCount ? transactionCount : '-'}</TYPE.header>
-                <TYPE.main>Total Transactions</TYPE.main>
-              </AutoColumn>
-            </AutoRow>
-          </Panel>
+          </Typography.Custom>
+          <TxnList transactions={transactions} />
         </DashboardWrapper>
       </ContentWrapper>
     </PageWrapper>

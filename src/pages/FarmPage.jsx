@@ -124,7 +124,7 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
               <Skeleton style={{ width: '60px' }} />
             )}
           </Typography.LargeText>
-          {!isBelow600px && <Search small={true} />}
+          {!isBelow600px && <Search />}
         </Flex>
         <DashboardWrapper>
           <Flex

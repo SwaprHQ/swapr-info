@@ -1,6 +1,7 @@
 import { createContext, useContext, useReducer, useMemo, useCallback, useEffect } from 'react';
 
-import { SupportedNetwork } from '../constants';
+import { ChainId, SupportedNetwork } from '../constants';
+import { useSelectedNetwork } from './Network';
 
 const SWAPR = 'SWAPR';
 
@@ -110,18 +111,24 @@ export function usePathDismissed(path) {
 
 export function useSavedAccounts() {
   const [state, { updateKey }] = useLocalStorageContext();
+  const selectedNetwork = useSelectedNetwork();
   const savedAccounts = state?.[SAVED_ACCOUNTS];
 
   const addAccount = useCallback(
     (account) => {
-      updateKey(SAVED_ACCOUNTS, [...(savedAccounts ?? []), account]);
+      const isAlreadySaved = savedAccounts?.findIndex((savedAccount) => savedAccount.id === account.id) ?? -1;
+
+      if (isAlreadySaved === -1) {
+        updateKey(SAVED_ACCOUNTS, [...(savedAccounts ?? []), account]);
+      }
     },
     [savedAccounts, updateKey],
   );
 
   const removeAccount = useCallback(
-    (account) => {
-      let index = savedAccounts?.indexOf(account) ?? -1;
+    (accountId) => {
+      let index = savedAccounts?.findIndex((account) => account.id === accountId) ?? -1;
+
       if (index > -1) {
         updateKey(SAVED_ACCOUNTS, [
           ...savedAccounts.slice(0, index),
@@ -132,7 +139,12 @@ export function useSavedAccounts() {
     [savedAccounts, updateKey],
   );
 
-  return [savedAccounts, addAccount, removeAccount];
+  // return the saved accounts only for the currently active network
+  const savedAccountForActiveNetwork = savedAccounts.filter(
+    (savedAccount) => savedAccount.network === ChainId[selectedNetwork],
+  );
+
+  return [savedAccountForActiveNetwork, addAccount, removeAccount];
 }
 
 export function useSavedPairs() {

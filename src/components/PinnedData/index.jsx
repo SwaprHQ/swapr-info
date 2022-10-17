@@ -72,7 +72,7 @@ function PinnedData({ history, open, setSavedOpen }) {
           <ChevronRight />
         </StyledIcon>
       </SavedButton>
-      <AccountSearch small={true} />
+      <AccountSearch />
       <AutoColumn gap="40px" style={{ marginTop: '2rem' }}>
         <AutoColumn gap={'12px'}>
           <TYPE.main>Pinned Pairs</TYPE.main>

@@ -25,7 +25,7 @@ const List = styled(Box)`
 const DashGrid = styled.div`
   display: grid;
   grid-gap: 1em;
-  grid-template-columns: 100px 1fr 1fr;
+  grid-template-columns: 20px 1fr 1fr;
   grid-template-areas: 'txn value time';
   padding: 0 20px;
 
@@ -130,16 +130,16 @@ const TXN_TYPE = {
 
 const ITEMS_PER_PAGE = 10;
 
-function getTransactionType(event, symbol0, symbol1) {
+function getTransactionType(event, symbol0, symbol1, short) {
   const formattedS0 = symbol0?.length > 8 ? symbol0.slice(0, 7) + '...' : symbol0;
   const formattedS1 = symbol1?.length > 8 ? symbol1.slice(0, 7) + '...' : symbol1;
   switch (event) {
     case TXN_TYPE.ADD:
-      return 'Add ' + formattedS0 + ' and ' + formattedS1;
+      return short ? 'Add' : 'Add ' + formattedS0 + ' and ' + formattedS1;
     case TXN_TYPE.REMOVE:
-      return 'Remove ' + formattedS0 + ' and ' + formattedS1;
+      return short ? 'Remove' : 'Remove ' + formattedS0 + ' and ' + formattedS1;
     case TXN_TYPE.SWAP:
-      return 'Swap ' + formattedS0 + ' for ' + formattedS1;
+      return short ? 'Swap' : 'Swap ' + formattedS0 + ' for ' + formattedS1;
     default:
       return '';
   }
@@ -273,7 +273,7 @@ function TxnList({ transactions, symbol0Override, symbol1Override }) {
       <DashGrid style={{ height: '48px' }}>
         <FlexText area={'txn'}>
           <ExternalListLink external href={urls.showTransaction(item.hash, selectedNetwork)}>
-            {getTransactionType(item.type, item.token1Symbol, item.token0Symbol)}
+            {getTransactionType(item.type, item.token1Symbol, item.token0Symbol, below680)}
           </ExternalListLink>
         </FlexText>
         <FlexText area={'value'}>{formattedNum(item.amountUSD, true)}</FlexText>

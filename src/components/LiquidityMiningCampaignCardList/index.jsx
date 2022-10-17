@@ -1,16 +1,16 @@
 import PropTypes from 'prop-types';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { USD } from '@swapr/sdk';
 
 import { Typography } from '../../Theme';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import LiquidityFarmingCampaignCard from '../LiquidityFarmingCampaignCard';
 import { ActiveBadge, CardsWrapper, EndBadge, Header } from './styled';
 
 const LiquidityMiningCampaignCardList = ({ campaigns, nativeCurrencyPrice }) => {
-  const below600 = useMedia('(max-width: 600px)');
+  const below600 = useIsBelowPx(600);
 
   const active = campaigns?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() > new Date().getTime()).length;
   const ended = campaigns?.filter(({ endsAt }) => new Date(endsAt * 1000).getTime() < new Date().getTime()).length;

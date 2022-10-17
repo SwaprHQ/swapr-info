@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import 'feather-icons';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../Theme';
@@ -11,12 +10,13 @@ import LiquidityPositionsList from '../components/LiquidityPositionsList';
 import SavedAccounts from '../components/SavedAccounts';
 import { useTopLps } from '../contexts/GlobalData';
 import { useSwaprSubgraphClient } from '../contexts/Network';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 
 function AccountLookup() {
   const client = useSwaprSubgraphClient();
   const topLps = useTopLps(client);
 
-  const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow600px = useIsBelowPx(600);
 
   // scroll to top
   useEffect(() => {
@@ -34,7 +34,7 @@ function AccountLookup() {
         >
           <Typography.MediumHeader
             color={'text10'}
-            sx={{ textAlign: isBelow600px ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
+            sx={{ textAlign: isBelow600px ? 'center' : 'left', marginTop: '26px' }}
           >
             Wallet analytics
           </Typography.MediumHeader>

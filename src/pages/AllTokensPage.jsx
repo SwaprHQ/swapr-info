@@ -1,7 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import 'feather-icons';
 import Marquee from 'react-fast-marquee';
-import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 
 import { Typography } from '../Theme';
@@ -11,11 +10,12 @@ import Search from '../components/Search';
 import TokenCard from '../components/TokenCard';
 import TopTokenList from '../components/TokenList';
 import { useAllTokenData } from '../contexts/TokenData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 
 function AllTokensPage() {
   const allTokens = useAllTokenData();
 
-  const below800 = useMedia('(max-width: 800px)');
+  const below800 = useIsBelowPx(800);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -35,7 +35,7 @@ function AllTokensPage() {
   return (
     <PageWrapper>
       <FullWrapper gap={'0'}>
-        <Flex alignItems={'center'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
+        <Flex alignItems={'flex-end'} justifyContent={below800 ? 'center' : 'space-between'} marginBottom={'16px'}>
           {!isTopMoversEmpty ? <Typography.MediumHeader color={'text10'}>Top Movers</Typography.MediumHeader> : <div />}
           {!below800 && <Search />}
         </Flex>
@@ -47,7 +47,7 @@ function AllTokensPage() {
                 gradientWidth={below800 ? 10 : 30}
                 gradientColor={[11, 11, 17]}
                 speed={40}
-                style={{ margin: '5px 0px', height: 'fit-content' }}
+                style={{ margin: '5px 0px', height: 'fit-content', zIndex: 0 }}
                 pauseOnHover
               >
                 {topMovers.map((token) => (

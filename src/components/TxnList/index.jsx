@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
 import { Divider, EmptyCard } from '..';
 import { Typography } from '../../Theme';
 import { useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formatTime, formattedNum, urls, getExplorerLink } from '../../utils';
 import { updateNameData } from '../../utils/data';
 import FormattedName from '../FormattedName';
@@ -147,9 +147,9 @@ function getTransactionType(event, symbol0, symbol1, short) {
 
 // @TODO rework into virtualized list
 function TxnList({ transactions, symbol0Override, symbol1Override }) {
-  const below1080 = useMedia('(max-width: 1080px)');
-  const below780 = useMedia('(max-width: 780px)');
-  const below680 = useMedia('(max-width: 680px)');
+  const below1080 = useIsBelowPx(1080);
+  const below780 = useIsBelowPx(780);
+  const below680 = useIsBelowPx(680);
 
   const selectedNetwork = useSelectedNetwork();
 

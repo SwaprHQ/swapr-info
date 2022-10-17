@@ -11,6 +11,7 @@ const Wrapper = styled.div`
   display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
   &:hover {
     cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};

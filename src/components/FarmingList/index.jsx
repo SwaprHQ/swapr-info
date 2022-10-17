@@ -1,7 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect, useCallback } from 'react';
-import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
@@ -10,6 +9,7 @@ import { USD } from '@swapr/sdk';
 import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
@@ -46,8 +46,8 @@ const SortIndicator = ({ sortColumn, column, direction }) => (
 function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
-  const below680 = useMedia('(max-width: 680px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+  const below680 = useIsBelowPx(680);
+  const below1080 = useIsBelowPx(1080);
 
   // pagination
   const [page, setPage] = useState(1);

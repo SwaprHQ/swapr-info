@@ -2,13 +2,13 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect, useMemo, memo } from 'react';
 import isEqual from 'react-fast-compare';
-import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
 import { Divider } from '..';
 import { Typography } from '../../Theme';
 import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent } from '../../utils';
 import FormattedName from '../FormattedName';
 import { InternalListLink } from '../Link';
@@ -105,8 +105,8 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
 
-  const below1080 = useMedia('(max-width: 1080px)');
-  const below680 = useMedia('(max-width: 680px)');
+  const below1080 = useIsBelowPx(1080);
+  const below680 = useIsBelowPx(680);
 
   const showLoader = !tokens || Object.keys(tokens).length === 0;
 

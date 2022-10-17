@@ -20,9 +20,9 @@ const FlexContainer = styled.div`
 `;
 
 const DailyChange = styled.div`
-  display: inline-block;
-  font-size: 16px;
-  font-weight: 500;
+  & > div {
+    font-size: 13px;
+  }
 `;
 
 export { Container, Title, FlexContainer, DailyChange };

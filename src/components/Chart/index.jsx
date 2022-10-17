@@ -6,7 +6,7 @@ import { Area, AreaChart, Bar, ComposedChart, ResponsiveContainer, Tooltip, XAxi
 import { useTheme } from 'styled-components';
 
 import { TIME_FILTER_OPTIONS } from '../../constants';
-import { formattedPercent } from '../../utils';
+import { formattedPercent, getWeeklyAggregatedData } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
 import Header from './Header';
 
@@ -35,36 +35,6 @@ const getFilterLimitDate = (timeFilter) => {
   }
 
   return limitDate;
-};
-
-const getWeeklyAggregatedData = (limitDate, data) => {
-  const rawWeeklyAggregatedData = data
-    .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
-    .reduce((previous, current) => {
-      const weekStart = dayjs(current.time).startOf('week');
-      const weekEnd = dayjs(current.time).endOf('week');
-
-      const weekId = `${weekStart.year()}-${weekStart.unix()}-${weekEnd.year()}-${weekEnd.unix()}`;
-
-      return {
-        ...previous,
-        [weekId]: previous[weekId] ? previous[weekId] + current.value : current.value,
-      };
-    }, {});
-
-  let weeklyAggregatedData = [];
-
-  Object.keys(rawWeeklyAggregatedData).forEach((weekId) => {
-    const weekYear = weekId.split('-')[0];
-    const weekNumber = dayjs.unix(weekId.split('-')[1]).isoWeek() + 1;
-
-    weeklyAggregatedData.push({
-      time: dayjs().isoWeek(weekNumber).startOf('week').set('year', weekYear).format('YYYY-MM-DD'),
-      value: rawWeeklyAggregatedData[weekId],
-    });
-  });
-
-  return weeklyAggregatedData;
 };
 
 const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilter, showTimeFilter }) => {
@@ -257,7 +227,7 @@ Chart.propTypes = {
   tooltipTitle: PropTypes.string,
   data: PropTypes.any.isRequired,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
   showTimeFilter: PropTypes.bool,
   overridingActiveFilter: PropTypes.oneOf(Object.values(TIME_FILTER_OPTIONS)),
   maxWith: PropTypes.number,

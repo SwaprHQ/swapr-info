@@ -1,21 +1,21 @@
 import PropTypes from 'prop-types';
+import { Flex } from 'rebass';
 
-import { formattedNum } from '../../../utils';
+import { Typography } from '../../../Theme';
+import { formatChartValueByType } from '../../../utils';
+import { Wrapper, LegendItem } from './styled';
 
-const CrosshairTooltip = ({ active, payload, isValueCurrency }) => {
+const CrosshairTooltip = ({ active, payload, dataType }) => {
   if (active && payload && payload.length) {
     return (
-      <div className="crosshair-custom-tooltip">
+      <Wrapper>
         {payload.map((series) => (
-          <div key={series.name} className="crosshair-item">
-            <div>
-              <div className="crosshair-item-legend" style={{ backgroundColor: series.color }}></div>
-              {series.name}
-            </div>
-            {isValueCurrency && '$'} {formattedNum(series.value)}
-          </div>
+          <Flex key={series.name} alignItems={'center'} justifyContent={'space-between'}>
+            <LegendItem color={series.color} />
+            <Typography.Text color={'text10'}>{formatChartValueByType(series.value, dataType)}</Typography.Text>
+          </Flex>
         ))}
-      </div>
+      </Wrapper>
     );
   }
 
@@ -25,11 +25,11 @@ const CrosshairTooltip = ({ active, payload, isValueCurrency }) => {
 CrosshairTooltip.propTypes = {
   active: PropTypes.bool,
   payload: PropTypes.array,
-  isValueCurrency: PropTypes.bool,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
 };
 
 CrosshairTooltip.defaultProps = {
-  isValueCurrency: true,
+  dataType: 'CURRENCY',
 };
 
 export default CrosshairTooltip;

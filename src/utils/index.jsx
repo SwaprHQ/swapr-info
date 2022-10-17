@@ -864,3 +864,40 @@ export function shortenAddress(address) {
 export function isDxDaoCampaignOwner(campaignOwner) {
   return [SWAPR_WALLET, MULTI_CHAIN_MULTI_SIG].includes(campaignOwner);
 }
+
+/**
+ * Aggregate chart data by week
+ *
+ * @param {*} limitDate
+ * @param {*} data
+ * @returns
+ */
+export function getWeeklyAggregatedData(limitDate, data) {
+  const rawWeeklyAggregatedData = data
+    .filter((data) => new Date(data.time).getTime() > limitDate.getTime())
+    .reduce((previous, current) => {
+      const weekStart = dayjs(current.time).startOf('week');
+      const weekEnd = dayjs(current.time).endOf('week');
+
+      const weekId = `${weekStart.year()}-${weekStart.unix()}-${weekEnd.year()}-${weekEnd.unix()}`;
+
+      return {
+        ...previous,
+        [weekId]: previous[weekId] ? previous[weekId] + current.value : current.value,
+      };
+    }, {});
+
+  let weeklyAggregatedData = [];
+
+  Object.keys(rawWeeklyAggregatedData).forEach((weekId) => {
+    const weekYear = weekId.split('-')[0];
+    const weekNumber = dayjs.unix(weekId.split('-')[1]).isoWeek() + 1;
+
+    weeklyAggregatedData.push({
+      time: dayjs().isoWeek(weekNumber).startOf('week').set('year', weekYear).format('YYYY-MM-DD'),
+      value: rawWeeklyAggregatedData[weekId],
+    });
+  });
+
+  return weeklyAggregatedData;
+}

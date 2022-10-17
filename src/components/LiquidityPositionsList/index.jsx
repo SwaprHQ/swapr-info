@@ -2,11 +2,11 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Divider } from '..';
 import { Typography } from '../../Theme';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, shortenAddress } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import { InternalListLink } from '../Link';
@@ -26,9 +26,9 @@ const FlexText = ({ area, color, justifyContent, children }) => (
 );
 
 function LiquidityPositionsList({ lps, disbaleLinks, maxItems = 10 }) {
-  const isBelow450px = useMedia('(max-width: 450px)');
-  const isBelow600px = useMedia('(max-width: 600px)');
-  const isBelow800px = useMedia('(max-width: 800px)');
+  const isBelow450px = useIsBelowPx(450);
+  const isBelow600px = useIsBelowPx(600);
+  const isBelow800px = useIsBelowPx(800);
 
   // pagination
   const [page, setPage] = useState(1);

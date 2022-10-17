@@ -1,11 +1,11 @@
 import 'feather-icons';
 import { AlertTriangle } from 'react-feather';
-import { useMedia } from 'react-use';
 import { Text } from 'rebass';
 import styled from 'styled-components';
 
 import { Hover } from '..';
 import { useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { getExplorerLink } from '../../utils';
 import { ButtonDark } from '../ButtonStyled';
 import { AutoColumn } from '../Column';
@@ -35,7 +35,7 @@ const StyledWarningIcon = styled(AlertTriangle)`
 `;
 
 export default function Warning({ type, show, setShow, address }) {
-  const below800 = useMedia('(max-width: 800px)');
+  const below800 = useIsBelowPx(800);
   const selectedNetwork = useSelectedNetwork();
 
   const textContent = below800 ? (

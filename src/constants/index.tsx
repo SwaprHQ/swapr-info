@@ -162,9 +162,9 @@ export const FACTORY_STARTING_BLOCK = {
 };
 
 export const NETWORK_COLORS = {
-  [SupportedNetwork.MAINNET]: '#2E17F2',
-  [SupportedNetwork.XDAI]: '#F2994A',
-  [SupportedNetwork.ARBITRUM_ONE]: '#685EC6',
+  [SupportedNetwork.MAINNET]: '#F2994A',
+  [SupportedNetwork.XDAI]: '#61DDAA',
+  [SupportedNetwork.ARBITRUM_ONE]: '#8952FF',
 };
 
 export const MULTI_CHAIN_MULTI_SIG = '0x9467dcfd4519287e3878c018c02f5670465a9003';

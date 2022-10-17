@@ -1,17 +1,34 @@
 import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
+import { Flex } from 'rebass';
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer, Bar, ComposedChart, Legend } from 'recharts';
 
 import { Typography } from '../../Theme';
 import { NETWORK_COLORS, SupportedNetwork, STACKED_CHART_TIME_FILTER_OPTIONS } from '../../constants';
-import { formattedNum, formattedPercent } from '../../utils';
+import { formattedPercent } from '../../utils';
 import CrosshairTooltip from './CrosshairTooltip';
+import { LegendItem } from './CrosshairTooltip/styled';
 import Header from './Header';
 
-const LegendItem = (value) => <Typography.LargeText sx={{ display: 'inline' }}>{value}</Typography.LargeText>;
+const renderLegend = (props) => {
+  const { payload } = props;
 
-const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight, maxWith, minHeight }) => {
+  return (
+    <Flex style={{ display: 'flex', gap: '14px' }}>
+      {payload.map((entry, index) => (
+        <Flex key={`item-${index}`} style={{ alignItems: 'center' }}>
+          <LegendItem color={entry.color} />
+          <Typography.LargeText color={'text7'} sx={{ display: 'inline' }}>
+            {entry.value}
+          </Typography.LargeText>
+        </Flex>
+      ))}
+    </Flex>
+  );
+};
+
+const StackedChart = ({ title, type, data, dataType, showTimeFilter }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
@@ -31,15 +48,11 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
           pastStackedDataValue += data[data.length - 2][key];
         });
 
-      if (pastStackedDataValue > 0) {
-        const dailyChange = ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100;
-
-        setDailyChange(dailyChange);
-      } else {
-        setDailyChange(0);
-      }
+      const dailyChange =
+        pastStackedDataValue > 0 ? ((currentStackedDataValue - pastStackedDataValue) / pastStackedDataValue) * 100 : 0;
 
       setActiveDate(data[data.length - 1].time);
+      setDailyChange(dailyChange);
       setStackedDataValue(currentStackedDataValue);
     }
   }, [data]);
@@ -129,8 +142,8 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
     <>
       <Header
         title={title}
-        value={formattedNum(stackedDataValue)}
-        isValueCurrency={isCurrency}
+        value={stackedDataValue}
+        dataType={dataType}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
         date={dayjs(activeDate).format('MMMM D, YYYY')}
@@ -138,7 +151,7 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
         filterOptions={STACKED_CHART_TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
       />
-      <ResponsiveContainer maxHeight={maxHeight} maxWith={maxWith} minHeight={minHeight}>
+      <ResponsiveContainer height={'100%'}>
         {type === 'AREA' ? (
           <AreaChart
             className={'basic-chart'}
@@ -150,31 +163,31 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
             <defs>
               <linearGradient id={'xdai'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
                 <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={1} />
-                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={0.4} />
+                <stop offset={'80%'} stopColor={NETWORK_COLORS[SupportedNetwork.XDAI]} stopOpacity={0.4} />
               </linearGradient>
               <linearGradient id={'mainnet'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
                 <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={1} />
-                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={0.4} />
+                <stop offset={'80%'} stopColor={NETWORK_COLORS[SupportedNetwork.MAINNET]} stopOpacity={0.4} />
               </linearGradient>
               <linearGradient id={'arbitrum'} x1={'1'} y1={'0'} x2={'1'} y2={'1'}>
                 <stop offset={'10%'} stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={1} />
-                <stop offset={'90%'} stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={0.4} />
+                <stop offset={'80%'} stopColor={NETWORK_COLORS[SupportedNetwork.ARBITRUM_ONE]} stopOpacity={0.4} />
               </linearGradient>
             </defs>
             <XAxis dataKey={'time'} hide />
             <YAxis hide />
             <Legend
-              verticalAlign={'top'}
+              verticalAlign={'bottom'}
               align={'left'}
               iconType={'circle'}
               iconSize={10}
               fontSize={14}
               wrapperStyle={{
-                paddingBottom: 24,
+                paddingTop: 16,
               }}
-              formatter={LegendItem}
+              content={renderLegend}
             />
-            <Tooltip isAnimationActive={false} content={<CrosshairTooltip isValueCurrency={isCurrency} />} />
+            <Tooltip isAnimationActive={false} content={<CrosshairTooltip dataType={dataType} />} />
             <Area
               animationDuration={500}
               type={'monotone'}
@@ -213,15 +226,15 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
             margin={{ top: 5 }}
           >
             <Legend
-              verticalAlign={'top'}
+              verticalAlign={'bottom'}
               align={'left'}
               iconType={'circle'}
               iconSize={10}
               fontSize={14}
               wrapperStyle={{
-                paddingBottom: 24,
+                paddingTop: 16,
               }}
-              formatter={LegendItem}
+              content={renderLegend}
             />
             <XAxis dataKey={'time'} hide />
             <YAxis hide />
@@ -263,22 +276,16 @@ const StackedChart = ({ title, type, data, isCurrency, showTimeFilter, maxHeight
 StackedChart.propTypes = {
   title: PropTypes.string.isRequired,
   data: PropTypes.any.isRequired,
-  isCurrency: PropTypes.bool,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
   showTimeFilter: PropTypes.bool,
-  maxHeight: PropTypes.number,
-  maxWith: PropTypes.number,
-  minHeight: PropTypes.number,
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
 };
 
 StackedChart.defaultProps = {
   type: 'AREA',
   data: [],
-  isCurrency: true,
+  dataType: 'CURRENCY',
   showTimeFilter: true,
-  maxHeight: 400,
-  maxWith: 500,
-  minHeight: 300,
 };
 
 export default StackedChart;

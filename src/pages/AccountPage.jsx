@@ -1,6 +1,5 @@
 import { useState, useMemo, useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -21,6 +20,7 @@ import { ChainId, FEE_WARNING_TOKENS } from '../constants';
 import { useSavedAccounts } from '../contexts/LocalStorage';
 import { useSelectedNetwork } from '../contexts/Network';
 import { useUserTransactions, useUserPositions } from '../contexts/User';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 import { formattedNum, getExplorerLink, shortenAddress } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -66,10 +66,10 @@ function AccountPage({ account }) {
   const selectedNetwork = useSelectedNetwork();
   const [savedAccounts, addAccountToStorage, removeAccountFromStorage] = useSavedAccounts();
 
-  const isBelow400px = useMedia('(max-width: 400px)');
-  const isBelow600px = useMedia('(max-width: 600px)');
-  const isBelow1000px = useMedia('(max-width: 1000px)');
-  const isBelow1400px = useMedia('(max-width: 1400px)');
+  const isBelow400px = useIsBelowPx(400);
+  const isBelow600px = useIsBelowPx(600);
+  const isBelow1000px = useIsBelowPx(1000);
+  const isBelow1400px = useIsBelowPx(1400);
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);

@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import { useState, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { usePairChartData, usePairData, usePairRateData } from '../../contexts/PairData';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
 import LocalLoader from '../LocalLoader';
@@ -117,7 +117,7 @@ const PairChart = ({ address, base0, base1 }) => {
   const formattedSymbol1 =
     pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol;
 
-  const below600 = useMedia('(max-width: 600px)');
+  const below600 = useIsBelowPx(600);
 
   return (
     <ChartWrapper>

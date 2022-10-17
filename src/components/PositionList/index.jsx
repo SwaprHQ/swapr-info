@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
@@ -10,6 +9,7 @@ import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formatDollarAmount, formattedNum, getPoolLink } from '../../utils';
 import { ButtonDark } from '../ButtonStyled';
 import DoubleTokenLogo from '../DoubleLogo';
@@ -70,9 +70,9 @@ const SORT_FIELD = {
 };
 
 function PositionList({ positions }) {
-  const isBelow500px = useMedia('(max-width: 500px)');
-  const isBelow600px = useMedia('(max-width: 600px)');
-  const isBelow800px = useMedia('(max-width: 800px)');
+  const isBelow500px = useIsBelowPx(500);
+  const isBelow600px = useIsBelowPx(600);
+  const isBelow800px = useIsBelowPx(800);
 
   // pagination
   const [page, setPage] = useState(1);

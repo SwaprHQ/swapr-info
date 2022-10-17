@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -28,6 +27,7 @@ import {
   usePairData,
   usePairTransactions,
 } from '../contexts/PairData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent, getExplorerLink, getPoolLink, getSwapLink } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -161,9 +161,9 @@ function PairPage({ pairAddress, history }) {
   const formattedSymbol0 = token0?.symbol.length > 6 ? token0?.symbol.slice(0, 5) + '...' : token0?.symbol;
   const formattedSymbol1 = token1?.symbol.length > 6 ? token1?.symbol.slice(0, 5) + '...' : token1?.symbol;
 
-  const below1100 = useMedia('(max-width: 1100px)');
-  const below900 = useMedia('(max-width: 900px)');
-  const below600 = useMedia('(max-width: 600px)');
+  const below1100 = useIsBelowPx(1100);
+  const below900 = useIsBelowPx(900);
+  const below600 = useIsBelowPx(600);
 
   const swaprButtonsWidth = below600 ? '100%' : 'initial';
   const isPairLoading = !token0 || !token1;

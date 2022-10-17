@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
 import { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
 import { Box, Flex, Text } from 'rebass';
 import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
@@ -106,9 +106,9 @@ const FIELD_TO_VALUE = {
 };
 
 export default function PairList({ pairs, maxItems = 10 }) {
-  const below600 = useMedia('(max-width: 600px)');
-  const below680 = useMedia('(max-width: 680px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+  const below600 = useIsBelowPx(600);
+  const below680 = useIsBelowPx(680);
+  const below1080 = useIsBelowPx(1080);
 
   // pagination
   const [page, setPage] = useState(1);
@@ -156,7 +156,7 @@ export default function PairList({ pairs, maxItems = 10 }) {
           )}
           <FlexText area={'name'} justifyContent={'flex-start'}>
             <DoubleTokenLogo
-              size={below600 ? 16 : 20}
+              size={below600 ? 16 : 24}
               a0={pairData.token0.id}
               a1={pairData.token1.id}
               defaultText0={pairData.token0.symbol}

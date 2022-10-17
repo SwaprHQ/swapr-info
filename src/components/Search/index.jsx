@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useRef } from 'react';
 import { Search as SearchIcon, X } from 'react-feather';
 import styled from 'styled-components';
 
-import { TYPE } from '../../Theme';
+import { Typography } from '../../Theme';
 import { PAIR_SEARCH, TOKEN_SEARCH } from '../../apollo/queries';
 import { OVERVIEW_TOKEN_BLACKLIST, PAIR_BLACKLIST } from '../../constants';
 import { useAllPairsInSwapr, useAllTokensInSwapr } from '../../contexts/GlobalData';
@@ -101,7 +101,7 @@ const CloseIcon = styled(X)`
 
 const Menu = styled.div`
   position: absolute;
-  z-index: 1;
+  z-index: 2;
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -133,17 +133,6 @@ const MenuItem = styled(Row)`
 const Heading = styled(Row)`
   padding: 1rem;
   display: ${({ hide = false }) => hide && 'none'};
-`;
-
-const Gray = styled.span`
-  color: #888d9b;
-`;
-
-const Blue = styled.span`
-  color: #2172e5;
-  :hover {
-    cursor: pointer;
-  }
 `;
 
 export default function Search({ small = false }) {
@@ -439,12 +428,12 @@ export default function Search({ small = false }) {
       </Wrapper>
       <Menu hide={!showMenu} ref={menuRef}>
         <Heading>
-          <Gray>Pairs</Gray>
+          <Typography.LargeText color={'text2'}>Pairs</Typography.LargeText>
         </Heading>
         <div>
           {filteredPairList && Object.keys(filteredPairList).length === 0 && (
             <MenuItem>
-              <TYPE.body>No results</TYPE.body>
+              <Typography.Text>No results</Typography.Text>
             </MenuItem>
           )}
           {filteredPairList &&
@@ -461,9 +450,9 @@ export default function Search({ small = false }) {
                       defaultText1={pair?.token1?.symbol}
                       margin={true}
                     />
-                    <TYPE.body style={{ marginLeft: '20px' }}>
+                    <Typography.LargeText color={'text1'} sx={{ marginLeft: '20px' }}>
                       {pair.token0.symbol + '-' + pair.token1.symbol} Pair
-                    </TYPE.body>
+                    </Typography.LargeText>
                   </MenuItem>
                 </BasicLink>
               );
@@ -471,22 +460,24 @@ export default function Search({ small = false }) {
           <Heading
             hide={!(Object.keys(filteredPairList).length > 3 && Object.keys(filteredPairList).length >= pairsShown)}
           >
-            <Blue
+            <span
               onClick={() => {
                 setPairsShown(pairsShown + 5);
               }}
             >
-              See more...
-            </Blue>
+              <Typography.Text sx={{ ':hover': { cursor: 'pointer' } }} color={'text2'}>
+                See more...
+              </Typography.Text>
+            </span>
           </Heading>
         </div>
         <Heading>
-          <Gray>Tokens</Gray>
+          <Typography.LargeText color={'text2'}>Tokens</Typography.LargeText>
         </Heading>
         <div>
           {Object.keys(filteredTokenList).length === 0 && (
             <MenuItem>
-              <TYPE.body>No results</TYPE.body>
+              <Typography.Text>No results</Typography.Text>
             </MenuItem>
           )}
           {filteredTokenList.slice(0, tokensShown).map((token) => {
@@ -504,17 +495,18 @@ export default function Search({ small = false }) {
               </BasicLink>
             );
           })}
-
           <Heading
             hide={!(Object.keys(filteredTokenList).length > 3 && Object.keys(filteredTokenList).length >= tokensShown)}
           >
-            <Blue
+            <span
               onClick={() => {
                 setTokensShown(tokensShown + 5);
               }}
             >
-              See more...
-            </Blue>
+              <Typography.Text sx={{ ':hover': { cursor: 'pointer' } }} color={'text2'}>
+                See more...
+              </Typography.Text>
+            </span>
           </Heading>
         </div>
       </Menu>

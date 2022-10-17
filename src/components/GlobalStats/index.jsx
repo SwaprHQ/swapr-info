@@ -1,12 +1,12 @@
 import { PieChart } from 'react-feather';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
 import { ReactComponent as BarChartSvg } from '../../assets/svg/bar-chart.svg';
 import { ReactComponent as FeesSvg } from '../../assets/svg/fees.svg';
 import { useGlobalData } from '../../contexts/GlobalData';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, localNumber } from '../../utils';
 import Icon from '../Icon';
 import { StatsCard, Wrapper } from './styled';
@@ -21,7 +21,7 @@ const StatsValue = ({ children }) => (
 );
 
 export default function GlobalStats() {
-  const below816 = useMedia('(max-width: 816px)');
+  const below816 = useIsBelowPx(816);
 
   const { oneDayVolumeUSD, oneDayTxns, pairCount } = useGlobalData();
 

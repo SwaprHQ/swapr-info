@@ -1,10 +1,7 @@
-import { transparentize } from 'polished';
 import { useCallback, useEffect, useState } from 'react';
-import { TrendingUp, List, PieChart, Disc, Menu, Layers } from 'react-feather';
+import { TrendingUp, List, PieChart, Disc, Layers, Menu } from 'react-feather';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import Farms from '../../assets/icons/Farm';
@@ -13,6 +10,7 @@ import { SupportedNetwork } from '../../constants';
 import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useSelectedNetwork, useSelectedNetworkUpdater } from '../../contexts/Network';
 import { useGasInfo } from '../../hooks/useGasInfo';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { useSwprPrice } from '../../hooks/useSwprPrice';
 import { formattedNum } from '../../utils';
 import { AutoColumn } from '../Column';
@@ -20,107 +18,22 @@ import DropdownNetworkSelect from '../DropdownNetworkSelect';
 import Icon from '../Icon';
 import Link, { BasicLink } from '../Link';
 import Polling from '../Polling';
-import { AutoRow } from '../Row';
 import Title from '../Title';
-import { MobileMenu } from './MobileMenu';
-
-const Wrapper = styled.div`
-  height: ${({ isMobile }) => (isMobile ? 'initial' : 'calc(100vh - 36px)')};
-  padding-left: 36px;
-  background-color: ${({ theme }) => transparentize(0.4, theme.bg1)};
-  color: ${({ theme }) => theme.text1};
-  position: sticky;
-  top: 0px;
-  background-color: ${({ theme }) => theme.bg1};
-  color: ${({ theme }) => theme.bg2};
-
-  @media screen and (max-width: 800px) {
-    grid-template-columns: 1fr;
-    position: relative;
-  }
-
-  @media screen and (max-width: 600px) {
-    padding: 1rem;
-  }
-`;
-
-export const Option = styled(Typography.LargeText)`
-  color: ${({ activeText, theme }) => (activeText ? theme.text1 : theme.text10)};
-  display: flex;
-  align-items: center;
-
-  && {
-    font-weight: ${({ activeText }) => (activeText ? '700' : '400')};
-  }
-
-  &:hover {
-    color: ${({ theme }) => theme.text1};
-  }
-
-  // Apply hover directly to the svg path element (needed for the Farms icon)
-  &:hover div path {
-    fill: ${({ theme }) => theme.text1};
-  }
-`;
-
-const DesktopWrapper = styled.div`
-  display: flex;
-  flex-direction: column;
-  justify-content: space-between;
-  height: 100vh;
-`;
-
-const MobileWrapper = styled.div`
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-`;
-
-const MenuIcon = styled(Menu)`
-  color: #fff;
-`;
-
-const GasInfo = styled.div`
-  display: flex;
-  margin-left: 12px;
-  padding: 4px 5px;
-  border: 1px solid rgba(242, 153, 74, 0.65);
-  background: rgba(242, 153, 74, 0.08);
-  border-radius: 6px;
-
-  div {
-    color: ${({ theme }) => theme.orange1};
-  }
-
-  align-items: center;
-`;
-
-const AnimatedMobileMenu = styled(MobileMenu)`
-  position: fixed;
-  right: 0;
-  left: 0;
-  top: ${(props) => (props.open ? '0' : '-100%')};
-  background-color: ${({ theme }) => theme.bg1};
-  color: #fff;
-  transition: top ease 0.3s;
-  z-index: 100;
-`;
-
-const Overlay = styled.div`
-  position: fixed;
-  right: 0;
-  left: 0;
-  top: 0;
-  bottom: 0;
-  background-color: ${transparentize(0.7, '#000')};
-  opacity: ${({ show }) => (show ? 1 : 0)};
-  transform: translateY(${(props) => (props.show ? '0' : '10000000px')});
-  transition: ${(props) => (props.show ? 'opacity 0.3s ease' : 'transform 0.3s ease 0.3s, opacity 0.3s ease')};
-`;
+import {
+  Wrapper,
+  Option,
+  OptionDivider,
+  DesktopWrapper,
+  MobileWrapper,
+  GasInfo,
+  AnimatedMobileMenu,
+  Overlay,
+} from './styled';
 
 function SideNav({ history }) {
-  const below1080 = useMedia('(max-width: 1080px)');
-  const below1180 = useMedia('(max-width: 1180px)');
+  const isBelow350px = useIsBelowPx(350);
+  const below1080 = useIsBelowPx(1080);
+  const below1180 = useIsBelowPx(1180);
 
   const selectedNetwork = useSelectedNetwork();
   const updateSelectedNetwork = useSelectedNetworkUpdater();
@@ -161,7 +74,7 @@ function SideNav({ history }) {
   return (
     <Wrapper isMobile={below1080}>
       {!below1080 ? (
-        <DesktopWrapper style={{ marginTop: '36px' }}>
+        <DesktopWrapper style={{ marginTop: '36px', marginLeft: '16px' }}>
           <AutoColumn gap={'24px'}>
             <Title />
             {history.location.pathname !== '/dashboard' ? (
@@ -173,73 +86,76 @@ function SideNav({ history }) {
             ) : (
               <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
             )}
-            {!below1080 && (
-              <AutoColumn gap={'lg'} style={{ marginTop: '1rem' }}>
-                <BasicLink to="/dashboard">
-                  <Option activeText={history.location.pathname === '/dashboard' ?? undefined}>
-                    <Layers size={20} style={{ marginRight: '.75rem' }} />
-                    Dashboard
-                  </Option>
-                </BasicLink>
-                <BasicLink to="/home">
-                  <Option activeText={history.location.pathname === '/home' ?? undefined}>
-                    <TrendingUp size={20} style={{ marginRight: '.75rem' }} />
-                    Overview
-                  </Option>
-                </BasicLink>
-                <BasicLink to="/tokens">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'tokens' ||
-                        history.location.pathname.split('/')[1] === 'token') ??
-                      undefined
+            <AutoColumn gap={'lg'} style={{ marginTop: '1rem' }}>
+              <BasicLink to="/dashboard">
+                <Option activeText={history.location.pathname === '/dashboard' ?? undefined}>
+                  <Layers size={20} style={{ marginRight: '.75rem' }} />
+                  Dashboard
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+              <BasicLink to="/home">
+                <Option activeText={history.location.pathname === '/home' ?? undefined}>
+                  <TrendingUp size={20} style={{ marginRight: '.75rem' }} />
+                  Overview
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+              <BasicLink to="/tokens">
+                <Option
+                  activeText={
+                    (history.location.pathname.split('/')[1] === 'tokens' ||
+                      history.location.pathname.split('/')[1] === 'token') ??
+                    undefined
+                  }
+                >
+                  <Disc size={20} style={{ marginRight: '.75rem' }} />
+                  Tokens
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+              <BasicLink to="/pairs">
+                <Option
+                  activeText={
+                    (history.location.pathname.split('/')[1] === 'pairs' ||
+                      history.location.pathname.split('/')[1] === 'pair') ??
+                    undefined
+                  }
+                >
+                  <PieChart size={20} style={{ marginRight: '.75rem' }} />
+                  Pairs
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+              <BasicLink to="/farming">
+                <Option activeText={history.location.pathname.split('/')[1] === 'farming' ?? undefined}>
+                  <Icon
+                    icon={
+                      <Farms
+                        height={20}
+                        width={20}
+                        color={history.location.pathname.split('/')[1] === 'farming' ? 'text1' : 'text10'}
+                      />
                     }
-                  >
-                    <Disc size={20} style={{ marginRight: '.75rem' }} />
-                    Tokens
-                  </Option>
-                </BasicLink>
-                <BasicLink to="/pairs">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'pairs' ||
-                        history.location.pathname.split('/')[1] === 'pair') ??
-                      undefined
-                    }
-                  >
-                    <PieChart size={20} style={{ marginRight: '.75rem' }} />
-                    Pairs
-                  </Option>
-                </BasicLink>
-                <BasicLink to="/farming">
-                  <Option activeText={history.location.pathname.split('/')[1] === 'farming' ?? undefined}>
-                    <Icon
-                      icon={
-                        <Farms
-                          height={20}
-                          width={20}
-                          color={history.location.pathname.split('/')[1] === 'farming' ? 'text1' : 'text10'}
-                        />
-                      }
-                    />
-                    Farms
-                  </Option>
-                </BasicLink>
-
-                <BasicLink to="/accounts">
-                  <Option
-                    activeText={
-                      (history.location.pathname.split('/')[1] === 'accounts' ||
-                        history.location.pathname.split('/')[1] === 'account') ??
-                      undefined
-                    }
-                  >
-                    <List size={20} style={{ marginRight: '.75rem' }} />
-                    Accounts
-                  </Option>
-                </BasicLink>
-              </AutoColumn>
-            )}
+                  />
+                  Farms
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+              <BasicLink to="/accounts">
+                <Option
+                  activeText={
+                    (history.location.pathname.split('/')[1] === 'accounts' ||
+                      history.location.pathname.split('/')[1] === 'account') ??
+                    undefined
+                  }
+                >
+                  <List size={20} style={{ marginRight: '.75rem' }} />
+                  Accounts
+                </Option>
+                <OptionDivider />
+              </BasicLink>
+            </AutoColumn>
           </AutoColumn>
           <AutoColumn gap={'12px'} style={{ marginBottom: '4rem' }}>
             <Typography.Text>
@@ -304,19 +220,41 @@ function SideNav({ history }) {
           <AnimatedMobileMenu open={mobileMenuOpen} onClose={handleMobileMenuClose} />
           <Overlay show={mobileMenuOpen} onClick={handleMobileMenuClose} />
           <MobileWrapper>
-            <Title />
-            <AutoRow justify="flex-end" gap="8px">
-              {history.location.pathname !== '/dashboard' ? (
-                <DropdownNetworkSelect
-                  active={selectedNetwork}
-                  setActive={handleSelectedNetworkChange}
-                  options={Object.values(SupportedNetwork)}
-                />
-              ) : (
-                <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
-              )}
-              <MenuIcon onClick={handleMobileMenuOpen} />
-            </AutoRow>
+            {isBelow350px ? (
+              <Flex alignItems={'center'} justifyContent={'space-between'} style={{ width: '100%' }}>
+                <Title />
+                {history.location.pathname !== '/dashboard' ? (
+                  <DropdownNetworkSelect
+                    active={selectedNetwork}
+                    setActive={handleSelectedNetworkChange}
+                    options={Object.values(SupportedNetwork)}
+                  />
+                ) : (
+                  <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+                )}
+                <span onClick={handleMobileMenuOpen}>
+                  <Icon icon={<Menu height={26} width={26} />} color={'text1'} />
+                </span>
+              </Flex>
+            ) : (
+              <Flex alignItems={'center'} justifyContent={'space-between'} style={{ width: '100%' }}>
+                <Title />
+                <Flex alignItems={'center'} style={{ gap: '8px' }}>
+                  {history.location.pathname !== '/dashboard' ? (
+                    <DropdownNetworkSelect
+                      active={selectedNetwork}
+                      setActive={handleSelectedNetworkChange}
+                      options={Object.values(SupportedNetwork)}
+                    />
+                  ) : (
+                    <DropdownNetworkSelect active={'All'} disabled={true} options={[{ ALL: 'All' }]} />
+                  )}
+                  <span onClick={handleMobileMenuOpen}>
+                    <Icon icon={<Menu height={26} width={26} />} color={'text1'} />
+                  </span>
+                </Flex>
+              </Flex>
+            )}
           </MobileWrapper>
         </>
       )}

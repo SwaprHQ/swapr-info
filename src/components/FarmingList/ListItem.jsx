@@ -1,6 +1,5 @@
 import React from 'react';
 import { ExternalLink } from 'react-feather';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -10,6 +9,7 @@ import { Typography } from '../../Theme';
 import carrotListLogoUrl from '../../assets/images/carrot.png';
 import { CARROT_REWARD_TOKEN_REGEX, ChainId } from '../../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formatDollarAmount, formattedNum, getSwaprLink, isDxDaoCampaignOwner } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
@@ -66,10 +66,10 @@ const FlexText = ({ area, justifyContent, flexDirection, color, children }) => (
 );
 
 export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
-  const below600 = useMedia('(max-width: 600px)');
-  const below680 = useMedia('(max-width: 680px)');
-  const below740 = useMedia('(max-width: 740px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+  const below600 = useIsBelowPx(600);
+  const below680 = useIsBelowPx(680);
+  const below740 = useIsBelowPx(740);
+  const below1080 = useIsBelowPx(1080);
 
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
@@ -91,7 +91,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
         <FlexText area={'pair'} justifyContent={'flex-start'}>
           {!below600 && (
             <DoubleTokenLogo
-              size={below740 ? 16 : 20}
+              size={below740 ? 16 : 24}
               a0={campaign.targetedPair.token0.address}
               a1={campaign.targetedPair.token1.address}
               defaultText0={campaign.targetedPair.token0.symbol}

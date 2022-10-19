@@ -1,6 +1,6 @@
+import PropTypes from 'prop-types';
 import { Disc, Layers, List, PieChart, TrendingUp, X } from 'react-feather';
 import { useHistory } from 'react-router-dom';
-import styled from 'styled-components';
 
 import Farms from '../../../assets/icons/Farm';
 import { AutoColumn } from '../../Column';
@@ -8,10 +8,6 @@ import Icon from '../../Icon';
 import { BasicLink } from '../../Link';
 import Row from '../../Row';
 import { Option, MobileOptionDivider } from '../styled';
-
-const StyledIcon = styled(X)`
-  color: #fff;
-`;
 
 export const MobileMenu = ({ onClose, ...rest }) => {
   const history = useHistory();
@@ -90,8 +86,12 @@ export const MobileMenu = ({ onClose, ...rest }) => {
       </Option>
       <MobileOptionDivider />
       <Row width="100%" justify="flex-end">
-        <StyledIcon size="20px" onClick={onClose} />
+        <Icon icon={<X size={'20px'} />} color={'text1'} onClick={onClose} />
       </Row>
     </AutoColumn>
   );
+};
+
+MobileMenu.propTypes = {
+  onClose: PropTypes.func.isRequired,
 };

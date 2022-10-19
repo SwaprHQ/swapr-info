@@ -1,7 +1,5 @@
-import 'feather-icons';
-import { AlertTriangle } from 'react-feather';
+import PropTypes from 'prop-types';
 import { Text } from 'rebass';
-import styled from 'styled-components';
 
 import { Hover } from '..';
 import { useSelectedNetwork } from '../../contexts/Network';
@@ -11,34 +9,13 @@ import { ButtonDark } from '../ButtonStyled';
 import { AutoColumn } from '../Column';
 import Link from '../Link';
 import { RowBetween, RowFixed } from '../Row';
+import { WarningWrapper, StyledWarningIcon } from './styled';
 
-const WarningWrapper = styled.div`
-  border-radius: 20px;
-  border: 1px solid #f82d3a;
-  background: rgba(248, 45, 58, 0.05);
-  padding: 1rem;
-  color: #f82d3a;
-  display: ${({ show }) => !show && 'none'};
-  margin: 0 2rem 2rem 2rem;
-  position: relative;
-
-  @media screen and (max-width: 800px) {
-    width: 80% !important;
-    margin-left: 5%;
-  }
-`;
-
-const StyledWarningIcon = styled(AlertTriangle)`
-  min-height: 20px;
-  min-width: 20px;
-  stroke: red;
-`;
-
-export default function Warning({ type, show, setShow, address }) {
-  const below800 = useIsBelowPx(800);
+const Warning = ({ type, show, setShow, address }) => {
+  const isBelow800px = useIsBelowPx(800);
   const selectedNetwork = useSelectedNetwork();
 
-  const textContent = below800 ? (
+  const textContent = isBelow800px ? (
     <div>
       <Text fontWeight={500} lineHeight={'145.23%'} mt={'10px'}>
         Anyone can create and name any ERC20 token on Ethereum, including creating fake versions of existing tokens and
@@ -68,7 +45,7 @@ export default function Warning({ type, show, setShow, address }) {
           </Text>
         </RowFixed>
         {textContent}
-        {below800 ? (
+        {isBelow800px ? (
           <div>
             <Hover style={{ marginTop: '10px' }}>
               <Link
@@ -109,4 +86,13 @@ export default function Warning({ type, show, setShow, address }) {
       </AutoColumn>
     </WarningWrapper>
   );
-}
+};
+
+Warning.propTypes = {
+  type: PropTypes.string,
+  show: PropTypes.bool,
+  setShow: PropTypes.func,
+  address: PropTypes.string,
+};
+
+export default Warning;

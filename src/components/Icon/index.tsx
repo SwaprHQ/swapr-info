@@ -8,8 +8,8 @@ interface IconProps {
   color: string;
 }
 
-const Icon = ({ icon, color, marginRight }: IconProps) => (
-  <IconWrapper marginRight={marginRight} color={color}>
+const Icon = ({ icon, color, marginRight, ...rest }: IconProps) => (
+  <IconWrapper marginRight={marginRight} color={color} {...rest}>
     {icon}
   </IconWrapper>
 );

@@ -1,9 +1,5 @@
-import { Text, Box } from 'rebass';
+import { Box } from 'rebass';
 import styled from 'styled-components';
-
-import { useSelectedNetwork } from '../contexts/Network';
-import { urls } from '../utils';
-import Link from './Link';
 
 const Divider = styled(Box)`
   height: 1px;
@@ -28,27 +24,6 @@ export const IconWrapper = styled.div`
     opacity: 0.7;
   }
 `;
-
-const Hint = ({ children, ...rest }) => (
-  <Text fontSize={16} weight={500} {...rest}>
-    {children}
-  </Text>
-);
-
-const Address = ({ address, token, ...rest }) => {
-  const selectedNetwork = useSelectedNetwork();
-  return (
-    <Link
-      color="button"
-      href={token ? urls.showToken(address, selectedNetwork) : urls.showAddress(address, selectedNetwork)}
-      external
-      style={{ wordBreak: 'break-all' }}
-      {...rest}
-    >
-      {address}
-    </Link>
-  );
-};
 
 export const Hover = styled.div`
   :hover {
@@ -183,4 +158,4 @@ export const FixedMenu = styled.div`
   }
 `;
 
-export { Hint, Divider, Address, EmptyCard };
+export { Divider, EmptyCard };

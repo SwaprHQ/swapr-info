@@ -1,5 +1,5 @@
+import PropTypes from 'prop-types';
 import { useMemo, useState } from 'react';
-import styled from 'styled-components';
 
 import EthereumLogo from '../../assets/images/eth.png';
 import SWPRLogo from '../../assets/images/swpr-logo.png';
@@ -8,34 +8,11 @@ import DXDLogo from '../../assets/svg/dxd-logo.svg';
 import { DXD_ADDRESS, SWPR_ADDRESS, SupportedNetwork } from '../../constants';
 import { useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
 import { useTokenIcon } from '../../hooks/useTokenIcon';
-
-const Inline = styled.div`
-  display: flex;
-  align-items: center;
-  align-self: center;
-  flex-basis: ${({ flexBasis }) => flexBasis};
-  justify-content: ${({ justifyContent }) => justifyContent};
-`;
-
-const Image = styled.img`
-  width: ${({ size }) => size};
-  height: ${({ size }) => size};
-  background-color: white;
-  border-radius: 50%;
-  padding: 1px;
-`;
+import { Inline, Image } from './styled';
 
 const BAD_URLS = {};
 
-export default function TokenLogo({
-  address,
-  defaultText = '?',
-  size = '24px',
-  flexBasis,
-  justifyContent,
-  source,
-  ...rest
-}) {
+const TokenLogo = ({ address, defaultText = '?', size = '24px', flexBasis, justifyContent, source, ...rest }) => {
   const selectedNetwork = useSelectedNetwork();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
   const tokenIcons = useTokenIcon(address);
@@ -104,4 +81,15 @@ export default function TokenLogo({
       </svg>
     </Inline>
   );
-}
+};
+
+TokenLogo.propTypes = {
+  address: PropTypes.string,
+  defaultText: PropTypes.string,
+  size: PropTypes.string,
+  flexBasis: PropTypes.string,
+  justifyContent: PropTypes.string,
+  source: PropTypes.string,
+};
+
+export default TokenLogo;

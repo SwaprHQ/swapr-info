@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import PropTypes from 'prop-types';
 import { useState, useEffect, useCallback } from 'react';
-import { Box, Flex, Text } from 'rebass';
-import styled from 'styled-components';
+import { Box, Flex } from 'rebass';
 
 import { USD } from '@swapr/sdk';
 
@@ -13,23 +13,10 @@ import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
-import ListItem, { DashGrid } from './ListItem';
+import ListItem from './ListItem';
+import { ClickableText, List, DashGrid } from './styled';
 
 dayjs.extend(utc);
-
-const List = styled(Box)`
-  -webkit-overflow-scrolling: touch;
-`;
-
-const ClickableText = styled(Text)`
-  color: ${({ theme }) => theme.text1};
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-  text-align: end;
-  user-select: none;
-`;
 
 const SORT_FIELD = {
   STAKE: 0,
@@ -43,7 +30,7 @@ const SortIndicator = ({ sortColumn, column, direction }) => (
   </Box>
 );
 
-function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
+const FarmingList = ({ campaigns, maxItems = 10 }) => {
   const [nativeCurrencyPrice] = useNativeCurrencyPrice();
 
   const below680 = useIsBelowPx(680);
@@ -127,7 +114,6 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
       <Panel style={{ padding: below680 ? '20px 0' : '32px 0' }}>
         <DashGrid
           center={true}
-          disbaleLinks={disbaleLinks}
           style={{ height: 'fit-content', padding: below680 ? '0 20px 24px 20px' : '0 36px 24px 36px' }}
         >
           {!below1080 && (
@@ -195,6 +181,11 @@ function FarmingList({ campaigns, disbaleLinks, maxItems = 10 }) {
       />
     </>
   );
-}
+};
+
+FarmingList.propTypes = {
+  campaigns: PropTypes.array,
+  maxItems: PropTypes.number,
+};
 
 export default FarmingList;

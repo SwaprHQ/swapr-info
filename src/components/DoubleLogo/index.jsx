@@ -1,35 +1,21 @@
-import styled from 'styled-components';
+import PropTypes from 'prop-types';
 
-import TokenLogo from '../TokenLogo';
+import { CoveredLogo, HigherLogo, TokenWrapper } from './styled';
 
-const TokenWrapper = styled.div`
-  z-index: 0;
-  position: relative;
-  display: flex;
-  flex-direction: row;
-  min-width: ${({ sizeraw }) => `${sizeraw * 2}px`};
-  margin-right: ${({ sizeraw, margin }) => margin && (sizeraw / 3).toString() + 'px'};
-`;
+const DoubleTokenLogo = ({ a0, a1, defaultText0, defaultText1, size = 24, margin = false }) => (
+  <TokenWrapper sizeraw={size} margin={margin}>
+    <CoveredLogo defaultText={defaultText1} address={a1} size={size.toString() + 'px'} sizeraw={size} />
+    <HigherLogo defaultText={defaultText0} address={a0} size={size.toString() + 'px'} sizeraw={size} />
+  </TokenWrapper>
+);
 
-const HigherLogo = styled(TokenLogo)`
-  z-index: 2;
-  background-color: white;
-  border-radius: 50%;
-  box-shadow: 0px 0px 8px rgba(0, 0, 0, 0.6);
-`;
+DoubleTokenLogo.propTypes = {
+  a0: PropTypes.string,
+  a1: PropTypes.string,
+  defaultText0: PropTypes.string,
+  defaultText1: PropTypes.string,
+  size: PropTypes.number,
+  margin: PropTypes.bool,
+};
 
-const CoveredLogo = styled(TokenLogo)`
-  position: absolute;
-  left: ${({ sizeraw }) => (sizeraw / 1.2).toString() + 'px'};
-  background-color: white;
-  border-radius: 50%;
-`;
-
-export default function DoubleTokenLogo({ a0, a1, defaultText0, defaultText1, size = 24, margin = false }) {
-  return (
-    <TokenWrapper sizeraw={size} margin={margin}>
-      <CoveredLogo defaultText={defaultText1} address={a1} size={size.toString() + 'px'} sizeraw={size} />
-      <HigherLogo defaultText={defaultText0} address={a0} size={size.toString() + 'px'} sizeraw={size} />
-    </TokenWrapper>
-  );
-}
+export default DoubleTokenLogo;

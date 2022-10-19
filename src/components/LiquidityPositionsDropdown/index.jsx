@@ -103,6 +103,8 @@ LiquidityPositionsDropdown.propTypes = {
   liquidityMiningPositions: PropTypes.arrayOf(
     PropTypes.shape({ key: PropTypes.string.isRequired, label: PropTypes.string.isRequired }),
   ),
+  active: PropTypes.oneOfType([PropTypes.string, PropTypes.object]),
+  setActive: PropTypes.func,
   width: PropTypes.string,
 };
 

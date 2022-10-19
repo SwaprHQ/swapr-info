@@ -20,18 +20,16 @@ const StatsValue = ({ children }) => (
   </Typography.Custom>
 );
 
-export default function GlobalStats() {
-  const below816 = useIsBelowPx(816);
+const GlobalStats = () => {
+  const isBelow816px = useIsBelowPx(816);
 
   const { oneDayVolumeUSD, oneDayTxns, pairCount } = useGlobalData();
 
-  const oneDayFees = oneDayVolumeUSD
-    ? // FIXME: just know this is approximated, because each pair can have its own swap fee
-      formattedNum(oneDayVolumeUSD * 0.0025, true)
-    : '';
+  // just know this is approximated, because each pair can have its own swap fee
+  const oneDayFees = oneDayVolumeUSD ? formattedNum(oneDayVolumeUSD * 0.0025, true) : '';
 
   return (
-    <Wrapper isMobile={below816}>
+    <Wrapper isMobile={isBelow816px}>
       <StatsCard>
         <Flex>
           <Icon icon={<BarChartSvg height={16} width={16} />} />
@@ -55,4 +53,6 @@ export default function GlobalStats() {
       </StatsCard>
     </Wrapper>
   );
-}
+};
+
+export default GlobalStats;

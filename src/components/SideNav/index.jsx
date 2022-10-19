@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { TrendingUp, List, PieChart, Disc, Layers, Menu } from 'react-feather';
 import { withRouter } from 'react-router-dom';
@@ -30,7 +31,7 @@ import {
   Overlay,
 } from './styled';
 
-function SideNav({ history }) {
+const SideNav = ({ history }) => {
   const isBelow350px = useIsBelowPx(350);
   const below1080 = useIsBelowPx(1080);
   const below1180 = useIsBelowPx(1180);
@@ -260,6 +261,10 @@ function SideNav({ history }) {
       )}
     </Wrapper>
   );
-}
+};
+
+SideNav.propTypes = {
+  history: PropTypes.object,
+};
 
 export default withRouter(SideNav);

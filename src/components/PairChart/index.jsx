@@ -1,8 +1,8 @@
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 import { useState, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
@@ -14,15 +14,7 @@ import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
 import { ChartTypeButton } from '../TokenChart/styled';
-
-const ChartWrapper = styled.div`
-  height: 100%;
-  min-height: 340px;
-
-  @media screen and (max-width: 600px) {
-    min-height: 200px;
-  }
-`;
+import { ChartWrapper } from './styled';
 
 const CHART_VIEW = {
   VOLUME: 'Volume',
@@ -245,6 +237,12 @@ const PairChart = ({ address, base0, base1 }) => {
         ))}
     </ChartWrapper>
   );
+};
+
+PairChart.propTypes = {
+  address: PropTypes.string,
+  base0: PropTypes.number,
+  base1: PropTypes.number,
 };
 
 export default PairChart;

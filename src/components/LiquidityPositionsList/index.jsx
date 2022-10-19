@@ -1,5 +1,6 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
 import { Flex } from 'rebass';
@@ -25,7 +26,7 @@ const FlexText = ({ area, color, justifyContent, children }) => (
   </Flex>
 );
 
-function LiquidityPositionsList({ lps, disbaleLinks, maxItems = 10 }) {
+const LiquidityPositionsList = ({ lps, disbaleLinks, maxItems = 10 }) => {
   const isBelow450px = useIsBelowPx(450);
   const isBelow600px = useIsBelowPx(600);
   const isBelow800px = useIsBelowPx(800);
@@ -125,6 +126,13 @@ function LiquidityPositionsList({ lps, disbaleLinks, maxItems = 10 }) {
       />
     </>
   );
-}
+};
+
+LiquidityPositionsList.propTypes = {
+  area: PropTypes.string,
+  color: PropTypes.string,
+  justifyContent: PropTypes.string,
+  children: PropTypes.node,
+};
 
 export default withRouter(LiquidityPositionsList);

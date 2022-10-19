@@ -1,24 +1,14 @@
 import { useHistory } from 'react-router-dom';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import Logo from '../../assets/svg/logo_white.svg';
 import Wordmark from '../../assets/svg/wordmark_white.svg';
 import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import Link from '../Link';
 import { RowFixed } from '../Row';
+import { TitleWrapper } from './styled';
 
-const TitleWrapper = styled.div`
-  text-decoration: none;
-
-  &:hover {
-    cursor: pointer;
-  }
-
-  z-index: 10;
-`;
-
-export default function Title() {
+const Title = () => {
   const isBelow350px = useIsBelowPx(350);
   const history = useHistory();
 
@@ -36,4 +26,6 @@ export default function Title() {
       </Flex>
     </TitleWrapper>
   );
-}
+};
+
+export default Title;

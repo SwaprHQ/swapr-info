@@ -28,7 +28,8 @@ const LiquidityFarmingCampaignCard = ({
 
   const isCampaignActive = new Date(expiration).getTime() > new Date().getTime();
   const expiringIn = new Date(expiration).getTime() - new Date().getTime();
-  const progress = parseInt(stakeCap.toFixed(2)) > 0 ? stakeAmount.multiply('100').divide(stakeCap).toFixed(0) : 0;
+  const progress =
+    parseInt(stakeCap.toFixed(2)) > 0 ? parseInt(stakeAmount.multiply('100').divide(stakeCap).toFixed(0)) : 0;
 
   return (
     <Wrapper

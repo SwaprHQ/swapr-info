@@ -115,7 +115,7 @@ export function getSwapLink(
 const getExplorerPrefix = (selectedNetwork) => {
   switch (selectedNetwork) {
     case SupportedNetwork.XDAI:
-      return 'https://blockscout.com/poa/xdai';
+      return 'https://gnosisscan.io';
     case SupportedNetwork.ARBITRUM_ONE:
       return 'https://arbiscan.io/';
     default:

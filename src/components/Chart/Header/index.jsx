@@ -1,9 +1,9 @@
 import PropTypes from 'prop-types';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../../Theme';
 import { TIME_FILTER_OPTIONS } from '../../../constants';
+import { useIsBelowPx } from '../../../hooks/useIsBelowPx';
 import { formatChartDate, formatChartValueByType } from '../../../utils';
 import RadioTimeFilter from '../../RadioTimeFilter';
 import { Container, DailyChange, FlexContainer, WeeklyButton } from './styled';
@@ -21,7 +21,7 @@ const Header = ({
   onWeeklyToggle,
   showTimeFilter,
 }) => {
-  const isBelow500px = useMedia('(max-width: 500px)');
+  const isBelow500px = useIsBelowPx(500);
 
   return (
     <Container>
@@ -54,7 +54,7 @@ Header.propTypes = {
   title: PropTypes.string,
   dailyChange: PropTypes.any,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
   date: PropTypes.string,
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,

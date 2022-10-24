@@ -1,28 +1,20 @@
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 import { useState, useMemo } from 'react';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { Typography } from '../../Theme';
 import { timeframeOptions, TIME_FILTER_OPTIONS } from '../../constants';
 import { usePairChartData, usePairData, usePairRateData } from '../../contexts/PairData';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import CandleStickChart from '../CandleStickChart';
 import Chart from '../Chart';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
 import RadioTimeFilter from '../RadioTimeFilter';
 import { ChartTypeButton } from '../TokenChart/styled';
-
-const ChartWrapper = styled.div`
-  height: 100%;
-  min-height: 340px;
-
-  @media screen and (max-width: 600px) {
-    min-height: 200px;
-  }
-`;
+import { ChartWrapper } from './styled';
 
 const CHART_VIEW = {
   VOLUME: 'Volume',
@@ -117,7 +109,7 @@ const PairChart = ({ address, base0, base1 }) => {
   const formattedSymbol1 =
     pairData?.token1?.symbol.length > 6 ? pairData?.token1?.symbol.slice(0, 5) + '...' : pairData?.token1?.symbol;
 
-  const below600 = useMedia('(max-width: 600px)');
+  const below600 = useIsBelowPx(600);
 
   return (
     <ChartWrapper>
@@ -245,6 +237,12 @@ const PairChart = ({ address, base0, base1 }) => {
         ))}
     </ChartWrapper>
   );
+};
+
+PairChart.propTypes = {
+  address: PropTypes.string,
+  base0: PropTypes.number,
+  base1: PropTypes.number,
 };
 
 export default PairChart;

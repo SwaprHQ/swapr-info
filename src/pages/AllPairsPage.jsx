@@ -1,7 +1,6 @@
 import { useEffect } from 'react';
 import 'feather-icons';
 import Marquee from 'react-fast-marquee';
-import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 
 import { Typography } from '../Theme';
@@ -11,12 +10,13 @@ import PairCard from '../components/PairCard';
 import PairList from '../components/PairList';
 import Search from '../components/Search';
 import { useAllPairData, useTopTVLPairs } from '../contexts/PairData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 
 function AllPairsPage() {
   const allPairs = useAllPairData();
   const topTVLPairs = useTopTVLPairs();
 
-  const below600 = useMedia('(max-width: 600px)');
+  const below600 = useIsBelowPx(600);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -27,11 +27,8 @@ function AllPairsPage() {
   return (
     <PageWrapper>
       <FullWrapper gap={'0'}>
-        <Flex alignItems={'center'} justifyContent={below600 ? 'center' : 'space-between'}>
-          <Typography.MediumHeader
-            color={'text10'}
-            sx={{ textAlign: below600 ? 'center' : 'left', marginTop: '40px', marginBottom: '20px' }}
-          >
+        <Flex alignItems={'flex-end'} justifyContent={below600 ? 'center' : 'space-between'} marginBottom={'20px'}>
+          <Typography.MediumHeader color={'text10'} sx={{ textAlign: below600 ? 'center' : 'left' }}>
             Top TVL Pairs
           </Typography.MediumHeader>
           {!below600 && <Search />}

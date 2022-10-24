@@ -1,3 +1,4 @@
+import PropTypes from 'prop-types';
 import { useEffect, useRef, useState } from 'react';
 import { useClickAway } from 'react-use';
 import { Flex } from 'rebass';
@@ -31,7 +32,7 @@ const NetworkIcon = ({ network }) => {
   );
 };
 
-export default function DropdownNetworkSelect({ active, disabled, setActive }) {
+const DropdownNetworkSelect = ({ active, disabled, setActive }) => {
   const [showDropdown, toggleDropdown] = useState(false);
   const dropdownRef = useRef(null);
   const containerRef = useRef(null);
@@ -113,4 +114,12 @@ export default function DropdownNetworkSelect({ active, disabled, setActive }) {
       )}
     </Wrapper>
   );
-}
+};
+
+DropdownNetworkSelect.propTypes = {
+  active: PropTypes.string,
+  disabled: PropTypes.bool,
+  setActive: PropTypes.func,
+};
+
+export default DropdownNetworkSelect;

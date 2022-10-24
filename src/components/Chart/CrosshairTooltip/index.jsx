@@ -1,12 +1,12 @@
 import PropTypes from 'prop-types';
-import { useMedia } from 'react-use';
 
 import { Typography } from '../../../Theme';
+import { useIsBelowPx } from '../../../hooks/useIsBelowPx';
 import { formatChartDate, formatChartValueByType } from '../../../utils';
 import { Wrapper } from './styled';
 
 const CrosshairTooltip = ({ title, active, isWeeklyActive, payload, dataType }) => {
-  const isBelow500px = useMedia('(max-width: 500px)');
+  const isBelow500px = useIsBelowPx(500);
 
   if (active && payload && payload.length) {
     const { time, value } = payload[0].payload;
@@ -28,7 +28,7 @@ CrosshairTooltip.propTypes = {
   active: PropTypes.bool,
   isWeeklyActive: PropTypes.bool,
   payload: PropTypes.array,
-  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE']),
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
 };
 
 CrosshairTooltip.defaultProps = {

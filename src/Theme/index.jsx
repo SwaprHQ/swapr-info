@@ -239,36 +239,6 @@ export const Typography = {
   ),
 };
 
-export const TYPE = {
-  main(props) {
-    return <TextWrapper fontWeight={500} fontSize={14} color={'text1'} {...props} />;
-  },
-
-  body(props) {
-    return <TextWrapper fontWeight={400} fontSize={14} color={'text1'} {...props} />;
-  },
-
-  small(props) {
-    return <TextWrapper fontWeight={500} fontSize={11} color={'text1'} {...props} />;
-  },
-
-  header(props) {
-    return <TextWrapper fontWeight={600} color="text1" {...props} />;
-  },
-
-  largeHeader(props) {
-    return <TextWrapper fontWeight={500} color={'text1'} fontSize={24} {...props} />;
-  },
-
-  light(props) {
-    return <TextWrapper fontWeight={400} color={'text3'} fontSize={14} {...props} />;
-  },
-
-  pink(props) {
-    return <TextWrapper fontWeight={props.faded ? 400 : 600} color={props.faded ? 'text1' : 'text1'} {...props} />;
-  },
-};
-
 export const Hover = styled.div`
   :hover {
     cursor: pointer;
@@ -394,47 +364,6 @@ export const GlobalStyle = createGlobalStyle`
   color: white;
 }
 
-.crosshair-custom-tooltip {
-  width: 200px;
-	padding: 8px;
-	box-sizing: border-box;
-	font-size: 12px;
-	color: white;
-	background-color: rgb(34, 36, 42);
-	border: 1px solid rgb(64, 68, 79);
-	border-radius: 8px;
-}
-
-.crosshair-tooltip {
-	width: 200px;
-	position: absolute;
-	display: none;
-	padding: 8px;
-	box-sizing: border-box;
-	font-size: 12px;
-	color: white;
-	background-color: rgb(34, 36, 42);
-	z-index: 10;
-	top: 12px;
-	left: 12px;
-	pointer-events: none;
-	border: 1px solid rgb(64, 68, 79);
-	border-radius: 8px;
-}
-
-.crosshair-item {
-  display: flex;
-  justify-content: space-between;
-}
-
-.crosshair-item-legend {
-  display: inline-block;
-  width: 10px;
-  height: 10px;
-  border-radius: 2px;
-  margin-right: 8px;
-}
-
 @media screen and (max-width: 800px) {
   .three-line-legend {
     display: none !important;
@@ -448,8 +377,4 @@ export const GlobalStyle = createGlobalStyle`
   & > * {
     width: 100% !important;
   }
-}
-
-
- 
-`;
+}`;

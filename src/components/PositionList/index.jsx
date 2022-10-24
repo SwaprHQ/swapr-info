@@ -1,15 +1,15 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
-import { Box, Flex, Text } from 'rebass';
-import styled from 'styled-components';
+import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencyPrice } from '../../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formatDollarAmount, formattedNum, getPoolLink } from '../../utils';
 import { ButtonDark } from '../ButtonStyled';
 import DoubleTokenLogo from '../DoubleLogo';
@@ -19,60 +19,19 @@ import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
 import TokenLogo from '../TokenLogo';
+import { ClickableText, DashGrid, List } from './styled';
 
 dayjs.extend(utc);
-
-const List = styled(Box)`
-  -webkit-overflow-scrolling: touch;
-`;
-
-const DashGrid = styled.div`
-  display: grid;
-  grid-gap: 1em;
-  grid-template-columns: 2.5fr 1fr;
-  grid-template-areas: 'name swapr';
-  align-items: center;
-  padding: 0 20px;
-
-  @media screen and (min-width: 500px) {
-    padding: 0 36px;
-    grid-template-columns: 2.5fr 1fr 1fr;
-    grid-template-areas: 'name swapr return';
-  }
-
-  @media screen and (min-width: 600px) {
-    padding: 0 36px;
-    grid-template-columns: 35px 1.2fr 1fr 1fr;
-    grid-template-areas: 'number name swapr return';
-  }
-
-  @media screen and (min-width: 800px) {
-    padding: 0 36px;
-    grid-template-columns: 35px 2.5fr 1fr 1fr;
-    grid-template-areas: 'number name swapr return';
-  }
-`;
-
-const ClickableText = styled(Text)`
-  color: ${({ theme }) => theme.text1};
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-
-  text-align: end;
-  user-select: none;
-`;
 
 const SORT_FIELD = {
   VALUE: 'VALUE',
   SWAPR_RETURN: 'SWAPR_RETURN',
 };
 
-function PositionList({ positions }) {
-  const isBelow500px = useMedia('(max-width: 500px)');
-  const isBelow600px = useMedia('(max-width: 600px)');
-  const isBelow800px = useMedia('(max-width: 800px)');
+const PositionList = ({ positions }) => {
+  const isBelow500px = useIsBelowPx(500);
+  const isBelow600px = useIsBelowPx(600);
+  const isBelow800px = useIsBelowPx(800);
 
   // pagination
   const [page, setPage] = useState(1);
@@ -317,6 +276,10 @@ function PositionList({ positions }) {
       />
     </>
   );
-}
+};
+
+PositionList.propTypes = {
+  positions: PropTypes.array,
+};
 
 export default withRouter(PositionList);

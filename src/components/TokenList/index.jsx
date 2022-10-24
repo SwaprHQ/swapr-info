@@ -1,14 +1,14 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import PropTypes from 'prop-types';
 import { useState, useEffect, useMemo, memo } from 'react';
 import isEqual from 'react-fast-compare';
-import { useMedia } from 'react-use';
-import { Box, Flex, Text } from 'rebass';
-import styled from 'styled-components';
+import { Flex } from 'rebass';
 
 import { Divider } from '..';
 import { Typography } from '../../Theme';
 import { OVERVIEW_TOKEN_BLACKLIST } from '../../constants';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent } from '../../utils';
 import FormattedName from '../FormattedName';
 import { InternalListLink } from '../Link';
@@ -17,68 +17,9 @@ import PageButtons from '../PageButtons';
 import Panel from '../Panel';
 import Row from '../Row';
 import TokenLogo from '../TokenLogo';
+import { List, DashGrid, ClickableText } from './styled';
 
 dayjs.extend(utc);
-
-const List = styled(Box)`
-  -webkit-overflow-scrolling: touch;
-`;
-
-const DashGrid = styled.div`
-  display: grid;
-  grid-gap: 1em;
-  grid-template-columns: 100px 1fr;
-  grid-template-areas: 'name vol';
-  padding: 0 20px;
-
-  > * {
-    justify-content: flex-end;
-
-    &:first-child {
-      justify-content: flex-start;
-      text-align: left;
-    }
-  }
-
-  @media screen and (min-width: 680px) {
-    padding: 0 36px;
-    display: grid;
-    grid-gap: 1em;
-    grid-template-columns: 180px 1fr 1fr 1fr 1fr;
-    grid-template-areas: 'name symbol price liq vol';
-
-    > * {
-      justify-content: flex-end;
-      width: 100%;
-
-      &:first-child {
-        justify-content: flex-start;
-      }
-    }
-  }
-
-  @media screen and (min-width: 1080px) {
-    padding: 0 36px;
-    display: grid;
-    grid-gap: 0.5em;
-    grid-template-columns: 0.1fr 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: 'index name symbol price change liq vol';
-  }
-`;
-
-const ClickableText = styled(Text)`
-  text-align: end;
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-  user-select: none;
-  color: ${({ theme }) => theme.text1};
-
-  @media screen and (max-width: 640px) {
-    font-size: 0.85rem;
-  }
-`;
 
 const FlexText = ({ area, color, children }) => (
   <Typography.LargeText color={color || 'text1'} sx={{ gridArea: area, display: 'flex', alignItems: 'center' }}>
@@ -95,8 +36,7 @@ const SORT_FIELD = {
   CHANGE: 'priceChangeUSD',
 };
 
-// @TODO rework into virtualized list
-function TopTokenList({ tokens, itemMax = 10 }) {
+const TopTokenList = ({ tokens, itemMax = 10 }) => {
   // page state
   const [page, setPage] = useState(1);
   const [maxPage, setMaxPage] = useState(1);
@@ -105,8 +45,8 @@ function TopTokenList({ tokens, itemMax = 10 }) {
   const [sortDirection, setSortDirection] = useState(true);
   const [sortedColumn, setSortedColumn] = useState(SORT_FIELD.LIQ);
 
-  const below1080 = useMedia('(max-width: 1080px)');
-  const below680 = useMedia('(max-width: 680px)');
+  const below1080 = useIsBelowPx(1080);
+  const below680 = useIsBelowPx(680);
 
   const showLoader = !tokens || Object.keys(tokens).length === 0;
 
@@ -315,6 +255,11 @@ function TopTokenList({ tokens, itemMax = 10 }) {
       />
     </>
   );
-}
+};
+
+TopTokenList.propTypes = {
+  tokens: PropTypes.oneOfType([PropTypes.array, PropTypes.object]),
+  itemMax: PropTypes.number,
+};
 
 export default memo(TopTokenList, isEqual);

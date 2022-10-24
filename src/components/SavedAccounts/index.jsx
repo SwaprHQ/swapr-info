@@ -1,6 +1,5 @@
 import { useMemo } from 'react';
 import { Trash2 } from 'react-feather';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Divider } from '..';
@@ -8,6 +7,7 @@ import { Typography } from '../../Theme';
 import { ChainId, SAVED_ACCOUNTS_LIMIT } from '../../constants';
 import { useSavedAccounts } from '../../contexts/LocalStorage';
 import { useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { shortenAddress } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import Icon from '../Icon';
@@ -19,9 +19,9 @@ const SavedAccounts = () => {
   const selectedNetwork = useSelectedNetwork();
   const [savedAccounts, , removeAccount] = useSavedAccounts();
 
-  const isBelow450px = useMedia('(max-width: 450px)');
-  const isBelow600px = useMedia('(max-width: 600px)');
-  const isBelow800px = useMedia('(max-width: 800px)');
+  const isBelow450px = useIsBelowPx(450);
+  const isBelow600px = useIsBelowPx(600);
+  const isBelow800px = useIsBelowPx(800);
 
   const filteredSavedAccounts = useMemo(
     () => savedAccounts.filter((savedAccount) => savedAccount.network === ChainId[selectedNetwork]),

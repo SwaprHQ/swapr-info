@@ -1,12 +1,12 @@
 import { PieChart } from 'react-feather';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
 import { ReactComponent as BarChartSvg } from '../../assets/svg/bar-chart.svg';
 import { ReactComponent as FeesSvg } from '../../assets/svg/fees.svg';
 import { useGlobalData } from '../../contexts/GlobalData';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, localNumber } from '../../utils';
 import Icon from '../Icon';
 import { StatsCard, Wrapper } from './styled';
@@ -20,18 +20,16 @@ const StatsValue = ({ children }) => (
   </Typography.Custom>
 );
 
-export default function GlobalStats() {
-  const below816 = useMedia('(max-width: 816px)');
+const GlobalStats = () => {
+  const isBelow816px = useIsBelowPx(816);
 
   const { oneDayVolumeUSD, oneDayTxns, pairCount } = useGlobalData();
 
-  const oneDayFees = oneDayVolumeUSD
-    ? // FIXME: just know this is approximated, because each pair can have its own swap fee
-      formattedNum(oneDayVolumeUSD * 0.0025, true)
-    : '';
+  // just know this is approximated, because each pair can have its own swap fee
+  const oneDayFees = oneDayVolumeUSD ? formattedNum(oneDayVolumeUSD * 0.0025, true) : '';
 
   return (
-    <Wrapper isMobile={below816}>
+    <Wrapper isMobile={isBelow816px}>
       <StatsCard>
         <Flex>
           <Icon icon={<BarChartSvg height={16} width={16} />} />
@@ -55,4 +53,6 @@ export default function GlobalStats() {
       </StatsCard>
     </Wrapper>
   );
-}
+};
+
+export default GlobalStats;

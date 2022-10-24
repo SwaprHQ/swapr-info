@@ -77,10 +77,6 @@ const LayoutWrapper = ({ children, savedOpen }) => {
       <ContentWrapper open={savedOpen}>
         <SideNav />
         <Center id="center">{children}</Center>
-        {/* TODO: uncomment once per-network pinning is a thing */}
-        {/* <Right open={savedOpen}>
-          <PinnedData open={savedOpen} setSavedOpen={setSavedOpen} />
-        </Right> */}
       </ContentWrapper>
     </>
   );

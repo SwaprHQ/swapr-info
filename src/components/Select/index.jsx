@@ -1,56 +1,18 @@
 import PropTypes from 'prop-types';
 import { isMobile } from 'react-device-detect';
 import { default as ReactSelect } from 'react-select';
-import styled from 'styled-components';
 
 import Popout from './popout';
-import { customStyles, customStylesMobile, customStylesTime } from './styles';
-
-const MenuLabel = styled.div`
-  display: flex;
-  align-items: center;
-  width: 100%;
-  justify-content: flex-start;
-  flex-direction: row;
-`;
-
-const LabelBox = styled.div``;
-
-const LogoBox = styled.div`
-  width: 30px;
-  display: flex;
-  justify-content: center;
-  align-items: flex-start;
-  margin-right: 8px;
-`;
-
-const CustomMenu = styled.div`
-  background-color: white;
-  position: absolute;
-  border-radius: 16px;
-  box-shadow: 0 4px 8px 0 rgba(47, 128, 237, 0.1), 0 0 0 0.5px var(--c-zircon);
-  overflow: hidden;
-  padding: 0;
-  width: 180px;
-  z-index: 5;
-  margin-top: 10px;
-  padding-top: 36px;
-`;
-
-const FixedToggle = styled.div`
-  position: absolute;
-  height: 24px;
-  z-index: 10;
-  background-color: white;
-  width: 100%;
-  top: 8px;
-  display: flex;
-  align-items: center;
-  padding-left: 12px;
-  & > input {
-    margin-right: 8px;
-  }
-`;
+import {
+  customStyles,
+  customStylesMobile,
+  customStylesTime,
+  MenuLabel,
+  LogoBox,
+  LabelBox,
+  CustomMenu,
+  FixedToggle,
+} from './styles';
 
 let addressStart = new RegExp('^0x');
 function customFilter(option, searchText) {

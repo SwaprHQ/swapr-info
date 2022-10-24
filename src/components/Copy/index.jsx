@@ -1,32 +1,12 @@
+import PropTypes from 'prop-types';
 import { CheckCircle } from 'react-feather';
-import styled from 'styled-components';
 
 import { StyledIcon } from '..';
 import { ReactComponent as ClipboardCopySvg } from '../../assets/svg/clipboard-copy.svg';
 import { useCopyClipboard } from '../../hooks';
+import { CopyIcon, TransactionStatusText } from './styled';
 
-const CopyIcon = styled.div`
-  display: flex;
-  color: #aeaeae;
-  flex-shrink: 0;
-  margin-left: 4px;
-  text-decoration: none;
-  :hover,
-  :active,
-  :focus {
-    text-decoration: none;
-    opacity: 0.8;
-    cursor: pointer;
-  }
-`;
-const TransactionStatusText = styled.span`
-  margin-left: 0.25rem;
-  ${({ theme }) => theme.flexRowNoWrap};
-  align-items: center;
-  color: black;
-`;
-
-export default function CopyHelper({ toCopy }) {
+const CopyHelper = ({ toCopy }) => {
   const [isCopied, setCopied] = useCopyClipboard();
 
   return (
@@ -46,4 +26,10 @@ export default function CopyHelper({ toCopy }) {
       )}
     </CopyIcon>
   );
-}
+};
+
+CopyHelper.propTypes = {
+  toCopy: PropTypes.string,
+};
+
+export default CopyHelper;

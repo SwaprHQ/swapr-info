@@ -2,7 +2,6 @@ import { useState, useEffect, memo } from 'react';
 import 'feather-icons';
 import isEqual from 'react-fast-compare';
 import Skeleton from 'react-loading-skeleton';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -24,6 +23,7 @@ import TxnList from '../components/TxnList';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useDataForList } from '../contexts/PairData';
 import { useTokenData, useTokenTransactions, useTokenPairs } from '../contexts/TokenData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent, getExplorerLink, getPoolLink, getSwapLink, localNumber } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -105,8 +105,8 @@ function TokenPage({ address }) {
   // transactions
   const txnChangeFormatted = formattedPercent(txnChange);
 
-  const below1080 = useMedia('(max-width: 1080px)');
-  const below700 = useMedia('(max-width: 710px)');
+  const below1080 = useIsBelowPx(1080);
+  const below700 = useIsBelowPx(710);
 
   // format for long symbol
   const LENGTH = below1080 ? 10 : 16;

@@ -42,6 +42,7 @@ const StyledDialogOverlay = styled(DialogOverlay)`
 `;
 
 const Wrapper = styled.div`
+  height: 312px;
   position: relative;
 `;
 

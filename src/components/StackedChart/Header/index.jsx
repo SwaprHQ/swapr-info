@@ -1,8 +1,11 @@
 import PropTypes from 'prop-types';
+import { Flex } from 'rebass';
 
 import { Typography } from '../../../Theme';
-import DropdownBasicSelect from '../../DropdownBasicSelect';
-import { Container, DailyChange, FlexContainer } from './styled';
+import { useIsBelowPx } from '../../../hooks/useIsBelowPx';
+import { formatChartDate, formatChartValueByType } from '../../../utils';
+import RadioTimeFilter from '../../RadioTimeFilter';
+import { Container, DailyChange } from './styled';
 
 const Header = ({
   title,
@@ -12,27 +15,35 @@ const Header = ({
   filterOptions,
   activeFilter,
   onFilterChange,
-  isValueCurrency,
+  dataType,
   showTimeFilter,
-}) => (
-  <Container>
-    <div>
-      <Typography.SmallHeader sx={{ textTransform: 'uppercase', marginBottom: 12 }}>{title}</Typography.SmallHeader>
-      <FlexContainer>
-        <Typography.LargeBoldHeader sx={{ marginRight: 10 }}>
-          {isValueCurrency && '$'} {value}
-        </Typography.LargeBoldHeader>
-        <DailyChange>{dailyChange}</DailyChange>
-      </FlexContainer>
-      <Typography.Text>{date}</Typography.Text>
-    </div>
-    {showTimeFilter && (
+}) => {
+  const isBelow500px = useIsBelowPx(500);
+
+  return (
+    <Container>
       <div>
-        <DropdownBasicSelect active={activeFilter} setActive={onFilterChange} options={filterOptions} width={80} />
+        <Typography.LargeBoldText color={'text7'} sx={{ textTransform: 'uppercase', marginBottom: '4px' }}>
+          {title}
+        </Typography.LargeBoldText>
+        <Flex>
+          <Typography.LargeBoldHeader sx={{ marginRight: 10 }}>
+            {formatChartValueByType(value, dataType, isBelow500px)}
+          </Typography.LargeBoldHeader>
+        </Flex>
+        <Flex alignItems={'center'} style={{ gap: '6px' }}>
+          <Typography.Text color={'text7'}>{formatChartDate(date, false, isBelow500px)}</Typography.Text>
+          <DailyChange>{dailyChange}</DailyChange>
+        </Flex>
       </div>
-    )}
-  </Container>
-);
+      {showTimeFilter && (
+        <div>
+          <RadioTimeFilter options={filterOptions} activeValue={activeFilter} onChange={onFilterChange} />
+        </div>
+      )}
+    </Container>
+  );
+};
 
 Header.propTypes = {
   title: PropTypes.string,
@@ -42,12 +53,12 @@ Header.propTypes = {
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,
   onFilterChange: PropTypes.func.isRequired,
-  isValueCurrency: PropTypes.bool,
+  dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
   showTimeFilter: PropTypes.bool,
 };
 
 Header.defaultProps = {
-  isValueCurrency: true,
+  dataType: 'CURRENCY',
   showTimeFilter: true,
 };
 

@@ -2,7 +2,6 @@ import dayjs from 'dayjs';
 import { transparentize } from 'polished';
 import { useEffect, useMemo } from 'react';
 import { withRouter } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Box, Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -21,6 +20,7 @@ import TxnList from '../components/TxnList';
 import { useGlobalChartData, useGlobalTransactions } from '../contexts/GlobalData';
 import { useAllPairData } from '../contexts/PairData';
 import { useAllTokenData } from '../contexts/TokenData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 
 const ListOptions = styled(AutoRow)`
   height: 40px;
@@ -57,7 +57,7 @@ const GlobalPage = () => {
   const [dailyData] = useGlobalChartData();
 
   // breakpoints
-  const below800 = useMedia('(max-width: 800px)');
+  const below800 = useIsBelowPx(800);
 
   // scrolling refs
   useEffect(() => {
@@ -89,11 +89,15 @@ const GlobalPage = () => {
       <ContentWrapper>
         <div>
           <AutoColumn gap={'24px'} style={{ marginBottom: '20px' }}>
-            <Flex flexDirection={below800 ? 'column' : 'row'} alignItems={'center'} style={{ gap: '20px' }}>
+            <Flex
+              flexDirection={below800 ? 'column' : 'row'}
+              alignItems={below800 ? 'center' : 'flex-end'}
+              style={{ gap: '20px' }}
+            >
               <Box flex={'1'}>
-                <Typography.LargeHeader color={'text10'} sx={{ textAlign: below800 ? 'center' : 'left' }}>
+                <Typography.MediumHeader color={'text10'} sx={{ textAlign: below800 ? 'center' : 'left' }}>
                   {below800 ? 'Swapr Protocol Overview' : 'Swapr Protocol Overview'}
-                </Typography.LargeHeader>
+                </Typography.MediumHeader>
               </Box>
               <Search />
             </Flex>

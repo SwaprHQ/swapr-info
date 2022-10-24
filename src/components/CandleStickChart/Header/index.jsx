@@ -36,7 +36,6 @@ Header.propTypes = {
 };
 
 Header.defaultProps = {
-  isValueCurrency: true,
   showTimeFilter: true,
 };
 

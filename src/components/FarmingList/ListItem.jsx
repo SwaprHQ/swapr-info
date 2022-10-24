@@ -1,8 +1,6 @@
-import React from 'react';
+import PropTypes from 'prop-types';
 import { ExternalLink } from 'react-feather';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
-import styled from 'styled-components';
 
 import { USD } from '@swapr/sdk';
 
@@ -10,52 +8,13 @@ import { Typography } from '../../Theme';
 import carrotListLogoUrl from '../../assets/images/carrot.png';
 import { CARROT_REWARD_TOKEN_REGEX, ChainId } from '../../constants';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formatDollarAmount, formattedNum, getSwaprLink, isDxDaoCampaignOwner } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
 import Link, { InternalListLink } from '../Link';
 import TokenLogo from '../TokenLogo';
-
-export const DashGrid = styled.div`
-  display: grid;
-  grid-gap: 1em;
-  grid-template-columns: 0.5fr 0.9fr 0.5fr 0.4fr 0.2fr;
-  grid-template-areas: 'pair tvl apy rewardTokens link';
-  padding: 10px 36px;
-  height: 100px;
-
-  > * {
-    justify-content: flex-end;
-
-    :first-child {
-      justify-content: flex-start;
-      text-align: left;
-    }
-  }
-
-  @media screen and (min-width: 680px) {
-    display: grid;
-    grid-gap: 1em;
-    grid-template-columns: 0.6fr 0.6fr 0.6fr 0.6fr 0.4fr 0.2fr;
-    grid-template-areas: 'pair tvl yield apy rewardTokens link';
-
-    > * {
-      justify-content: flex-end;
-      width: 100%;
-
-      &:first-child {
-        justify-content: flex-start;
-      }
-    }
-  }
-
-  @media screen and (min-width: 1081px) {
-    display: grid;
-    grid-gap: 0.5em;
-    grid-template-columns: 0.2fr 1fr 1fr 1fr 1fr 1fr 0.5fr 0.5fr;
-    grid-template-areas: 'index pair tvl yield apy rewardTokens owner link';
-  }
-`;
+import { DashGrid } from './styled';
 
 const FlexText = ({ area, justifyContent, flexDirection, color, children }) => (
   <Flex area={area} justifyContent={justifyContent} flexDirection={flexDirection || 'row'}>
@@ -65,11 +24,11 @@ const FlexText = ({ area, justifyContent, flexDirection, color, children }) => (
   </Flex>
 );
 
-export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
-  const below600 = useMedia('(max-width: 600px)');
-  const below680 = useMedia('(max-width: 680px)');
-  const below740 = useMedia('(max-width: 740px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+const ListItem = ({ campaign, index, nativeCurrencyPrice }) => {
+  const below600 = useIsBelowPx(600);
+  const below680 = useIsBelowPx(680);
+  const below740 = useIsBelowPx(740);
+  const below1080 = useIsBelowPx(1080);
 
   const nativeCurrency = useNativeCurrencySymbol();
   const nativeCurrencyWrapper = useNativeCurrencyWrapper();
@@ -91,7 +50,7 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
         <FlexText area={'pair'} justifyContent={'flex-start'}>
           {!below600 && (
             <DoubleTokenLogo
-              size={below740 ? 16 : 20}
+              size={below740 ? 16 : 24}
               a0={campaign.targetedPair.token0.address}
               a1={campaign.targetedPair.token1.address}
               defaultText0={campaign.targetedPair.token0.symbol}
@@ -194,4 +153,12 @@ export default function ListItem({ campaign, index, nativeCurrencyPrice }) {
   } else {
     return null;
   }
-}
+};
+
+ListItem.propTypes = {
+  campaign: PropTypes.object,
+  index: PropTypes.number,
+  nativeCurrencyPrice: PropTypes.number,
+};
+
+export default ListItem;

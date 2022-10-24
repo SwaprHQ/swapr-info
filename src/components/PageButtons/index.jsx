@@ -1,13 +1,13 @@
 import PropTypes from 'prop-types';
 import { ChevronLeft, ChevronRight } from 'react-feather';
-import { useMedia } from 'react-use';
 
 import { Typography } from '../../Theme';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import Icon from '../Icon';
 import { Wrapper, ArrowBox, PageCounterBox } from './styled';
 
 const PageButtons = ({ activePage, maxPages, onNextClick, onPreviousClick }) => {
-  const below600 = useMedia('(max-width: 600px)');
+  const below600 = useIsBelowPx(600);
 
   return (
     <Wrapper isMobile={below600}>

@@ -1,13 +1,13 @@
 import dayjs from 'dayjs';
 import utc from 'dayjs/plugin/utc';
+import PropTypes from 'prop-types';
 import { useState, useEffect } from 'react';
-import { useMedia } from 'react-use';
-import { Box, Flex, Text } from 'rebass';
-import styled from 'styled-components';
+import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
 import { Divider } from '../../components';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper } from '../../contexts/Network';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import { formattedNum, formattedPercent } from '../../utils';
 import DoubleTokenLogo from '../DoubleLogo';
 import FormattedName from '../FormattedName';
@@ -16,71 +16,9 @@ import LocalLoader from '../LocalLoader';
 import PageButtons from '../PageButtons';
 import Panel from '../Panel';
 import QuestionHelper from '../QuestionHelper';
+import { ClickableText, DashGrid, FeeText, List } from './styled';
 
 dayjs.extend(utc);
-
-const List = styled(Box)`
-  -webkit-overflow-scrolling: touch;
-`;
-
-const DashGrid = styled.div`
-  display: grid;
-  grid-gap: 1em;
-  grid-template-columns: 100px 1fr;
-  grid-template-areas: 'name vol';
-  padding: 0 20px;
-
-  > * {
-    justify-content: flex-end;
-
-    :first-child {
-      justify-content: flex-start;
-      text-align: left;
-    }
-  }
-
-  @media screen and (min-width: 680px) {
-    padding: 0 36px;
-    display: grid;
-    grid-gap: 1em;
-    grid-template-columns: 180px 1fr 1fr 1fr;
-    grid-template-areas: 'name symbol liq vol';
-
-    > * {
-      justify-content: flex-end;
-      width: 100%;
-
-      &:first-child {
-        justify-content: flex-start;
-      }
-    }
-  }
-
-  @media screen and (min-width: 1080px) {
-    padding: 0 36px;
-    display: grid;
-    grid-gap: 0.5em;
-    grid-template-columns: 0.1fr 1.5fr 0.6fr 1fr 1fr 1fr 1fr;
-    grid-template-areas: 'index name symbol liq vol price change';
-  }
-`;
-
-const ClickableText = styled(Text)`
-  color: ${({ theme }) => theme.text1};
-  &:hover {
-    cursor: pointer;
-    opacity: 0.6;
-  }
-  text-align: end;
-  user-select: none;
-`;
-
-const FeeText = styled.div`
-  background-color: ${({ theme }) => theme.bg8};
-  border-radius: 6px;
-  margin-left: 6px;
-  padding: 4px 6px;
-`;
 
 const FlexText = ({ area, justifyContent, color, children }) => (
   <Flex area={area} justifyContent={justifyContent}>
@@ -105,10 +43,10 @@ const FIELD_TO_VALUE = {
   [SORT_FIELD.FEES]: 'oneDayVolumeUSD',
 };
 
-export default function PairList({ pairs, maxItems = 10 }) {
-  const below600 = useMedia('(max-width: 600px)');
-  const below680 = useMedia('(max-width: 680px)');
-  const below1080 = useMedia('(max-width: 1080px)');
+const PairList = ({ pairs, maxItems = 10 }) => {
+  const below600 = useIsBelowPx(600);
+  const below680 = useIsBelowPx(680);
+  const below1080 = useIsBelowPx(1080);
 
   // pagination
   const [page, setPage] = useState(1);
@@ -156,7 +94,7 @@ export default function PairList({ pairs, maxItems = 10 }) {
           )}
           <FlexText area={'name'} justifyContent={'flex-start'}>
             <DoubleTokenLogo
-              size={below600 ? 16 : 20}
+              size={below600 ? 16 : 24}
               a0={pairData.token0.id}
               a1={pairData.token1.id}
               defaultText0={pairData.token0.symbol}
@@ -327,4 +265,11 @@ export default function PairList({ pairs, maxItems = 10 }) {
       />
     </>
   );
-}
+};
+
+PairList.propTypes = {
+  pairs: PropTypes.any,
+  maxItems: PropTypes.number,
+};
+
+export default PairList;

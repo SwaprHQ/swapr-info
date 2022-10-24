@@ -1,4 +1,5 @@
 import dayjs from 'dayjs';
+import PropTypes from 'prop-types';
 import { useState, useMemo } from 'react';
 import { Flex } from 'rebass';
 
@@ -136,6 +137,11 @@ const TokenChart = ({ address, base }) => {
       )}
     </ChartWrapper>
   );
+};
+
+TokenChart.propTypes = {
+  address: PropTypes.string,
+  base: PropTypes.number,
 };
 
 export default TokenChart;

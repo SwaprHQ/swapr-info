@@ -33,7 +33,7 @@ const DialogWithChart = ({ title, historicalDataHook, isOpen, onClose }: DialogW
             {data && data.length > 0 ? (
               <Wrapper>
                 <CloseChartIcon size={22} onClick={onClose} />
-                <StackedChart title={title} type={'AREA'} data={data} isCurrency={false} showTimeFilter={false} />
+                <StackedChart title={title} type={'AREA'} data={data} dataType={'BASE'} showTimeFilter={false} />
               </Wrapper>
             ) : (
               <LocalLoader fill={false} height={undefined} />

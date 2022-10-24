@@ -1,12 +1,12 @@
 import dayjs from 'dayjs';
 import { PropTypes } from 'prop-types';
 import { useState, useMemo } from 'react';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 
 import { Typography } from '../../Theme';
 import { TIME_FILTER_OPTIONS } from '../../constants';
 import { useUserPositionChart } from '../../contexts/User';
+import { useIsBelowPx } from '../../hooks/useIsBelowPx';
 import Chart from '../Chart';
 import LocalLoader from '../LocalLoader';
 import Panel from '../Panel';
@@ -46,7 +46,7 @@ const LiquidityMiningPositionChart = ({ account, position }) => {
     [liquidityMiningPositionData],
   );
 
-  const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow600px = useIsBelowPx(600);
 
   return (
     <>

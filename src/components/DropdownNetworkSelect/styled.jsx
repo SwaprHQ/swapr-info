@@ -9,17 +9,23 @@ const Wrapper = styled.div`
   backdrop-filter: blur(25px);
   border: 1px solid ${({ color, theme }) => color || theme.bd1};
   max-width: 151px;
-  height: 100%;
-  max-height: 36px;
+  height: 36px;
   width: 100%;
   padding: 3px 12px;
   border-radius: 12px;
   display: flex;
   align-items: center;
+  user-select: none;
   z-index: 2;
+
+  -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 
   :hover {
     cursor: ${({ disabled }) => (disabled ? 'default' : 'pointer')};
+  }
+
+  :focus {
+    outline: none;
   }
 `;
 
@@ -38,7 +44,7 @@ const IconWrapper = styled.span`
 
 const Dropdown = styled.div`
   position: absolute;
-  top: 38px;
+  top: 49px;
   left: -1px;
   padding-top: 40px;
   background: linear-gradient(143.3deg, rgba(46, 23, 242, 0.5) -120%, rgba(46, 23, 242, 0) 60%),

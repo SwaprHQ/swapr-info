@@ -3,7 +3,6 @@ import PropTypes from 'prop-types';
 import { useEffect } from 'react';
 import Skeleton from 'react-loading-skeleton';
 import { useHistory } from 'react-router-dom';
-import { useMedia } from 'react-use';
 import { Flex } from 'rebass';
 import styled from 'styled-components';
 
@@ -28,6 +27,7 @@ import { CARROT_REWARD_TOKEN_REGEX, ChainId } from '../constants';
 import { useNativeCurrencyPrice } from '../contexts/GlobalData';
 import { useNativeCurrencySymbol, useNativeCurrencyWrapper, useSelectedNetwork } from '../contexts/Network';
 import { useLiquidityMiningCampaignData, useLiquidityMiningCampaignsForPair, usePairData } from '../contexts/PairData';
+import { useIsBelowPx } from '../hooks/useIsBelowPx';
 import { formatDollarAmount, getExplorerLink, getSwapLink, getSwaprLink, isDxDaoCampaignOwner } from '../utils';
 
 const DashboardWrapper = styled.div`
@@ -87,7 +87,7 @@ const FarmPage = ({ campaignAddress, pairAddress }) => {
   // get the last 20 campaings
   const liquidityMiningCampaigns = useLiquidityMiningCampaignsForPair(pairAddress, 0);
 
-  const isBelow600px = useMedia('(max-width: 600px)');
+  const isBelow600px = useIsBelowPx(600);
 
   useEffect(() => {
     document.querySelector('body').scrollTo(0, 0);

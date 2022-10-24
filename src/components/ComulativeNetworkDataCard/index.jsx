@@ -9,7 +9,7 @@ const DataCard = ({ title, icon, comulativeValue, networksValues, customNetworkA
     <Header>
       <Title>
         {icon}
-        <Typography.SmallHeader>{title}</Typography.SmallHeader>
+        <Typography.LargeBoldText color={'text10'}>{title}</Typography.LargeBoldText>
       </Title>
       <Value>{comulativeValue}</Value>
     </Header>

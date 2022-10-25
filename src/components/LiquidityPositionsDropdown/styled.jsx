@@ -29,6 +29,8 @@ const IconWrapper = styled.span`
 `;
 
 const Dropdown = styled.div`
+  max-height: 300px;
+  overflow-y: scroll;
   z-index: 2;
   position: absolute;
   top: 57px;
@@ -38,6 +40,19 @@ const Dropdown = styled.div`
   padding: 14px 15px;
   border-radius: 12px;
   width: calc(100% - 30px);
+
+  ::-webkit-scrollbar {
+    width: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: transparent;
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background-color: #b6b5b7;
+    border-radius: 100px;
+  }
 
   &:hover {
     cursor: pointer;

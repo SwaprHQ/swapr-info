@@ -452,7 +452,7 @@ const getUncollectedFees = async () => {
     return {
       [SupportedNetwork.MAINNET]: uncollectedFees.mainnetUSD,
       [SupportedNetwork.ARBITRUM_ONE]: uncollectedFees.arbitrumOneUSD,
-      [SupportedNetwork.XDAI]: uncollectedFees.xDaiUSD,
+      [SupportedNetwork.XDAI]: uncollectedFees.gnosisUSD,
       total: uncollectedFees.totalUSD,
     };
   } catch (error) {

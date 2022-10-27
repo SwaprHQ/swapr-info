@@ -11,6 +11,7 @@ const Header = ({
   title,
   value,
   dailyChange,
+  formatActiveDate,
   date,
   filterOptions,
   activeFilter,
@@ -32,7 +33,9 @@ const Header = ({
           </Typography.LargeBoldHeader>
         </Flex>
         <Flex alignItems={'center'} style={{ gap: '6px' }}>
-          <Typography.Text color={'text7'}>{formatChartDate(date, false, isBelow500px)}</Typography.Text>
+          <Typography.Text color={'text7'}>
+            {formatChartDate(date, false, isBelow500px, formatActiveDate)}
+          </Typography.Text>
           <DailyChange>{dailyChange}</DailyChange>
         </Flex>
       </div>
@@ -49,6 +52,7 @@ Header.propTypes = {
   title: PropTypes.string,
   dailyChange: PropTypes.any,
   value: PropTypes.oneOfType([PropTypes.number, PropTypes.string]),
+  formatActiveDate: PropTypes.func,
   date: PropTypes.string,
   filterOptions: PropTypes.object,
   activeFilter: PropTypes.string,

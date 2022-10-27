@@ -5,7 +5,7 @@ import { Typography } from '../../Theme';
 import { MobileMenu } from './MobileMenu';
 
 const Wrapper = styled.div`
-  height: ${({ isMobile }) => (isMobile ? 'initial' : 'calc(100vh - 36px)')};
+  height: ${({ isMobile }) => (isMobile ? 'initial' : '100vh')};
   padding: 0 14px;
   color: ${({ theme }) => theme.text1};
   position: sticky;

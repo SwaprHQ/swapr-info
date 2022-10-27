@@ -830,7 +830,7 @@ export function formatChartValueByType(value, dataType, short) {
     return formattedNum(value) + '%';
   }
 
-  return value;
+  return formattedNum(value);
 }
 
 /**
@@ -853,7 +853,11 @@ export function getWeekFormattedDate(date, short) {
     .format(short ? 'MMM D, YY' : 'MMMM D, YYYY')}`;
 }
 
-export function formatChartDate(date, isWeekly, short) {
+export function formatChartDate(date, isWeekly, short, formatActiveDate = null) {
+  if (formatActiveDate) {
+    return formatActiveDate(date);
+  }
+
   return isWeekly ? getWeekFormattedDate(date, short) : dayjs(date).format(short ? 'MMM D, YY' : 'MMMM D, YYYY');
 }
 

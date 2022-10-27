@@ -3,7 +3,7 @@ import React from 'react';
 
 import LocalLoader from '../../LocalLoader';
 import StackedChart from '../../StackedChart';
-import { CloseChartIcon, StyledDialogContent, StyledDialogOverlay, Wrapper } from './styled';
+import { StyledDialogContent, StyledDialogOverlay, Wrapper } from './styled';
 
 const AnimatedDialogOverlay = animated(StyledDialogOverlay);
 const AnimatedDialogContent = animated(StyledDialogContent);
@@ -12,10 +12,21 @@ interface DialogWithChartProps {
   title: string;
   historicalDataHook: any;
   isOpen: boolean;
+  isTimeFilterVisible: boolean;
+  defaultTimeFilter: '1M' | '3M' | '1Y';
+  formatActiveDate: any;
   onClose: React.MouseEventHandler;
 }
 
-const DialogWithChart = ({ title, historicalDataHook, isOpen, onClose }: DialogWithChartProps) => {
+const DialogWithChart = ({
+  title,
+  historicalDataHook,
+  isOpen,
+  isTimeFilterVisible,
+  defaultTimeFilter = '1M',
+  formatActiveDate = null,
+  onClose,
+}: DialogWithChartProps) => {
   const data = historicalDataHook();
 
   const transitions = useTransition(isOpen, {
@@ -32,8 +43,15 @@ const DialogWithChart = ({ title, historicalDataHook, isOpen, onClose }: DialogW
           <AnimatedDialogContent aria-label={'trades'}>
             {data && data.length > 0 ? (
               <Wrapper>
-                <CloseChartIcon size={22} onClick={onClose} />
-                <StackedChart title={title} type={'AREA'} data={data} dataType={'BASE'} showTimeFilter={false} />
+                <StackedChart
+                  title={title}
+                  type={'AREA'}
+                  data={data}
+                  dataType={'BASE'}
+                  showTimeFilter={isTimeFilterVisible}
+                  formatActiveDate={formatActiveDate}
+                  defaultTimeFilter={defaultTimeFilter}
+                />
               </Wrapper>
             ) : (
               <LocalLoader fill={false} height={undefined} />

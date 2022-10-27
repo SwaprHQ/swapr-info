@@ -18,19 +18,23 @@ import LocalLoader from '../components/LocalLoader';
 import NetworkDataCardWithDialog from '../components/NetworkDataCardWithDialog';
 import Panel from '../components/Panel';
 import StackedChart from '../components/StackedChart';
-import { SupportedNetwork, NETOWRK_FEE_RECEIVER_ADDRESSES } from '../constants';
+import { SupportedNetwork, NETOWRK_FEE_RECEIVER_ADDRESSES, STACKED_CHART_TIME_FILTER_OPTIONS } from '../constants';
 import {
   useDashboardChartData,
   useDashboardComulativeData,
   useOneDaySwapsData,
-  useOneDayWalletsData,
-  usePastMonthWalletsData,
+  usePastYearUniqueDailyWalletsData,
   useSwapsData,
   useUncollectedFeesData,
+  useUniqueDailyWalletsData,
+  useUniqueWeeklyWalletsData,
+  usePastYearUniqueWeeklyWalletsData,
+  useUniqueMonthlyWalletsData,
+  usePastYearUniqueMonthlyWalletsData,
 } from '../contexts/Dashboard';
 import { useSelectedNetworkUpdater } from '../contexts/Network';
 import { useIsBelowPx } from '../hooks/useIsBelowPx';
-import { formattedNum } from '../utils';
+import { formattedNum, getWeekFormattedDate } from '../utils';
 
 const GridRow = styled.div`
   display: grid;
@@ -68,7 +72,9 @@ const CardLoaderWrapper = ({ isLoading, children }) => (
 
 const DashboardPage = ({ history }) => {
   const oneDayTransactions = useOneDaySwapsData();
-  const oneDayWalletsData = useOneDayWalletsData();
+  const oneDayWalletsData = useUniqueDailyWalletsData(dayjs.utc().startOf('day').unix());
+  const oneWeekWalletsData = useUniqueWeeklyWalletsData(dayjs.utc().subtract(7, 'day').startOf('day').unix());
+  const oneMonthWalletsData = useUniqueMonthlyWalletsData(dayjs.utc().subtract(1, 'month').startOf('day').unix());
   const chartData = useDashboardChartData();
   const comulativeData = useDashboardComulativeData();
   const switchNetwork = useSelectedNetworkUpdater();
@@ -158,6 +164,8 @@ const DashboardPage = ({ history }) => {
     formattedComulativeData.trades.length === 0 || formattedComulativeData.volume.length === 0;
   const isLoadingOneDayTransactions = oneDayTransactions === undefined || Object.keys(oneDayTransactions).length === 0;
   const isLoadingOneDayWallets = oneDayWalletsData === undefined || Object.keys(oneDayWalletsData).length === 0;
+  const isLoadingOneWeekWallets = oneWeekWalletsData === undefined || Object.keys(oneWeekWalletsData).length === 0;
+  const isLoadingOneMonthWallets = oneMonthWalletsData === undefined || Object.keys(oneMonthWalletsData).length === 0;
 
   return (
     <PageWrapper>
@@ -219,10 +227,32 @@ const DashboardPage = ({ history }) => {
                 <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
                   <NetworkDataCardWithDialog
                     title={'Daily wallets'}
-                    chartTitle={'Wallets'}
+                    chartTitle={'Daily Wallets'}
                     icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
                     networksValues={oneDayWalletsData}
-                    historicalDataHook={usePastMonthWalletsData}
+                    historicalDataHook={usePastYearUniqueDailyWalletsData}
+                  />
+                </CardLoaderWrapper>
+                <CardLoaderWrapper isLoading={isLoadingOneWeekWallets}>
+                  <NetworkDataCardWithDialog
+                    title={'Weekly wallets'}
+                    chartTitle={'Weekly Wallets'}
+                    icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
+                    networksValues={oneWeekWalletsData}
+                    formatActiveDate={(activeDate) => getWeekFormattedDate(activeDate, true)}
+                    historicalDataHook={usePastYearUniqueWeeklyWalletsData}
+                  />
+                </CardLoaderWrapper>
+                <CardLoaderWrapper isLoading={isLoadingOneMonthWallets}>
+                  <NetworkDataCardWithDialog
+                    title={'Monthly wallets'}
+                    chartTitle={'Monthly Wallets'}
+                    icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
+                    networksValues={oneMonthWalletsData}
+                    isTimeFilterVisible={false}
+                    defaultTimeFilter={STACKED_CHART_TIME_FILTER_OPTIONS.YEAR}
+                    formatActiveDate={(activeDate) => dayjs(activeDate).format('MMMM YYYY')}
+                    historicalDataHook={usePastYearUniqueMonthlyWalletsData}
                   />
                 </CardLoaderWrapper>
               </AutoColumn>
@@ -278,10 +308,32 @@ const DashboardPage = ({ history }) => {
                   <CardLoaderWrapper isLoading={isLoadingOneDayWallets}>
                     <NetworkDataCardWithDialog
                       title={'Daily wallets'}
-                      chartTitle={'Wallets'}
+                      chartTitle={'Past Year Daily Wallets'}
                       icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
                       networksValues={oneDayWalletsData}
-                      historicalDataHook={usePastMonthWalletsData}
+                      historicalDataHook={usePastYearUniqueDailyWalletsData}
+                    />
+                  </CardLoaderWrapper>
+                  <CardLoaderWrapper isLoading={isLoadingOneWeekWallets}>
+                    <NetworkDataCardWithDialog
+                      title={'Weekly wallets'}
+                      chartTitle={'Past Year Weekly Wallets'}
+                      icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
+                      networksValues={oneWeekWalletsData}
+                      formatActiveDate={(activeDate) => getWeekFormattedDate(activeDate)}
+                      historicalDataHook={usePastYearUniqueWeeklyWalletsData}
+                    />
+                  </CardLoaderWrapper>
+                  <CardLoaderWrapper isLoading={isLoadingOneMonthWallets}>
+                    <NetworkDataCardWithDialog
+                      title={'Monthly wallets'}
+                      chartTitle={'Past Year Monthly Wallets'}
+                      icon={<Icon icon={<WalletsSvg height={18} width={18} />} />}
+                      networksValues={oneMonthWalletsData}
+                      isTimeFilterVisible={false}
+                      defaultTimeFilter={STACKED_CHART_TIME_FILTER_OPTIONS.YEAR}
+                      formatActiveDate={(activeDate) => dayjs(activeDate).format('MMMM YYYY')}
+                      historicalDataHook={usePastYearUniqueMonthlyWalletsData}
                     />
                   </CardLoaderWrapper>
                 </GridCard>

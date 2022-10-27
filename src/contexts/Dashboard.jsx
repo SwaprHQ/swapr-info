@@ -9,9 +9,9 @@ import {
   DASHBOARD_CHART,
   DASHBOARD_COMULATIVE_DATA,
   DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
-  DASHBOARD_SWAPS_HISTORY,
-  DASHBOARD_MINTS_AND_SWAPS,
-  DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP,
+  DASHBOARD_UNIQUE_DAILY_INTERACTIONS,
+  DASHBOARD_UNIQUE_WEEKLY_INTERACTIONS,
+  DASHBOARD_UNIQUE_MONTHLY_INTERACTIONS,
 } from '../apollo/queries';
 import { SupportedNetwork, SWAPR_COINGECKO_ENDPOINT } from '../constants';
 import { getTimeframe } from '../utils';
@@ -45,7 +45,7 @@ const INITIAL_STATE = {
     loading: false,
   },
   swaps: { loadingHistory: false },
-  wallets: { loadingHistory: false },
+  wallets: { daily: { loadingHistory: false }, weekly: { loadingHistory: false }, monthly: { loadingHistory: false } },
 };
 const UPDATE_CHART = 'UPDATE_CHART';
 const UPDATE_COMULATIVE_DATA = 'UPDATE_COMULATIVE_DATA';
@@ -53,6 +53,8 @@ const UPDATE_TRANSACTIONS = 'UPDATE_TRANSACTIONS';
 const UPDATE_ONE_DAY_SWAPS = 'UPDATE_ONE_DAY_SWAPS';
 const UPDATE_LOADING_SWAPS = 'UPDATE_LOADING_SWAPS';
 const UPDATE_ONE_DAY_WALLETS = 'UPDATE_ONE_DAY_WALLETS';
+const UPDATE_UNIQUE_WALLETS_INTERACTIONS = 'UPDATE_UNIQUE_WALLETS_INTERACTIONS';
+const UPDATE_UNIQUE_WALLETS_INTERACTIONS_HISTORY = 'UPDATE_UNIQUE_WALLETS_INTERACTIONS_HISTORY_HISTORY';
 const UPDATE_WALLETS = 'UPDATE_WALLETS';
 const UPDATE_LOADING_WALLETS = 'UPDATE_LOADING_WALLETS';
 const UPDATE_UNCOLLECTED_FEES_DATA = 'UPDATE_UNCOLLECTED_FEES_DATA';
@@ -133,13 +135,46 @@ function reducer(state, { type, payload }) {
       };
     }
 
-    case UPDATE_LOADING_WALLETS: {
-      const { loading } = payload;
+    case UPDATE_UNIQUE_WALLETS_INTERACTIONS: {
+      const { uniqueness, timeframe, data } = payload;
+
       return {
         ...state,
         wallets: {
           ...state.wallets,
-          loadingHistory: loading,
+          [uniqueness]: {
+            ...state.wallets[uniqueness],
+            [timeframe]: data,
+          },
+        },
+      };
+    }
+
+    case UPDATE_UNIQUE_WALLETS_INTERACTIONS_HISTORY: {
+      const { uniqueness, data } = payload;
+
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          [uniqueness]: {
+            ...state.wallets[uniqueness],
+            history: data,
+          },
+        },
+      };
+    }
+
+    case UPDATE_LOADING_WALLETS: {
+      const { uniqueness, loading } = payload;
+      return {
+        ...state,
+        wallets: {
+          ...state.wallets,
+          [uniqueness]: {
+            ...state.wallets[uniqueness],
+            loadingHistory: loading,
+          },
         },
       };
     }
@@ -230,10 +265,32 @@ export default function Provider({ children }) {
     });
   }, []);
 
-  const updateLoadingWallets = useCallback((loading) => {
+  const updateUniqueWalletsInteractions = useCallback((uniqueness, timeframe, data) => {
+    dispatch({
+      type: UPDATE_UNIQUE_WALLETS_INTERACTIONS,
+      payload: {
+        uniqueness,
+        timeframe,
+        data,
+      },
+    });
+  }, []);
+
+  const updateUniqueWalletsInteractionsHistory = useCallback((uniqueness, data) => {
+    dispatch({
+      type: UPDATE_UNIQUE_WALLETS_INTERACTIONS_HISTORY,
+      payload: {
+        uniqueness,
+        data,
+      },
+    });
+  }, []);
+
+  const updateLoadingWallets = useCallback((uniqueness, loading) => {
     dispatch({
       type: UPDATE_LOADING_WALLETS,
       payload: {
+        uniqueness,
         loading,
       },
     });
@@ -257,6 +314,8 @@ export default function Provider({ children }) {
         updateOneDaySwaps,
         updateWallets,
         updateOneDayWallets,
+        updateUniqueWalletsInteractions,
+        updateUniqueWalletsInteractionsHistory,
         updateLoadingWallets,
         updateUncollectedFees,
       },
@@ -270,6 +329,8 @@ export default function Provider({ children }) {
       updateOneDaySwaps,
       updateWallets,
       updateOneDayWallets,
+      updateUniqueWalletsInteractions,
+      updateUniqueWalletsInteractionsHistory,
       updateLoadingWallets,
       updateUncollectedFees,
     ],
@@ -348,9 +409,11 @@ export const useSwapsData = () => {
     async function fetchData() {
       updateLoadingSwaps(true);
 
-      const pastMonthSwaps = await getPastMonthSwaps();
+      const pastYearSwaps = await getPastYearSwaps();
 
-      updateSwaps(pastMonthSwaps);
+      console.log('PAST YEAR SWAPS', pastYearSwaps);
+
+      updateSwaps(pastYearSwaps);
       updateLoadingSwaps(false);
     }
 
@@ -381,45 +444,131 @@ export const useOneDaySwapsData = () => {
   return existingSwaps;
 };
 
-export const useOneDayWalletsData = () => {
-  const [state, { updateOneDayWallets }] = useDashboardDataContext();
+export const useUniqueDailyWalletsData = (startTime) => {
+  const [state, { updateUniqueWalletsInteractions }] = useDashboardDataContext();
 
-  const existingWallets = state?.wallets?.oneDay;
+  const existingUniqueWalletsInteractions = state?.wallets?.daily?.oneDay;
 
   useEffect(() => {
     async function fetchData() {
-      const oneDayWallets = await getOneDayWallets();
-      updateOneDayWallets(oneDayWallets);
+      const uniqueWalletsInteractions = await getDailyUniqueInteractions(startTime);
+      updateUniqueWalletsInteractions('daily', 'oneDay', uniqueWalletsInteractions);
     }
 
-    if (!existingWallets || existingWallets.length === 0) {
+    if (!existingUniqueWalletsInteractions || existingUniqueWalletsInteractions.length === 0) {
       fetchData();
     }
-  }, [existingWallets, updateOneDayWallets]);
+  }, [existingUniqueWalletsInteractions, updateUniqueWalletsInteractions, startTime]);
 
-  return existingWallets;
+  return existingUniqueWalletsInteractions;
 };
 
-export const usePastMonthWalletsData = () => {
-  const [state, { updateWallets, updateLoadingWallets }] = useDashboardDataContext();
+export const useUniqueWeeklyWalletsData = (startTime) => {
+  const [state, { updateUniqueWalletsInteractions }] = useDashboardDataContext();
 
-  const existingWallets = state?.wallets?.history;
-  const isLoadingWallets = state?.wallets?.loadingHistory;
+  const existingUniqueWalletsInteractions = state?.wallets?.weekly?.oneWeek;
 
   useEffect(() => {
     async function fetchData() {
-      updateLoadingWallets(true);
+      const uniqueWalletsInteractions = await getWeeklyUniqueInteractions(startTime);
+      updateUniqueWalletsInteractions('weekly', 'oneWeek', uniqueWalletsInteractions);
+    }
 
-      const pastMonthWallets = await getPastMonthWallets();
+    if (!existingUniqueWalletsInteractions || existingUniqueWalletsInteractions.length === 0) {
+      fetchData();
+    }
+  }, [existingUniqueWalletsInteractions, updateUniqueWalletsInteractions, startTime]);
 
-      updateWallets(pastMonthWallets);
-      updateLoadingWallets(false);
+  return existingUniqueWalletsInteractions;
+};
+
+export const useUniqueMonthlyWalletsData = (startTime) => {
+  const [state, { updateUniqueWalletsInteractions }] = useDashboardDataContext();
+
+  const existingUniqueWalletsInteractions = state?.wallets?.monthly?.oneMonth;
+
+  useEffect(() => {
+    async function fetchData() {
+      const uniqueWalletsInteractions = await getMonthlyUniqueInteractions(startTime);
+      updateUniqueWalletsInteractions('monthly', 'oneMonth', uniqueWalletsInteractions);
+    }
+
+    if (!existingUniqueWalletsInteractions || existingUniqueWalletsInteractions.length === 0) {
+      fetchData();
+    }
+  }, [existingUniqueWalletsInteractions, updateUniqueWalletsInteractions, startTime]);
+
+  return existingUniqueWalletsInteractions;
+};
+
+export const usePastYearUniqueDailyWalletsData = () => {
+  const [state, { updateUniqueWalletsInteractionsHistory, updateLoadingWallets }] = useDashboardDataContext();
+
+  const existingWallets = state?.wallets?.daily?.history;
+  const isLoadingWallets = state?.wallets?.daily?.loadingHistory;
+
+  useEffect(() => {
+    async function fetchData() {
+      updateLoadingWallets('daily', true);
+
+      const pastYearWallets = await getOneYearDailyUniqueInteractions();
+
+      updateUniqueWalletsInteractionsHistory('daily', pastYearWallets);
+      updateLoadingWallets('daily', false);
     }
 
     if (!isLoadingWallets && (!existingWallets || existingWallets.length === 0)) {
       fetchData();
     }
-  }, [isLoadingWallets, existingWallets, updateWallets, updateLoadingWallets]);
+  }, [isLoadingWallets, existingWallets, updateUniqueWalletsInteractionsHistory, updateLoadingWallets]);
+
+  return existingWallets;
+};
+
+export const usePastYearUniqueWeeklyWalletsData = () => {
+  const [state, { updateUniqueWalletsInteractionsHistory, updateLoadingWallets }] = useDashboardDataContext();
+
+  const existingWallets = state?.wallets?.weekly?.history;
+  const isLoadingWallets = state?.wallets?.weekly?.loadingHistory;
+
+  useEffect(() => {
+    async function fetchData() {
+      updateLoadingWallets('weekly', true);
+
+      const pastYearWallets = await getPastYearWeeklyUniqueInteractions();
+
+      updateUniqueWalletsInteractionsHistory('weekly', pastYearWallets);
+      updateLoadingWallets('weekly', false);
+    }
+
+    if (!isLoadingWallets && (!existingWallets || existingWallets.length === 0)) {
+      fetchData();
+    }
+  }, [isLoadingWallets, existingWallets, updateUniqueWalletsInteractionsHistory, updateLoadingWallets]);
+
+  return existingWallets;
+};
+
+export const usePastYearUniqueMonthlyWalletsData = () => {
+  const [state, { updateUniqueWalletsInteractionsHistory, updateLoadingWallets }] = useDashboardDataContext();
+
+  const existingWallets = state?.wallets?.monthly?.history;
+  const isLoadingWallets = state?.wallets?.monthly?.loadingHistory;
+
+  useEffect(() => {
+    async function fetchData() {
+      updateLoadingWallets('monthly', true);
+
+      const pastYearWallets = await getPastYearMonthlyUniqueInteractions();
+
+      updateUniqueWalletsInteractionsHistory('monthly', pastYearWallets);
+      updateLoadingWallets('monthly', false);
+    }
+
+    if (!isLoadingWallets && (!existingWallets || existingWallets.length === 0)) {
+      fetchData();
+    }
+  }, [isLoadingWallets, existingWallets, updateUniqueWalletsInteractionsHistory, updateLoadingWallets]);
 
   return existingWallets;
 };
@@ -467,130 +616,252 @@ const getUncollectedFees = async () => {
 };
 
 /**
- * Get data for unique wallets that provided liquidity or performed a swap,
- * for each network for the past 24h
+ * Get data for unique daily wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network for the past year
  */
-const getOneDayWallets = async () => {
+const getOneYearDailyUniqueInteractions = async () => {
   try {
-    let swapsAndMints = [];
+    let uniqueInteractions = [];
 
-    const utcOneDayBack = dayjs.utc().startOf('day').unix();
+    const utcOneMonthBack = dayjs.utc().subtract(1, 'year').startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastMintId = '';
-      let lastSwapId = '';
-      let fetchMore = true;
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_DAILY_INTERACTIONS,
+        variables: {
+          startTime: utcOneMonthBack,
+        },
+      });
 
-      while (fetchMore) {
-        const { data } = await client.query({
-          query: DASHBOARD_MINTS_AND_SWAPS,
-          variables: {
-            startTime: utcOneDayBack,
-            lastMintId,
-            lastSwapId,
-          },
-        });
-
-        if (data.mints.length === 0 && data.swaps.length === 0) {
-          fetchMore = false;
-          continue;
-        }
-
-        lastMintId = data.mints.length > 0 ? data.mints[data.mints.length - 1].id : lastMintId;
-        lastSwapId = data.swaps.length > 0 ? data.swaps[data.swaps.length - 1].id : lastSwapId;
-        swapsAndMints = swapsAndMints.concat(
-          ...data.mints.map(({ to }) => ({ to, network })),
-          ...data.swaps.map(({ to }) => ({ to, network })),
-        );
-      }
+      uniqueInteractions = uniqueInteractions.concat(
+        ...data.dailyUniqueAddressInteractions.map(({ id, timestamp, addresses }) => ({
+          id,
+          network,
+          timestamp,
+          interactions: addresses.length,
+        })),
+      );
     }
 
-    const uniqueWallets = swapsAndMints.reduce(
-      (accumulator, current) => ({
+    const stackedWallets = uniqueInteractions.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.timestamp).utc();
+
+      return {
         ...accumulator,
-        [current.network]: {
-          ...accumulator[current.network],
-          [current.to]: true,
+        [dayOfTheYear]: {
+          ...accumulator[dayOfTheYear],
+          time: dayOfTheYear.startOf('day').format('YYYY-MM-DD'),
+          [current.network]: current.interactions,
         },
-      }),
-      {},
-    );
+      };
+    }, {});
 
-    const uniqueWalletsPerNetwork = Object.keys(uniqueWallets).reduce(
-      (accumulator, current) => ({
-        ...accumulator,
-        [current]: Object.values(uniqueWallets[current]).length,
-      }),
-      {},
-    );
-
-    return uniqueWalletsPerNetwork;
+    return Object.values(stackedWallets);
   } catch (error) {
     console.error(error);
   }
 };
 
 /**
- * Get data for unique wallets that provided liquidity or performed a swap,
- * for each network for the past month
+ * Get data for unique weekly wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network for the past year
  */
-const getPastMonthWallets = async () => {
+const getPastYearWeeklyUniqueInteractions = async () => {
   try {
-    let swapsAndMints = [];
+    let uniqueInteractions = [];
 
-    const utcOneDayBack = dayjs.utc().subtract(1, 'month').startOf('day').unix();
+    const utcOneYearBack = dayjs.utc().subtract(1, 'year').startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastMintId = '';
-      let lastSwapId = '';
-      let fetchMore = true;
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_WEEKLY_INTERACTIONS,
+        variables: {
+          startTime: utcOneYearBack,
+        },
+      });
 
-      while (fetchMore) {
-        const { data } = await client.query({
-          query: DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP,
-          variables: {
-            startTime: utcOneDayBack,
-            lastMintId,
-            lastSwapId,
-          },
-        });
-
-        if (data.mints.length === 0 && data.swaps.length === 0) {
-          fetchMore = false;
-          continue;
-        }
-
-        lastMintId = data.mints.length > 0 ? data.mints[data.mints.length - 1].id : lastMintId;
-        lastSwapId = data.swaps.length > 0 ? data.swaps[data.swaps.length - 1].id : lastSwapId;
-        swapsAndMints = swapsAndMints.concat(
-          ...data.mints.map(({ timestamp, to }) => ({ timestamp, to, network })),
-          ...data.swaps.map(({ timestamp, to }) => ({ timestamp, to, network })),
-        );
-      }
+      uniqueInteractions = uniqueInteractions.concat(
+        ...data.weeklyUniqueAddressInteractions.map(({ id, timestampStart, addresses }) => ({
+          id,
+          network,
+          timestamp: timestampStart,
+          interactions: addresses.length,
+        })),
+      );
     }
 
-    const stackedWallets = swapsAndMints.reduce((accumulator, current) => {
-      const dayOfTheYear = dayjs.unix(current.timestamp).utc().startOf('day').dayOfYear();
+    const stackedWallets = uniqueInteractions.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.timestamp).utc();
+
+      return {
+        ...accumulator,
+        [current.id]: {
+          ...accumulator[current.id],
+          time: dayOfTheYear.startOf('day').format('YYYY-MM-DD'),
+          [current.network]: current.interactions,
+        },
+      };
+    }, {});
+
+    return Object.values(stackedWallets);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Get data for unique monthly wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network for the past year
+ */
+const getPastYearMonthlyUniqueInteractions = async () => {
+  try {
+    let uniqueInteractions = [];
+
+    const utcOneYearBack = dayjs.utc().subtract(1, 'year').startOf('day').unix();
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_MONTHLY_INTERACTIONS,
+        variables: {
+          startTime: utcOneYearBack,
+        },
+      });
+
+      uniqueInteractions = uniqueInteractions.concat(
+        ...data.monthlyUniqueAddressInteractions.map(({ id, timestamp, addresses }) => ({
+          id,
+          network,
+          timestamp,
+          interactions: addresses.length,
+        })),
+      );
+    }
+
+    const stackedWallets = uniqueInteractions.reduce((accumulator, current) => {
+      const dayOfTheYear = dayjs.unix(current.timestamp).utc();
 
       return {
         ...accumulator,
         [dayOfTheYear]: {
           ...accumulator[dayOfTheYear],
-          time: dayjs.utc().dayOfYear(dayOfTheYear).startOf('day').format('YYYY-MM-DD'),
-          [current.network]: {
-            ...(accumulator[dayOfTheYear] ? accumulator[dayOfTheYear][current.network] : {}),
-            [current.to]: true,
-          },
+          time: dayOfTheYear.startOf('day').format('YYYY-MM-DD'),
+          [current.network]: current.interactions,
         },
       };
     }, {});
 
-    return Object.values(stackedWallets).map((stackedValue) => ({
-      time: stackedValue.time,
-      [SupportedNetwork.MAINNET]: Object.keys(stackedValue[SupportedNetwork.MAINNET]).length,
-      [SupportedNetwork.XDAI]: Object.keys(stackedValue[SupportedNetwork.XDAI]).length,
-      [SupportedNetwork.ARBITRUM_ONE]: Object.keys(stackedValue[SupportedNetwork.ARBITRUM_ONE]).length,
-    }));
+    return Object.values(stackedWallets);
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Get the count for unique daily wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network
+ */
+const getDailyUniqueInteractions = async (startTime) => {
+  try {
+    let uniqueInteractions = [];
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_DAILY_INTERACTIONS,
+        variables: {
+          startTime,
+        },
+      });
+
+      uniqueInteractions = uniqueInteractions.concat(
+        data.dailyUniqueAddressInteractions.map(({ id, timestamp, addresses }) => ({
+          id,
+          network,
+          timestamp,
+          interactions: addresses.length,
+        })),
+      );
+    }
+
+    return uniqueInteractions.reduce((accumulator, current) => {
+      return {
+        ...accumulator,
+        [current.network]: Number(current.interactions),
+      };
+    }, {});
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Get the count for unique weekly wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network
+ */
+const getWeeklyUniqueInteractions = async (startTime) => {
+  try {
+    let uniqueInteractions = [];
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_WEEKLY_INTERACTIONS,
+        variables: {
+          startTime,
+        },
+      });
+
+      uniqueInteractions = uniqueInteractions.concat(
+        data.weeklyUniqueAddressInteractions.map(({ id, timestampStart, addresses }) => ({
+          id,
+          network,
+          timestamp: timestampStart,
+          interactions: addresses.length,
+        })),
+      );
+    }
+
+    return uniqueInteractions.reduce((accumulator, current) => {
+      return {
+        ...accumulator,
+        [current.network]: Number(current.interactions),
+      };
+    }, {});
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+/**
+ * Get the count for unique monthly wallets that provided liquidity, performed a swap, or removed
+ * liquidity for each network
+ */
+const getMonthlyUniqueInteractions = async (startTime) => {
+  try {
+    let uniqueInteractions = [];
+
+    for (const { client, network } of SUPPORTED_CLIENTS) {
+      const { data } = await client.query({
+        query: DASHBOARD_UNIQUE_MONTHLY_INTERACTIONS,
+        variables: {
+          startTime,
+        },
+      });
+
+      uniqueInteractions = uniqueInteractions.concat(
+        data.monthlyUniqueAddressInteractions.map(({ id, timestamp, addresses }) => ({
+          id,
+          network,
+          timestamp,
+          interactions: addresses.length,
+        })),
+      );
+    }
+
+    return uniqueInteractions.reduce((accumulator, current) => {
+      return {
+        ...accumulator,
+        [current.network]: Number(current.interactions),
+      };
+    }, {});
   } catch (error) {
     console.error(error);
   }
@@ -599,47 +870,32 @@ const getPastMonthWallets = async () => {
 /**
  * Get historical data for swaps for each network (last 1 month)
  */
-const getPastMonthSwaps = async () => {
+const getPastYearSwaps = async () => {
   try {
     let swaps = [];
 
-    const utcOneMonthBack = dayjs.utc().subtract(1, 'month').startOf('day').unix();
+    const utcOneYearBack = dayjs.utc().subtract(1, 'year').startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastId = '';
-      let fetchMore = true;
+      const { data } = await client.query({
+        query: DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
+        variables: {
+          startTime: utcOneYearBack,
+        },
+      });
 
-      while (fetchMore) {
-        const { data } = await client.query({
-          query: DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
-          variables: {
-            startTime: utcOneMonthBack,
-            lastId,
-          },
-        });
-
-        if (data.swaps.length === 0) {
-          fetchMore = false;
-          continue;
-        }
-
-        lastId = data.swaps[data.swaps.length - 1].id;
-        swaps = swaps.concat(data.swaps.map((swap) => ({ swap, network })));
-      }
+      swaps = swaps.concat(data.swaprDayDatas.map((swap) => ({ swap, network })));
     }
 
     const stackedSwaps = swaps.reduce((accumulator, current) => {
-      const dayOfTheYear = dayjs.unix(current.swap.timestamp).utc().startOf('day').dayOfYear();
+      const timestamp = dayjs.unix(current.swap.date).format('YYYY-MM-DD');
 
       return {
         ...accumulator,
-        [dayOfTheYear]: {
-          ...accumulator[dayOfTheYear],
-          time: dayjs.utc().dayOfYear(dayOfTheYear).startOf('day').format('YYYY-MM-DD'),
-          [current.network]:
-            accumulator[dayOfTheYear] && accumulator[dayOfTheYear][current.network]
-              ? Number(accumulator[dayOfTheYear][current.network]) + 1
-              : 1,
+        [timestamp]: {
+          ...accumulator[timestamp],
+          time: timestamp,
+          [current.network]: Number(current.swap.dailySwaps),
         },
       };
     }, {});
@@ -660,32 +916,20 @@ const getOneDaySwaps = async () => {
     const utcOneDayBack = dayjs.utc().startOf('day').unix();
 
     for (const { client, network } of SUPPORTED_CLIENTS) {
-      let lastId = '';
-      let fetchMore = true;
+      const { data } = await client.query({
+        query: DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP,
+        variables: {
+          startTime: utcOneDayBack,
+        },
+      });
 
-      while (fetchMore) {
-        const { data } = await client.query({
-          query: DASHBOARD_SWAPS_HISTORY,
-          variables: {
-            startTime: utcOneDayBack,
-            lastId,
-          },
-        });
-
-        if (data.swaps.length === 0) {
-          fetchMore = false;
-          continue;
-        }
-
-        lastId = data.swaps[data.swaps.length - 1].id;
-        swaps = swaps.concat(data.swaps.map((swap) => ({ swap, network })));
-      }
+      swaps = swaps.concat(data.swaprDayDatas.map((swap) => ({ swap, network })));
     }
 
     const oneDaySwaps = swaps.reduce((accumulator, current) => {
       return {
         ...accumulator,
-        [current.network]: accumulator[current.network] ? Number(accumulator[current.network]) + 1 : 1,
+        [current.network]: Number(current.swap.dailySwaps),
       };
     }, {});
 

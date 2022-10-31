@@ -1,6 +1,7 @@
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { TrendingUp, List, PieChart, Disc, Layers, Menu } from 'react-feather';
+import Skeleton from 'react-loading-skeleton';
 import { withRouter } from 'react-router-dom';
 import { Flex } from 'rebass';
 
@@ -47,8 +48,8 @@ const SideNav = ({ history }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [swprPrice, setSwprPrice] = useState(0);
 
-  const formattedNativeCurrencyPrice = nativeCurrencyPrice ? formattedNum(nativeCurrencyPrice, true) : '-';
-  const formattedSwprPrice = swprPrice ? formattedNum(swprPrice, true) : '-';
+  const formattedNativeCurrencyPrice = nativeCurrencyPrice ? formattedNum(nativeCurrencyPrice, true) : null;
+  const formattedSwprPrice = swprPrice ? formattedNum(swprPrice, true) : null;
 
   useEffect(() => {
     if (!loading && nativeCurrencyPrice) {
@@ -193,24 +194,30 @@ const SideNav = ({ history }) => {
               <Flex alignItems={'center'} style={{ gap: '4px' }}>
                 <Typography.SmallText>{nativeCurrencySymbol}: </Typography.SmallText>
                 <Typography.Custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
-                  {formattedNativeCurrencyPrice}
+                  {formattedNativeCurrencyPrice ? (
+                    formattedNativeCurrencyPrice
+                  ) : (
+                    <Skeleton width={'34px'} height={'11px'} />
+                  )}
                 </Typography.Custom>
               </Flex>
               <Flex alignItems={'center'} style={{ gap: '4px' }}>
                 <Typography.SmallText>SWPR: </Typography.SmallText>
                 <Typography.Custom sx={{ display: 'inline', fontWeight: 700, fontSize: 10 }}>
-                  {formattedSwprPrice}
+                  {formattedSwprPrice ? formattedSwprPrice : <Skeleton width={'34px'} height={'11px'} />}
                 </Typography.Custom>
               </Flex>
             </Flex>
             {!below1180 && (
               <Flex>
                 <Polling />
-                {gas.normal > 0 && (
+                {gas.normal > 0 ? (
                   <GasInfo>
                     <GasInfoSvg />
                     <Typography.TinyText sx={{ marginLeft: '2px' }}>{gas.normal}</Typography.TinyText>
                   </GasInfo>
+                ) : (
+                  <Skeleton height={'18px'} width={'37px'} borderRadius={'6px'} style={{ marginLeft: '12px' }} />
                 )}
               </Flex>
             )}

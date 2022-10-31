@@ -190,12 +190,12 @@ const TransactionsList = ({ transactions, symbol0Override, symbol1Override }) =>
         {!below780 && (
           <>
             <FlexText area={'amountOther'}>
-              {formattedNum(item.token1Amount) + ' '}{' '}
-              <FormattedName text={item.token1Symbol} maxCharacters={5} margin={true} />
-            </FlexText>
-            <FlexText area={'amountToken'}>
               {formattedNum(item.token0Amount) + ' '}{' '}
               <FormattedName text={item.token0Symbol} maxCharacters={5} margin={true} />
+            </FlexText>
+            <FlexText area={'amountToken'}>
+              {formattedNum(item.token1Amount) + ' '}{' '}
+              <FormattedName text={item.token1Symbol} maxCharacters={5} margin={true} />
             </FlexText>
           </>
         )}

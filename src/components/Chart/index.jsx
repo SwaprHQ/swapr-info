@@ -59,7 +59,8 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
           .filter((key) => key !== 'time')
           .forEach((key) => {
             currentHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 1][key];
-            pastHeaderValue += weeklyAggregatedData[weeklyAggregatedData.length - 2][key];
+            pastHeaderValue +=
+              weeklyAggregatedData.length >= 2 ? weeklyAggregatedData[weeklyAggregatedData.length - 2][key] : 0;
           });
 
         setActiveDate(weeklyAggregatedData[weeklyAggregatedData.length - 1].time);
@@ -68,7 +69,7 @@ const Chart = ({ title, tooltipTitle, data, type, dataType, overridingActiveFilt
           .filter((key) => key !== 'time')
           .forEach((key) => {
             currentHeaderValue += data[data.length - 1][key];
-            pastHeaderValue += data[data.length - 2][key];
+            pastHeaderValue += data.length >= 2 ? data[data.length - 2][key] : 0;
           });
 
         setActiveDate(data[data.length - 1].time);

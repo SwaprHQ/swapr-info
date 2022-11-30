@@ -497,46 +497,56 @@ export const DASHBOARD_COMULATIVE_DATA = graphql`
 `;
 
 export const DASHBOARD_SWAPS_HISTORY_WITH_TIMESTAMP = graphql`
-  query swaps($lastId: ID!, $startTime: Int!) {
-    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+  query swaprDayDatas($startTime: Int!) {
+    swaprDayDatas(first: 1000, where: { date_gte: $startTime }) {
       id
-      timestamp
+      date
+      dailySwaps
     }
   }
 `;
 
-export const DASHBOARD_SWAPS_HISTORY = graphql`
-  query swaps($lastId: ID!, $startTime: Int!) {
-    swaps(first: 1000, where: { id_gt: $lastId, timestamp_gt: $startTime }) {
+export const DASHBOARD_UNIQUE_DAILY_INTERACTIONS = graphql`
+  query ($startTime: Int!) {
+    dailyUniqueAddressInteractions(
+      first: 1000
+      where: { timestamp_gte: $startTime }
+      orderBy: timestamp
+      orderDirection: asc
+    ) {
       id
+      timestamp
+      addresses
     }
   }
 `;
 
-export const DASHBOARD_MINTS_AND_SWAPS_WITH_TIMESTAMP = graphql`
-  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
-    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
+export const DASHBOARD_UNIQUE_WEEKLY_INTERACTIONS = graphql`
+  query ($startTime: Int!) {
+    weeklyUniqueAddressInteractions(
+      first: 1000
+      where: { timestampStart_gte: $startTime }
+      orderBy: timestampStart
+      orderDirection: asc
+    ) {
       id
-      to
-      timestamp
-    }
-    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
-      id
-      to
-      timestamp
+      timestampStart
+      addresses
     }
   }
 `;
 
-export const DASHBOARD_MINTS_AND_SWAPS = graphql`
-  query ($lastMintId: ID!, $lastSwapId: ID!, $startTime: Int!) {
-    mints(first: 1000, where: { id_gt: $lastMintId, timestamp_gt: $startTime }) {
+export const DASHBOARD_UNIQUE_MONTHLY_INTERACTIONS = graphql`
+  query ($startTime: Int!) {
+    monthlyUniqueAddressInteractions(
+      first: 1000
+      where: { timestamp_gte: $startTime }
+      orderBy: timestamp
+      orderDirection: asc
+    ) {
       id
-      to
-    }
-    swaps(first: 1000, where: { id_gt: $lastSwapId, timestamp_gt: $startTime }) {
-      id
-      to
+      timestamp
+      addresses
     }
   }
 `;

@@ -18,6 +18,9 @@ interface NetworkDataCardWithDialogProps {
   icon: React.ReactNode;
   networksValues: NetworksValue[];
   historicalDataHook: any;
+  defaultTimeFilter: '1M' | '3M' | '1Y';
+  isTimeFilterVisible: boolean;
+  formatActiveDate: any;
 }
 
 const NetworkDataCardWithDialog = ({
@@ -26,6 +29,9 @@ const NetworkDataCardWithDialog = ({
   icon,
   networksValues,
   historicalDataHook,
+  defaultTimeFilter = '1M',
+  isTimeFilterVisible = true,
+  formatActiveDate = null,
 }: NetworkDataCardWithDialogProps) => {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
@@ -58,6 +64,9 @@ const NetworkDataCardWithDialog = ({
           title={chartTitle}
           historicalDataHook={historicalDataHook}
           isOpen={isDialogOpen}
+          isTimeFilterVisible={isTimeFilterVisible}
+          defaultTimeFilter={defaultTimeFilter}
+          formatActiveDate={formatActiveDate}
           onClose={toggleDialog}
         />
       )}

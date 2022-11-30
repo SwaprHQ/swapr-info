@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import PropTypes from 'prop-types';
 import { useCallback, useEffect, useState } from 'react';
 import { Flex } from 'rebass';
@@ -28,11 +27,11 @@ const renderLegend = (props) => {
   );
 };
 
-const StackedChart = ({ title, type, data, dataType, showTimeFilter }) => {
+const StackedChart = ({ title, type, data, dataType, defaultTimeFilter, showTimeFilter, formatActiveDate }) => {
   const [filteredData, setFilteredData] = useState(data);
   const [stackedDataValue, setStackedDataValue] = useState(null);
   const [activeDate, setActiveDate] = useState(null);
-  const [activeFilter, setActiveFilter] = useState(STACKED_CHART_TIME_FILTER_OPTIONS.MONTH_1);
+  const [activeFilter, setActiveFilter] = useState(defaultTimeFilter);
   const [dailyChange, setDailyChange] = useState();
 
   // set header values to the latest point of the chart
@@ -146,7 +145,8 @@ const StackedChart = ({ title, type, data, dataType, showTimeFilter }) => {
         dataType={dataType}
         showTimeFilter={showTimeFilter}
         dailyChange={formattedPercent(dailyChange)}
-        date={dayjs(activeDate).format('MMMM D, YYYY')}
+        formatActiveDate={formatActiveDate}
+        date={activeDate}
         activeFilter={activeFilter}
         filterOptions={STACKED_CHART_TIME_FILTER_OPTIONS}
         onFilterChange={setActiveFilter}
@@ -278,13 +278,16 @@ StackedChart.propTypes = {
   data: PropTypes.any.isRequired,
   dataType: PropTypes.oneOf(['CURRENCY', 'PERCENTAGE', 'BASE']),
   showTimeFilter: PropTypes.bool,
+  defaultTimeFilter: PropTypes.oneOf(['1M', '3M', '1Y']),
   type: PropTypes.oneOf(['BAR', 'AREA']).isRequired,
+  formatActiveDate: PropTypes.func,
 };
 
 StackedChart.defaultProps = {
   type: 'AREA',
   data: [],
   dataType: 'CURRENCY',
+  defaultTimeFilter: '1M',
   showTimeFilter: true,
 };
 
